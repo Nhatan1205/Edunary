@@ -14,7 +14,7 @@ export default function ThemeColorVisualizer() {
           Dùng cho CTA chính và các trạng thái hover/active.
         </Typography>
         <Grid container spacing={2}>
-          <Grid size={8}>
+          <Grid size={{ xs: 8 }}>
             <Button
               fullWidth
               variant="contained"
@@ -24,7 +24,7 @@ export default function ThemeColorVisualizer() {
               Brand Main
             </Button>
           </Grid>
-          <Grid size={4}>
+          <Grid size={{ xs: 4 }}>
             <Button
               fullWidth
               variant="contained "
@@ -33,7 +33,7 @@ export default function ThemeColorVisualizer() {
               Brand Light
             </Button>
           </Grid>
-          <Grid item>
+          <Grid>
             <Button variant="contained" sx={{ bgcolor: "brand.dark" }}>
               Brand Dark
             </Button>
@@ -48,7 +48,7 @@ export default function ThemeColorVisualizer() {
           Dùng cho CTA phụ, bổ trợ cho brand chính.
         </Typography>
         <Grid container spacing={2}>
-          <Grid item>
+          <Grid>
             <Button
               variant="contained"
               sx={{ backgroundColor: "secondaryBrand.main" }}
@@ -56,7 +56,7 @@ export default function ThemeColorVisualizer() {
               Secondary Main
             </Button>
           </Grid>
-          <Grid item>
+          <Grid>
             <Button
               variant="contained"
               sx={{ backgroundColor: "secondaryBrand.light" }}
@@ -64,7 +64,7 @@ export default function ThemeColorVisualizer() {
               Secondary Light
             </Button>
           </Grid>
-          <Grid item>
+          <Grid>
             <Button
               variant="contained"
               sx={{ backgroundColor: "secondaryBrand.dark" }}
@@ -82,22 +82,22 @@ export default function ThemeColorVisualizer() {
           Trạng thái thành công, cảnh báo, lỗi, thông tin.
         </Typography>
         <Grid container spacing={2}>
-          <Grid item>
+          <Grid>
             <Button variant="contained" color="success">
               Success
             </Button>
           </Grid>
-          <Grid item>
+          <Grid>
             <Button variant="contained" color="warning">
               Warning
             </Button>
           </Grid>
-          <Grid item>
+          <Grid>
             <Button variant="contained" color="error">
               Error
             </Button>
           </Grid>
-          <Grid item>
+          <Grid>
             <Button variant="contained" color="info">
               Info
             </Button>
@@ -139,27 +139,27 @@ export default function ThemeColorVisualizer() {
           Ví dụ các màu nền mặc định, surface, paper, alt, muted.
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Card sx={{ backgroundColor: "background.default", p: 2 }}>
               <Typography>Default Background</Typography>
             </Card>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Card sx={{ backgroundColor: "background.surface", p: 2 }}>
               <Typography>Surface Background</Typography>
             </Card>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Card sx={{ backgroundColor: "background.paper", p: 2 }}>
               <Typography>Paper Background</Typography>
             </Card>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Card sx={{ backgroundColor: "background.alt", p: 2 }}>
               <Typography>Alt Background</Typography>
             </Card>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Card sx={{ backgroundColor: "background.muted", p: 2 }}>
               <Typography>Muted Background</Typography>
             </Card>

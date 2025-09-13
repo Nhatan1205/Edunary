@@ -1,4 +1,5 @@
 import { Box, Typography, Grid, Card, Button } from "@mui/material";
+import { toast } from "react-toastify";
 
 export default function ThemeColorVisualizer() {
   return (
@@ -185,6 +186,13 @@ export default function ThemeColorVisualizer() {
           </Typography>
           <Button variant="contained" sx={{ backgroundColor: "brand.main" }}>
             CTA with Brand
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: "brand.light" }}
+            onClick={() => toast.success("My first toast")}
+          >
+            CTA with Brand Light
           </Button>
         </Box>
       </Box>

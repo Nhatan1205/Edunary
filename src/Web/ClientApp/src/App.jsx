@@ -1,22 +1,26 @@
-import React, { Component } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import AppRoutes from './AppRoutes';
-import Layout from './components/Layout';
-import './custom.css';
+import { RouterProvider } from "react-router-dom";
+import "./custom.css";
+import { ToastContainer } from "react-toastify";
+import router from "./AppRoutes";
 
-export default class App extends Component {
-  static displayName = App.name;
-
-  render() {
-    return (
-      <Layout>
-        <Routes>
-          {AppRoutes.map((route, index) => {
-            const { element, ...rest } = route;
-            return <Route key={index} {...rest} element={element} />;
-          })}
-        </Routes>
-      </Layout>
-    );
-  }
+function App() {
+  return (
+    <>
+      <RouterProvider router={router} />
+      <ToastContainer
+        position="bottom-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+    </>
+  );
 }
+
+export default App;

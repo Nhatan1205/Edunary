@@ -1,8 +1,6 @@
-import { Box, Typography, Grid, Card, Button, TextField } from "@mui/material";
-import theme2 from "../theme/theme2";
+import { Box, Typography, Grid, Card, Button } from "@mui/material";
 
 export default function ThemeColorVisualizer() {
-  console.log(theme2.palette.brand.dark);
   return (
     <div sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>

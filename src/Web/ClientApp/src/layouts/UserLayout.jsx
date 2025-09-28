@@ -1,14 +1,15 @@
-import { Container } from "reactstrap";
-import NavMenu from "../components/NavMenu";
 import { Outlet } from "react-router-dom";
+import Header from "../components/Header/Header";
+import Footer from "../components/Footer";
 
 function UserLayout() {
   return (
     <div>
-      <NavMenu />
-      <Container tag="main">
+      <Header />
+      <main className="mx-auto">
         <Outlet />
-      </Container>
+      </main>
+      <Footer />
     </div>
   );
 }

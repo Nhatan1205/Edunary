@@ -21,3 +21,30 @@ code {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+
+/* Arrow for popup */
+.popper-arrow {
+  color: white;
+  box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* tuỳ chỉnh theo placement */
+[data-popper-placement^="right"] > .popper-arrow {
+  left: -0.5em;
+  top: calc(50% - 0.5em);
+}
+
+[data-popper-placement^="left"] > .popper-arrow {
+  right: -0.5em;
+  top: calc(50% - 0.5em);
+}
+
+[data-popper-placement^="bottom"] > .popper-arrow {
+  top: -0.5em;
+  left: calc(50% - 0.5em);
+}
+
+[data-popper-placement^="top"] > .popper-arrow {
+  bottom: -0.5em;
+  left: calc(50% - 0.5em);
+}

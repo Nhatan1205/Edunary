@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import Counter from "./components/Counter";
 import FetchData from "./components/FetchData";
-import Home from "./components/Home";
 import ThemeDemo from "./components/ThemeDemo";
 import UserLayout from "./layouts/UserLayout";
+import Homepage from "./features/Homepage/Homepage";
 
 const router = createBrowserRouter([
   {
@@ -11,7 +11,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
+        element: <Homepage />,
       },
       {
         path: "/counter",

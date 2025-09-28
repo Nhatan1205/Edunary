@@ -4,6 +4,7 @@ import FetchData from "./components/FetchData";
 import Home from "./components/Home";
 import ThemeDemo from "./components/ThemeDemo";
 import UserLayout from "./layouts/UserLayout";
+import CartPage from "./components/CartPage";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
         path: "/theme-demo",
         element: <ThemeDemo />,
       },
+      {
+        path: "/cart",
+        element: <CartPage />,
+      }
     ],
   },
 ]);

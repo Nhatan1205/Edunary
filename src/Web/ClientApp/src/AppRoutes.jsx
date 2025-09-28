@@ -4,7 +4,7 @@ import FetchData from "./components/FetchData";
 import Home from "./components/Home";
 import ThemeDemo from "./components/ThemeDemo";
 import UserLayout from "./layouts/UserLayout";
-import CartPage from "./components/CartPage";
+import CartPage from "./components/CartPage/CartPage";
 
 const router = createBrowserRouter([
   {

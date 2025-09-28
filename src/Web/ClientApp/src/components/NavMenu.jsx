@@ -24,11 +24,12 @@ function NavMenu() {
               <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={Link} className="text-dark" to="/fetch-data">Fetch data</NavLink>
+              <NavLink tag={Link} className="text-dark" to="/login">Login</NavLink>
             </NavItem>
             <NavItem>
-              <a className="nav-link text-dark" href="/Identity/Account/Manage">Account</a>
+              <NavLink tag={Link} className="text-dark" to="/register">Register</NavLink>
             </NavItem>
+            
           </ul>
         </Collapse>
       </Navbar>

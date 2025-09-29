@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import followIfLoginRedirect from './api-authorization/followIfLoginRedirect.js';
+import { useState, useEffect } from 'react';
+// import followIfLoginRedirect from './api-authorization/followIfLoginRedirect.js';
 import { WeatherForecastsClient } from '../web-api-client.ts';
 
 function FetchData() {
@@ -42,13 +42,13 @@ function FetchData() {
     setLoading(false);
   };
 
-  const populateWeatherDataOld = async () => {
-    const response = await fetch('weatherforecast');
-    followIfLoginRedirect(response);
-    const data = await response.json();
-    setForecasts(data);
-    setLoading(false);
-  };
+  // const populateWeatherDataOld = async () => {
+  //   const response = await fetch('weatherforecast');
+  //   followIfLoginRedirect(response);
+  //   const data = await response.json();
+  //   setForecasts(data);
+  //   setLoading(false);
+  // };
 
   const contents = loading
     ? <p><em>Loading...</em></p>

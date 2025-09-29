@@ -12,7 +12,7 @@ import { useRef } from "react";
 import { Col } from "reactstrap";
 import CoursePopover from "../../../../components/course-popover/CoursePopover";
 import { usePopover } from "../../../../context/PopoverContext";
-import { getPopoverOrigin } from "../../../../utils/getPopoverOrigin";
+import { getPopoverOrigin } from "../../../../util/getPopoverOrigin";
 
 function CourseCard({ course }) {
   const { id, image, title, price, level, instructor, rating } = course;

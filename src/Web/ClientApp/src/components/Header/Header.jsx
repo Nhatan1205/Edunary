@@ -27,6 +27,7 @@ function Header() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
+  //logged in state
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   //menu dropdown state

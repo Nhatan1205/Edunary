@@ -3,9 +3,11 @@ import Counter from "./components/Counter";
 import Home from "./components/Home";
 import ThemeDemo from "./components/ThemeDemo";
 import UserLayout from "./layouts/UserLayout";
+import CartPage from "./features/user/CartPage/CartPage";
 import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";
+
 const router = createBrowserRouter([
   {
     element: <UserLayout />,
@@ -23,16 +25,20 @@ const router = createBrowserRouter([
         element: <ThemeDemo />,
       },
       {
+        path: "/cart",
+        element: <CartPage />,
+      },
+      {
         path: "/register",
-        element: <Register />
+        element: <Register />,
       },
       {
         path: "/login",
-        element: <Login />
+        element: <Login />,
       },
       {
         path: "/forget-password",
-        element: <ForgetPassword />
+        element: <ForgetPassword />,
       }
     ],
   },

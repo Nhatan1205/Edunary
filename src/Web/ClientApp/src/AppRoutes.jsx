@@ -1,8 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import Counter from "./components/Counter";
-import Home from "./components/Home";
 import ThemeDemo from "./components/ThemeDemo";
 import UserLayout from "./layouts/UserLayout";
+import Homepage from "./features/guest/homepage/Homepage";
 import CartPage from "./features/user/CartPage/CartPage";
 import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
+        element: <Homepage />,
       },
       {
         path: "/counter",
@@ -39,7 +39,7 @@ const router = createBrowserRouter([
       {
         path: "/forget-password",
         element: <ForgetPassword />,
-      }
+      },
     ],
   },
 ]);

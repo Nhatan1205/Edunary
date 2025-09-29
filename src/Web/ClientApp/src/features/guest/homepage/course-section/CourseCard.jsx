@@ -10,9 +10,9 @@ import {
 } from "@mui/material";
 import { useRef } from "react";
 import { Col } from "reactstrap";
-import CoursePopover from "../../../components/CoursePopover";
-import { usePopover } from "../../../context/PopoverContext";
-import { getPopoverOrigin } from "../../../Utils/getPopoverOrigin";
+import CoursePopover from "../../../../components/course-popover/CoursePopover";
+import { usePopover } from "../../../../context/PopoverContext";
+import { getPopoverOrigin } from "../../../../utils/getPopoverOrigin";
 
 function CourseCard({ course }) {
   const { id, image, title, price, level, instructor, rating } = course;
@@ -24,8 +24,8 @@ function CourseCard({ course }) {
   const {
     anchorEl,
     isPopoverActive,
-    handleCardMouseEnter,
-    handleCardMouseLeave,
+    handleMouseEnter,
+    handleMouseLeave,
     handlePopoverMouseEnter,
     handlePopoverMouseLeave,
   } = usePopover();
@@ -34,9 +34,9 @@ function CourseCard({ course }) {
   const open = Boolean(anchorEl) && isThisPopoverActive;
   // setting popup hover
 
-  const handleMouseEnter = (event) => {
-    handleCardMouseEnter(id, cardRef.current || event.currentTarget);
-  };
+  function onMouseEnter(event) {
+    handleMouseEnter(id, cardRef.current || event.currentTarget);
+  }
 
   const popoverOrigins = getPopoverOrigin(isMobile, cardRef);
 
@@ -54,8 +54,8 @@ function CourseCard({ course }) {
     <Col xs={6} md={4} lg={3} className="mb-4">
       <Card
         ref={cardRef}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleCardMouseLeave}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={handleMouseLeave}
         sx={{
           height: "320px",
           position: "relative",

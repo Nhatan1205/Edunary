@@ -1,9 +1,5 @@
 import { Avatar, Box, Button, Typography } from "@mui/material";
-
-const USER_DATA = {
-  name: "Nguyễn Mai Huy Hoàng",
-  avatar: "/images/2.jpg",
-};
+import AvatarImage from "../../../assets/images/avatar.jpg";
 
 function ProfileHeader({ onViewProfile, isMobile }) {
   return (
@@ -17,8 +13,8 @@ function ProfileHeader({ onViewProfile, isMobile }) {
       }}
     >
       <Avatar
-        alt={USER_DATA.name}
-        src={USER_DATA.avatar}
+        alt="Nguyễn Mai Huy Hoàng"
+        src={AvatarImage}
         sx={{ width: 60, height: 60, bgcolor: "brand.main", mx: "auto", mb: 2 }}
       />
       <Typography
@@ -30,7 +26,7 @@ function ProfileHeader({ onViewProfile, isMobile }) {
           fontSize: "16px",
         }}
       >
-        {USER_DATA.name}
+        Nguyễn Mai Huy Hoàng
       </Typography>
       <Button
         variant="contained"

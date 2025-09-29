@@ -6,6 +6,7 @@ const completeCourses = [
     videosCompleted: 4,
     totalVideos: 19,
     isCompleted: false,
+    progressPercentage: "40",
   },
   {
     image: "https://picsum.photos/seed/swift/400/250",
@@ -14,6 +15,7 @@ const completeCourses = [
     videosCompleted: 32,
     totalVideos: 40,
     isCompleted: false,
+    progressPercentage: "80",
   },
 ];
 

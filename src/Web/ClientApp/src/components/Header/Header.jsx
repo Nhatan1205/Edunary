@@ -13,16 +13,15 @@ import {
   useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import useDropdown from "../../hooks/useDropDown";
-import useMobileSearch from "../../hooks/useMobileSearch";
 import SearchBar from "./SearchBar";
 import { Link as RouterLink } from "react-router-dom";
 import { KeyboardArrowDown, Lightbulb, Search } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
-import DropDownMenu from "./DropDownMenu/DropDownMenu";
+import DropDownMenu from "./drop-down-menu/DropDownMenu";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import DropDownProfile from "./DropDownProfile/DropDownProfile";
+import DropDownProfile from "./drop-down-profile/DropDownProfile";
+import AvatarImage from "../../assets/images/avatar.jpg";
 
 function Header() {
   const theme = useTheme();
@@ -30,9 +29,25 @@ function Header() {
 
   // State và hooks
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const menu = useDropdown();
-  const profile = useDropdown();
-  const mobileSearch = useMobileSearch();
+
+  //menu dropdown state
+  const [anchorElMenu, setAnchorElMenu] = useState(null);
+  const isOpenMenu = Boolean(anchorElMenu);
+
+  const handleOpenMenu = (event) => setAnchorElMenu(event.currentTarget);
+  const handleCloseMenu = () => setAnchorElMenu(null);
+
+  //profile dropdown state
+  const [anchorElProfile, setAnchorElProfile] = useState(null);
+  const isOpenProfile = Boolean(anchorElProfile);
+
+  const handleOpenProfile = (event) => setAnchorElProfile(event.currentTarget);
+  const handleCloseProfile = () => setAnchorElProfile(null);
+
+  //search bar mobile collapse state
+  const [isOpen, setIsOpen] = useState(false);
+  const toggle = () => setIsOpen(!isOpen);
+  const close = () => setIsOpen(false);
 
   // Test effect
   useEffect(() => {
@@ -63,19 +78,16 @@ function Header() {
             {/* Left part - mobile view*/}
             {isMobile && (
               <>
-                <IconButton onClick={menu.handleOpen} sx={{ padding: "8px" }}>
+                <IconButton onClick={handleOpenMenu} sx={{ padding: "8px" }}>
                   <MenuIcon />
                 </IconButton>
-                <IconButton
-                  onClick={mobileSearch.toggle}
-                  sx={{ padding: "8px", ml: 1 }}
-                >
+                <IconButton onClick={toggle} sx={{ padding: "8px", ml: 1 }}>
                   <Search />
                 </IconButton>
                 <DropDownMenu
-                  open={menu.isOpen}
-                  anchorEl={menu.anchorEl}
-                  handleCloseDropDown={menu.handleClose}
+                  open={isOpenMenu}
+                  anchorEl={anchorElMenu}
+                  handleCloseDropDown={handleCloseMenu}
                   isMobile={isMobile}
                 />
               </>
@@ -120,7 +132,7 @@ function Header() {
             {!isMobile && (
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Button
-                  onClick={menu.handleOpen}
+                  onClick={handleOpenMenu}
                   endIcon={<KeyboardArrowDown />}
                   sx={{
                     color: "text.primary",
@@ -133,7 +145,7 @@ function Header() {
                       color: "text.secondary",
                       backgroundColor: "background.muted",
                     },
-                    ...(menu.isOpen && {
+                    ...(isOpenMenu && {
                       color: "text.secondary",
                       backgroundColor: "background.muted",
                     }),
@@ -142,9 +154,9 @@ function Header() {
                   Explore
                 </Button>
                 <DropDownMenu
-                  open={menu.isOpen}
-                  anchorEl={menu.anchorEl}
-                  handleCloseDropDown={menu.handleClose}
+                  open={isOpenMenu}
+                  anchorEl={anchorElMenu}
+                  handleCloseDropDown={handleCloseMenu}
                   isMobile={isMobile}
                 />
               </Box>
@@ -238,11 +250,11 @@ function Header() {
                         backgroundColor: "background.muted",
                       },
                     }}
-                    onClick={profile.handleOpen}
+                    onClick={handleOpenProfile}
                   >
                     <Avatar
                       alt="Remy Sharp"
-                      src="/images/2.jpg"
+                      src={AvatarImage}
                       sx={{
                         width: isMobile ? 32 : 40,
                         height: isMobile ? 32 : 40,
@@ -250,9 +262,9 @@ function Header() {
                     />
                   </IconButton>
                   <DropDownProfile
-                    open={profile.isOpen}
-                    anchorEl={profile.anchorEl}
-                    handleCloseDropDown={profile.handleClose}
+                    open={isOpenProfile}
+                    anchorEl={anchorElProfile}
+                    handleCloseDropDown={handleCloseProfile}
                     isMobile={isMobile}
                   />
                 </>
@@ -309,7 +321,7 @@ function Header() {
 
           {/* Search bar - mobile view */}
           {isMobile && (
-            <Collapse in={mobileSearch.isOpen}>
+            <Collapse in={isOpen}>
               <Box
                 sx={{
                   width: "100%",
@@ -318,10 +330,7 @@ function Header() {
                   backgroundColor: "background.paper",
                 }}
               >
-                <SearchBar
-                  isMobileExpanded={true}
-                  onClose={mobileSearch.close}
-                />
+                <SearchBar isMobileExpanded={true} onClose={close} />
               </Box>
             </Collapse>
           )}

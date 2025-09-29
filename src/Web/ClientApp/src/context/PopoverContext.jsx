@@ -13,8 +13,6 @@ const PopoverContext = createContext(null);
 const POPOVER_ACTIONS = {
   SHOW_POPOVER: "SHOW_POPOVER",
   HIDE_POPOVER: "HIDE_POPOVER",
-  SET_ANCHOR: "SET_ANCHOR",
-  CLEAR_ANCHOR: "CLEAR_ANCHOR",
   SET_HOVERING: "SET_HOVERING",
 };
 
@@ -42,16 +40,6 @@ const popoverReducer = (state, action) => {
         anchorEl: null,
         isHovering: false,
       };
-    case POPOVER_ACTIONS.SET_ANCHOR:
-      return {
-        ...state,
-        anchorEl: action.payload,
-      };
-    case POPOVER_ACTIONS.CLEAR_ANCHOR:
-      return {
-        ...state,
-        anchorEl: null,
-      };
     case POPOVER_ACTIONS.SET_HOVERING:
       return {
         ...state,
@@ -67,28 +55,20 @@ export const PopoverProvider = ({ children }) => {
   const [state, dispatch] = useReducer(popoverReducer, initialState);
   const hideTimeoutRef = useRef(null);
 
-  // Clear timeout helper
-  const clearHideTimeout = useCallback(() => {
+  // Handle mouse enter on card
+  const handleMouseEnter = useCallback((courseId, element) => {
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
     }
+    dispatch({
+      type: POPOVER_ACTIONS.SHOW_POPOVER,
+      payload: { id: courseId, anchorEl: element },
+    });
   }, []);
 
-  // Show popover
-  const showPopover = useCallback(
-    (id, anchorEl) => {
-      clearHideTimeout();
-      dispatch({
-        type: POPOVER_ACTIONS.SHOW_POPOVER,
-        payload: { id, anchorEl },
-      });
-    },
-    [clearHideTimeout]
-  );
-
-  // Hide popover with delay
-  const hidePopover = useCallback((delay = 100) => {
+  // Handle mouse leave from card
+  const handleMouseLeave = useCallback((delay = 100) => {
     dispatch({ type: POPOVER_ACTIONS.SET_HOVERING, payload: false });
 
     hideTimeoutRef.current = setTimeout(() => {
@@ -96,36 +76,19 @@ export const PopoverProvider = ({ children }) => {
     }, delay);
   }, []);
 
-  // Immediate hide popover
-  const hidePopoverImmediate = useCallback(() => {
-    clearHideTimeout();
-    dispatch({ type: POPOVER_ACTIONS.HIDE_POPOVER });
-  }, [clearHideTimeout]);
-
-  // Handle mouse enter on card
-  const handleCardMouseEnter = useCallback(
-    (courseId, element) => {
-      clearHideTimeout();
-      showPopover(courseId, element);
-    },
-    [clearHideTimeout, showPopover]
-  );
-
-  // Handle mouse leave from card
-  const handleCardMouseLeave = useCallback(() => {
-    hidePopover();
-  }, [hidePopover]);
-
   // Handle mouse enter on popover
   const handlePopoverMouseEnter = useCallback(() => {
-    clearHideTimeout();
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     dispatch({ type: POPOVER_ACTIONS.SET_HOVERING, payload: true });
-  }, [clearHideTimeout]);
+  }, []);
 
   // Handle mouse leave from popover
   const handlePopoverMouseLeave = useCallback(() => {
-    hidePopover();
-  }, [hidePopover]);
+    dispatch({ type: POPOVER_ACTIONS.SET_HOVERING, payload: false });
+  }, []);
 
   // Check if a specific popover is active
   const isPopoverActive = useCallback(
@@ -141,20 +104,13 @@ export const PopoverProvider = ({ children }) => {
     anchorEl: state.anchorEl,
     isHovering: state.isHovering,
 
-    // Actions
-    showPopover,
-    hidePopover,
-    hidePopoverImmediate,
-
-    // Mouse event handlers
-    handleCardMouseEnter,
-    handleCardMouseLeave,
+    handleMouseEnter,
+    handleMouseLeave,
     handlePopoverMouseEnter,
     handlePopoverMouseLeave,
 
     // Utility functions
     isPopoverActive,
-    clearHideTimeout,
   };
 
   return (

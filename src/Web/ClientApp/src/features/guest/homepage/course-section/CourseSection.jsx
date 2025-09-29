@@ -5,7 +5,7 @@ import {
   kitaniStudioCourses,
   trendingCourses,
 } from "./MockData";
-import { PopoverProvider } from "../../../context/PopoverContext";
+import { PopoverProvider } from "../../../../context/PopoverContext";
 // Sample data matching your image
 
 function CourseSection() {

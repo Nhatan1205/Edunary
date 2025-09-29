@@ -131,8 +131,6 @@ function CoursePopover({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  // const arrowStyles = getArrowStyles(transformOrigin);
-
   return (
     <Popover
       open={open}

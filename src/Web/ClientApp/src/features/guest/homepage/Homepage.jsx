@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
-import CourseSection from "./CourseSection/CourseSection";
-import HeroSection from "./HeroSection/HeroSection";
+import CourseSection from "./course-section/CourseSection";
+import HeroSection from "./hero-section/HeroSection";
 
 function Homepage() {
   return (

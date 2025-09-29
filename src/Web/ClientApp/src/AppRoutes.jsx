@@ -3,7 +3,7 @@ import Counter from "./components/Counter";
 import Home from "./components/Home";
 import ThemeDemo from "./components/ThemeDemo";
 import UserLayout from "./layouts/UserLayout";
-import CartPage from "./components/CartPage/CartPage";
+import CartPage from "./features/user/CartPage/CartPage";
 import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";

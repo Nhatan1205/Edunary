@@ -8,6 +8,7 @@ import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CourseOverview from "./features/guest/course-overview/CourseOverview";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
         path: "/forget-password",
         element: <ForgetPassword />,
       },
+      {
+        path: "/course/abc",
+        element: <CourseOverview />,
+      }
     ],
   },
 ]);

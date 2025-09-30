@@ -4,11 +4,7 @@ import HeroSection from "./hero-section/HeroSection";
 
 function Homepage() {
   return (
-    <Box
-      component={"main"}
-      class="m: 0;"
-      sx={{ bgcolor: "background.default" }}
-    >
+    <Box component={"main"} sx={{ bgcolor: "background.default" }}>
       <HeroSection />
       <CourseSection />
     </Box>

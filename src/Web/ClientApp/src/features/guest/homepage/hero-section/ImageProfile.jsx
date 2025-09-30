@@ -25,9 +25,6 @@ function ImageProfile({ imageUrl, sx = {} }) {
           console.log("Image load error:", e);
           console.log("Failed URL:", imageUrl);
         }}
-        onLoad={() => {
-          console.log("Image loaded successfully:", imageUrl);
-        }}
       />
     </Box>
   );

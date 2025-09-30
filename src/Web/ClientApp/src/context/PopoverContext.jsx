@@ -69,8 +69,6 @@ export const PopoverProvider = ({ children }) => {
 
   // Handle mouse leave from card
   const handleMouseLeave = useCallback((delay = 100) => {
-    dispatch({ type: POPOVER_ACTIONS.SET_HOVERING, payload: false });
-
     hideTimeoutRef.current = setTimeout(() => {
       dispatch({ type: POPOVER_ACTIONS.HIDE_POPOVER });
     }, delay);
@@ -86,8 +84,10 @@ export const PopoverProvider = ({ children }) => {
   }, []);
 
   // Handle mouse leave from popover
-  const handlePopoverMouseLeave = useCallback(() => {
-    dispatch({ type: POPOVER_ACTIONS.SET_HOVERING, payload: false });
+  const handlePopoverMouseLeave = useCallback((delay = 100) => {
+    hideTimeoutRef.current = setTimeout(() => {
+      dispatch({ type: POPOVER_ACTIONS.HIDE_POPOVER });
+    }, delay);
   }, []);
 
   // Check if a specific popover is active

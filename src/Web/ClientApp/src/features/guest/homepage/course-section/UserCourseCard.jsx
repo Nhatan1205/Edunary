@@ -106,7 +106,7 @@ function UserCourseCard({ course }) {
 
             <LinearProgress
               variant="determinate"
-              value={progressPercentage}
+              value={Number(progressPercentage)}
               sx={{
                 height: 6,
                 borderRadius: 3,

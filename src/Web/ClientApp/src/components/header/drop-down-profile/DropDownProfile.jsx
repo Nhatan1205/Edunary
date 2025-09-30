@@ -33,7 +33,6 @@ const SIGN_OUTS = {
 
 function DropDownProfile({ open, anchorEl, handleCloseDropDown, isMobile }) {
   const handleMenuItemClick = (action) => {
-    console.log(`Clicked: ${action}`);
     handleCloseDropDown();
   };
 

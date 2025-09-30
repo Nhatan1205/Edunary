@@ -80,7 +80,6 @@ function HeroSection() {
                 }}
               >
                 <Badge
-                  pill
                   sx={{
                     backgroundColor: "brand.main",
                     color: "text.inverse",
@@ -139,7 +138,6 @@ function HeroSection() {
                 }}
               >
                 <Badge
-                  pill
                   sx={{
                     backgroundColor: "secondaryBrand.main",
                     color: "text.inverse",

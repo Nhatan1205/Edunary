@@ -41,12 +41,12 @@ function CourseCard({ course }) {
   const popoverOrigins = getPopoverOrigin(isMobile, cardRef);
 
   const handleAddToCart = (course) => {
-    console.log("Adding to cart:", course.title);
+    // console.log("Adding to cart:", course.title);
     // Implement your add to cart logic here
   };
 
   const handleToggleFavorite = (course) => {
-    console.log("Toggle favorite:", course.title);
+    // console.log("Toggle favorite:", course.title);
     // Implement your toggle favorite logic here
   };
 

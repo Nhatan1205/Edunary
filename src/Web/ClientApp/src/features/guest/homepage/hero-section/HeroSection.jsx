@@ -37,7 +37,6 @@ function HeroSection() {
     <section
       style={{
         position: "relative",
-        minHeight: "clamp(60vh, 70vh, 100vh)",
         background: "linear-gradient(135deg, #f5e5e5 0%, #e8f3ef 100%)",
         overflow: "hidden",
         marginTop: "0",
@@ -59,10 +58,10 @@ function HeroSection() {
         />
       ))}
 
-      <Container fluid="xl" className="py-2 py-sm-4 my-sm-4 py-lg-4">
-        <Row className="align-items-center justify-content-center gy-5 gy-lg-6">
+      <Container fluid="xl" className="py-5 px-5">
+        <Row className="align-items-center justify-content-center">
           {/* Left Content */}
-          <Col xs={12} lg={6} className="d-flex justify-content-center">
+          <Col md={12} lg={6} className="d-flex justify-content-center">
             <div
               style={{
                 display: "flex",
@@ -155,7 +154,7 @@ function HeroSection() {
           </Col>
 
           {/* Right Content - Student Profiles and Stats - Hidden on mobile */}
-          <Col xs={12} lg={6} style={{ display: isLgUp ? "block" : "none" }}>
+          <Col lg={6} className="d-none d-lg-block">
             <div
               style={{
                 position: "relative",

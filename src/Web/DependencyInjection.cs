@@ -1,8 +1,11 @@
 ﻿using Azure.Identity;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
+using Edunary.Infrastructure.Identity;
 using Edunary.Web.Services;
 using Microsoft.AspNetCore.Mvc;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -23,6 +26,8 @@ public static class DependencyInjection
 
         services.AddRazorPages();
 
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IIdentityService, IdentityService>();
         // Customise default API behaviour
         services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
@@ -32,6 +37,16 @@ public static class DependencyInjection
         services.AddOpenApiDocument((configure, sp) =>
         {
             configure.Title = "Edunary API";
+            configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+            {
+                Type = OpenApiSecuritySchemeType.ApiKey,
+                Name = "Authorization",
+                In = OpenApiSecurityApiKeyLocation.Header,
+                Description = "Type into the textbox: Bearer {your JWT token}."
+            });
+
+            configure.OperationProcessors.Add(
+                new AspNetCoreOperationSecurityScopeProcessor("JWT"));
 
         });
 

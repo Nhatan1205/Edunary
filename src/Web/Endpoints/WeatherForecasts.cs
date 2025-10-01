@@ -1,4 +1,5 @@
 ﻿using Edunary.Application.WeatherForecasts.Queries.GetWeatherForecasts;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Edunary.Web.Endpoints;
 public class WeatherForecasts : EndpointGroupBase

@@ -7,6 +7,7 @@ import CartPage from "./features/user/CartPage/CartPage";
 import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -26,7 +27,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/cart",
-        element: <CartPage />,
+        element: (
+          <ProtectedRoute>
+            <CartPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/register",

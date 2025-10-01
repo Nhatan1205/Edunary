@@ -22,13 +22,14 @@ import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNone
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import DropDownProfile from "./drop-down-profile/DropDownProfile";
 import AvatarImage from "../../assets/images/avatar.jpg";
+import { useAuth } from "../../context/AuthContext";
 
 function Header() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
-
-  //logged in state
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  
+  // Get auth state from context
+  const { isAuthenticated, user } = useAuth();
 
   //menu dropdown state
   const [anchorElMenu, setAnchorElMenu] = useState(null);
@@ -48,11 +49,6 @@ function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
-
-  // Test effect
-  useEffect(() => {
-    window.setLoggedIn = setIsLoggedIn;
-  }, []);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -173,7 +169,7 @@ function Header() {
                 gap: isMobile ? 1 : 2,
               }}
             >
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 // Logged In Menu
                 <>
                   {!isMobile && (
@@ -253,8 +249,8 @@ function Header() {
                     onClick={handleOpenProfile}
                   >
                     <Avatar
-                      alt="Remy Sharp"
-                      src={AvatarImage}
+                      alt={user?.fullName || user?.email || "User"}
+                      src={user?.avatar || AvatarImage}
                       sx={{
                         width: isMobile ? 32 : 40,
                         height: isMobile ? 32 : 40,

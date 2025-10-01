@@ -1,7 +1,9 @@
 import { Avatar, Box, Button, Typography } from "@mui/material";
 import AvatarImage from "../../../assets/images/avatar.jpg";
+import { useAuth } from "../../../context/AuthContext";
 
 function ProfileHeader({ onViewProfile, isMobile }) {
+  const { user } = useAuth();
   return (
     <Box
       sx={{
@@ -13,8 +15,8 @@ function ProfileHeader({ onViewProfile, isMobile }) {
       }}
     >
       <Avatar
-        alt="Nguyễn Mai Huy Hoàng"
-        src={AvatarImage}
+        alt={user?.fullName || user?.email || "User"}
+        src={user?.avatar || AvatarImage}
         sx={{ width: 60, height: 60, bgcolor: "brand.main", mx: "auto", mb: 2 }}
       />
       <Typography
@@ -22,11 +24,21 @@ function ProfileHeader({ onViewProfile, isMobile }) {
         sx={{
           fontWeight: 600,
           color: "text.primary",
-          mb: 2,
+          mb: 0.5,
           fontSize: "16px",
         }}
       >
-        Nguyễn Mai Huy Hoàng
+        {user?.fullName || "User"}
+      </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+          mb: 2,
+          fontSize: "13px",
+        }}
+      >
+        {user?.email || ""}
       </Typography>
       <Button
         variant="contained"

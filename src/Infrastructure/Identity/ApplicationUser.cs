@@ -3,4 +3,8 @@
 namespace Edunary.Infrastructure.Identity;
 public class ApplicationUser : IdentityUser
 {
+    public string FullName { get; set; }
+    public string Avatar { get; set; }
+    public virtual DateTime? LastLoginTime {  get; set; }
+
 }

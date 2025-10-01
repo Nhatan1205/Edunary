@@ -10,7 +10,7 @@ public record UpdateTodoItemDetailCommand : IRequest
 
     public PriorityLevel Priority { get; init; }
 
-    public string? Note { get; init; }
+    public string Note { get; init; }
 }
 
 public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>

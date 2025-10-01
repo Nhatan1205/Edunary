@@ -7,13 +7,13 @@ public class TodoItemDto
 
     public int ListId { get; init; }
 
-    public string? Title { get; init; }
+    public string Title { get; init; }
 
     public bool Done { get; init; }
 
     public int Priority { get; init; }
 
-    public string? Note { get; init; }
+    public string Note { get; init; }
 
     private class Mapping : Profile
     {

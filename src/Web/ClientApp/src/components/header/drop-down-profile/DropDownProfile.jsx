@@ -1,6 +1,9 @@
 import { Help, Language, Logout, School, Settings } from "@mui/icons-material";
 import MobileDropDownProfile from "./Mobile/MobileDropDownProfile";
 import DesktopDropDownProfile from "./Desktop/DesktopDropDownProfile";
+import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const MENU_ITEMS = [
   {
@@ -32,8 +35,20 @@ const SIGN_OUTS = {
 };
 
 function DropDownProfile({ open, anchorEl, handleCloseDropDown, isMobile }) {
-  const handleMenuItemClick = (action) => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleMenuItemClick = (action, path) => {
     handleCloseDropDown();
+    
+    // Handle logout
+    if (action === "Sign Out") {
+      logout();
+      toast.success("Logged out successfully!");
+      navigate("/");
+    } else if (path) {
+      navigate(path);
+    }
   };
 
   return isMobile ? (

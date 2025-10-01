@@ -3,6 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Edunary.Domain</RootNamespace>
     <AssemblyName>Edunary.Domain</AssemblyName>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

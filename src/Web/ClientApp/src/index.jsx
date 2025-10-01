@@ -6,6 +6,11 @@ import reportWebVitals from "./reportWebVitals";
 import { ThemeProvider } from "@emotion/react";
 import theme from "./theme/theme";
 import { CssBaseline } from "@mui/material";
+import { AuthProvider } from "./context/AuthContext";
+import { setupApiInterceptor } from "./utils/apiInterceptor";
+
+// Setup API interceptor for token management
+setupApiInterceptor();
 
 //const baseUrl = document.getElementsByTagName("base")[0].getAttribute("href");
 const rootElement = document.getElementById("root");
@@ -15,7 +20,9 @@ root.render(
   <>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </ThemeProvider>
   </>
 );

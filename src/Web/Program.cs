@@ -1,4 +1,8 @@
+using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
+using Edunary.Infrastructure.Identity;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +14,8 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
 
 var app = builder.Build();
-
+app.UseAuthentication();
+app.UseAuthorization();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

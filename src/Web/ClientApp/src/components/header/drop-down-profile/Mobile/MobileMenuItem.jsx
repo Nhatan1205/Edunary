@@ -1,10 +1,11 @@
 import { ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+
 function MobileMenuItem({ item, onClick }) {
   return (
     <ListItem
       button
-      onClick={() => onClick(item.title)}
+      onClick={() => onClick(item.title, item.path)}
       component={RouterLink}
       to={item.path}
       sx={{

@@ -1,11 +1,12 @@
 import { ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+
 function DesktopMenuItem({ item, onClick }) {
   return (
     <MenuItem
       component={RouterLink}
       to={item.path}
-      onClick={() => onClick(item.title)}
+      onClick={() => onClick(item.title, item.path)}
       sx={{
         py: 1.5,
         px: 3,

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Edunary.Application</RootNamespace>
     <AssemblyName>Edunary.Application</AssemblyName>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Customers\Queries\" />
   </ItemGroup>
 
 </Project>

@@ -20,7 +20,7 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
     {
         var requestName = typeof(TRequest).Name;
         var userId = _user.Id ?? string.Empty;
-        string? userName = string.Empty;
+        string userName = string.Empty;
 
         if (!string.IsNullOrEmpty(userId))
         {

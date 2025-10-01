@@ -10,6 +10,172 @@
 
 import followIfLoginRedirect from './components/api-authorization/followIfLoginRedirect';
 
+export class AuthClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    login(model: AuthenticateModel | undefined): Promise<LoginResponse> {
+        let url_ = this.baseUrl + "/api/Auth/login";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processLogin(_response);
+        });
+    }
+
+    protected processLogin(response: Response): Promise<LoginResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LoginResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LoginResponse>(null as any);
+    }
+
+    register(model: AuthenticateModel | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Auth/register";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRegister(_response);
+        });
+    }
+
+    protected processRegister(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    refreshToken(): Promise<LoginResponse> {
+        let url_ = this.baseUrl + "/api/Auth/refresh-token";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRefreshToken(_response);
+        });
+    }
+
+    protected processRefreshToken(response: Response): Promise<LoginResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LoginResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LoginResponse>(null as any);
+    }
+}
+
+export class CustomerClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    create(command: CreateCustomerCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Customer";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreate(_response);
+        });
+    }
+
+    protected processCreate(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class TodoItemsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -67,7 +233,7 @@ export class TodoItemsClient {
         return Promise.resolve<PaginatedListOfTodoItemBriefDto>(null as any);
     }
 
-    createTodoItem(command: CreateTodoItemCommand): Promise<number> {
+    createTodoItem(command: CreateTodoItemCommand | undefined): Promise<number> {
         let url_ = this.baseUrl + "/api/TodoItems";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -107,7 +273,7 @@ export class TodoItemsClient {
         return Promise.resolve<number>(null as any);
     }
 
-    updateTodoItem(id: number, command: UpdateTodoItemCommand): Promise<void> {
+    updateTodoItem(id: number, command: UpdateTodoItemCommand | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoItems/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -179,7 +345,7 @@ export class TodoItemsClient {
         return Promise.resolve<void>(null as any);
     }
 
-    updateTodoItemDetail(id: number, command: UpdateTodoItemDetailCommand): Promise<void> {
+    updateTodoItemDetail(id: number, command: UpdateTodoItemDetailCommand | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoItems/UpdateDetail/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -263,7 +429,7 @@ export class TodoListsClient {
         return Promise.resolve<TodosVm>(null as any);
     }
 
-    createTodoList(command: CreateTodoListCommand): Promise<number> {
+    createTodoList(command: CreateTodoListCommand | undefined): Promise<number> {
         let url_ = this.baseUrl + "/api/TodoLists";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -303,7 +469,7 @@ export class TodoListsClient {
         return Promise.resolve<number>(null as any);
     }
 
-    updateTodoList(id: number, command: UpdateTodoListCommand): Promise<void> {
+    updateTodoList(id: number, command: UpdateTodoListCommand | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -429,8 +595,144 @@ export class WeatherForecastsClient {
     }
 }
 
+export class LoginResponse implements ILoginResponse {
+    token?: any | undefined;
+
+    constructor(data?: ILoginResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.token = _data["token"];
+        }
+    }
+
+    static fromJS(data: any): LoginResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new LoginResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["token"] = this.token;
+        return data;
+    }
+}
+
+export interface ILoginResponse {
+    token?: any | undefined;
+}
+
+export class AuthenticateModel implements IAuthenticateModel {
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
+    password?: string | undefined;
+
+    constructor(data?: IAuthenticateModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fullName = _data["fullName"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.email = _data["email"];
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): AuthenticateModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new AuthenticateModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fullName"] = this.fullName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["email"] = this.email;
+        data["password"] = this.password;
+        return data;
+    }
+}
+
+export interface IAuthenticateModel {
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
+    password?: string | undefined;
+}
+
+export class CreateCustomerCommand implements ICreateCustomerCommand {
+    userName!: string;
+    phoneNumber!: string;
+    email!: string;
+    password?: string | undefined;
+    fullName!: string;
+
+    constructor(data?: ICreateCustomerCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.email = _data["email"];
+            this.password = _data["password"];
+            this.fullName = _data["fullName"];
+        }
+    }
+
+    static fromJS(data: any): CreateCustomerCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCustomerCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["email"] = this.email;
+        data["password"] = this.password;
+        data["fullName"] = this.fullName;
+        return data;
+    }
+}
+
+export interface ICreateCustomerCommand {
+    userName: string;
+    phoneNumber: string;
+    email: string;
+    password?: string | undefined;
+    fullName: string;
+}
+
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {
-    items?: TodoItemBriefDto[];
+    items?: TodoItemBriefDto[] | undefined;
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
@@ -485,7 +787,7 @@ export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItem
 }
 
 export interface IPaginatedListOfTodoItemBriefDto {
-    items?: TodoItemBriefDto[];
+    items?: TodoItemBriefDto[] | undefined;
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
@@ -681,8 +983,8 @@ export enum PriorityLevel {
 }
 
 export class TodosVm implements ITodosVm {
-    priorityLevels?: LookupDto[];
-    lists?: TodoListDto[];
+    priorityLevels?: LookupDto[] | undefined;
+    lists?: TodoListDto[] | undefined;
 
     constructor(data?: ITodosVm) {
         if (data) {
@@ -732,8 +1034,8 @@ export class TodosVm implements ITodosVm {
 }
 
 export interface ITodosVm {
-    priorityLevels?: LookupDto[];
-    lists?: TodoListDto[];
+    priorityLevels?: LookupDto[] | undefined;
+    lists?: TodoListDto[] | undefined;
 }
 
 export class LookupDto implements ILookupDto {
@@ -780,7 +1082,7 @@ export class TodoListDto implements ITodoListDto {
     id?: number;
     title?: string | undefined;
     colour?: string | undefined;
-    items?: TodoItemDto[];
+    items?: TodoItemDto[] | undefined;
 
     constructor(data?: ITodoListDto) {
         if (data) {
@@ -829,7 +1131,7 @@ export interface ITodoListDto {
     id?: number;
     title?: string | undefined;
     colour?: string | undefined;
-    items?: TodoItemDto[];
+    items?: TodoItemDto[] | undefined;
 }
 
 export class TodoItemDto implements ITodoItemDto {

@@ -12,7 +12,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SearchBar from "./SearchBar";
 import { Link as RouterLink } from "react-router-dom";
 import { KeyboardArrowDown, Lightbulb, Search } from "@mui/icons-material";

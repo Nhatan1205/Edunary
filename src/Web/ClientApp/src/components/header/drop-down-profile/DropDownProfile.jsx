@@ -35,6 +35,7 @@ const SIGN_OUTS = {
 };
 
 function DropDownProfile({ open, anchorEl, handleCloseDropDown, isMobile }) {
+
   const { logout } = useAuth();
   const navigate = useNavigate();
 

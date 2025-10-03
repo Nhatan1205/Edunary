@@ -10,7 +10,7 @@ public class User : EndpointGroupBase
     {
         app.MapGroup(this)
             .RequireAuthorization()
-            .MapPost(Create)
+            .MapPost(Create, "create")
             .MapGet(GetBasicInfo, "basic-info");
 
     }

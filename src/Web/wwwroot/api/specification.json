@@ -412,7 +412,7 @@
         ]
       }
     },
-    "/api/User": {
+    "/api/User/create": {
       "post": {
         "tags": [
           "User"

@@ -507,7 +507,7 @@ export class UserClient {
     }
 
     create(command: CreateUserCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/User";
+        let url_ = this.baseUrl + "/api/User/create";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);

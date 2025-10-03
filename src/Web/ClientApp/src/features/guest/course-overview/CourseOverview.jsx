@@ -51,9 +51,23 @@ const CourseOverview = () => {
       <CourseHeader courseData={courseData} />
 
       {/* Main Content */}
-      <Box sx={{ display: 'flex', gap: 4, mb: 1 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 4,
+          mb: 1,
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'center', md: 'flex-start' },
+        }}
+      >
         {/* Left Content */}
-        <Box sx={{ flex: 1 }}>
+        <Box
+          sx={{
+            flex: 1,
+            width: { xs: '100%', sm: '400px', md: '100%' },
+            maxWidth: { xs: 350, sm: 400, md: 'none' },
+          }}
+        >
           <CourseThumbnail image={courseData.image} title={courseData.title} />
         </Box>
 

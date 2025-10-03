@@ -79,7 +79,7 @@ const CourseSidebar = ({ courseData }) => {
             <ListItemIcon sx={{ minWidth: 36 }}>
               <Schedule sx={{ color: 'text.secondary' }} />
             </ListItemIcon>
-            <ListItemText primary={`${courseData.duration} total lengths`} />
+            <ListItemText primary={`${courseData.duration} total length`} />
           </ListItem>
           <ListItem sx={{ px: 0 }}>
             <ListItemIcon sx={{ minWidth: 36 }}>

@@ -57,7 +57,7 @@ const CourseTabs = ({ courseData, reviews }) => {
       </Box>
       <Box sx={{ textAlign: 'center' }}>
         <Button variant="outlined" color="primary">
-          Load more review
+          Load more reviews
         </Button>
       </Box>
     </Box>

@@ -47,7 +47,7 @@ const router = createBrowserRouter([
         element: <ForgetPassword />,
       },
       {
-        path: "/course/abc",
+        path: "/course/:id",
         element: <CourseOverview />,
       }
     ],

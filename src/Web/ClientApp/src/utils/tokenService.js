@@ -1,45 +1,58 @@
 // Token management service
 const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
-const USER_INFO_KEY = 'user_info';
 
 export const tokenService = {
   // Get access token
   getToken() {
-    return localStorage.getItem(TOKEN_KEY);
+    const tokenData = localStorage.getItem(TOKEN_KEY);
+    if (!tokenData) return null;
+    try {
+      const parsed = JSON.parse(tokenData);
+      return parsed.value || tokenData; // Fallback to raw value for backward compatibility
+    } catch {
+      return tokenData; // Fallback for non-JSON tokens
+    }
   },
 
   // Set access token
   setToken(token) {
-    localStorage.setItem(TOKEN_KEY, token);
+    const tokenData = {
+      createdAt: Date.now(),
+      name: 'auth:jwt:token',
+      ownerStrategyName: 'email',
+      value: token,
+    };
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenData));
   },
 
   // Get refresh token
   getRefreshToken() {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    const tokenData = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!tokenData) return null;
+    try {
+      const parsed = JSON.parse(tokenData);
+      return parsed.value || tokenData; 
+    } catch {
+      return tokenData; 
+    }
   },
 
   // Set refresh token
   setRefreshToken(token) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    const tokenData = {
+      createdAt: Date.now(),
+      name: 'auth:jwt:refresh-token',
+      ownerStrategyName: 'email',
+      value: token,
+    };
+    localStorage.setItem(REFRESH_TOKEN_KEY, JSON.stringify(tokenData));
   },
 
-  // Get user info
-  getUserInfo() {
-    const userInfo = localStorage.getItem(USER_INFO_KEY);
-    return userInfo ? JSON.parse(userInfo) : null;
-  },
-
-  // Set user info
-  setUserInfo(userInfo) {
-    localStorage.setItem(USER_INFO_KEY, JSON.stringify(userInfo));
-  },
-
-  // Remove all tokens and user info
+  // Remove all tokens
   clearAuth() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USER_INFO_KEY);
   },
 
   // Check if user is authenticated
@@ -65,26 +78,6 @@ export const tokenService = {
     }
   },
 
-  // Extract user info from token
-  extractUserInfoFromToken(token) {
-    const decoded = this.decodeToken(token);
-    if (!decoded) return null;
-
-    return {
-      userId: decoded.nameid || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
-      // Try email claim first, fallback to name claim, then full namespace
-      email: decoded.email || 
-            decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
-            decoded.name || 
-            decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
-      username: decoded.name || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
-      fullName: decoded.fullName || '',
-      role: decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
-      avatar: decoded.picture || '',
-      lastLogin: decoded.lastlogin || '',
-    };
-  },
-
   getTokenExpiry(token) {
     const decoded = this.decodeToken(token);
     if (decoded?.exp) {
@@ -106,5 +99,5 @@ export const tokenService = {
 
   isTokenExpired(token) {
     return this.getTimeUntilExpiry(token) <= 0;
-  }
+  },
 };

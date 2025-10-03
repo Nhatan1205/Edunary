@@ -130,52 +130,6 @@ export class AuthClient {
     }
 }
 
-export class CustomerClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
-
-    create(command: CreateCustomerCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/Customer";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreate(_response);
-        });
-    }
-
-    protected processCreate(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-}
-
 export class TodoItemsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -542,6 +496,87 @@ export class TodoListsClient {
     }
 }
 
+export class UserClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    create(command: CreateUserCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/User";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreate(_response);
+        });
+    }
+
+    protected processCreate(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getBasicInfo(): Promise<UserVm> {
+        let url_ = this.baseUrl + "/api/User/basic-info";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetBasicInfo(_response);
+        });
+    }
+
+    protected processGetBasicInfo(response: Response): Promise<UserVm> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserVm.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserVm>(null as any);
+    }
+}
+
 export class WeatherForecastsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -677,58 +712,6 @@ export interface IAuthenticateModel {
     phoneNumber?: string | undefined;
     email?: string | undefined;
     password?: string | undefined;
-}
-
-export class CreateCustomerCommand implements ICreateCustomerCommand {
-    userName!: string;
-    phoneNumber!: string;
-    email!: string;
-    password?: string | undefined;
-    fullName!: string;
-
-    constructor(data?: ICreateCustomerCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userName = _data["userName"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.email = _data["email"];
-            this.password = _data["password"];
-            this.fullName = _data["fullName"];
-        }
-    }
-
-    static fromJS(data: any): CreateCustomerCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateCustomerCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userName"] = this.userName;
-        data["phoneNumber"] = this.phoneNumber;
-        data["email"] = this.email;
-        data["password"] = this.password;
-        data["fullName"] = this.fullName;
-        return data;
-    }
-}
-
-export interface ICreateCustomerCommand {
-    userName: string;
-    phoneNumber: string;
-    email: string;
-    password?: string | undefined;
-    fullName: string;
 }
 
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {
@@ -1264,6 +1247,110 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
 export interface IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
+}
+
+export class CreateUserCommand implements ICreateUserCommand {
+    userName!: string;
+    phoneNumber!: string;
+    email!: string;
+    password?: string | undefined;
+    fullName!: string;
+
+    constructor(data?: ICreateUserCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.email = _data["email"];
+            this.password = _data["password"];
+            this.fullName = _data["fullName"];
+        }
+    }
+
+    static fromJS(data: any): CreateUserCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUserCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["email"] = this.email;
+        data["password"] = this.password;
+        data["fullName"] = this.fullName;
+        return data;
+    }
+}
+
+export interface ICreateUserCommand {
+    userName: string;
+    phoneNumber: string;
+    email: string;
+    password?: string | undefined;
+    fullName: string;
+}
+
+export class UserVm implements IUserVm {
+    id?: string | undefined;
+    email?: string | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    avatar?: string | undefined;
+
+    constructor(data?: IUserVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.email = _data["email"];
+            this.fullName = _data["fullName"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.avatar = _data["avatar"];
+        }
+    }
+
+    static fromJS(data: any): UserVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["email"] = this.email;
+        data["fullName"] = this.fullName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["avatar"] = this.avatar;
+        return data;
+    }
+}
+
+export interface IUserVm {
+    id?: string | undefined;
+    email?: string | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    avatar?: string | undefined;
 }
 
 export class WeatherForecast implements IWeatherForecast {

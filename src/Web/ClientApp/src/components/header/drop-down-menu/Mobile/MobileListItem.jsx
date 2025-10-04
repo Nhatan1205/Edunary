@@ -1,5 +1,5 @@
 import { ListItem, ListItemText } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 function MobileListItem({ item, onClick, bordered = false }) {
   return (

@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router";
 import Counter from "./components/Counter";
 import ThemeDemo from "./components/ThemeDemo";
 import UserLayout from "./layouts/UserLayout";
@@ -8,6 +8,8 @@ import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
+import InstructorLayout from "./layouts/InstructorLayout";
+import CoursesManagement from "./features/instructor/courses-management/CoursesManagement";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +46,20 @@ const router = createBrowserRouter([
       {
         path: "/forget-password",
         element: <ForgetPassword />,
+      },
+    ],
+  },
+  {
+    path: "/instructor",
+    element: <InstructorLayout />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/instructor/courses" replace />,
+      },
+      {
+        path: "courses",
+        element: <CoursesManagement />,
       },
     ],
   },

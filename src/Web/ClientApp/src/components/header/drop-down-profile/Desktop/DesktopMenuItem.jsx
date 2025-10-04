@@ -1,5 +1,5 @@
 import { ListItemIcon, ListItemText, MenuItem } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 function DesktopMenuItem({ item, onClick }) {
   return (

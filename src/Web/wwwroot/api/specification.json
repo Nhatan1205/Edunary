@@ -81,35 +81,6 @@
         }
       }
     },
-    "/api/Customer": {
-      "post": {
-        "tags": [
-          "Customer"
-        ],
-        "operationId": "Create",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCustomerCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/TodoItems": {
       "get": {
         "tags": [
@@ -441,6 +412,60 @@
         ]
       }
     },
+    "/api/User/create": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "Create",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/User/basic-info": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "GetBasicInfo",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVm"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/WeatherForecasts": {
       "get": {
         "tags": [
@@ -500,43 +525,6 @@
           "password": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "CreateCustomerCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "userName",
-          "phoneNumber",
-          "email",
-          "fullName"
-        ],
-        "properties": {
-          "userName": {
-            "type": "string",
-            "maxLength": 200,
-            "minLength": 1
-          },
-          "phoneNumber": {
-            "type": "string",
-            "maxLength": 15,
-            "minLength": 1,
-            "pattern": "([0-9]+)"
-          },
-          "email": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-zA-Z0-9]+(?:[-._]?[a-zA-Z0-9]+)+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-          },
-          "password": {
-            "type": "string",
-            "nullable": true
-          },
-          "fullName": {
-            "type": "string",
-            "maxLength": 200,
-            "minLength": 1
           }
         }
       },
@@ -767,6 +755,69 @@
             "format": "int32"
           },
           "title": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateUserCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "userName",
+          "phoneNumber",
+          "email",
+          "fullName"
+        ],
+        "properties": {
+          "userName": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "phoneNumber": {
+            "type": "string",
+            "maxLength": 15,
+            "minLength": 1,
+            "pattern": "([0-9]+)"
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9]+(?:[-._]?[a-zA-Z0-9]+)+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          }
+        }
+      },
+      "UserVm": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
             "type": "string",
             "nullable": true
           }

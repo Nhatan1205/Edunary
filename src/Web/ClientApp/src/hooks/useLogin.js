@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { AuthClient, AuthenticateModel } from "../web-api-client.ts";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router";
+import queryClient from "../configs/reactQuery.js";
 
 const useLogin = () => {
   const authClient = new AuthClient();
@@ -22,8 +23,10 @@ const useLogin = () => {
     onSuccess: (data) => {
       if (data && data.token) {
         // Store token and extract user info
+
         login(data.token);
         toast.success("Login successful! Welcome back!");
+        queryClient.invalidateQueries(["userInfo"]);
         const from = location.state?.from?.pathname || "/";
         navigate(from, { replace: true });
       }

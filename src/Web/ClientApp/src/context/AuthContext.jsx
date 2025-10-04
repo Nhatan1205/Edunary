@@ -15,21 +15,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = () => {
       const token = tokenService.getToken();
-      if (token) {
-        const userInfo = tokenService.getUserInfo();
-        if (userInfo) {
-          setUser(userInfo);
-          setIsAuthenticated(true);
-        } else {
-          const extractedInfo = tokenService.extractUserInfoFromToken(token);
-          if (extractedInfo) {
-            tokenService.setUserInfo(extractedInfo);
-            setUser(extractedInfo);
-            setIsAuthenticated(true);
-          } else {
-            tokenService.clearAuth();
-          }
-        }
+      if (token && !tokenService.isTokenExpired(token)) {
+        setIsAuthenticated(true);
+      } else {
+        tokenService.clearAuth();
       }
       setIsLoading(false);
     };
@@ -98,11 +87,6 @@ export const AuthProvider = ({ children }) => {
           }
           // Update token
           tokenService.setToken(newToken);
-          const userInfo = tokenService.extractUserInfoFromToken(newToken);
-          if (userInfo) {
-            tokenService.setUserInfo(userInfo);
-            setUser(userInfo);
-          }
           // Setup next refresh
           isRefreshingRef.current = false;
           setupTokenRefresh();
@@ -135,17 +119,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = (token) => {
     tokenService.setToken(token);
-    const userInfo = tokenService.extractUserInfoFromToken(token);
-    if (userInfo) {
-      tokenService.setUserInfo(userInfo);
-      setUser(userInfo);
-      setIsAuthenticated(true);
-    }
+    setIsAuthenticated(true);
   };
 
   const updateUser = (newUserInfo) => {
     setUser(newUserInfo);
-    tokenService.setUserInfo(newUserInfo);
   };
 
   return (

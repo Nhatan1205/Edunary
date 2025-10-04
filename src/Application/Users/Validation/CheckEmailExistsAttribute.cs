@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Edunary.Application.Common.Interfaces;
 
-namespace Edunary.Application.Customers.Validation;
+namespace Edunary.Application.Users.Validation;
 public class CheckEmailExistsAttribute : ValidationAttribute
 {
 	protected override ValidationResult IsValid(object value, ValidationContext validationContext)

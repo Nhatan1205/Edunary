@@ -1,6 +1,6 @@
 ﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Customers.Commands.CreateCustomer;
+using Edunary.Application.Users.Commands.CreateUserCommand;
 using Edunary.Domain.Common;
 using Edunary.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -44,7 +44,7 @@ public class Auth : EndpointGroupBase
     }
     public async Task<IResult> Register(ISender sender, [FromBody] AuthenticateModel model)
     {
-        var result = await sender.Send(new CreateCustomerCommand()
+        var result = await sender.Send(new CreateUserCommand()
         {
             UserName = model.Email,
             PhoneNumber = model.PhoneNumber!,

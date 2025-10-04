@@ -13,6 +13,7 @@ import RateReviewRoundedIcon from "@mui/icons-material/RateReviewRounded";
 import { Outlet } from "react-router";
 import { ReactRouterAppProvider } from "@toolpad/core/react-router";
 import { Lightbulb } from "@mui/icons-material";
+import { Container } from "reactstrap";
 import { createTheme } from "@mui/material";
 import theme from "../theme/theme";
 import ToolbarActions from "../components/ToolbarActions";
@@ -93,23 +94,25 @@ const dashboardTheme = createTheme(theme, {
   },
 });
 
+const BRANDING = {
+  logo: (
+    <Lightbulb
+      sx={{
+        color: "brand.main",
+        width: 30,
+        height: 30,
+      }}
+    />
+  ),
+  title: "Edunary",
+  homeUrl: "/",
+};
+
 function InstructorLayout() {
   return (
     <ReactRouterAppProvider
       navigation={NAVIGATION}
-      branding={{
-        logo: (
-          <Lightbulb
-            sx={{
-              color: "brand.main",
-              width: 30,
-              height: 30,
-            }}
-          />
-        ),
-        title: "Edunary",
-        homeUrl: "/",
-      }}
+      branding={BRANDING}
       theme={dashboardTheme}
     >
       <DashboardLayout
@@ -117,7 +120,9 @@ function InstructorLayout() {
           toolbarActions: ToolbarActions,
         }}
       >
-        <Outlet />
+        <Container className="pt-3 pb-2 px-sm-4 px-md-5 mx-auto mw-100 ">
+          <Outlet />
+        </Container>
       </DashboardLayout>
     </ReactRouterAppProvider>
   );

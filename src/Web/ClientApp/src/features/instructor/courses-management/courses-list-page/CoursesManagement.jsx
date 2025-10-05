@@ -3,7 +3,7 @@ import { Container } from "reactstrap";
 import ToolbarCourse from "./ToolbarCourse";
 import CourseList from "./CourseList";
 import { coursesData } from "./CourseMockData";
-import PageTitle from "../../../components/share/PageTitle";
+import PageTitle from "../../../../components/share/PageTitle";
 
 function CoursesManagement() {
   const [searchInput, setSearchInput] = useState(""); // nhập trong ô
@@ -55,7 +55,7 @@ function CoursesManagement() {
   }, [searchTerm, filter]);
 
   return (
-    <Container fluid className="py-4">
+    <Container fluid>
       <PageTitle title="Courses Management" />
       <ToolbarCourse
         searchInput={searchInput}

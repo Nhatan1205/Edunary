@@ -9,9 +9,9 @@ import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import InstructorLayout from "./layouts/InstructorLayout";
-import CoursesManagement from "./features/instructor/courses-management/CoursesManagement";
+import CoursesManagement from "./features/instructor/courses-management/courses-list-page/CoursesManagement";
 import CourseOverview from "./features/guest/course-overview/CourseOverview";
-
+import CreateCourse from "./features/instructor/courses-management/create-course-page/CreateCourse";
 
 const router = createBrowserRouter([
   {
@@ -52,7 +52,7 @@ const router = createBrowserRouter([
       {
         path: "/course/:id",
         element: <CourseOverview />,
-      }
+      },
     ],
   },
   {
@@ -68,6 +68,10 @@ const router = createBrowserRouter([
         element: <CoursesManagement />,
       },
     ],
+  },
+  {
+    path: "/course/create/",
+    element: <CreateCourse />,
   },
 ]);
 

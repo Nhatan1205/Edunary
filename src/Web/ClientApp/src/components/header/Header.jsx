@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 import { KeyboardArrowDown, Lightbulb, Search } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DropDownMenu from "./drop-down-menu/DropDownMenu";
@@ -27,7 +27,7 @@ import { useAuth } from "../../context/AuthContext";
 function Header() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
-  
+
   // Get auth state from context
   const { isAuthenticated, user } = useAuth();
 

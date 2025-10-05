@@ -1,5 +1,5 @@
 import { Container, Row, Col } from "reactstrap";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import { Divider } from "@mui/material";

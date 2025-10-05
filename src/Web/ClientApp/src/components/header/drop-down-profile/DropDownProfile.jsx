@@ -1,8 +1,9 @@
 import { Help, Language, Logout, School, Settings } from "@mui/icons-material";
+import LocalLibraryOutlinedIcon from "@mui/icons-material/LocalLibraryOutlined";
 import MobileDropDownProfile from "./Mobile/MobileDropDownProfile";
 import DesktopDropDownProfile from "./Desktop/DesktopDropDownProfile";
 import { useAuth } from "../../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 const MENU_ITEMS = [
@@ -22,6 +23,11 @@ const MENU_ITEMS = [
     path: "/language",
   },
   {
+    title: "Teaching On Edunary",
+    icon: <LocalLibraryOutlinedIcon fontSize="small" />,
+    path: "/instructor",
+  },
+  {
     title: "Help",
     icon: <Help fontSize="small" />,
     path: "/help",
@@ -34,14 +40,18 @@ const SIGN_OUTS = {
   path: "/",
 };
 
-function DropDownProfile({ open, anchorEl, handleCloseDropDown, isMobile }) {
-
+function DropDownProfile({
+  open,
+  anchorEl,
+  handleCloseDropDown,
+  isMobile = false,
+}) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleMenuItemClick = (action, path) => {
     handleCloseDropDown();
-    
+
     // Handle logout
     if (action === "Sign Out") {
       logout();

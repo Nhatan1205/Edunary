@@ -42,7 +42,7 @@ const theme = createTheme({
       // Muted / placeholder
       disabled: "#9CB8B6",
       // Inverse text for colored backgrounds
-      inverse: "#FFFFFF",
+      inverse: "#F7FBFA",
     },
 
     divider: "#bebebeff",

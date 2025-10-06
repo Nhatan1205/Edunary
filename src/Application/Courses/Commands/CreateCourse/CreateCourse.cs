@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.Courses.EventHandlers;
@@ -23,14 +24,18 @@ public record CreateCourseCommand : IRequest<Result>
 public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, Result>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public CreateCourseCommandHandler(IApplicationDbContext context)
+    public CreateCourseCommandHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
+
     }
 
     public async Task<Result> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
     {
+
         try
         {
             var entity = new Course
@@ -40,17 +45,19 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
                 Price = request.Price,
             };
 
-            entity.AddDomainEvent(new CourseCreatedEvent(entity));
+            //entity.AddDomainEvent(new CourseCreatedEvent(entity));
 
             _context.Courses.Add(entity);
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.Success("Course created successfully.");
+            var dto = _mapper.Map<CreatedCourseDto>(entity);
+
+            return Result.Success(dto,"Course created successfully");
         }
-        catch (Exception ex)
-        {
-            return Result.Failure($"An unexpected error occurred while creating the course: {ex.Message}");
+        catch (Exception ex) { 
+            return Result.Failure($"An unexpected error occurred while creating course: {ex.Message}");
         }
+
     }
 }

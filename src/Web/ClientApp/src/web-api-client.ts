@@ -1498,11 +1498,11 @@ export interface IUpdateTodoListCommand {
 }
 
 export class CreateUserCommand implements ICreateUserCommand {
-    userName!: string;
-    phoneNumber!: string;
-    email!: string;
+    userName?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
     password?: string | undefined;
-    fullName!: string;
+    fullName?: string | undefined;
 
     constructor(data?: ICreateUserCommand) {
         if (data) {
@@ -1542,11 +1542,11 @@ export class CreateUserCommand implements ICreateUserCommand {
 }
 
 export interface ICreateUserCommand {
-    userName: string;
-    phoneNumber: string;
-    email: string;
+    userName?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
     password?: string | undefined;
-    fullName: string;
+    fullName?: string | undefined;
 }
 
 export class UserVm implements IUserVm {

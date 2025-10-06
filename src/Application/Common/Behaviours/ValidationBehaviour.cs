@@ -1,4 +1,5 @@
-﻿using ValidationException = Edunary.Application.Common.Exceptions.ValidationException;
+﻿using Edunary.Application.Common.Models;
+using ValidationException = Edunary.Application.Common.Exceptions.ValidationException;
 
 namespace Edunary.Application.Common.Behaviours;
 public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
@@ -27,8 +28,15 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
                 .ToList();
 
             if (failures.Any())
+            {
+                if (typeof(TResponse) == typeof(Result))
+                {
+                    var validationException = new ValidationException(failures);
+                    return (TResponse)(object)validationException.ToResult();
+                }
+                
                 throw new ValidationException(failures);
-
+            }
         }
         return await next();
     }

@@ -1,6 +1,8 @@
 ﻿using FluentValidation.Results;
+using Edunary.Application.Common.Models;
 
 namespace Edunary.Application.Common.Exceptions;
+
 public class ValidationException : Exception
 {
     public ValidationException()
@@ -18,4 +20,13 @@ public class ValidationException : Exception
     }
 
     public IDictionary<string, string[]> Errors { get; }
+
+    public Result ToResult()
+    {
+        var errorMessages = Errors
+            .SelectMany(kvp => kvp.Value.Select(error => $"{kvp.Key}: {error}"))
+            .ToArray();
+
+        return Result.Failure(errorMessages);
+    }
 }

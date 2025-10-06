@@ -892,28 +892,18 @@
       "CreateUserCommand": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "userName",
-          "phoneNumber",
-          "email",
-          "fullName"
-        ],
         "properties": {
           "userName": {
             "type": "string",
-            "maxLength": 200,
-            "minLength": 1
+            "nullable": true
           },
           "phoneNumber": {
             "type": "string",
-            "maxLength": 15,
-            "minLength": 1,
-            "pattern": "([0-9]+)"
+            "nullable": true
           },
           "email": {
             "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-zA-Z0-9]+(?:[-._]?[a-zA-Z0-9]+)+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+            "nullable": true
           },
           "password": {
             "type": "string",
@@ -921,8 +911,7 @@
           },
           "fullName": {
             "type": "string",
-            "maxLength": 200,
-            "minLength": 1
+            "nullable": true
           }
         }
       },

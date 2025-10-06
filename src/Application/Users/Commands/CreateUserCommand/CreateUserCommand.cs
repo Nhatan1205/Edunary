@@ -11,25 +11,11 @@ using Edunary.Application.Users.Validation;
 namespace Edunary.Application.Users.Commands.CreateUserCommand;
 public class CreateUserCommand : IRequest<Result>
 {
-    [Required(ErrorMessage = "Name is required.")]
-    [MaxLength(200, ErrorMessage = "Maximum length is 200 characters.")]
-    public string UserName { get; set; }
-
-    [Required(ErrorMessage = "Phone Number is required.")]
-    [MaxLength(15, ErrorMessage = "Maximum length is 15 characters.")]
-    [RegularExpression("([0-9]+)", ErrorMessage = "Phone Number must contain only numbers.")]
-    public string PhoneNumber { get; set; }
-
-    [Required(ErrorMessage = "Email is required.")]
-    [CheckEmailExists(ErrorMessage = "Email already exists.")]
-    [RegularExpression(@"^[a-zA-Z0-9]+(?:[-._]?[a-zA-Z0-9]+)+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Email is invalid.")]
-    public string Email { get; set; }
-
-    public string Password { get; set; }
-
-    [Required(ErrorMessage = "Customer Name is required.")]
-    [MaxLength(200, ErrorMessage = "Maximum length is 200 characters.")]
-    public string FullName { get; set; }
+    public string UserName { get; init; }
+    public string PhoneNumber { get; init; }
+    public string Email { get; init; }
+    public string Password { get; init; }
+    public string FullName { get; init; }
 }
 public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Result>
 {

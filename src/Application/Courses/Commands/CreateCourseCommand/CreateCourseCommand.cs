@@ -45,15 +45,19 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
                 Price = request.Price,
             };
 
-            //entity.AddDomainEvent(new CourseCreatedEvent(entity));
+            entity.AddDomainEvent(new CourseCreatedEvent(entity));
 
             _context.Courses.Add(entity);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            var result = await _context.SaveChangesAsync(cancellationToken);
 
             var dto = _mapper.Map<CreatedCourseDto>(entity);
 
-            return Result.Success(dto,"Course created successfully");
+            if(result > 0)
+            {
+                return Result.Success(dto, "Course created successfully");
+            }
+            return Result.Failure("course create unsuccessfully");
         }
         catch (Exception ex) { 
             return Result.Failure($"An unexpected error occurred while creating course: {ex.Message}");

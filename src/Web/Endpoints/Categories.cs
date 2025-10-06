@@ -12,8 +12,13 @@ public class Categories : EndpointGroupBase
         app.MapGroup(this)
             .MapGet(GetCategories);
     }
-    public Task<PaginatedList<CategoryDto>> GetCategories(ISender sender, [AsParameters] GetCategoriesWithPaginationQuery query)
+    public async Task<IResult> GetCategories(ISender sender, [AsParameters] GetCategoriesWithPaginationQuery query)
     {
-        return sender.Send(query);
+        var result = await sender.Send(query);
+        if(!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
     }
 }

@@ -1,10 +1,10 @@
 import { Card, CardContent, Typography, Box } from "@mui/material";
 import { useState } from "react";
 import { Link as RouterLink } from "react-router";
+import DefaultImage from "../../../../assets/images/default.jpg";
 const CourseCard = ({ course }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const isDraft = course.status === "Draft";
-
+  const isDraft = course.status === 0;
   return (
     <Card
       variant="outlined"
@@ -21,11 +21,11 @@ const CourseCard = ({ course }) => {
     >
       <Box
         component="img"
-        src={course.thumbnail}
+        src={course.imageUrl || DefaultImage}
         alt={course.title}
         sx={{
-          width: 150,
-          height: 120,
+          width: 140,
+          height: 140,
           objectFit: "cover",
           flexShrink: 0,
         }}

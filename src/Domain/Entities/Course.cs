@@ -10,6 +10,8 @@ public class Course : BaseAuditableEntity
 
     public CourseLevel Level { get; set; }
 
+    public CourseStatus Status { get; set; }
+
     public string Topic { get; set; }
 
     public string LearningObjectives { get; set; }

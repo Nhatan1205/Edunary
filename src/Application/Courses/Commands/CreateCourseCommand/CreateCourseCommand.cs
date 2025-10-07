@@ -9,6 +9,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.Courses.EventHandlers;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Courses;
 
 namespace Edunary.Application.Courses.Commands.CreateCourse;
@@ -43,6 +44,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
                 Title = request.Title,
                 CategoryId = request.CategoryId,
                 Price = request.Price,
+                Status = CourseStatus.Draft
             };
 
             entity.AddDomainEvent(new CourseCreatedEvent(entity));

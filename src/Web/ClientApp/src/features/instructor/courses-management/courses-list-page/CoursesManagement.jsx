@@ -2,12 +2,17 @@ import { useState, useMemo } from "react";
 import { Container } from "reactstrap";
 import ToolbarCourse from "./ToolbarCourse";
 import CourseList from "./CourseList";
-import { coursesData } from "./CourseMockData";
 import PageTitle from "../../../../components/share/PageTitle";
+import useGetCoursesAuthor from "../../../../hooks/useGetCoursesAuthor";
+import { Pagination } from "@mui/material";
 
 function CoursesManagement() {
-  const [searchInput, setSearchInput] = useState(""); // nhập trong ô
-  const [searchTerm, setSearchTerm] = useState(""); // term để filter
+  const [pageNumber, setPageNumber] = useState(1);
+  const { data: coursesData } = useGetCoursesAuthor(pageNumber, 5);
+  console.log(coursesData);
+
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("newest");
 
   const handleSearchInputChange = (e) => {
@@ -15,44 +20,43 @@ function CoursesManagement() {
   };
 
   const handleSearchClick = () => {
-    setSearchTerm(searchInput); // chỉ cập nhật khi bấm nút
+    setSearchTerm(searchInput);
   };
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
   };
 
-  const handleNewCourse = () => {
-    console.log("Create new course");
+  const handlePageChange = (event, value) => {
+    setPageNumber(value);
   };
 
   // Filter and sort courses
   const filteredCourses = useMemo(() => {
-    let filtered = coursesData.filter((course) =>
+    const items = coursesData?.items || [];
+    let filtered = items.filter((course) =>
       course.title.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     // Sort based on filter
     switch (filter) {
       case "oldest":
-        filtered = [...filtered].reverse();
+        filtered = [...filtered].sort((a, b) => a.id - b.id);
         break;
       case "title":
         filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
         break;
       case "status":
-        filtered = [...filtered].sort((a, b) =>
-          a.status.localeCompare(b.status),
-        );
+        filtered = [...filtered].sort((a, b) => a.status - b.status);
         break;
       case "newest":
       default:
-        // Keep original order (newest first)
+        filtered = [...filtered].sort((a, b) => b.id - a.id);
         break;
     }
 
     return filtered;
-  }, [searchTerm, filter]);
+  }, [searchTerm, filter, coursesData]);
 
   return (
     <Container fluid>
@@ -63,9 +67,20 @@ function CoursesManagement() {
         onSearchInputChange={handleSearchInputChange}
         onSearchClick={handleSearchClick}
         onFilterChange={handleFilterChange}
-        onNewCourse={handleNewCourse}
       />
       <CourseList courses={filteredCourses} />
+
+      {coursesData && (
+        <div className="d-flex justify-content-center mt-4">
+          <Pagination
+            count={coursesData.totalPages}
+            page={pageNumber}
+            onChange={handlePageChange}
+            color="primary"
+            shape="rounded"
+          />
+        </div>
+      )}
     </Container>
   );
 }

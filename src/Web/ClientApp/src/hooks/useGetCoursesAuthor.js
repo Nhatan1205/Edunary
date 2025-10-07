@@ -1,19 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-import { CategoriesClient } from "../web-api-client.ts";
+import { CoursesClient } from "../web-api-client.ts";
 
-const useGetCategories = (pageNumber = 1, pageSize = 10) => {
+const useGetCoursesAuthor = (pageNumber = 1, pageSize = 10) => {
   return useQuery({
-    queryKey: ["categories", pageNumber, pageSize],
+    queryKey: ["coursesAuthor", pageNumber, pageSize],
     queryFn: async () => {
-      const categoriesClient = new CategoriesClient();
-      const result = await categoriesClient.getCategories(pageNumber, pageSize);
+      const coursesClient = new CoursesClient();
+      const result = await coursesClient.getCoursesAuthorWithPagination(
+        pageNumber,
+        pageSize,
+      );
 
       if (!result) {
-        throw new Error("Failed to fetch categories");
+        throw new Error("Failed to fetch courses information");
       }
 
       return {
-        items: result.items,
+        items: result.items || [],
         pageNumber: result.pageNumber,
         totalPages: result.totalPages,
         totalCount: result.totalCount,
@@ -28,4 +31,4 @@ const useGetCategories = (pageNumber = 1, pageSize = 10) => {
   });
 };
 
-export default useGetCategories;
+export default useGetCoursesAuthor;

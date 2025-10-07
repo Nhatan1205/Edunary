@@ -12,13 +12,13 @@ using Edunary.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 namespace Edunary.Application.Categories.Queries.GetCategoriesWithPagination;
 
 
-public record GetCategoriesWithPaginationQuery : IRequest<Result>
+public record GetCategoriesWithPaginationQuery : IRequest<PaginatedList<CategoryDto>>
 {
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
 }
 
-public class GetCategoriesWithPaginationQueryHandler : IRequestHandler<GetCategoriesWithPaginationQuery, Result>
+public class GetCategoriesWithPaginationQueryHandler : IRequestHandler<GetCategoriesWithPaginationQuery, PaginatedList<CategoryDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -29,23 +29,11 @@ public class GetCategoriesWithPaginationQueryHandler : IRequestHandler<GetCatego
         _mapper = mapper;
     }
 
-    public async Task<Result> Handle(GetCategoriesWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<CategoryDto>> Handle(GetCategoriesWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        try
-        {
-            PaginatedList<CategoryDto> result =
-                await _context.Categories
-                .OrderBy(x => x.Title)
-                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
-                .PaginatedListAsync(request.PageNumber, request.PageSize);
-
-            return Result.Success(result, "Get categories successfully");
-        }
-        catch (Exception ex)
-        {
-            return Result.Failure($"An unexpected error occurred while getting categories: {ex.Message}");
-        }
-
-
+            return await _context.Categories
+            .OrderBy(x => x.Title)
+            .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
+            .PaginatedListAsync(request.PageNumber, request.PageSize);
     }
 }

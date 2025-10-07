@@ -5,9 +5,12 @@ import StepCourseCategory from "./Steps/StepCourseCategory";
 import StepCourseTitle from "./Steps/StepCourseTitle";
 import { useForm } from "react-hook-form";
 import StepCoursePrice from "./Steps/StepCoursePrice";
+import useCreateCourse from "../../../../hooks/useCreateCourse";
 
 function CreateCourse() {
   //form data
+
+  const createCourseMutation = useCreateCourse();
   const {
     register,
     control,
@@ -16,7 +19,10 @@ function CreateCourse() {
     formState: { errors },
     trigger,
   } = useForm();
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = (data) => {
+    console.log(data);
+    createCourseMutation.mutate(data);
+  };
 
   //steps
   const [currentStep, setCurrentStep] = useState(1);

@@ -1,20 +1,13 @@
-import { Typography } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import { Controller } from "react-hook-form";
 import { Container, FormGroup, Input } from "reactstrap";
-
-const categories = [
-  "Technology",
-  "Science",
-  "Business",
-  "Arts & Culture",
-  "Health & Wellness",
-  "Education",
-  "Entertainment",
-  "Sports",
-  "Other",
-];
+import useGetCategories from "../../../../../hooks/useGetCategories";
 
 function StepCourseCategory({ control, errors }) {
+  const { data, isLoading } = useGetCategories(1, 20);
+  if (isLoading) {
+    return <CircularProgress size={24} sx={{ my: 2 }} />;
+  }
   return (
     <Container className="py-5">
       <div className="text-center mb-4">
@@ -36,7 +29,7 @@ function StepCourseCategory({ control, errors }) {
       <div className="mx-auto mt-5" style={{ maxWidth: "750px" }}>
         <FormGroup>
           <Controller
-            name="category"
+            name="categoryId"
             control={control}
             rules={{ required: "Please select a category" }}
             render={({ field }) => (
@@ -55,9 +48,9 @@ function StepCourseCategory({ control, errors }) {
                 invalid={!!errors?.category}
               >
                 <option value="">-- Choose a category --</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                {data?.items?.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.title}
                   </option>
                 ))}
               </Input>

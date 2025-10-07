@@ -12,6 +12,15 @@ import InstructorLayout from "./layouts/InstructorLayout";
 import CoursesManagement from "./features/instructor/courses-management/courses-list-page/CoursesManagement";
 import CourseOverview from "./features/guest/course-overview/CourseOverview";
 import CreateCourse from "./features/instructor/courses-management/create-course-page/CreateCourse";
+import CourseLandingPage from "./features/instructor/courses-management/course-manage-page/pages/CourseLandingPage";
+import CoursePricing from "./features/instructor/courses-management/course-manage-page/pages/CoursePricing";
+import CourseManageLayout from "./layouts/CourseManageLayout";
+import CourseSetting from "./features/instructor/courses-management/course-manage-page/pages/CourseSetting";
+import CourseIntenedLearners from "./features/instructor/courses-management/course-manage-page/pages/CourseIntenedLearners";
+import CourseMessages from "./features/instructor/courses-management/course-manage-page/pages/CourseMessages";
+import CourseCurriculum from "./features/instructor/courses-management/course-manage-page/pages/CourseCurriculum";
+import CourseCaptions from "./features/instructor/courses-management/course-manage-page/pages/CourseCaptions";
+import CourseAccessiblity from "./features/instructor/courses-management/course-manage-page/pages/CourseAccessiblity";
 
 const router = createBrowserRouter([
   {
@@ -72,6 +81,48 @@ const router = createBrowserRouter([
   {
     path: "/course/create/",
     element: <CreateCourse />,
+  },
+  {
+    path: "/instructor/course/:courseId/manage/",
+    element: <CourseManageLayout />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="basics" replace />,
+      },
+      {
+        path: "basics",
+        element: <CourseLandingPage />,
+      },
+      {
+        path: "pricing",
+        element: <CoursePricing />,
+      },
+      {
+        path: "learners",
+        element: <CourseIntenedLearners />,
+      },
+      {
+        path: "messages",
+        element: <CourseMessages />,
+      },
+      {
+        path: "settings",
+        element: <CourseSetting />,
+      },
+      {
+        path: "curriculum",
+        element: <CourseCurriculum />,
+      },
+      {
+        path: "captions",
+        element: <CourseCaptions />,
+      },
+      {
+        path: "accessibility",
+        element: <CourseAccessiblity />,
+      },
+    ],
   },
 ]);
 

@@ -1009,6 +1009,9 @@
           "level": {
             "$ref": "#/components/schemas/CourseLevel"
           },
+          "status": {
+            "$ref": "#/components/schemas/CourseStatus"
+          },
           "topic": {
             "type": "string",
             "nullable": true
@@ -1088,7 +1091,13 @@
             "nullable": true
           },
           "level": {
-            "type": "string",
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "topic": {

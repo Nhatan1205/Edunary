@@ -28,18 +28,21 @@ function StepCoursePrice({ register, errors }) {
             validate: (value) => !isNaN(value) || "Price must be a number",
           })}
           placeholder="Price of the course"
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              "&.Mui-focused fieldset": {
-                borderColor: "brand.main",
-              },
-            },
-          }}
           slotProps={{
             input: {
               startAdornment: (
                 <InputAdornment position="start">$</InputAdornment>
               ),
+            },
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "&:hover fieldset": {
+                borderColor: "brand.main",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "brand.dark",
+              },
             },
           }}
         />

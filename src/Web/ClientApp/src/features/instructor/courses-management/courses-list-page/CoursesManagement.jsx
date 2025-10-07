@@ -2,14 +2,15 @@ import { useState, useMemo } from "react";
 import { Container } from "reactstrap";
 import ToolbarCourse from "./ToolbarCourse";
 import CourseList from "./CourseList";
-import PageTitle from "../../../../components/share/PageTitle";
+import PageTitle from "../../../../components/PageTitle";
 import useGetCoursesAuthor from "../../../../hooks/useGetCoursesAuthor";
 import { Pagination } from "@mui/material";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 function CoursesManagement() {
   const [pageNumber, setPageNumber] = useState(1);
-  const { data: coursesData } = useGetCoursesAuthor(pageNumber, 5);
-  console.log(coursesData);
+  const { data: coursesData, isLoading: isCourseDataLoading } =
+    useGetCoursesAuthor(pageNumber, 5);
 
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,6 +58,14 @@ function CoursesManagement() {
 
     return filtered;
   }, [searchTerm, filter, coursesData]);
+
+  if (isCourseDataLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <Container fluid>

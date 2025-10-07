@@ -20,7 +20,6 @@ function CreateCourse() {
     trigger,
   } = useForm();
   const onSubmit = (data) => {
-    console.log(data);
     createCourseMutation.mutate(data);
   };
 
@@ -33,7 +32,7 @@ function CreateCourse() {
     if (currentStep === 1) {
       valid = await trigger("title"); // "title" là tên trường bạn dùng ở StepCourseTitle
     } else if (currentStep === 2) {
-      valid = await trigger("category"); // ví dụ trường ở step 2
+      valid = await trigger("categoryId"); // ví dụ trường ở step 2
     } else if (currentStep === 3) {
       valid = await trigger("price"); // ví dụ trường ở step 3
     }
@@ -69,7 +68,15 @@ function CreateCourse() {
       <StepperHeader currentStep={currentStep} totalSteps={totalSteps} />
 
       <main className="flex-fill d-flex justify-content-center py-4">
-        <form onSubmit={handleSubmit(onSubmit)} className="text-center">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="text-center"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+            }
+          }}
+        >
           {stepContent}
         </form>
       </main>

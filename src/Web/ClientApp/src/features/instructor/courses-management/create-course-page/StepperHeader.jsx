@@ -62,6 +62,8 @@ export default function StepperHeader({ currentStep, totalSteps }) {
               </Typography>
             </Box>
             <Button
+              component={RouterLink}
+              to="/instructor/courses"
               sx={{
                 color: "brand.main",
                 textTransform: "none",

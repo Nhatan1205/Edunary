@@ -1,8 +1,6 @@
 import { Container } from "reactstrap";
 import { TextField, Typography } from "@mui/material";
-const maxLength = 60;
 function StepCourseTitle({ register, watch, errors }) {
-  const title = watch("title", "");
   return (
     <Container className="py-5">
       <div className="text-center mb-4">
@@ -34,32 +32,32 @@ function StepCourseTitle({ register, watch, errors }) {
           fullWidth
           variant="outlined"
           placeholder="Enter your course title"
-          helperText={`${title.length}/${maxLength}`}
+          error={!!errors.courseTitle}
+          helperText={errors.title && errors.title.message}
           slotProps={{
-            formHelperText: {
-              sx: { textAlign: "right" },
+            htmlInput: { maxLength: 60 },
+            input: {
+              endAdornment: (
+                <Typography
+                  variant="caption"
+                  sx={{ color: "text.secondary", whiteSpace: "nowrap" }}
+                >
+                  {watch("title")?.length || 0}/60
+                </Typography>
+              ),
             },
           }}
           sx={{
             "& .MuiOutlinedInput-root": {
-              "&.Mui-focused fieldset": {
+              "&:hover fieldset": {
                 borderColor: "brand.main",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "brand.dark",
               },
             },
           }}
         />
-        {errors.title && (
-          <Typography
-            sx={{
-              color: "#d32f2f",
-              fontSize: "0.875rem",
-              mt: "8px",
-              textAlign: "left",
-            }}
-          >
-            {errors.title.message}
-          </Typography>
-        )}
       </div>
     </Container>
   );

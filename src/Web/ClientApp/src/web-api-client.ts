@@ -1415,6 +1415,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     subtitle?: string | undefined;
     description?: string | undefined;
     level?: CourseLevel;
+    status?: CourseStatus;
     topic?: string | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
@@ -1441,6 +1442,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             this.subtitle = _data["subtitle"];
             this.description = _data["description"];
             this.level = _data["level"];
+            this.status = _data["status"];
             this.topic = _data["topic"];
             this.learningObjectives = _data["learningObjectives"];
             this.requirements = _data["requirements"];
@@ -1467,6 +1469,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["subtitle"] = this.subtitle;
         data["description"] = this.description;
         data["level"] = this.level;
+        data["status"] = this.status;
         data["topic"] = this.topic;
         data["learningObjectives"] = this.learningObjectives;
         data["requirements"] = this.requirements;
@@ -1486,6 +1489,7 @@ export interface IGetCourseByIdDto {
     subtitle?: string | undefined;
     description?: string | undefined;
     level?: CourseLevel;
+    status?: CourseStatus;
     topic?: string | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
@@ -1510,7 +1514,8 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
     subtitle?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    level?: string | undefined;
+    level?: number | undefined;
+    status?: number | undefined;
     topic?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -1537,6 +1542,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
             this.description = _data["description"];
             this.learningObjectives = _data["learningObjectives"];
             this.level = _data["level"];
+            this.status = _data["status"];
             this.topic = _data["topic"];
             this.requirements = _data["requirements"];
             this.targetAudience = _data["targetAudience"];
@@ -1563,6 +1569,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
         data["description"] = this.description;
         data["learningObjectives"] = this.learningObjectives;
         data["level"] = this.level;
+        data["status"] = this.status;
         data["topic"] = this.topic;
         data["requirements"] = this.requirements;
         data["targetAudience"] = this.targetAudience;
@@ -1581,7 +1588,8 @@ export interface IUpdateCourseCommand {
     subtitle?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    level?: string | undefined;
+    level?: number | undefined;
+    status?: number | undefined;
     topic?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;

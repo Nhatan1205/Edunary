@@ -61,7 +61,7 @@ export default function StepperFooter({
                 },
               }}
             >
-              Continue
+              {currentStep === 3 ? "Create Course" : "Continue"}
             </Button>
           </Box>
         </Col>

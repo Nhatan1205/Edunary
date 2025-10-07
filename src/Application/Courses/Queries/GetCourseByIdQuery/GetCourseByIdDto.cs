@@ -10,6 +10,7 @@ public class GetCourseByIdDto
     public string Subtitle { get; set; } = null!;
     public string Description { get; set; } = null!;
     public CourseLevel Level { get; set; }
+    public CourseStatus Status { get; set; }
     public string Topic { get; set; } = null!;
     public string LearningObjectives { get; set; } = null!;
     public string Requirements { get; set; } = null!;

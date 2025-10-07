@@ -1,0 +1,160 @@
+import { Box, Button, Typography } from "@mui/material";
+import { Container } from "reactstrap";
+import useGetCourseById from "../../../../../hooks/useGetCourseById";
+import { useParams } from "react-router";
+import LoadingSpinner from "../../../../../components/LoadingSpinner";
+import useDeleteCourse from "../../../../../hooks/useDeleteCourse";
+import { useState } from "react";
+import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
+import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
+
+function CourseSetting() {
+  const { courseId } = useParams();
+  const { data: courseData, isLoading: isCourseDataLoading } =
+    useGetCourseById(courseId);
+
+  const deleteCourseMutation = useDeleteCourse();
+  const updatecourseMutation = useUpdateCourse();
+  const handleTogglePublish = () => {
+    if (!courseData) return;
+
+    const newStatus = courseData.status === 0 ? 1 : 0;
+
+    updatecourseMutation.mutate({
+      ...courseData,
+      status: newStatus,
+    });
+  };
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleDeleteClick = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleConfirmDelete = () => {
+    setOpenDialog(false);
+    deleteCourseMutation.mutate(courseId);
+  };
+
+  if (isCourseDataLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+  return (
+    <>
+      <ConfirmDialog
+        open={openDialog}
+        title="Delete Your Course?"
+        message="Are you sure you want to delete this course? This is permanent and cannot be undone."
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirmDelete}
+      />
+      <Container>
+        <Box sx={{ py: 3 }}>
+          <Typography
+            variant="h5"
+            component="h2"
+            sx={{
+              fontWeight: 600,
+              mb: 2,
+              color: "text.primary",
+            }}
+          >
+            Course Status
+          </Typography>
+
+          <Typography
+            variant="body1"
+            sx={{
+              mb: 3,
+              color: "text.primary",
+            }}
+          >
+            This course is not published on the Edunary marketplace.
+          </Typography>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <Button
+                variant="outlined"
+                onClick={handleTogglePublish}
+                sx={{
+                  width: "160px",
+                  textTransform: "none",
+                  borderColor: "brand.main",
+                  color: "brand.main",
+                  fontWeight: 600,
+                  py: 1,
+                  "&:hover": {
+                    borderColor: "brand.dark",
+                    backgroundColor: "background.muted",
+                  },
+                }}
+              >
+                {courseData?.status === 0 ? "Unpublish" : "Publish"}
+              </Button>
+              <Typography
+                sx={{
+                  color: "#1a1a1a",
+                }}
+              >
+                New students cannot find your course via search, but existing
+                students can still access content.
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <Button
+                variant="outlined"
+                onClick={handleDeleteClick}
+                sx={{
+                  width: "160px",
+                  textTransform: "none",
+                  borderColor: "brand.main",
+                  color: "brand.main",
+                  fontWeight: 600,
+                  py: 1,
+                  "&:hover": {
+                    borderColor: "brand.dark",
+                    backgroundColor: "background.muted",
+                  },
+                }}
+              >
+                Delete
+              </Button>
+              <Typography
+                sx={{
+                  color: "#1a1a1a",
+                }}
+              >
+                We promise students lifetime access, so courses cannot be
+                deleted after students have enrolled.
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Container>
+    </>
+  );
+}
+
+export default CourseSetting;

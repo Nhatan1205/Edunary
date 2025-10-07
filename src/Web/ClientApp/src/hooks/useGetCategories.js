@@ -21,10 +21,6 @@ const useGetCategories = (pageNumber = 1, pageSize = 10) => {
         hasNextPage: result.hasNextPage,
       };
     },
-    staleTime: 5 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
   });
 };
 

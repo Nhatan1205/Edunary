@@ -8,6 +8,7 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -17,7 +18,6 @@ function ToolbarCourse({
   onSearchInputChange,
   onSearchClick,
   onFilterChange,
-  onNewCourse,
 }) {
   return (
     <Box
@@ -98,10 +98,11 @@ function ToolbarCourse({
 
         {/* Right section: New course button */}
         <Button
+          component={RouterLink}
+          to="/course/create"
           variant="contained"
           disableElevation
           startIcon={<AddIcon />}
-          onClick={onNewCourse}
           sx={{
             width: { xs: "100%", sm: "auto" },
             backgroundColor: "brand.main",

@@ -120,7 +120,7 @@ function InstructorLayout() {
           toolbarActions: ToolbarActions,
         }}
       >
-        <Container className="pt-3 pb-2 px-sm-4 px-md-5 mx-auto mw-100 ">
+        <Container className="pt-3 pb-2 pt-5 px-sm-4 px-md-5 mx-auto mw-100 ">
           <Outlet />
         </Container>
       </DashboardLayout>

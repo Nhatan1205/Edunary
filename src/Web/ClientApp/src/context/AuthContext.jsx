@@ -1,7 +1,14 @@
-import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
-import { tokenService } from '../utils/tokenService';
-import { AuthClient } from '../web-api-client.ts';
-
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
+import { tokenService } from "../utils/tokenService";
+import { AuthClient } from "../web-api-client.ts";
+import queryClient from "../configs/reactQuery.js";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -10,7 +17,6 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const refreshTimerRef = useRef(null);
   const isRefreshingRef = useRef(false);
-
   // Initialize auth state from localStorage
   useEffect(() => {
     const initializeAuth = () => {
@@ -35,6 +41,7 @@ export const AuthProvider = ({ children }) => {
     tokenService.clearAuth();
     setUser(null);
     setIsAuthenticated(false);
+    queryClient.clear();
   }, []);
 
   // Setup token refresh - wrapped in useCallback to avoid recreating
@@ -56,7 +63,7 @@ export const AuthProvider = ({ children }) => {
     }
     // Get time until expiry in seconds
     const timeUntilExpiry = tokenService.getTimeUntilExpiry(token);
-    
+
     // If token expires in less than 10 seconds, it's too late to refresh reliably
     if (timeUntilExpiry < 10) {
       logout();
@@ -75,11 +82,11 @@ export const AuthProvider = ({ children }) => {
       try {
         const authClient = new AuthClient();
         const result = await authClient.refreshToken();
-              
+
         if (result && result.token) {
           const newToken = result.token;
           const newTimeUntilExpiry = tokenService.getTimeUntilExpiry(newToken);
-          
+
           // Check if new token has reasonable lifetime (at least 30 seconds)
           if (newTimeUntilExpiry < 30) {
             logout();
@@ -91,11 +98,11 @@ export const AuthProvider = ({ children }) => {
           isRefreshingRef.current = false;
           setupTokenRefresh();
         } else {
-          console.error('Token refresh failed: No token in response');
+          console.error("Token refresh failed: No token in response");
           logout();
         }
       } catch (error) {
-        console.error('Error refreshing token:', error);
+        console.error("Error refreshing token:", error);
         logout();
       } finally {
         isRefreshingRef.current = false;
@@ -145,7 +152,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

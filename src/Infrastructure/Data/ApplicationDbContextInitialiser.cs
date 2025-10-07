@@ -107,5 +107,22 @@ public class ApplicationDbContextInitialiser
 
             await _context.SaveChangesAsync();
         }
+        if (!_context.Categories.Any())
+        {
+            _context.Categories.AddRange(
+                new Category { Title = "AI & Innovation" },
+                new Category { Title = "Animation & 3D" },
+                new Category { Title = "Art & Illustration" },
+                new Category { Title = "Crafts & DIY" },
+                new Category { Title = "Creative Career" },
+                new Category { Title = "Creativity & Inspiration" },
+                new Category { Title = "Design" },
+                new Category { Title = "Development" },
+                new Category { Title = "Film & Video" }
+            );
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

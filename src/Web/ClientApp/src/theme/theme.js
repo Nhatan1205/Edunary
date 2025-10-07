@@ -21,7 +21,7 @@ const theme = createTheme({
 
     background: {
       // Background 1 - global page background
-      default: "#F7FBFA", // very light green/teal tint; use for full page background
+      default: "#FFFFFF", // very light green/teal tint; use for full page background
       // Background 2 - surface / section background
       surface: "#FCFFFE", // slightly different from default for sections
       // Background 3 - paper/card

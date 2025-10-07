@@ -1,0 +1,17 @@
+﻿namespace Edunary.Application.Courses.Commands.CreateCourse;
+public class CreateCourseCommandValidator : AbstractValidator<CreateCourseCommand>
+{
+    public CreateCourseCommandValidator()
+    {
+        RuleFor(c => c.Title)
+                .NotEmpty().WithMessage("Title is required.")
+                .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
+                .MaximumLength(60).WithMessage("Maximum length is 60 characters."); 
+
+        RuleFor(c => c.CategoryId)
+            .GreaterThan(0).WithMessage("CategoryId must be greater than 0.");
+
+        RuleFor(c => c.Price)
+            .GreaterThanOrEqualTo(0).WithMessage("Price must be 0 or greater.");
+    }
+}

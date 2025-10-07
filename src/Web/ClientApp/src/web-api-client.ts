@@ -130,6 +130,56 @@ export class AuthClient {
     }
 }
 
+export class PaymentEndpointsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    createPaymentIntent(command: CreatePaymentIntentCommand | undefined): Promise<CreatePaymentIntentResponse> {
+        let url_ = this.baseUrl + "/api/PaymentEndpoints/create-payment-intent";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreatePaymentIntent(_response);
+        });
+    }
+
+    protected processCreatePaymentIntent(response: Response): Promise<CreatePaymentIntentResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreatePaymentIntentResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CreatePaymentIntentResponse>(null as any);
+    }
+}
+
 export class CategoriesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1006,6 +1056,98 @@ export interface IAuthenticateModel {
     phoneNumber?: string | undefined;
     email?: string | undefined;
     password?: string | undefined;
+}
+
+export class CreatePaymentIntentResponse implements ICreatePaymentIntentResponse {
+    clientSecret?: string | undefined;
+    amount?: number;
+    paymentIntentId?: string | undefined;
+
+    constructor(data?: ICreatePaymentIntentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.clientSecret = _data["clientSecret"];
+            this.amount = _data["amount"];
+            this.paymentIntentId = _data["paymentIntentId"];
+        }
+    }
+
+    static fromJS(data: any): CreatePaymentIntentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePaymentIntentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["clientSecret"] = this.clientSecret;
+        data["amount"] = this.amount;
+        data["paymentIntentId"] = this.paymentIntentId;
+        return data;
+    }
+}
+
+export interface ICreatePaymentIntentResponse {
+    clientSecret?: string | undefined;
+    amount?: number;
+    paymentIntentId?: string | undefined;
+}
+
+export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
+    courseIds?: string[] | undefined;
+    userEmail?: string | undefined;
+
+    constructor(data?: ICreatePaymentIntentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
+            this.userEmail = _data["userEmail"];
+        }
+    }
+
+    static fromJS(data: any): CreatePaymentIntentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePaymentIntentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
+        data["userEmail"] = this.userEmail;
+        return data;
+    }
+}
+
+export interface ICreatePaymentIntentCommand {
+    courseIds?: string[] | undefined;
+    userEmail?: string | undefined;
 }
 
 export class PaginatedListOfCategoryDto implements IPaginatedListOfCategoryDto {

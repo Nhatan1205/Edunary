@@ -7,6 +7,12 @@ public interface IApplicationDbContext
 
     DbSet<TodoItem> TodoItems { get; }
 
+    DbSet<Payment> Payments { get; }
+
+    DbSet<Order> Orders { get; }
+
+    DbSet<OrderItem> OrderItems { get; }
+
     public DbSet<Course> Courses { get; }
     public DbSet<Category> Categories { get; }
 

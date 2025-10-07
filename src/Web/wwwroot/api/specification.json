@@ -81,6 +81,37 @@
         }
       }
     },
+    "/api/PaymentEndpoints/create-payment-intent": {
+      "post": {
+        "tags": [
+          "PaymentEndpoints"
+        ],
+        "operationId": "CreatePaymentIntent",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentIntentCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePaymentIntentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Categories": {
       "get": {
         "tags": [
@@ -777,6 +808,41 @@
             "nullable": true
           },
           "password": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatePaymentIntentResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "paymentIntentId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatePaymentIntentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "userEmail": {
             "type": "string",
             "nullable": true
           }

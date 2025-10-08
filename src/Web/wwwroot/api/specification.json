@@ -360,6 +360,43 @@
         }
       }
     },
+    "/api/Enrollments/check/{courseId}": {
+      "get": {
+        "tags": [
+          "Enrollments"
+        ],
+        "operationId": "CheckEnrollment",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckUserEnrollmentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/PaymentEndpoints/create-payment-intent": {
       "post": {
         "tags": [
@@ -1272,6 +1309,20 @@
           "id": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CheckUserEnrollmentResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isEnrolled": {
+            "type": "boolean"
+          },
+          "enrollmentDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         }
       },

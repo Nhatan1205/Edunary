@@ -458,6 +458,55 @@ export class CoursesClient {
     }
 }
 
+export class EnrollmentsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    checkEnrollment(courseId: number): Promise<CheckUserEnrollmentResponse> {
+        let url_ = this.baseUrl + "/api/Enrollments/check/{courseId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCheckEnrollment(_response);
+        });
+    }
+
+    protected processCheckEnrollment(response: Response): Promise<CheckUserEnrollmentResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CheckUserEnrollmentResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CheckUserEnrollmentResponse>(null as any);
+    }
+}
+
 export class PaymentEndpointsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1795,6 +1844,46 @@ export class DeleteCourseCommand implements IDeleteCourseCommand {
 
 export interface IDeleteCourseCommand {
     id?: number;
+}
+
+export class CheckUserEnrollmentResponse implements ICheckUserEnrollmentResponse {
+    isEnrolled?: boolean;
+    enrollmentDate?: Date | undefined;
+
+    constructor(data?: ICheckUserEnrollmentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isEnrolled = _data["isEnrolled"];
+            this.enrollmentDate = _data["enrollmentDate"] ? new Date(_data["enrollmentDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CheckUserEnrollmentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckUserEnrollmentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isEnrolled"] = this.isEnrolled;
+        data["enrollmentDate"] = this.enrollmentDate ? this.enrollmentDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICheckUserEnrollmentResponse {
+    isEnrolled?: boolean;
+    enrollmentDate?: Date | undefined;
 }
 
 export class CreatePaymentIntentResponse implements ICreatePaymentIntentResponse {

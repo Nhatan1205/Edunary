@@ -22,6 +22,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
+    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

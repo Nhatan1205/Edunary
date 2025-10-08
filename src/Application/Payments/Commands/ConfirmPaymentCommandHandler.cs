@@ -62,6 +62,32 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             };
 
             _context.Payments.Add(payment);
+
+            // Create enrollments for each course in the order
+            foreach (var orderItem in order.OrderItems)
+            {
+                // Parse CourseId from string to int
+                if (int.TryParse(orderItem.CourseId, out int courseId))
+                {
+                    // Check if enrollment already exists to avoid duplicates
+                    var existingEnrollment = await _context.Enrollments
+                        .FirstOrDefaultAsync(e => e.CourseId == courseId && 
+                                                e.StudentId == order.UserId, 
+                                            cancellationToken);
+
+                    if (existingEnrollment == null)
+                    {
+                        var enrollment = new Domain.Entities.Enrollment
+                        {
+                            CourseId = courseId,
+                            StudentId = order.UserId
+                        };
+
+                        _context.Enrollments.Add(enrollment);
+                    }
+                }
+            }
+
             await _context.SaveChangesAsync(cancellationToken);
 
             return new ConfirmPaymentResponse

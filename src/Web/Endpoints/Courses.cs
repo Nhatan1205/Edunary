@@ -6,6 +6,7 @@ using Edunary.Application.Courses.Commands.UpdateCourse;
 using Edunary.Application.Courses.Queries.GetCourseById;
 using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
+using Edunary.Application.Courses.Queries.GetPublicCourseById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,10 @@ public class Courses : EndpointGroupBase
             .MapGet(GetCourseById, "{id}")
             .MapPut(UpdateCourse)
             .MapDelete(DeleteCourse);
+
+        // Public endpoint without authorization
+        app.MapGroup(this)
+            .MapGet(GetPublicCourseById, "public/{id}");
         
     }
 
@@ -69,6 +74,18 @@ public class Courses : EndpointGroupBase
     public async Task<GetCourseByIdDto> GetCourseById(ISender sender, int id)
     {
         return await sender.Send(new GetCourseByIdQuery() { Id = id });
+    }
+
+    public async Task<IResult> GetPublicCourseById(ISender sender, int id)
+    {
+        var result = await sender.Send(new GetPublicCourseByIdQuery() { Id = id });
+        
+        if (result == null)
+        {
+            return Results.NotFound("Course not found");
+        }
+        
+        return Results.Ok(result);
     }
 }
 

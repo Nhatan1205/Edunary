@@ -12,6 +12,7 @@ import InstructorLayout from "./layouts/InstructorLayout";
 import CoursesManagement from "./features/instructor/courses-management/courses-list-page/CoursesManagement";
 import CourseOverview from "./features/guest/course-overview/CourseOverview";
 import CheckoutPage from "./features/user/checkout/CheckoutPage";
+import PaymentSuccess from "./features/user/checkout/PaymentSuccess";
 
 import CreateCourse from "./features/instructor/courses-management/create-course-page/CreateCourse";
 import CourseLandingPage from "./features/instructor/courses-management/course-manage-page/pages/CourseLandingPage";
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
       {
         path: "/payment/checkout",
         element: <CheckoutPage />,
+      },
+      {
+        path: "/payment-success",
+        element: <PaymentSuccess />,
       }
     ],
   },

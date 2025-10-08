@@ -1,7 +1,11 @@
 import { useState } from "react"
-import { Box, Button } from "@mui/material"
+import { Box, Button, Alert } from "@mui/material"
 import LockIcon from "@mui/icons-material/Lock"
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js"
+import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
+import { useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
+// NOTE: Renamed from PaymentClient to PaymentEndpointsClient to match generated client export
+import { PaymentEndpointsClient } from "../../../../web-api-client.ts"
 import BillingAddress from "./BillingAddress"
 import PaymentMethodSelector from "./PaymentMethodSelector"
 import OrderDetails from "./OrderDetails"
@@ -12,10 +16,14 @@ export default function CheckoutForm({
   country, 
   setCountry, 
   paymentMethod, 
-  setPaymentMethod 
+  setPaymentMethod,
+  clientSecret,
+  paymentIntentId,
+  userEmail
 }) {
   const stripe = useStripe()
   const elements = useElements()
+  const navigate = useNavigate()
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState(null)
 
@@ -29,34 +37,62 @@ export default function CheckoutForm({
     setProcessing(true)
     setError(null)
 
-    if (paymentMethod === "card") {
-      const card = elements.getElement(CardElement)
-
-      const { error, paymentMethod: stripePaymentMethod } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: card,
-        billing_details: {
-          address: {
-            country: country === "Vietnam" ? "VN" : country === "United States" ? "US" : "GB",
-          },
+    try {
+      // Step 3: Submit payment with Stripe
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/payment-success`, // This won't be used since we handle success manually
         },
+        redirect: 'if_required'
       })
 
-      if (error) {
-        setError(error.message)
-        setProcessing(false)
-      } else {
-        console.log('Payment Method:', stripePaymentMethod)
-        setTimeout(() => {
-          setProcessing(false)
-          alert('Payment processed successfully!')
-        }, 2000)
+      if (stripeError) {
+        setError(stripeError.message)
+        toast.error(stripeError.message)
+        return
       }
-    } else {
-      setTimeout(() => {
-        setProcessing(false)
-        alert(`Payment with ${paymentMethod} processed successfully!`)
-      }, 2000)
+
+      // Check if payment succeeded
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Step 4: Confirm payment on our backend
+        try {
+          const paymentClient = new PaymentEndpointsClient()
+          const confirmResponse = await paymentClient.confirmPayment({
+            paymentIntentId: paymentIntent.id,
+            userEmail: userEmail
+          })
+
+          if (confirmResponse.success) {
+            // Step 5: Navigate to success page with state
+            navigate('/payment-success', {
+              state: {
+                paymentIntentId: paymentIntent.id,
+                userEmail: userEmail,
+                courses: courses,
+                totalAmount: totalPrice,
+                orderId: confirmResponse.orderId
+              }
+            })
+          } else {
+            setError(confirmResponse.message || 'Failed to confirm payment')
+            toast.error(confirmResponse.message || 'Failed to confirm payment')
+          }
+        } catch (confirmError) {
+          console.error('Error confirming payment:', confirmError)
+          setError('Failed to confirm payment on server')
+          toast.error('Payment succeeded but failed to confirm on server. Please contact support.')
+        }
+      } else {
+        setError('Payment was not completed successfully')
+        toast.error('Payment was not completed successfully')
+      }
+    } catch (error) {
+      console.error('Payment error:', error)
+      setError('An unexpected error occurred')
+      toast.error('An unexpected error occurred during payment')
+    } finally {
+      setProcessing(false)
     }
   }
 
@@ -64,11 +100,16 @@ export default function CheckoutForm({
     <Box component="form" onSubmit={handleSubmit}>
       <BillingAddress country={country} setCountry={setCountry} />
       
-      <PaymentMethodSelector 
-        paymentMethod={paymentMethod} 
-        setPaymentMethod={setPaymentMethod}
-        error={error}
-      />
+      {/* Stripe Payment Element */}
+      <Box sx={{ my: 3 }}>
+        <PaymentElement />
+      </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
       
       <OrderDetails courses={courses} />
 

@@ -1,10 +1,11 @@
-import { useState } from "react"
-import { Container, Box, Paper, Grid, Divider } from "@mui/material"
+import { useState, useCallback, useEffect, useMemo } from "react"
+import { Container, Box, Paper, Grid, CircularProgress, Typography } from "@mui/material"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
 import { useLocation, useNavigate } from "react-router"
-import { useEffect } from "react"
 import { toast } from "react-toastify"
+// NOTE: Renamed from PaymentClient to PaymentEndpointsClient to match generated client export
+import { PaymentEndpointsClient } from "../../../web-api-client.ts"
 import CheckoutHeader from "./components/CheckoutHeader"
 import CheckoutForm from "./components/CheckoutForm"
 import OrderSummary from "./components/OrderSummary"
@@ -17,21 +18,84 @@ export default function CheckoutPage() {
   const navigate = useNavigate()
   const [country, setCountry] = useState("Vietnam")
   const [paymentMethod, setPaymentMethod] = useState("card")
+  const [clientSecret, setClientSecret] = useState("")
+  const [paymentIntentId, setPaymentIntentId] = useState("")
+  const [loading, setLoading] = useState(true)
 
-  // Get courses data from navigation state or use empty array
-  const courses = location.state?.courses || []
+  // Memoize courses to prevent unnecessary re-renders
+  const courses = useMemo(() => {
+    return location.state?.courses || []
+  }, [location.state?.courses])
+
   const totalPrice = location.state?.totalAmount || courses.reduce((sum, course) => sum + course.price, 0)
+  const userEmail = "user@example.com" // TODO: Get from auth context
 
+  const createPaymentIntent = useCallback(async () => {
+    try {
+      setLoading(true)
+      const paymentClient = new PaymentEndpointsClient()
+      
+      const courseIds = courses.map(course => String(course.id || course.courseId))
+      
+      const response = await paymentClient.createPaymentIntent({
+        courseIds: courseIds,
+        userEmail: userEmail
+      })
+
+      setClientSecret(response.clientSecret)
+      setPaymentIntentId(response.paymentIntentId)
+      
+    } catch (error) {
+      console.error("Error creating payment intent:", error)
+      toast.error("Failed to initialize payment. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }, [courses, userEmail])
+
+  // Step 1: Create PaymentIntent when component mounts
   useEffect(() => {
     // If no courses data in state, redirect to homepage
     if (!courses.length) {
       toast.error("No courses selected for checkout")
       navigate("/")
+      return
     }
-  }, [courses, navigate])
+
+    createPaymentIntent()
+  }, [courses, navigate, createPaymentIntent])
+
+  // Show loading while creating payment intent
+  if (loading || !clientSecret) {
+    return (
+      <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="xl">
+          <CheckoutHeader />
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+            <Box textAlign="center">
+              <CircularProgress size={60} sx={{ color: "#6366f1", mb: 2 }} />
+              <Typography variant="h6" color="text.secondary">
+                Initializing payment...
+              </Typography>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+    )
+  }
+
+  const stripeOptions = {
+    clientSecret: clientSecret,
+    appearance: {
+      theme: 'stripe',
+      variables: {
+        colorPrimary: '#6366f1',
+      }
+    }
+  }
 
   return (
-    <Elements stripe={stripePromise}>
+    <Elements stripe={stripePromise} options={stripeOptions}>
       <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 4 }}>
         <Container maxWidth="xl">
           <CheckoutHeader />
@@ -55,6 +119,9 @@ export default function CheckoutPage() {
                   setCountry={setCountry}
                   paymentMethod={paymentMethod}
                   setPaymentMethod={setPaymentMethod}
+                  clientSecret={clientSecret}
+                  paymentIntentId={paymentIntentId}
+                  userEmail={userEmail}
                 />
               </Paper>
             </Grid>

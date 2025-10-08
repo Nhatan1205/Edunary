@@ -506,6 +506,83 @@ export class PaymentEndpointsClient {
         }
         return Promise.resolve<CreatePaymentIntentResponse>(null as any);
     }
+
+    confirmPayment(command: ConfirmPaymentCommand | undefined): Promise<ConfirmPaymentResponse> {
+        let url_ = this.baseUrl + "/api/PaymentEndpoints/confirm-payment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processConfirmPayment(_response);
+        });
+    }
+
+    protected processConfirmPayment(response: Response): Promise<ConfirmPaymentResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ConfirmPaymentResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ConfirmPaymentResponse>(null as any);
+    }
+
+    getPaymentStatus(paymentIntentId: string | null): Promise<PaymentStatusResponse> {
+        let url_ = this.baseUrl + "/api/PaymentEndpoints/payment-status/{paymentIntentId}";
+        if (paymentIntentId === undefined || paymentIntentId === null)
+            throw new Error("The parameter 'paymentIntentId' must be defined.");
+        url_ = url_.replace("{paymentIntentId}", encodeURIComponent("" + paymentIntentId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPaymentStatus(_response);
+        });
+    }
+
+    protected processGetPaymentStatus(response: Response): Promise<PaymentStatusResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaymentStatusResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaymentStatusResponse>(null as any);
+    }
 }
 
 export class TodoItemsClient {
@@ -1810,6 +1887,198 @@ export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
 export interface ICreatePaymentIntentCommand {
     courseIds?: string[] | undefined;
     userEmail?: string | undefined;
+}
+
+export class ConfirmPaymentResponse implements IConfirmPaymentResponse {
+    success?: boolean;
+    message?: string | undefined;
+    orderId?: string | undefined;
+
+    constructor(data?: IConfirmPaymentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            this.message = _data["message"];
+            this.orderId = _data["orderId"];
+        }
+    }
+
+    static fromJS(data: any): ConfirmPaymentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ConfirmPaymentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["message"] = this.message;
+        data["orderId"] = this.orderId;
+        return data;
+    }
+}
+
+export interface IConfirmPaymentResponse {
+    success?: boolean;
+    message?: string | undefined;
+    orderId?: string | undefined;
+}
+
+export class ConfirmPaymentCommand implements IConfirmPaymentCommand {
+    paymentIntentId?: string | undefined;
+    userEmail?: string | undefined;
+
+    constructor(data?: IConfirmPaymentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.paymentIntentId = _data["paymentIntentId"];
+            this.userEmail = _data["userEmail"];
+        }
+    }
+
+    static fromJS(data: any): ConfirmPaymentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ConfirmPaymentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["paymentIntentId"] = this.paymentIntentId;
+        data["userEmail"] = this.userEmail;
+        return data;
+    }
+}
+
+export interface IConfirmPaymentCommand {
+    paymentIntentId?: string | undefined;
+    userEmail?: string | undefined;
+}
+
+export class PaymentStatusResponse implements IPaymentStatusResponse {
+    paymentStatus?: string | undefined;
+    orderStatus?: string | undefined;
+    amount?: number;
+    orderId?: string | undefined;
+    paymentDate?: Date | undefined;
+    orderItems?: OrderItemDto[] | undefined;
+
+    constructor(data?: IPaymentStatusResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.paymentStatus = _data["paymentStatus"];
+            this.orderStatus = _data["orderStatus"];
+            this.amount = _data["amount"];
+            this.orderId = _data["orderId"];
+            this.paymentDate = _data["paymentDate"] ? new Date(_data["paymentDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["orderItems"])) {
+                this.orderItems = [] as any;
+                for (let item of _data["orderItems"])
+                    this.orderItems!.push(OrderItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PaymentStatusResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaymentStatusResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["paymentStatus"] = this.paymentStatus;
+        data["orderStatus"] = this.orderStatus;
+        data["amount"] = this.amount;
+        data["orderId"] = this.orderId;
+        data["paymentDate"] = this.paymentDate ? this.paymentDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.orderItems)) {
+            data["orderItems"] = [];
+            for (let item of this.orderItems)
+                data["orderItems"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IPaymentStatusResponse {
+    paymentStatus?: string | undefined;
+    orderStatus?: string | undefined;
+    amount?: number;
+    orderId?: string | undefined;
+    paymentDate?: Date | undefined;
+    orderItems?: OrderItemDto[] | undefined;
+}
+
+export class OrderItemDto implements IOrderItemDto {
+    courseId?: string | undefined;
+    courseName?: string | undefined;
+    price?: number;
+
+    constructor(data?: IOrderItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.courseName = _data["courseName"];
+            this.price = _data["price"];
+        }
+    }
+
+    static fromJS(data: any): OrderItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["courseName"] = this.courseName;
+        data["price"] = this.price;
+        return data;
+    }
+}
+
+export interface IOrderItemDto {
+    courseId?: string | undefined;
+    courseName?: string | undefined;
+    price?: number;
 }
 
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {

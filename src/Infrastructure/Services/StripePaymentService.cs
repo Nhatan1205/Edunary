@@ -46,4 +46,30 @@ public class StripePaymentService : IPaymentService
             PaymentIntentId = paymentIntent.Id
         };
     }
+
+    public async Task<bool> VerifyPaymentAsync(string paymentIntentId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var paymentIntent = await _paymentIntentService.GetAsync(paymentIntentId, cancellationToken: cancellationToken);
+            return paymentIntent.Status == "succeeded";
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<string> GetPaymentStatusAsync(string paymentIntentId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var paymentIntent = await _paymentIntentService.GetAsync(paymentIntentId, cancellationToken: cancellationToken);
+            return paymentIntent.Status;
+        }
+        catch
+        {
+            return "unknown";
+        }
+    }
 }

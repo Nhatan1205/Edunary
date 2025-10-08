@@ -10,7 +10,9 @@ public class Order : BaseAuditableEntity
     public string PaymentIntentId { get; set; } = string.Empty;
     public OrderStatus Status { get; set; }
     public DateTime OrderDate { get; set; }
+    public DateTime? CompletedDate { get; set; }
 
-    // Navigation property
+    // Navigation properties
     public IList<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public IList<Payment> Payments { get; set; } = new List<Payment>();
 }

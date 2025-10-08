@@ -4,7 +4,7 @@ namespace Edunary.Domain.Entities;
 
 public class Payment : BaseAuditableEntity
 {
-    public string OrderId { get; set; } = string.Empty;
+    public int OrderId { get; set; }
     public string PaymentIntentId { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public string Currency { get; set; } = string.Empty;

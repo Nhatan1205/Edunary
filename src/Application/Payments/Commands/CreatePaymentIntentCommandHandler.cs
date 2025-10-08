@@ -19,36 +19,35 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
 
     public async Task<CreatePaymentIntentResponse> Handle(CreatePaymentIntentCommand request, CancellationToken cancellationToken)
     {
-        // Mock course data - in real app, you would fetch from Course entity
-        var coursePrices = new Dictionary<string, decimal>
+        // Fetch actual course data from database
+        var courses = await _context.Courses
+            .Where(c => request.CourseIds.Contains(c.Id.ToString()))
+            .ToListAsync(cancellationToken);
+
+        if (!courses.Any())
         {
-            ["course1"] = 99.99m,
-            ["course2"] = 149.99m,
-            ["course3"] = 199.99m
-        };
+            throw new Exception("No valid courses found for the provided course IDs");
+        }
 
         // Prepare course payment info and order items
         var courseList = new List<CoursePaymentInfo>();
         var orderItems = new List<OrderItem>();
 
-        foreach (var courseId in request.CourseIds)
+        foreach (var course in courses)
         {
-            if (coursePrices.TryGetValue(courseId, out var price))
+            courseList.Add(new CoursePaymentInfo
             {
-                courseList.Add(new CoursePaymentInfo
-                {
-                    Id = courseId,
-                    Name = $"Course {courseId}",
-                    Price = price
-                });
+                Id = course.Id.ToString(),
+                Name = course.Title,
+                Price = (decimal)course.Price
+            });
 
-                orderItems.Add(new OrderItem
-                {
-                    CourseId = courseId,
-                    CourseName = $"Course {courseId}",
-                    Price = (float)price
-                });
-            }
+            orderItems.Add(new OrderItem
+            {
+                CourseId = course.Id.ToString(),
+                CourseName = course.Title,
+                Price = course.Price
+            });
         }
 
         // Create payment intent using Stripe service

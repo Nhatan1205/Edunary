@@ -8,10 +8,6 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 {
     public void Configure(EntityTypeBuilder<Payment> builder)
     {
-        builder.Property(t => t.OrderId)
-            .HasMaxLength(200)
-            .IsRequired();
-
         builder.Property(t => t.PaymentIntentId)
             .HasMaxLength(200)
             .IsRequired();
@@ -30,5 +26,14 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.Property(t => t.PaidDate)
             .IsRequired();
+
+        // Configure foreign key relationship with Order
+        builder.Property(t => t.OrderId)
+            .IsRequired();
+
+        builder.HasOne<Order>()
+            .WithMany(o => o.Payments)
+            .HasForeignKey(p => p.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

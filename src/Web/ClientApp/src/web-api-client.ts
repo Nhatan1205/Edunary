@@ -1843,7 +1843,6 @@ export interface ICreatePaymentIntentResponse {
 
 export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
     courseIds?: string[] | undefined;
-    userEmail?: string | undefined;
 
     constructor(data?: ICreatePaymentIntentCommand) {
         if (data) {
@@ -1861,7 +1860,6 @@ export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
                 for (let item of _data["courseIds"])
                     this.courseIds!.push(item);
             }
-            this.userEmail = _data["userEmail"];
         }
     }
 
@@ -1879,14 +1877,12 @@ export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
             for (let item of this.courseIds)
                 data["courseIds"].push(item);
         }
-        data["userEmail"] = this.userEmail;
         return data;
     }
 }
 
 export interface ICreatePaymentIntentCommand {
     courseIds?: string[] | undefined;
-    userEmail?: string | undefined;
 }
 
 export class ConfirmPaymentResponse implements IConfirmPaymentResponse {
@@ -1935,7 +1931,6 @@ export interface IConfirmPaymentResponse {
 
 export class ConfirmPaymentCommand implements IConfirmPaymentCommand {
     paymentIntentId?: string | undefined;
-    userEmail?: string | undefined;
 
     constructor(data?: IConfirmPaymentCommand) {
         if (data) {
@@ -1949,7 +1944,6 @@ export class ConfirmPaymentCommand implements IConfirmPaymentCommand {
     init(_data?: any) {
         if (_data) {
             this.paymentIntentId = _data["paymentIntentId"];
-            this.userEmail = _data["userEmail"];
         }
     }
 
@@ -1963,14 +1957,12 @@ export class ConfirmPaymentCommand implements IConfirmPaymentCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["paymentIntentId"] = this.paymentIntentId;
-        data["userEmail"] = this.userEmail;
         return data;
     }
 }
 
 export interface IConfirmPaymentCommand {
     paymentIntentId?: string | undefined;
-    userEmail?: string | undefined;
 }
 
 export class PaymentStatusResponse implements IPaymentStatusResponse {

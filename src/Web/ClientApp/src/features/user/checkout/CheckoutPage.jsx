@@ -4,8 +4,8 @@ import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
 import { useLocation, useNavigate } from "react-router"
 import { toast } from "react-toastify"
-// NOTE: Renamed from PaymentClient to PaymentEndpointsClient to match generated client export
 import { PaymentEndpointsClient } from "../../../web-api-client.ts"
+import { useAuth } from "../../../context/AuthContext"
 import CheckoutHeader from "./components/CheckoutHeader"
 import CheckoutForm from "./components/CheckoutForm"
 import OrderSummary from "./components/OrderSummary"
@@ -16,6 +16,7 @@ const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY ||
 export default function CheckoutPage() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
   const [country, setCountry] = useState("Vietnam")
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [clientSecret, setClientSecret] = useState("")
@@ -28,7 +29,6 @@ export default function CheckoutPage() {
   }, [location.state?.courses])
 
   const totalPrice = location.state?.totalAmount || courses.reduce((sum, course) => sum + course.price, 0)
-  const userEmail = "user@example.com" // TODO: Get from auth context
 
   const createPaymentIntent = useCallback(async () => {
     try {
@@ -38,8 +38,7 @@ export default function CheckoutPage() {
       const courseIds = courses.map(course => String(course.id || course.courseId))
       
       const response = await paymentClient.createPaymentIntent({
-        courseIds: courseIds,
-        userEmail: userEmail
+        courseIds: courseIds
       })
 
       setClientSecret(response.clientSecret)
@@ -51,10 +50,17 @@ export default function CheckoutPage() {
     } finally {
       setLoading(false)
     }
-  }, [courses, userEmail])
+  }, [courses])
 
   // Step 1: Create PaymentIntent when component mounts
   useEffect(() => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      toast.error("Please login to proceed with checkout")
+      navigate("/login")
+      return
+    }
+
     // If no courses data in state, redirect to homepage
     if (!courses.length) {
       toast.error("No courses selected for checkout")
@@ -63,7 +69,7 @@ export default function CheckoutPage() {
     }
 
     createPaymentIntent()
-  }, [courses, navigate, createPaymentIntent])
+  }, [courses, navigate, createPaymentIntent, isAuthenticated])
 
   // Show loading while creating payment intent
   if (loading || !clientSecret) {
@@ -121,7 +127,6 @@ export default function CheckoutPage() {
                   setPaymentMethod={setPaymentMethod}
                   clientSecret={clientSecret}
                   paymentIntentId={paymentIntentId}
-                  userEmail={userEmail}
                 />
               </Paper>
             </Grid>

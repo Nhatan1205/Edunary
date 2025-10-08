@@ -388,7 +388,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/PaymentEndpoints/confirm-payment": {
@@ -419,7 +424,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/PaymentEndpoints/payment-status/{paymentIntentId}": {
@@ -1293,10 +1303,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "userEmail": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -1322,10 +1328,6 @@
         "additionalProperties": false,
         "properties": {
           "paymentIntentId": {
-            "type": "string",
-            "nullable": true
-          },
-          "userEmail": {
             "type": "string",
             "nullable": true
           }

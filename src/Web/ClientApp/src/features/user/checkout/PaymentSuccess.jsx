@@ -20,7 +20,6 @@ import {
 } from "@mui/icons-material"
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
-// NOTE: Renamed from PaymentClient to PaymentEndpointsClient to match generated client export
 import { PaymentEndpointsClient } from "../../../web-api-client.ts"
 
 export default function PaymentSuccess() {
@@ -63,10 +62,6 @@ export default function PaymentSuccess() {
 
   const handleBackToHome = () => {
     navigate("/")
-  }
-
-  const handleViewCourses = () => {
-    navigate("/my-courses")
   }
 
   if (!paymentIntentId) {
@@ -219,22 +214,7 @@ export default function PaymentSuccess() {
         )}
 
         {/* Action Buttons */}
-        <Box display="flex" gap={2} justifyContent="center" flexWrap="wrap">
-          {isPaymentSuccessful && (
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<SchoolIcon />}
-              onClick={handleViewCourses}
-              sx={{
-                backgroundColor: "#6366f1",
-                "&:hover": { backgroundColor: "#5855eb" }
-              }}
-            >
-              View My Courses
-            </Button>
-          )}
-          
+        <Box display="flex" gap={2} justifyContent="center" flexWrap="wrap">          
           <Button
             variant="outlined"
             size="large"

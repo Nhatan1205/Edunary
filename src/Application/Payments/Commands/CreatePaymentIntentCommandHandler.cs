@@ -10,11 +10,13 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
 {
     private readonly IApplicationDbContext _context;
     private readonly IPaymentService _paymentService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreatePaymentIntentCommandHandler(IApplicationDbContext context, IPaymentService paymentService)
+    public CreatePaymentIntentCommandHandler(IApplicationDbContext context, IPaymentService paymentService, ICurrentUserService currentUserService)
     {
         _context = context;
         _paymentService = paymentService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<CreatePaymentIntentResponse> Handle(CreatePaymentIntentCommand request, CancellationToken cancellationToken)
@@ -51,13 +53,14 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
         }
 
         // Create payment intent using Stripe service
-        var paymentResponse = await _paymentService.CreatePaymentIntentAsync(courseList, request.UserEmail, cancellationToken);
+        var userEmail = _currentUserService.Email ?? throw new UnauthorizedAccessException("User email is required to create a payment intent");
+        var paymentResponse = await _paymentService.CreatePaymentIntentAsync(courseList, userEmail, cancellationToken);
 
         // Create Order in database
         var order = new Order
         {
-            UserId = "mock-user-id", // In real app, get from current user
-            UserEmail = request.UserEmail,
+            UserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User must be authenticated to create an order"),
+            UserEmail = userEmail,
             TotalAmount = (float)paymentResponse.Amount,
             PaymentIntentId = paymentResponse.PaymentIntentId,
             Status = OrderStatus.Pending,

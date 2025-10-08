@@ -11,8 +11,11 @@ public class PaymentEndpoints : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
+            .RequireAuthorization()
             .MapPost(CreatePaymentIntent, "create-payment-intent")
-            .MapPost(ConfirmPayment, "confirm-payment")
+            .MapPost(ConfirmPayment, "confirm-payment");
+
+        app.MapGroup(this)
             .MapGet(GetPaymentStatus, "payment-status/{paymentIntentId}");
     }
 

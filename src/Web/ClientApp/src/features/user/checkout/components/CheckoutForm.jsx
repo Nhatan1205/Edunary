@@ -4,10 +4,8 @@ import LockIcon from "@mui/icons-material/Lock"
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
-// NOTE: Renamed from PaymentClient to PaymentEndpointsClient to match generated client export
 import { PaymentEndpointsClient } from "../../../../web-api-client.ts"
 import BillingAddress from "./BillingAddress"
-import PaymentMethodSelector from "./PaymentMethodSelector"
 import OrderDetails from "./OrderDetails"
 
 export default function CheckoutForm({ 
@@ -18,8 +16,7 @@ export default function CheckoutForm({
   paymentMethod, 
   setPaymentMethod,
   clientSecret,
-  paymentIntentId,
-  userEmail
+  paymentIntentId
 }) {
   const stripe = useStripe()
   const elements = useElements()
@@ -42,7 +39,7 @@ export default function CheckoutForm({
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/payment-success`, // This won't be used since we handle success manually
+          return_url: `${window.location.origin}/payment-success?payment_intent=${paymentIntentId}`,
         },
         redirect: 'if_required'
       })
@@ -59,8 +56,7 @@ export default function CheckoutForm({
         try {
           const paymentClient = new PaymentEndpointsClient()
           const confirmResponse = await paymentClient.confirmPayment({
-            paymentIntentId: paymentIntent.id,
-            userEmail: userEmail
+            paymentIntentId: paymentIntent.id
           })
 
           if (confirmResponse.success) {
@@ -68,7 +64,6 @@ export default function CheckoutForm({
             navigate('/payment-success', {
               state: {
                 paymentIntentId: paymentIntent.id,
-                userEmail: userEmail,
                 courses: courses,
                 totalAmount: totalPrice,
                 orderId: confirmResponse.orderId

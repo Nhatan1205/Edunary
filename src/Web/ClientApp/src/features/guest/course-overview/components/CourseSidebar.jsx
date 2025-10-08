@@ -12,8 +12,27 @@ import {
   CardContent,
 } from '@mui/material'
 import { FavoriteBorder, Schedule, Language, MenuBook, VideoLibrary } from '@mui/icons-material'
+import { useNavigate } from 'react-router'
 
 const CourseSidebar = ({ courseData }) => {
+  const navigate = useNavigate()
+
+  const handleBuyNow = () => {
+    // Navigate to checkout with course data
+    navigate('/payment/checkout', {
+      state: {
+        courses: [{
+          id: courseData.id,
+          title: courseData.title,
+          subtitle: courseData.subtitle,
+          price: courseData.currentPrice,
+          imageUrl: courseData.image,
+          categoryTitle: courseData.category
+        }],
+        totalAmount: courseData.currentPrice
+      }
+    })
+  }
   return (
     <Box sx={{ width: 320 }}>
       <Paper sx={{ p: 3, mb: 3 }}>
@@ -43,13 +62,14 @@ const CourseSidebar = ({ courseData }) => {
           <Button
             variant="contained"
             fullWidth
+            onClick={handleBuyNow}
             sx={{
               py: 1.5,
               mb: 2,
               fontWeight: 'bold',
             }}
           >
-            Buy
+            Buy Now
           </Button>
           <Button
             variant="outlined"

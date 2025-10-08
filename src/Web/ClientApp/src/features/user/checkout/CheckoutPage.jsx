@@ -2,6 +2,9 @@ import { useState } from "react"
 import { Container, Box, Paper, Grid, Divider } from "@mui/material"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
+import { useLocation, useNavigate } from "react-router"
+import { useEffect } from "react"
+import { toast } from "react-toastify"
 import CheckoutHeader from "./components/CheckoutHeader"
 import CheckoutForm from "./components/CheckoutForm"
 import OrderSummary from "./components/OrderSummary"
@@ -10,31 +13,22 @@ import OrderSummary from "./components/OrderSummary"
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_51SEp4nDIrw4XMXOl149X6uisdUL3Q9PETF8IivdhUcKJ37agAI8zWE0OGLRkSQOKbnM5ssHDcHDPaPBlpt43uaIP00Qt4bNVJY')
 
 export default function CheckoutPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const [country, setCountry] = useState("Vietnam")
   const [paymentMethod, setPaymentMethod] = useState("card")
 
-  const courses = [
-    {
-      id: 1,
-      title: "Learn Ethical Hacking From Scratch",
-      price: 2309000,
-      image: "/ethical-hacking-course-thumbnail.jpg",
-    },
-    {
-      id: 2,
-      title: "100 Days of Code: The Complete Python Pro Bootcamp",
-      price: 2159000,
-      image: "/python-programming-course-thumbnail.jpg",
-    },
-    {
-      id: 3,
-      title: "Ultimate AWS Certified Solutions Architect Associate 2025",
-      price: 2499000,
-      image: "/aws-cloud-architecture-course-thumbnail.jpg",
-    },
-  ]
+  // Get courses data from navigation state or use empty array
+  const courses = location.state?.courses || []
+  const totalPrice = location.state?.totalAmount || courses.reduce((sum, course) => sum + course.price, 0)
 
-  const totalPrice = courses.reduce((sum, course) => sum + course.price, 0)
+  useEffect(() => {
+    // If no courses data in state, redirect to homepage
+    if (!courses.length) {
+      toast.error("No courses selected for checkout")
+      navigate("/")
+    }
+  }, [courses, navigate])
 
   return (
     <Elements stripe={stripePromise}>

@@ -4,6 +4,7 @@ using Edunary.Domain.Constants;
 using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Data.Interceptors;
 using Edunary.Infrastructure.Identity;
+using Edunary.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -41,6 +42,7 @@ public static class DependencyInjection
 
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
+        services.AddScoped<IPaymentService, StripePaymentService>();
 
         services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));

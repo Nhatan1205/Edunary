@@ -1,25 +1,13 @@
 ﻿import { Container, Box } from '@mui/material'
+import { useParams, useNavigate } from 'react-router'
+import { useEffect } from 'react'
+import { toast } from 'react-toastify'
 import CourseHeader from './components/CourseHeader'
 import CourseThumbnail from './components/CourseThumbnail'
 import CourseSidebar from './components/CourseSidebar'
 import CourseTabs from './components/CourseTabs'
-
-const courseData = {
-  category: "Development / Mobile Engineer",
-  title: "Make Uber Clone App",
-  instructor: "Steven Arnatovic",
-  rating: 4.8,
-  totalRatings: 1812,
-  originalPrice: 30.13,
-  currentPrice: 22.4,
-  discount: 20,
-  sections: 22,
-  lectures: 152,
-  duration: "21h 33m",
-  language: "English",
-  description: `Vue (pronounced /vjuː/, like view) is a progressive framework for building user interfaces. Unlike other monolithic frameworks, Vue is designed from the ground up to be incrementally adoptable. The core library is focused on the view layer only, and is easy to pick up and integrate with other libraries or existing projects. On the other hand, Vue is also perfectly capable of powering sophisticated Single-Page Applications when used in combination with modern tooling and supporting libraries.`,
-  image: "https://dianapps.com/blog/wp-content/uploads/2025/04/Uber-Clone-App-Development.png",
-}
+import useGetPublicCourseById from '../../../hooks/useGetPublicCourseById'
+import LoadingSpinner from '../../../components/LoadingSpinner'
 
 const reviews = [
   {
@@ -45,10 +33,51 @@ const reviews = [
 ]
 
 const CourseOverview = () => {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { data: courseData, isLoading, isError, error } = useGetPublicCourseById(id)
+
+  useEffect(() => {
+    if (isError) {
+      const errorMessage = error?.message === "Course not found" 
+        ? 'Course not found. The course you are looking for does not exist or has been removed.'
+        : 'Failed to load course. Please try again later.';
+      
+      toast.error(errorMessage);
+      setTimeout(() => {
+        navigate('/')
+      }, 2000)
+    }
+  }, [isError, error, navigate])
+
+  if (isLoading) {
+    return <LoadingSpinner fullScreen message="Loading course details..." />
+  }
+
+  if (isError || !courseData) {
+    return <LoadingSpinner fullScreen message="Redirecting..." />
+  }
+
+  const transformedCourseData = {
+    ...courseData,
+    category: courseData.categoryTitle || "Course",
+    instructor: "Instructor",
+    rating: 4.8, 
+    totalRatings: 0, 
+    originalPrice: courseData.price * 1.3, 
+    currentPrice: courseData.price,
+    discount: 20,
+    sections: 0,
+    lectures: 0, 
+    duration: "0h 0m",
+    language: "English",
+    image: courseData.imageUrl || "https://blocks.astratic.com/img/general-img-landscape.png",
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Course Header */}
-      <CourseHeader courseData={courseData} />
+      <CourseHeader courseData={transformedCourseData} />
 
       {/* Main Content */}
       <Box
@@ -68,15 +97,15 @@ const CourseOverview = () => {
             maxWidth: { xs: 350, sm: 400, md: 'none' },
           }}
         >
-          <CourseThumbnail image={courseData.image} title={courseData.title} />
+          <CourseThumbnail image={transformedCourseData.image} title={transformedCourseData.title} />
         </Box>
 
         {/* Right Sidebar */}
-        <CourseSidebar courseData={courseData} />
+        <CourseSidebar courseData={transformedCourseData} />
       </Box>
 
       {/* Tabs Section */}
-      <CourseTabs courseData={courseData} reviews={reviews} />
+      <CourseTabs courseData={transformedCourseData} reviews={reviews} />
     </Container>
   )
 }

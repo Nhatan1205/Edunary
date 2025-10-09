@@ -205,7 +205,7 @@ export default function PaymentSuccess() {
                     {item.courseName}
                   </Typography>
                   <Typography variant="body1" fontWeight="bold">
-                    ₫{item.price.toLocaleString()}
+                    {item.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
                   </Typography>
                 </Box>
               ))}

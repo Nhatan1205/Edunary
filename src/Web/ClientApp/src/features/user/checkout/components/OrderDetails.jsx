@@ -60,7 +60,7 @@ export default function OrderDetails({ courses }) {
                 fontSize: "1.1rem",
               }}
             >
-              ₫{course.price.toLocaleString()}
+              {course.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
             </Typography>
           </Box>
           {index < courses.length - 1 && <Divider />}

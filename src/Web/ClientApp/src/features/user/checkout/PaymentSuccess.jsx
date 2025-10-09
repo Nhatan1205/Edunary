@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   Chip,
-  CircularProgress,
   Alert
 } from "@mui/material"
 import { 
@@ -21,6 +20,7 @@ import {
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import { PaymentClient } from "../../../web-api-client.ts"
+import LoadingSpinner from "../../../components/LoadingSpinner"
 
 export default function PaymentSuccess() {
   const location = useLocation()
@@ -69,29 +69,28 @@ export default function PaymentSuccess() {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          <Box textAlign="center">
-            <CircularProgress size={60} sx={{ color: "#6366f1", mb: 2 }} />
-            <Typography variant="h6" color="text.secondary">
-              Verifying payment...
-            </Typography>
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="md">
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+            <LoadingSpinner size={60} message="Verifying payment..." />
           </Box>
-        </Box>
-      </Container>
+        </Container>
+      </Box>
     )
   }
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-        <Button variant="contained" onClick={handleBackToHome}>
-          Back to Home
-        </Button>
-      </Container>
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="md">
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+          <Button variant="contained" onClick={handleBackToHome}>
+            Back to Home
+          </Button>
+        </Container>
+      </Box>
     )
   }
 
@@ -99,28 +98,29 @@ export default function PaymentSuccess() {
                              paymentStatus?.orderStatus === 'Completed'
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper elevation={0} sx={{ p: 4, textAlign: "center", border: "1px solid #e0e7ff" }}>
-        {/* Success Icon and Title */}
-        <Box sx={{ mb: 4 }}>
-          {isPaymentSuccessful ? (
-            <CheckCircleIcon sx={{ fontSize: 80, color: "#22c55e", mb: 2 }} />
-          ) : (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              Payment verification failed
-            </Alert>
-          )}
-          
-          <Typography variant="h3" fontWeight="bold" color={isPaymentSuccessful ? "#22c55e" : "#ef4444"} sx={{ mb: 1 }}>
-            {isPaymentSuccessful ? "Payment Successful!" : "Payment Failed"}
-          </Typography>
-          
-          <Typography variant="h6" color="text.secondary">
-            {isPaymentSuccessful 
-              ? "Thank you for your purchase. You now have access to your courses."
-              : "There was an issue processing your payment."}
-          </Typography>
-        </Box>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
+      <Container maxWidth="md">
+        <Paper elevation={0} sx={{ p: 4, textAlign: "center", bgcolor: "background.paper", border: 1, borderColor: "divider" }}>
+          {/* Success Icon and Title */}
+          <Box sx={{ mb: 4 }}>
+            {isPaymentSuccessful ? (
+              <CheckCircleIcon sx={{ fontSize: 80, color: "brand.main", mb: 2 }} />
+            ) : (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                Payment verification failed
+              </Alert>
+            )}
+            
+            <Typography variant="h3" fontWeight="bold" color={isPaymentSuccessful ? "brand.main" : "error.main"} sx={{ mb: 1 }}>
+              {isPaymentSuccessful ? "Payment Successful!" : "Payment Failed"}
+            </Typography>
+            
+            <Typography variant="h6" color="text.secondary">
+              {isPaymentSuccessful 
+                ? "Thank you for your purchase. You now have access to your courses."
+                : "There was an issue processing your payment."}
+            </Typography>
+          </Box>
 
         {/* Payment Details */}
         {paymentStatus && (
@@ -158,7 +158,7 @@ export default function PaymentSuccess() {
                   <Typography variant="body2" color="text.secondary">
                     Amount Paid
                   </Typography>
-                  <Typography variant="h6" fontWeight="bold" color="#6366f1">
+                  <Typography variant="h6" fontWeight="bold" color="brand.main">
                     {paymentStatus.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
                   </Typography>
                 </Grid>
@@ -197,7 +197,8 @@ export default function PaymentSuccess() {
                   alignItems="center"
                   sx={{ 
                     py: 1, 
-                    borderBottom: index < paymentStatus.orderItems.length - 1 ? "1px solid #e5e7eb" : "none"
+                    borderBottom: index < paymentStatus.orderItems.length - 1 ? 1 : 0,
+                    borderColor: "divider"
                   }}
                 >
                   <Typography variant="body1">
@@ -225,5 +226,6 @@ export default function PaymentSuccess() {
         </Box>
       </Paper>
     </Container>
+    </Box>
   )
 }

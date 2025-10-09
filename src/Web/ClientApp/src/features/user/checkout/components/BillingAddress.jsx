@@ -3,7 +3,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from "@mui
 export default function BillingAddress({ country, setCountry }) {
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: "#1a1a1a" }}>
+      <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: "text.primary" }}>
         Billing Address
       </Typography>
       <FormControl fullWidth>
@@ -12,7 +12,7 @@ export default function BillingAddress({ country, setCountry }) {
           value={country}
           label="Country"
           onChange={(e) => setCountry(e.target.value)}
-          sx={{ backgroundColor: "white" }}
+          sx={{ bgcolor: "background.paper" }}
         >
           <MenuItem value="Vietnam">🇻🇳 Vietnam</MenuItem>
           <MenuItem value="United States">🇺🇸 United States</MenuItem>

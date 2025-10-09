@@ -7,20 +7,21 @@ export default function OrderSummary({ courses, totalPrice }) {
         elevation={0}
         sx={{
           p: 3,
-          backgroundColor: "white",
+          bgcolor: "background.paper",
           borderRadius: 2,
-          border: "1px solid #e0e7ff",
+          border: 1,
+          borderColor: "divider",
           mb: 3,
         }}
       >
-        <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: "#1a1a1a" }}>
+        <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: "text.primary" }}>
           Order Summary
         </Typography>
 
         {/* Course List */}
         <Box sx={{ mb: 3 }}>
           {courses.map((course) => (
-            <Box key={course.id} sx={{ display: "flex", alignItems: "center", mb: 2, pb: 2, borderBottom: "1px solid #f0f0f0" }}>
+            <Box key={course.id} sx={{ display: "flex", alignItems: "center", mb: 2, pb: 2, borderBottom: 1, borderColor: "divider" }}>
               <Box
                 component="img"
                 src={course.imageUrl || "https://blocks.astratic.com/img/general-img-landscape.png"}
@@ -45,14 +46,14 @@ export default function OrderSummary({ courses, totalPrice }) {
           </Box>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
             <Typography color="text.secondary">Discount:</Typography>
-            <Typography sx={{ fontWeight: 500, color: "#10b981" }}>-$0</Typography>
+            <Typography sx={{ fontWeight: 500, color: "success.main" }}>-$0</Typography>
           </Box>
           <Divider sx={{ my: 2 }} />
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
               Total ({courses.length} {courses.length === 1 ? 'course' : 'courses'}):
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: "#6366f1" }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: "brand.main" }}>
               ${totalPrice.toLocaleString()}
             </Typography>
           </Box>
@@ -60,11 +61,11 @@ export default function OrderSummary({ courses, totalPrice }) {
 
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 3 }}>
           By completing your purchase, you agree to our{" "}
-          <Link href="#" sx={{ color: "#6366f1", textDecoration: "none" }}>
+          <Link href="#" sx={{ color: "brand.main", textDecoration: "none" }}>
             Terms of Service
           </Link>
           {" "}and{" "}
-          <Link href="#" sx={{ color: "#6366f1", textDecoration: "none" }}>
+          <Link href="#" sx={{ color: "brand.main", textDecoration: "none" }}>
             Privacy Policy
           </Link>
           .
@@ -74,13 +75,14 @@ export default function OrderSummary({ courses, totalPrice }) {
       <Card
         variant="outlined"
         sx={{
-          backgroundColor: "white",
+          bgcolor: "background.paper",
           borderRadius: 2,
-          border: "1px solid #e0e7ff",
+          border: 1,
+          borderColor: "divider",
         }}
       >
         <CardContent sx={{ p: 3 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: "#1a1a1a" }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: "text.primary" }}>
             30-Day Money-Back Guarantee
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>

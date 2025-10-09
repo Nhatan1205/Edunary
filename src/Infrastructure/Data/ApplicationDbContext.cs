@@ -16,8 +16,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<Category> Categories => Set<Category>();
 
+    public DbSet<Payment> Payments => Set<Payment>();
+
+    public DbSet<Order> Orders => Set<Order>();
+
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
+    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+
     protected override void OnModelCreating(ModelBuilder builder)
-    {
+    {        
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }

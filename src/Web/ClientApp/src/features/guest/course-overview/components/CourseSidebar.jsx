@@ -8,12 +8,37 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Card,
-  CardContent,
 } from '@mui/material'
-import { FavoriteBorder, Schedule, Language, MenuBook, VideoLibrary } from '@mui/icons-material'
+import { FavoriteBorder, Schedule, Language, MenuBook, VideoLibrary, PlayArrow } from '@mui/icons-material'
+import { useNavigate } from 'react-router'
+import { useAuth } from '../../../../context/AuthContext'
+import { useEnrollmentStatus } from '../../../../hooks/useEnrollmentStatus'
 
 const CourseSidebar = ({ courseData }) => {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const { isEnrolled, loading } = useEnrollmentStatus(courseData.id)
+
+  const handleBuyNow = () => {
+    // Navigate to checkout with course data
+    navigate('/payment/checkout', {
+      state: {
+        courses: [{
+          id: courseData.id,
+          title: courseData.title,
+          subtitle: courseData.subtitle,
+          price: courseData.currentPrice,
+          imageUrl: courseData.image,
+          categoryTitle: courseData.category
+        }],
+        totalAmount: courseData.currentPrice
+      }
+    })
+  }
+
+  const handleGoToCourse = () => {
+    navigate(`/course/${courseData.id}/learn`)
+  }
   return (
     <Box sx={{ width: 320 }}>
       <Paper sx={{ p: 3, mb: 3 }}>
@@ -40,25 +65,52 @@ const CourseSidebar = ({ courseData }) => {
 
         {/* Action Buttons */}
         <Box sx={{ mb: 3 }}>
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{
-              py: 1.5,
-              mb: 2,
-              fontWeight: 'bold',
-            }}
-          >
-            Buy
-          </Button>
-          <Button
-            variant="outlined"
-            fullWidth
-            startIcon={<FavoriteBorder />}
-            color="primary"
-          >
-            Wishlist
-          </Button>
+          {isAuthenticated && isEnrolled ? (
+            // User is enrolled - show "Go to Course" button
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={handleGoToCourse}
+              startIcon={<PlayArrow />}
+              sx={{
+                py: 1.5,
+                mb: 2,
+                fontWeight: 'bold',
+                backgroundColor: '#22c55e',
+                '&:hover': {
+                  backgroundColor: '#16a34a',
+                },
+              }}
+            >
+              Go to Course
+            </Button>
+          ) : (
+            // User is not enrolled or not authenticated - show buy/wishlist buttons
+            <>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={handleBuyNow}
+                disabled={loading}
+                sx={{
+                  py: 1.5,
+                  mb: 2,
+                  fontWeight: 'bold',
+                }}
+              >
+                {loading ? 'Checking...' : 'Buy Now'}
+              </Button>
+              <Button
+                variant="outlined"
+                fullWidth
+                startIcon={<FavoriteBorder />}
+                color="primary"
+                disabled={loading}
+              >
+                Wishlist
+              </Button>
+            </>
+          )}
         </Box>
 
         {/* Course Details */}

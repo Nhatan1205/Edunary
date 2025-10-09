@@ -11,6 +11,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import InstructorLayout from "./layouts/InstructorLayout";
 import CoursesManagement from "./features/instructor/courses-management/courses-list-page/CoursesManagement";
 import CourseOverview from "./features/guest/course-overview/CourseOverview";
+import CheckoutPage from "./features/user/checkout/CheckoutPage";
+import PaymentSuccess from "./features/user/checkout/PaymentSuccess";
+
 import CreateCourse from "./features/instructor/courses-management/create-course-page/CreateCourse";
 import CourseLandingPage from "./features/instructor/courses-management/course-manage-page/pages/CourseLandingPage";
 import CoursePricing from "./features/instructor/courses-management/course-manage-page/pages/CoursePricing";
@@ -62,6 +65,14 @@ const router = createBrowserRouter([
         path: "/course/:id",
         element: <CourseOverview />,
       },
+      {
+        path: "/payment/checkout",
+        element: <CheckoutPage />,
+      },
+      {
+        path: "/payment-success",
+        element: <PaymentSuccess />,
+      }
     ],
   },
   {

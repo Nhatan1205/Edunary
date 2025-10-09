@@ -1,4 +1,4 @@
-namespace Edunary.Application.Payments.Queries.GetPaymentStatusQuery;
+﻿namespace Edunary.Application.Payments.Queries.GetPaymentStatusQuery;
 
 public class PaymentStatusDto
 {

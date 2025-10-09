@@ -1,4 +1,4 @@
-namespace Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
+﻿namespace Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
 
 public class CreatePaymentIntentDto
 {

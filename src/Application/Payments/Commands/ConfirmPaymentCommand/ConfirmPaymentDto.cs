@@ -1,4 +1,4 @@
-namespace Edunary.Application.Payments.Commands.ConfirmPaymentCommand;
+﻿namespace Edunary.Application.Payments.Commands.ConfirmPaymentCommand;
 
 public class ConfirmPaymentDto
 {

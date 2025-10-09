@@ -4,7 +4,7 @@ import LockIcon from "@mui/icons-material/Lock"
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
-import { PaymentEndpointsClient } from "../../../../web-api-client.ts"
+import { PaymentClient } from "../../../../web-api-client.ts"
 import BillingAddress from "./BillingAddress"
 import OrderDetails from "./OrderDetails"
 
@@ -54,7 +54,7 @@ export default function CheckoutForm({
       if (paymentIntent && paymentIntent.status === 'succeeded') {
         // Step 4: Confirm payment on our backend
         try {
-          const paymentClient = new PaymentEndpointsClient()
+          const paymentClient = new PaymentClient()
           const confirmResponse = await paymentClient.confirmPayment({
             paymentIntentId: paymentIntent.id
           })
@@ -74,8 +74,6 @@ export default function CheckoutForm({
             toast.error(confirmResponse.message || 'Failed to confirm payment')
           }
         } catch (confirmError) {
-          console.error('Error confirming payment:', confirmError)
-          setError('Failed to confirm payment on server')
           toast.error('Payment succeeded but failed to confirm on server. Please contact support.')
         }
       } else {

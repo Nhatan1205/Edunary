@@ -360,10 +360,10 @@
         }
       }
     },
-    "/api/Enrollments/check/{courseId}": {
+    "/api/Enrollment/check/{courseId}": {
       "get": {
         "tags": [
-          "Enrollments"
+          "Enrollment"
         ],
         "operationId": "CheckEnrollment",
         "parameters": [
@@ -384,7 +384,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckUserEnrollmentResponse"
+                  "$ref": "#/components/schemas/CheckUserEnrollmentDto"
                 }
               }
             }
@@ -397,10 +397,10 @@
         ]
       }
     },
-    "/api/PaymentEndpoints/create-payment-intent": {
+    "/api/Payment/create-payment-intent": {
       "post": {
         "tags": [
-          "PaymentEndpoints"
+          "Payment"
         ],
         "operationId": "CreatePaymentIntent",
         "requestBody": {
@@ -420,7 +420,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreatePaymentIntentResponse"
+                  "$ref": "#/components/schemas/CreatePaymentIntentDto"
                 }
               }
             }
@@ -433,10 +433,10 @@
         ]
       }
     },
-    "/api/PaymentEndpoints/confirm-payment": {
+    "/api/Payment/confirm-payment": {
       "post": {
         "tags": [
-          "PaymentEndpoints"
+          "Payment"
         ],
         "operationId": "ConfirmPayment",
         "requestBody": {
@@ -456,7 +456,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConfirmPaymentResponse"
+                  "$ref": "#/components/schemas/ConfirmPaymentDto"
                 }
               }
             }
@@ -469,10 +469,10 @@
         ]
       }
     },
-    "/api/PaymentEndpoints/payment-status/{paymentIntentId}": {
+    "/api/Payment/payment-status/{paymentIntentId}": {
       "get": {
         "tags": [
-          "PaymentEndpoints"
+          "Payment"
         ],
         "operationId": "GetPaymentStatus",
         "parameters": [
@@ -493,7 +493,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaymentStatusResponse"
+                  "$ref": "#/components/schemas/PaymentStatusDto"
                 }
               }
             }
@@ -1312,7 +1312,7 @@
           }
         }
       },
-      "CheckUserEnrollmentResponse": {
+      "CheckUserEnrollmentDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1326,7 +1326,7 @@
           }
         }
       },
-      "CreatePaymentIntentResponse": {
+      "CreatePaymentIntentDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1357,7 +1357,7 @@
           }
         }
       },
-      "ConfirmPaymentResponse": {
+      "ConfirmPaymentDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1384,7 +1384,7 @@
           }
         }
       },
-      "PaymentStatusResponse": {
+      "PaymentStatusDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

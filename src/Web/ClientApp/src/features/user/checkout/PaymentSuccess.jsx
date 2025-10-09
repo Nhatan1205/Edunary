@@ -20,7 +20,7 @@ import {
 } from "@mui/icons-material"
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
-import { PaymentEndpointsClient } from "../../../web-api-client.ts"
+import { PaymentClient } from "../../../web-api-client.ts"
 
 export default function PaymentSuccess() {
   const location = useLocation()
@@ -29,13 +29,12 @@ export default function PaymentSuccess() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Get data from navigation state
   const { paymentIntentId } = location.state || {}
 
   const fetchPaymentStatus = useCallback(async () => {
     try {
       setLoading(true)
-  const paymentClient = new PaymentEndpointsClient()
+      const paymentClient = new PaymentClient()
       
       // Step 5: Get final payment status
       const response = await paymentClient.getPaymentStatus(paymentIntentId)

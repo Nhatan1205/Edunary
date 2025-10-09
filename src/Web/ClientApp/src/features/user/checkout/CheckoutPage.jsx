@@ -4,7 +4,7 @@ import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
 import { useLocation, useNavigate } from "react-router"
 import { toast } from "react-toastify"
-import { PaymentEndpointsClient } from "../../../web-api-client.ts"
+import { PaymentClient } from "../../../web-api-client.ts"
 import { useAuth } from "../../../context/AuthContext"
 import CheckoutHeader from "./components/CheckoutHeader"
 import CheckoutForm from "./components/CheckoutForm"
@@ -26,7 +26,6 @@ export default function CheckoutPage() {
   const [paymentIntentId, setPaymentIntentId] = useState("")
   const [loading, setLoading] = useState(true)
 
-  // Memoize courses to prevent unnecessary re-renders
   const courses = useMemo(() => {
     return location.state?.courses || []
   }, [location.state?.courses])
@@ -36,7 +35,7 @@ export default function CheckoutPage() {
   const createPaymentIntent = useCallback(async () => {
     try {
       setLoading(true)
-      const paymentClient = new PaymentEndpointsClient()
+      const paymentClient = new PaymentClient()
       
       const courseIds = courses.map(course => String(course.id || course.courseId))
       
@@ -57,14 +56,12 @@ export default function CheckoutPage() {
 
   // Step 1: Create PaymentIntent when component mounts
   useEffect(() => {
-    // Check authentication first
     if (!isAuthenticated) {
       toast.error("Please login to proceed with checkout")
       navigate("/login")
       return
     }
 
-    // If no courses data in state, redirect to homepage
     if (!courses.length) {
       toast.error("No courses selected for checkout")
       navigate("/")
@@ -74,7 +71,6 @@ export default function CheckoutPage() {
     createPaymentIntent()
   }, [courses, navigate, createPaymentIntent, isAuthenticated])
 
-  // Show loading while creating payment intent
   if (loading || !clientSecret) {
     return (
       <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 4 }}>
@@ -111,7 +107,7 @@ export default function CheckoutPage() {
 
           <Grid container spacing={3}>
             {/* Left Column - Checkout Form */}
-            <Grid item xs={12} lg={8}>
+            <Grid size={{ xs: 12, lg: 8 }}>
               <Paper
                 elevation={0}
                 sx={{
@@ -135,7 +131,7 @@ export default function CheckoutPage() {
             </Grid>
 
             {/* Right Column - Order Summary */}
-            <Grid item xs={12} lg={4}>
+            <Grid size={{ xs: 12, lg: 4 }}>
               <OrderSummary courses={courses} totalPrice={totalPrice} />
             </Grid>
           </Grid>

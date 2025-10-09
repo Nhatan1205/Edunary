@@ -15,13 +15,15 @@ function DesktopDropDownProfile({
       anchorEl={anchorEl}
       open={open}
       onClose={onClose}
-      PaperProps={{
-        sx: {
-          width: 280,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          borderRadius: 2,
-          border: "1px solid #e0e0e0",
-          ml: -1.5,
+      slotProps={{
+        paper: {
+          sx: {
+            width: 280,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+            borderRadius: 2,
+            border: "1px solid #e0e0e0",
+            ml: -1.5,
+          },
         },
       }}
       transformOrigin={{ horizontal: "right", vertical: "top" }}

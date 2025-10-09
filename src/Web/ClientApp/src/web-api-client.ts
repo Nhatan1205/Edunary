@@ -507,6 +507,52 @@ export class EnrollmentsClient {
     }
 }
 
+export class NotificationClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getNotficationsByUserId(): Promise<NotificationsVm> {
+        let url_ = this.baseUrl + "/api/Notification";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetNotficationsByUserId(_response);
+        });
+    }
+
+    protected processGetNotficationsByUserId(response: Response): Promise<NotificationsVm> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = NotificationsVm.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<NotificationsVm>(null as any);
+    }
+}
+
 export class PaymentEndpointsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1884,6 +1930,150 @@ export class CheckUserEnrollmentResponse implements ICheckUserEnrollmentResponse
 export interface ICheckUserEnrollmentResponse {
     isEnrolled?: boolean;
     enrollmentDate?: Date | undefined;
+}
+
+export class NotificationsVm implements INotificationsVm {
+    total?: TotalUnreadDto[] | undefined;
+    lists?: GetNotificationByUserIdDto[] | undefined;
+
+    constructor(data?: INotificationsVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["total"])) {
+                this.total = [] as any;
+                for (let item of _data["total"])
+                    this.total!.push(TotalUnreadDto.fromJS(item));
+            }
+            if (Array.isArray(_data["lists"])) {
+                this.lists = [] as any;
+                for (let item of _data["lists"])
+                    this.lists!.push(GetNotificationByUserIdDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): NotificationsVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new NotificationsVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.total)) {
+            data["total"] = [];
+            for (let item of this.total)
+                data["total"].push(item.toJSON());
+        }
+        if (Array.isArray(this.lists)) {
+            data["lists"] = [];
+            for (let item of this.lists)
+                data["lists"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface INotificationsVm {
+    total?: TotalUnreadDto[] | undefined;
+    lists?: GetNotificationByUserIdDto[] | undefined;
+}
+
+export class TotalUnreadDto implements ITotalUnreadDto {
+    count?: number;
+
+    constructor(data?: ITotalUnreadDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+        }
+    }
+
+    static fromJS(data: any): TotalUnreadDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TotalUnreadDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        return data;
+    }
+}
+
+export interface ITotalUnreadDto {
+    count?: number;
+}
+
+export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
+    id?: number;
+    title?: string | undefined;
+    message?: string | undefined;
+    createdAt?: Date;
+    isRead?: boolean;
+
+    constructor(data?: IGetNotificationByUserIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.message = _data["message"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.isRead = _data["isRead"];
+        }
+    }
+
+    static fromJS(data: any): GetNotificationByUserIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetNotificationByUserIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["message"] = this.message;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["isRead"] = this.isRead;
+        return data;
+    }
+}
+
+export interface IGetNotificationByUserIdDto {
+    id?: number;
+    title?: string | undefined;
+    message?: string | undefined;
+    createdAt?: Date;
+    isRead?: boolean;
 }
 
 export class CreatePaymentIntentResponse implements ICreatePaymentIntentResponse {

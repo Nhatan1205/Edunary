@@ -1,20 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 import { toast } from "react-toastify";
-
+import queryClient from "../configs/reactQuery";
 //step 1: creat Context
 const SignalRContext = createContext(null);
 
 //step 2: Create provider
 export const SignalRProvider = ({ children }) => {
   const [connection, setConnection] = useState(null);
-
+  const [notifications, setNotifications] = useState([]);
   useEffect(() => {
     // Khởi tạo connection
     const newConnection = new signalR.HubConnectionBuilder()
       .withUrl("/NotificationHub", {})
       .withAutomaticReconnect()
-      .configureLogging(signalR.LogLevel.Information)
+      // .configureLogging(signalR.LogLevel.Information)
 
       .build();
 
@@ -25,7 +25,7 @@ export const SignalRProvider = ({ children }) => {
         await newConnection.start();
         console.log("SignalR Connected.");
       } catch (err) {
-        console.error("SignalR Connection Error: ", err);
+        // console.error("SignalR Connection Error: ", err);
         setTimeout(startConnection, 5000);
       }
     };
@@ -33,8 +33,18 @@ export const SignalRProvider = ({ children }) => {
     startConnection();
 
     // Đăng ký sự kiện chỉ 1 lần
-    const receiveHandler = (user, message) => {
-      toast.success(`${user}: ${message}`);
+    const receiveHandler = (payload) => {
+      // toast.success(`${user}: ${message}`);
+      toast.success(`${payload.message}`);
+      queryClient.invalidateQueries(["notifications"]);
+      setNotifications((prev) => [
+        {
+          id: Date.now(),
+          title: payload.title,
+          timestamp: "Just now",
+        },
+        ...prev,
+      ]);
     };
 
     newConnection.on("ReceiveMessage", receiveHandler);
@@ -47,7 +57,9 @@ export const SignalRProvider = ({ children }) => {
   }, []);
 
   return (
-    <SignalRContext.Provider value={{ connection }}>
+    <SignalRContext.Provider
+      value={{ connection, notifications, setNotifications }}
+    >
       {children}
     </SignalRContext.Provider>
   );

@@ -2,6 +2,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Identity;
+using Edunary.Infrastructure.Services;
 using Edunary.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
@@ -28,7 +29,6 @@ public static class DependencyInjection
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<INotifyService, NotifyService>();
         // Customise default API behaviour
         services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);

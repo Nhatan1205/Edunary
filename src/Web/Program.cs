@@ -16,24 +16,12 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
 builder.Services.AddSignalR(); //add websocket services
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddDefaultPolicy(
-//        builder =>
-//        {
-//            builder.WithOrigins("https://localhost:44447")
-//                .AllowAnyHeader()
-//                .WithMethods("GET", "POST")
-//                .AllowCredentials();
-//        });
-//});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // await app.InitialiseDatabaseAsync();
+     await app.InitialiseDatabaseAsync();
 }
 else
 {
@@ -52,7 +40,6 @@ app.UseSwaggerUi(settings =>
     settings.Path = "/api";
     settings.DocumentPath = "/api/specification.json";
 });
-//app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(

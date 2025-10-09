@@ -16,8 +16,8 @@ const useGetPublicCourseById = (id) => {
       const result = await response.json();
       return result;
     },
-    enabled: !!id, // Chỉ fetch khi id có giá trị hợp lệ
-    retry: false, // Không retry khi course không tồn tại
+    enabled: !!id, // Only fetch when id has a valid value
+    retry: false, // Do not retry when course is not found
   });
 };
 

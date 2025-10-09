@@ -134,7 +134,7 @@ export default function CheckoutForm({
           },
         }}
       >
-        {processing ? "Processing..." : `Complete Purchase - ₫${totalPrice.toLocaleString()}`}
+        {processing ? "Processing..." : `Complete Purchase - $${totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
       </Button>
     </Box>
   )

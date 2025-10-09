@@ -11,7 +11,10 @@ import CheckoutForm from "./components/CheckoutForm"
 import OrderSummary from "./components/OrderSummary"
 
 // Initialize Stripe
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_51SEp4nDIrw4XMXOl149X6uisdUL3Q9PETF8IivdhUcKJ37agAI8zWE0OGLRkSQOKbnM5ssHDcHDPaPBlpt43uaIP00Qt4bNVJY')
+if (!process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY) {
+  throw new Error("REACT_APP_STRIPE_PUBLISHABLE_KEY environment variable must be set.");
+}
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
   const location = useLocation()

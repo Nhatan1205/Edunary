@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { 
   Container, 
   Box, 
@@ -30,19 +30,9 @@ export default function PaymentSuccess() {
   const [error, setError] = useState(null)
 
   // Get data from navigation state
-  const { paymentIntentId, userEmail, courses, totalAmount, orderId } = location.state || {}
+  const { paymentIntentId } = location.state || {}
 
-  useEffect(() => {
-    if (!paymentIntentId) {
-      toast.error("Invalid payment session")
-      navigate("/")
-      return
-    }
-
-    fetchPaymentStatus()
-  }, [paymentIntentId, navigate])
-
-  const fetchPaymentStatus = async () => {
+  const fetchPaymentStatus = useCallback(async () => {
     try {
       setLoading(true)
   const paymentClient = new PaymentEndpointsClient()
@@ -58,7 +48,17 @@ export default function PaymentSuccess() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [paymentIntentId])
+
+  useEffect(() => {
+    if (!paymentIntentId) {
+      toast.error("Invalid payment session")
+      navigate("/")
+      return
+    }
+
+    fetchPaymentStatus()
+  }, [paymentIntentId, navigate, fetchPaymentStatus])
 
   const handleBackToHome = () => {
     navigate("/")
@@ -160,7 +160,7 @@ export default function PaymentSuccess() {
                     Amount Paid
                   </Typography>
                   <Typography variant="h6" fontWeight="bold" color="#6366f1">
-                    ₫{paymentStatus.amount.toLocaleString()}
+                    {paymentStatus.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
                   </Typography>
                 </Grid>
                 

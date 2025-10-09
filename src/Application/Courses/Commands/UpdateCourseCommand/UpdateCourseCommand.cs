@@ -87,8 +87,6 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.AddDomainEvent(new CourseUpdatedEvent(entity));
 
             await _context.SaveChangesAsync(cancellationToken);
-            await _notifyService.SendMessage("Server", "The Course have been updated");
-
             return Result.Success("Course updated successfully");
 
 

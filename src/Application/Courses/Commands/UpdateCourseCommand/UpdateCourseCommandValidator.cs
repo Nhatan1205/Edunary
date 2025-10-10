@@ -35,8 +35,7 @@ public class UpdateCourseCommandValidator : AbstractValidator<UpdateCourseComman
             .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
             .MaximumLength(500).WithMessage("Target audience must not exceed 500 characters.");
         RuleFor(x => x.ImageUrl)
-            .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
-            .MaximumLength(500).WithMessage("Image URL must not exceed 500 characters.");
+            .MinimumLength(5).WithMessage("Title must be at least 5 characters.");
         RuleFor(x => x.WelcomeMessage)
             .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
             .MaximumLength(500).WithMessage("Welcome message must not exceed 500 characters.");

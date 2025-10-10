@@ -2,6 +2,7 @@
 using Edunary.Application.Common.Models;
 using Edunary.Application.Users.Commands.CreateUserCommand;
 using Edunary.Domain.Common;
+using Edunary.Domain.Enums;
 using Edunary.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Internal;
@@ -10,19 +11,20 @@ using Microsoft.AspNetCore.Mvc;
 namespace Edunary.Web.Endpoints;
 
 public class Auth : EndpointGroupBase
-{ 
+{
     public override void Map(WebApplication app)
     {
         var group = app.MapGroup(this)
             .MapPost(Login, "login")
             .MapPost(Register, "register")
-            .MapGet(RefreshToken, "refresh-token");
+            .MapGet(RefreshToken, "refresh-token")
+            .MapPost(LoginWithSocialAccount, "loginwithsocial");
     }
     [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     public async Task<IResult> Login(IIdentityService identityService, [FromBody] AuthenticateModel model)
     {
 
-        var rs = await identityService.Login(model.Email, model.Password);
+        var rs = await identityService.Login(model.Email, model.Password, AccountType.System);
 
         if (!rs.Succeeded)
         {
@@ -71,6 +73,17 @@ public class Auth : EndpointGroupBase
             );
         }
 
+        return Results.Ok(new LoginResponse { Token = rs.Data });
+    }
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    public async Task<IResult> LoginWithSocialAccount(IIdentityService identityService, string token, string provider)
+    {
+        var rs = await identityService.GetInforSocialUser(token, provider);
+
+        if (!rs.Succeeded)
+        {
+            return Results.BadRequest(new { ErrorMessage = rs.Message });
+        }
         return Results.Ok(new LoginResponse { Token = rs.Data });
     }
 }

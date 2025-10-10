@@ -5,6 +5,7 @@ import "./custom.css";
 import { ToastContainer } from "react-toastify";
 import router from "./AppRoutes";
 import queryClient from "./configs/reactQuery";
+import Chatbot from "./components/chatbot/Chatbot";
 import { useAuth } from "./context/AuthContext";
 import { SignalRProvider } from "./context/SignalRContext";
 
@@ -25,7 +26,8 @@ function App() {
         pauseOnHover
         theme="colored"
       />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <Chatbot />
+      {/* <ReactQueryDevtools initialIsOpen={false}  /> */}
     </QueryClientProvider>
   );
 

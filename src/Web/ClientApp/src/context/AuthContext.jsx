@@ -63,14 +63,14 @@ export const AuthProvider = ({ children }) => {
     }
     // Get time until expiry in seconds
     const timeUntilExpiry = tokenService.getTimeUntilExpiry(token);
-
+    
     // If token expires in less than 10 seconds, it's too late to refresh reliably
     if (timeUntilExpiry < 10) {
       logout();
       return;
     }
     // Refresh token when 30 seconds left
-    const refreshBuffer = 30;
+    const refreshBuffer = 10;
     const refreshIn = Math.max(0, (timeUntilExpiry - refreshBuffer) * 1000);
 
     refreshTimerRef.current = setTimeout(async () => {
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
           const newTimeUntilExpiry = tokenService.getTimeUntilExpiry(newToken);
 
           // Check if new token has reasonable lifetime (at least 30 seconds)
-          if (newTimeUntilExpiry < 30) {
+          if (newTimeUntilExpiry < 10) {
             logout();
             return;
           }

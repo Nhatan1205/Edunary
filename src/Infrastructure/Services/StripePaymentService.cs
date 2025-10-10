@@ -2,6 +2,8 @@ using Stripe;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
 using Microsoft.Extensions.Configuration;
+using Edunary.Domain.Common;
+using Microsoft.Extensions.Options;
 
 namespace Edunary.Infrastructure.Services;
 
@@ -9,11 +11,14 @@ public class StripePaymentService : IPaymentService
 {
     private readonly PaymentIntentService _paymentIntentService; // Stripe service
     private readonly IConfiguration _configuration;
+    private readonly AppSettings _appSettings;
 
-    public StripePaymentService(IConfiguration configuration)
+    public StripePaymentService(IConfiguration configuration, IOptions<AppSettings> appSettings)
     {
         _configuration = configuration;
-        StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
+        _appSettings = appSettings.Value;
+
+        StripeConfiguration.ApiKey = _appSettings.StripeSecretKey;
         _paymentIntentService = new PaymentIntentService();
     }
 

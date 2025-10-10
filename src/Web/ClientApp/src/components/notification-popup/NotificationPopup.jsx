@@ -50,13 +50,23 @@ function NotificationPopup({
       </Box>
 
       <Divider />
-
-      {/* Notification List */}
       <Box sx={{ maxHeight: 400, overflowY: "auto" }}>
-        {notifications &&
+        {notifications && notifications.length > 0 ? (
           notifications.map((notification) => (
             <MessageCard key={notification.id} notification={notification} />
-          ))}
+          ))
+        ) : (
+          <Typography
+            sx={{
+              textAlign: "center",
+              padding: "16px",
+              color: "text.secondary",
+              fontSize: "14px",
+            }}
+          >
+            You have no notifications
+          </Typography>
+        )}
       </Box>
 
       <Divider sx={{ marginBottom: "8px" }} />

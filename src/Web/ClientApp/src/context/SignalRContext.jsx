@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
-import { toast } from "react-toastify";
 import queryClient from "../configs/reactQuery";
 //step 1: creat Context
 const SignalRContext = createContext(null);

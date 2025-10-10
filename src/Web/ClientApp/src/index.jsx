@@ -9,7 +9,7 @@ import { CssBaseline } from "@mui/material";
 import { AuthProvider } from "./context/AuthContext";
 import { setupApiInterceptor } from "./utils/apiInterceptor";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import Key from "./config/sso_key.json";
+import Key from "./configs/sso_key.json";
 const GOOGLE_CLIENT_ID = Key.clientIdGoogle;
 // Setup API interceptor for token management
 setupApiInterceptor();

@@ -10,12 +10,14 @@ import CheckoutHeader from "./components/CheckoutHeader"
 import CheckoutForm from "./components/CheckoutForm"
 import OrderSummary from "./components/OrderSummary"
 import LoadingSpinner from "../../../components/LoadingSpinner"
+import Key from "../../../configs/sso_key.json";
+
 
 // Initialize Stripe
-if (!process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY) {
+if (!Key.REACT_APP_STRIPE_PUBLISHABLE_KEY) {
   throw new Error("REACT_APP_STRIPE_PUBLISHABLE_KEY environment variable must be set.");
 }
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(Key.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
   const location = useLocation()

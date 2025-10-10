@@ -10,18 +10,18 @@ const CourseThumbnail = ({ image, title }) => {
         borderRadius: 2,
         overflow: 'hidden',
         border: '1px solid',
-        borderColor: 'divider'
+        borderColor: 'divider',
+        aspectRatio: '16/9' // Maintain consistent aspect ratio
       }}
     >
       <CardMedia
         component="img"
-        height="450"
         image={image}
         alt={title}
         sx={{
           objectFit: 'cover',
           width: '100%',
-          maxHeight: { xs: 200, sm: 300, md: 450 },
+          height: '100%',
           transition: 'transform 0.3s ease-in-out',
           '&:hover': {
             transform: 'scale(1.02)'

@@ -8,8 +8,23 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Divider,
+  Stack
 } from '@mui/material'
-import { FavoriteBorder, Schedule, Language, MenuBook, VideoLibrary, PlayArrow } from '@mui/icons-material'
+import { 
+  FavoriteBorder, 
+  Schedule, 
+  Language, 
+  MenuBook, 
+  VideoLibrary, 
+  PlayArrow,
+  Assignment,
+  Quiz,
+  GetApp,
+  PhonelinkSetup,
+  AllInclusive,
+  EmojiEvents
+} from '@mui/icons-material'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
 import { useEnrollmentStatus } from '../../../../hooks/useEnrollmentStatus'
@@ -40,7 +55,7 @@ const CourseSidebar = ({ courseData }) => {
     navigate(`/course/${courseData.id}/learn`)
   }
   return (
-    <Box sx={{ width: 320 }}>
+    <Box sx={{ width: '100%', maxWidth: 380 }}>
       <Paper 
         elevation={0}
         sx={{ 
@@ -49,7 +64,9 @@ const CourseSidebar = ({ courseData }) => {
           bgcolor: 'background.paper',
           border: '1px solid',
           borderColor: 'divider',
-          borderRadius: 2
+          borderRadius: 2,
+          position: 'sticky',
+          top: 24
         }}
       >
         {/* Pricing */}
@@ -161,26 +178,24 @@ const CourseSidebar = ({ courseData }) => {
         </Box>
 
         {/* Course Details */}
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 600, 
+            mb: 2,
+            color: 'text.primary'
+          }}
+        >
+          This course includes:
+        </Typography>
+        
         <List dense>
-          <ListItem sx={{ px: 0, py: 1 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <MenuBook sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary={`${courseData.sections} Section`}
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
-          <ListItem sx={{ px: 0, py: 1 }}>
+          <ListItem sx={{ px: 0, py: 0.5 }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
               <VideoLibrary sx={{ color: 'text.tertiary', fontSize: 20 }} />
             </ListItemIcon>
             <ListItemText 
-              primary={`${courseData.lectures} Lectures`}
+              primary={`${courseData.lectures} on-demand video lectures`}
               primaryTypographyProps={{
                 variant: 'body2',
                 color: 'text.secondary',
@@ -188,12 +203,13 @@ const CourseSidebar = ({ courseData }) => {
               }}
             />
           </ListItem>
-          <ListItem sx={{ px: 0, py: 1 }}>
+          
+          <ListItem sx={{ px: 0, py: 0.5 }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
-              <Schedule sx={{ color: 'text.tertiary', fontSize: 20 }} />
+              <MenuBook sx={{ color: 'text.tertiary', fontSize: 20 }} />
             </ListItemIcon>
             <ListItemText 
-              primary={`${courseData.duration} total length`}
+              primary={`${courseData.sections} sections`}
               primaryTypographyProps={{
                 variant: 'body2',
                 color: 'text.secondary',
@@ -201,12 +217,83 @@ const CourseSidebar = ({ courseData }) => {
               }}
             />
           </ListItem>
-          <ListItem sx={{ px: 0, py: 1 }}>
+          
+          <ListItem sx={{ px: 0, py: 0.5 }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
-              <Language sx={{ color: 'text.tertiary', fontSize: 20 }} />
+              <Assignment sx={{ color: 'text.tertiary', fontSize: 20 }} />
             </ListItemIcon>
             <ListItemText 
-              primary={courseData.language}
+              primary={`${courseData.assignments} assignments`}
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
+          </ListItem>
+
+          <ListItem sx={{ px: 0, py: 0.5 }}>
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <Quiz sx={{ color: 'text.tertiary', fontSize: 20 }} />
+            </ListItemIcon>
+            <ListItemText 
+              primary={`${courseData.quizzes} practice quizzes`}
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
+          </ListItem>
+
+          <ListItem sx={{ px: 0, py: 0.5 }}>
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <GetApp sx={{ color: 'text.tertiary', fontSize: 20 }} />
+            </ListItemIcon>
+            <ListItemText 
+              primary={`${courseData.downloadableResources} downloadable resources`}
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
+          </ListItem>
+
+          <ListItem sx={{ px: 0, py: 0.5 }}>
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <AllInclusive sx={{ color: 'text.tertiary', fontSize: 20 }} />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Full lifetime access"
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
+          </ListItem>
+
+          <ListItem sx={{ px: 0, py: 0.5 }}>
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <PhonelinkSetup sx={{ color: 'text.tertiary', fontSize: 20 }} />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Access on mobile and TV"
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
+          </ListItem>
+
+          <ListItem sx={{ px: 0, py: 0.5 }}>
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <EmojiEvents sx={{ color: 'text.tertiary', fontSize: 20 }} />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Certificate of completion"
               primaryTypographyProps={{
                 variant: 'body2',
                 color: 'text.secondary',
@@ -215,6 +302,47 @@ const CourseSidebar = ({ courseData }) => {
             />
           </ListItem>
         </List>
+        
+        <Divider sx={{ my: 3 }} />
+        
+        {/* Course Info */}
+        <Typography 
+          variant="subtitle2" 
+          sx={{ 
+            fontWeight: 600, 
+            mb: 1,
+            color: 'text.primary'
+          }}
+        >
+          Course Information
+        </Typography>
+        
+        <Stack spacing={1}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="body2" color="text.tertiary">Duration:</Typography>
+            <Typography variant="body2" color="text.secondary" fontWeight={500}>
+              {courseData.duration}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="body2" color="text.tertiary">Language:</Typography>
+            <Typography variant="body2" color="text.secondary" fontWeight={500}>
+              {courseData.language}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="body2" color="text.tertiary">Level:</Typography>
+            <Typography variant="body2" color="text.secondary" fontWeight={500}>
+              {courseData.level}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="body2" color="text.tertiary">Last updated:</Typography>
+            <Typography variant="body2" color="text.secondary" fontWeight={500}>
+              {courseData.lastUpdated}
+            </Typography>
+          </Box>
+        </Stack>
       </Paper>
     </Box>
   )

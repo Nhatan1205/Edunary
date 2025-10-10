@@ -67,11 +67,19 @@ const router = createBrowserRouter([
       },
       {
         path: "/payment/checkout",
-        element: <CheckoutPage />,
+        element: (
+          <ProtectedRoute>
+            <CheckoutPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/payment-success",
-        element: <PaymentSuccess />,
+        element: (
+          <ProtectedRoute>
+            <PaymentSuccess />
+          </ProtectedRoute>
+        ),
       }
     ],
   },

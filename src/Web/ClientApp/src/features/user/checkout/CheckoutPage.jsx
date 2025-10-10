@@ -57,12 +57,6 @@ export default function CheckoutPage() {
 
   // Step 1: Create PaymentIntent when component mounts
   useEffect(() => {
-    if (!isAuthenticated) {
-      toast.error("Please login to proceed with checkout")
-      navigate("/login")
-      return
-    }
-
     if (!courses.length) {
       toast.error("No courses selected for checkout")
       navigate("/")
@@ -70,7 +64,7 @@ export default function CheckoutPage() {
     }
 
     createPaymentIntent()
-  }, [courses, navigate, createPaymentIntent, isAuthenticated])
+  }, [courses, navigate, createPaymentIntent])
 
   if (loading || !clientSecret) {
     return (

@@ -64,7 +64,7 @@ function NotificationPopup({
               fontSize: "14px",
             }}
           >
-            You have no notifications
+            You don’t have any notifications.
           </Typography>
         )}
       </Box>

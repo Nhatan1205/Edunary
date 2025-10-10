@@ -63,7 +63,7 @@ function Header() {
   const { data: dataNofications } = useGetNotificationsByUserId();
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1, position: "sticky", top: 0, zIndex: 1000 }}>
       <AppBar
         position="static"
         sx={{

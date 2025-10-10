@@ -4,7 +4,7 @@ import ToolbarCourse from "./ToolbarCourse";
 import CourseList from "./CourseList";
 import PageTitle from "../../../../components/PageTitle";
 import useGetCoursesAuthor from "../../../../hooks/useGetCoursesAuthor";
-import { Pagination } from "@mui/material";
+import { Pagination, Typography } from "@mui/material";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 function CoursesManagement() {
@@ -77,9 +77,20 @@ function CoursesManagement() {
         onSearchClick={handleSearchClick}
         onFilterChange={handleFilterChange}
       />
-      <CourseList courses={filteredCourses} />
+      {filteredCourses.length > 0 ? (
+        <CourseList courses={filteredCourses} />
+      ) : (
+        <Typography
+          variant="h6"
+          align="center"
+          color="text.secondary"
+          sx={{ mt: 4 }}
+        >
+          You don’t have any courses
+        </Typography>
+      )}
 
-      {coursesData && (
+      {coursesData && coursesData.totalPages > 1 && (
         <div className="d-flex justify-content-center mt-4">
           <Pagination
             count={coursesData.totalPages}

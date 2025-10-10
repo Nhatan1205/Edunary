@@ -1,16 +1,25 @@
 import { Avatar, Box, MenuItem, Typography } from "@mui/material";
 import DefaultImage from "../../assets/images/default.jpg";
-function MessageCard({ title, timestamp, onClick }) {
+import formatTimeAgo from "../../utils/helpers";
+import useUpdateNotificationStatus from "../../hooks/useUpdateNoificationStatus";
+function MessageCard({ notification }) {
+  const { id, message, created, isRead } = notification;
+  const updateNotificationStatusMutation = useUpdateNotificationStatus();
+
+  function handleUpdateStatus() {
+    updateNotificationStatusMutation.mutate({ id });
+  }
+
   return (
     <MenuItem
-      onClick={onClick}
+      onClick={handleUpdateStatus}
       sx={{
         display: "flex",
         alignItems: "flex-start",
         gap: 2,
         padding: "16px 20px",
         "&:hover": {
-          backgroundColor: "#f5f5f5",
+          backgroundColor: "background.muted",
         },
       }}
     >
@@ -30,12 +39,13 @@ function MessageCard({ title, timestamp, onClick }) {
           flexDirection: "column",
           justifyContent: "space-between",
           height: 64,
+          opacity: isRead ? 0.6 : 1,
         }}
       >
         <Typography
           variant="body1"
           sx={{
-            fontWeight: 500,
+            fontWeight: isRead ? 400 : 600,
             fontSize: "14px",
             color: "#1a1a1a",
             marginBottom: "4px",
@@ -47,7 +57,7 @@ function MessageCard({ title, timestamp, onClick }) {
             whiteSpace: "normal",
           }}
         >
-          {title}
+          {message}
         </Typography>
         <Typography
           variant="caption"
@@ -56,7 +66,7 @@ function MessageCard({ title, timestamp, onClick }) {
             fontSize: "12px",
           }}
         >
-          {timestamp}
+          {formatTimeAgo(created)}
         </Typography>
       </Box>
     </MenuItem>

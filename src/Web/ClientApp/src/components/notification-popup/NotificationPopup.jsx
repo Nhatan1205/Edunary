@@ -1,28 +1,12 @@
 import { Box, Button, Divider, Menu, Typography } from "@mui/material";
 import MessageCard from "./MessageCard";
-import { useSignalR } from "../../context/SignalRContext";
-function NotificationPopup({ open, anchorEl, handleClosePopup }) {
-  // const notifications = [
-  //   {
-  //     id: 1,
-  //     title: "The quiz that you requested to be deleted is now deleted.",
-  //     timestamp: "4 days ago",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "The assignment that you requested to be deleted is now deleted.",
-  //     timestamp: "4 days ago",
-  //   },
-  //   {
-  //     id: 3,
-  //     title:
-  //       "The quiz that you requested to be deleted is now deleted. The quiz that you requested to be deleted is now deleted.",
-  //     timestamp: "4 days ago",
-  //   },
-  // ];
 
-  const { notifications } = useSignalR();
-
+function NotificationPopup({
+  open,
+  anchorEl,
+  handleClosePopup,
+  notifications,
+}) {
   return (
     <Menu
       anchorEl={anchorEl}
@@ -68,15 +52,11 @@ function NotificationPopup({ open, anchorEl, handleClosePopup }) {
       <Divider />
 
       {/* Notification List */}
-      <Box sx={{ maxHeight: 400 }}>
-        {notifications.map((notification) => (
-          <MessageCard
-            key={notification.id}
-            title={notification.title}
-            timestamp={notification.timestamp}
-            onClick={handleClosePopup}
-          />
-        ))}
+      <Box sx={{ maxHeight: 400, overflowY: "auto" }}>
+        {notifications &&
+          notifications.map((notification) => (
+            <MessageCard key={notification.id} notification={notification} />
+          ))}
       </Box>
 
       <Divider sx={{ marginBottom: "8px" }} />

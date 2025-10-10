@@ -5,9 +5,12 @@ import "./custom.css";
 import { ToastContainer } from "react-toastify";
 import router from "./AppRoutes";
 import queryClient from "./configs/reactQuery";
+import { useAuth } from "./context/AuthContext";
+import { SignalRProvider } from "./context/SignalRContext";
 
 function App() {
-  return (
+  const { isAuthenticated } = useAuth();
+  const AppContent = (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <ToastContainer
@@ -24,6 +27,12 @@ function App() {
       />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
+  );
+
+  return isAuthenticated ? (
+    <SignalRProvider>{AppContent}</SignalRProvider>
+  ) : (
+    AppContent
   );
 }
 

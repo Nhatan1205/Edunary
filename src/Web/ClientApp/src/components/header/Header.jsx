@@ -61,7 +61,7 @@ function Header() {
 
   //notification state
   const { data: dataNofications } = useGetNotificationsByUserId();
-  console.log(dataNofications);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
@@ -237,10 +237,9 @@ function Header() {
                     onClick={handleOpenNotification}
                   >
                     <Badge
-                      badgeContent={dataNofications?.total[0]?.count}
+                      badgeContent={dataNofications?.unreadCount}
                       color="error"
                       size="medium"
-                      showZero
                     >
                       <NotificationsNoneOutlinedIcon
                         fontSize={isMobile ? "small" : "medium"}
@@ -251,6 +250,7 @@ function Header() {
                     open={isOpenNotification}
                     anchorEl={anchorElNotification}
                     handleClosePopup={handleCloseNotification}
+                    notifications={dataNofications?.list}
                   />
 
                   <IconButton

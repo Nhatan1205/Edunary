@@ -6,7 +6,7 @@ public class GetNotificationByUserIdDto
     public int Id { get; set; }
     public string Title { get; set; } = null!;
     public string Message { get; set; } = null!;
-    public DateTime CreatedAt { get; set; }
+    public DateTimeOffset Created { get; set; }
     public bool IsRead { get; set; }
 
     private class Mapping : Profile

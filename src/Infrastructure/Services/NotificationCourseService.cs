@@ -1,5 +1,9 @@
 ﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Enrollments.Queries.GetStudentsByCourseIdQuery;
+using Edunary.Application.Notifications.Commands.CreateNotificationCommand;
+using Edunary.Application.NotificationUsers.Commands.CreateNotificationUserCommand;
 using Edunary.Domain.Entities;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Infrastructure.Services;
@@ -7,54 +11,54 @@ public class NotificationCourseService : INotificationCourseService
 {
     private readonly IApplicationDbContext _context;
     private readonly INotifyService _notifyService;
+    private readonly ISender _sender;
 
     public NotificationCourseService(
         IApplicationDbContext context,
-        INotifyService notifyService)
+        INotifyService notifyService, ISender sender)
     {
         _context = context;
         _notifyService = notifyService;
+        _sender = sender;
     }
 
     public async Task NotifyCourseUpdatedAsync(int courseId, string title, string message, CancellationToken cancellationToken)
     {
-        var notification = new Notification
-        {
-            Title = title,
-            Message = message,
-            Type = "course_update",
-            CourseId = courseId,
-            Url = $"/courses/{courseId}"
-        };
-
-        _context.Notifications.Add(notification);
-        await _context.SaveChangesAsync(cancellationToken);
-
         // get all studnet in the course
-        var studentIds = await _context.Enrollments
-            .Where(e => e.CourseId == courseId)
-            .Select(e => e.StudentId)
-            .ToListAsync(cancellationToken);
-
-        // mapping NotificationUser
-        var mappings = studentIds.Select(sid => new NotificationUser
+        var students = await _sender.Send(new GetStudentsByCourseIdQuery { CourseId = courseId }, cancellationToken);
+        if (students.Any())
         {
-            NotificationId = notification.Id,
-            StudentId = sid,
-            IsRead = false
-        }).ToList();
+            var createCommand = new CreateNotificationCommand
+            {
+                CourseId = courseId,
+                Title = title,
+                Message = message,
+                Type = "course_update",
+                Url = $"/courses/{courseId}"
+            };
 
-        _context.NotificationUsers.AddRange(mappings);
-        await _context.SaveChangesAsync(cancellationToken);
+            var resultNotification = await _sender.Send(createCommand, cancellationToken);
 
-        var payload = new
-        {
-            Title = notification.Title,
-            Message = notification.Message,
-            CourseId = courseId,
-            Created = DateTime.UtcNow
-        };
+            foreach (var student in students)
+            {
+                var command = new CreateNotificationUserCommand
+                {
+                    NotificationId = (int)resultNotification.Data,
+                    StudentId = student.Id,
+                    IsRead = false
+                };
+                await _sender.Send(command, cancellationToken);
+            }
 
-        await _notifyService.SendToGroupAsync($"{courseId}", "ReceiveMessage", payload);
+            var payload = new
+            {
+                Title = title,
+                Message = message,
+                CourseId = courseId,
+                Created = DateTime.UtcNow
+            };
+
+            await _notifyService.SendToGroupAsync($"{courseId}", "ReceiveMessage", payload);
+        }
     }
 }

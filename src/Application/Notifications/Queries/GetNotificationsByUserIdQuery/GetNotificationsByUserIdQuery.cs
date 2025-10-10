@@ -28,19 +28,15 @@ public class GetNotificationsByUserIdQueryHandler : IRequestHandler<GetNotificat
         var unreadCount = await _context.NotificationUsers
             .Where(nu => nu.StudentId == userId && !nu.IsRead)
             .CountAsync(cancellationToken);
-        var Lists = await _context.NotificationUsers
+        var List = await _context.NotificationUsers
             .Where(nu => nu.StudentId == userId)
             .OrderByDescending(nu => nu.Notification.Created)
             .ProjectTo<GetNotificationByUserIdDto>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
         return new NotificationsVm
         {
-            Total = new List<TotalUnreadDto>
-            {
-                new TotalUnreadDto { Count = unreadCount }
-            },
-
-            Lists = Lists
+            UnreadCount = unreadCount,
+            List = List
         };
     }
 }

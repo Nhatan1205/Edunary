@@ -8,7 +8,6 @@ import theme from "./theme/theme";
 import { CssBaseline } from "@mui/material";
 import { AuthProvider } from "./context/AuthContext";
 import { setupApiInterceptor } from "./utils/apiInterceptor";
-import { SignalRProvider } from "./context/SignalRContext";
 // Setup API interceptor for token management
 setupApiInterceptor();
 
@@ -21,9 +20,7 @@ root.render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <SignalRProvider>
-          <App />
-        </SignalRProvider>
+        <App />
       </AuthProvider>
     </ThemeProvider>
   </>,

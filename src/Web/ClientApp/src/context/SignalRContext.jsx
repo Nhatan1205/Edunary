@@ -8,7 +8,6 @@ const SignalRContext = createContext(null);
 //step 2: Create provider
 export const SignalRProvider = ({ children }) => {
   const [connection, setConnection] = useState(null);
-  const [notifications, setNotifications] = useState([]);
   useEffect(() => {
     // Khởi tạo connection
     const newConnection = new signalR.HubConnectionBuilder()
@@ -34,17 +33,8 @@ export const SignalRProvider = ({ children }) => {
 
     // Đăng ký sự kiện chỉ 1 lần
     const receiveHandler = (payload) => {
-      // toast.success(`${user}: ${message}`);
-      toast.success(`${payload.message}`);
+      // toast.success(`${payload.message}`);
       queryClient.invalidateQueries(["notifications"]);
-      setNotifications((prev) => [
-        {
-          id: Date.now(),
-          title: payload.title,
-          timestamp: "Just now",
-        },
-        ...prev,
-      ]);
     };
 
     newConnection.on("ReceiveMessage", receiveHandler);
@@ -57,9 +47,7 @@ export const SignalRProvider = ({ children }) => {
   }, []);
 
   return (
-    <SignalRContext.Provider
-      value={{ connection, notifications, setNotifications }}
-    >
+    <SignalRContext.Provider value={{ connection }}>
       {children}
     </SignalRContext.Provider>
   );

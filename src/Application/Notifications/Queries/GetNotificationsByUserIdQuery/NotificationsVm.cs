@@ -1,7 +1,7 @@
 ﻿namespace Edunary.Application.Notifications.Queries.GetNotificationsByUserIdQuery;
 public class NotificationsVm
 {
-    public IReadOnlyCollection<TotalUnreadDto> Total { get; init; } = Array.Empty<TotalUnreadDto>();
+    public int UnreadCount { get; init; }
 
-    public IReadOnlyCollection<GetNotificationByUserIdDto> Lists { get; init; } = Array.Empty<GetNotificationByUserIdDto>();
+    public IReadOnlyCollection<GetNotificationByUserIdDto> List { get; init; } = Array.Empty<GetNotificationByUserIdDto>();
 }

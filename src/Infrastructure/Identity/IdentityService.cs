@@ -13,8 +13,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using Microsoft.IdentityModel.Protocols; 
+using Microsoft.IdentityModel.Protocols.OpenIdConnect; 
+using System.Net.Http; 
 
 namespace Edunary.Infrastructure.Identity;
+
 public class IdentityService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -53,7 +58,7 @@ public class IdentityService : IIdentityService
         return user?.UserName;
     }
 
-    public async Task<Result> Register(string userName, string phoneNumber, string email, string password, string fullName)
+    public async Task<Result> Register(string userName, string phoneNumber, string email, string password, string fullName, string avatar = null)
     {
         Result rs = Result.Failure();
         try
@@ -64,7 +69,8 @@ public class IdentityService : IIdentityService
                 UserName = userName,
                 PhoneNumber = phoneNumber,
                 Email = email,
-                FullName = fullName
+                FullName = fullName,
+                Avatar = avatar,
             };
             if (!string.IsNullOrEmpty(password))
             {
@@ -223,7 +229,7 @@ public class IdentityService : IIdentityService
         return userModel;
     }
 
-    public async Task<Result> Login(string userName, string passWord)
+    public async Task<Result> Login(string userName, string passWord, AccountType accountType, bool? forceFirstLogin = null, string defaultPassword = null)
     {
         Result rs = Result.Failure();
         try
@@ -236,23 +242,25 @@ public class IdentityService : IIdentityService
             else
             {
                 bool isLogin = true;
-                var validPassword = await _userManager.CheckPasswordAsync(user, passWord);
-                if (!validPassword)
+                if (accountType == AccountType.System)
                 {
-                    rs = Result.Failure("Email/User Name or Password is incorrect");
-                    isLogin = false;
+                    var validPassword = await _userManager.CheckPasswordAsync(user, passWord);
+                    if (!validPassword)
+                    {
+                        rs = Result.Failure("Email/User Name or Password is incorrect");
+                        isLogin = false;
+                    }
                 }
                 if (isLogin)
                 {
-                    bool isFirstLogin = user.LastLoginTime == null;
+                    bool isFirstLogin = forceFirstLogin ?? (user.LastLoginTime == null);
                     user.LastLoginTime = DateTime.Now;
                     await _userManager.UpdateAsync(user);
-                    string accessToken = await CreateToken(user, TokenType.AccessToken, false, isFirstLogin);
+                    string accessToken = await CreateToken(user, TokenType.AccessToken, false, accountType, isFirstLogin, defaultPassword);
                     string refreshToken = await CreateToken(user, TokenType.RefreshToken);
-                    await SetTokenAsync(user, "system", Utils.GetEnumMemberValue(TokenType.RefreshToken), refreshToken);
+                    await SetTokenAsync(user, Utils.GetEnumMemberValue(AccountType.System), Utils.GetEnumMemberValue(TokenType.RefreshToken), refreshToken);
                     rs = Result.Success(accessToken);
                 }
-                
             }
         }
         catch (Exception ex)
@@ -262,14 +270,14 @@ public class IdentityService : IIdentityService
 
         return rs;
     }
-    
-    public async Task<string> CreateToken(ApplicationUser user, TokenType tokenType, bool newAccount = false, bool isFirstLogin = false)
+
+    public async Task<string> CreateToken(ApplicationUser user, TokenType tokenType, bool newAccount = false, AccountType accountType = AccountType.System, bool isFirstLogin = false, string defaultPassword = null)
     {
         bool requiresPasswordChange = false;
         string token = string.Empty;
         byte[] key = null;
         int expiredTime = 60;
-        List<string> perrmission = new List<string>();
+        List<string> permission = new List<string>();
         try
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -279,20 +287,24 @@ public class IdentityService : IIdentityService
             {
                 return token;
             }
-
-            switch (tokenType)
+            bool isSocialAccount = accountType == AccountType.Social;
+            if (isSocialAccount && isFirstLogin)
             {
-                case TokenType.AccessToken:
-                    key = Encoding.ASCII.GetBytes(_appSettings.AccessTokenKey!);
-                    expiredTime = _appSettings.AccessTokenTime;
-                    break;
-                case TokenType.RefreshToken:
-                    key = Encoding.ASCII.GetBytes(_appSettings.RefreshTokenKey!);
-                    expiredTime = _appSettings.RefreshTokenTime;
-                    break;
-                default:
-                    break;
+                requiresPasswordChange = true;
             }
+            switch (tokenType)
+                {
+                    case TokenType.AccessToken:
+                        key = Encoding.ASCII.GetBytes(_appSettings.AccessTokenKey!);
+                        expiredTime = _appSettings.AccessTokenTime;
+                        break;
+                    case TokenType.RefreshToken:
+                        key = Encoding.ASCII.GetBytes(_appSettings.RefreshTokenKey!);
+                        expiredTime = _appSettings.RefreshTokenTime;
+                        break;
+                    default:
+                        break;
+                }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -310,10 +322,12 @@ public class IdentityService : IIdentityService
                 Expires = DateTime.UtcNow.AddMinutes(expiredTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
-            //if (isSuperAdmin && isFirstLogin)
-            //{
-            //    tokenDescriptor.Subject.AddClaim(new Claim("defaultPassword", "Hello@123"));
-            //}
+            
+            // Add defaultPassword claim for social login first time users
+            if (isSocialAccount && isFirstLogin && !string.IsNullOrEmpty(defaultPassword))
+            {
+                tokenDescriptor.Subject.AddClaim(new Claim("defaultPassword", defaultPassword));
+            }
             //if (accountType == AccountType.CallFlowByAdmin)
             //{
             //    var currentID = _currentUserService.UserId;
@@ -361,32 +375,34 @@ public class IdentityService : IIdentityService
             if (validateToken != null && validateToken.IsValidToken && !string.IsNullOrEmpty(userId))
             {
                 var user = await GetApplicationUserById(userId);
-                if (user != null && validateToken.IsExpiredToken)
+                if (user != null)
                 {
-                    //token is valid and is expired
-                    //check refresh token
+                    // Check refresh token
                     var refreshToken = await GetTokenAsync(user, "system", Utils.GetEnumMemberValue(TokenType.RefreshToken));
                     if (!string.IsNullOrEmpty(refreshToken))
                     {
-                        validateToken = ValidateToken(refreshToken, TokenType.RefreshToken);
-                        if (validateToken != null && validateToken.IsValidToken && !validateToken.IsExpiredToken)
+                        var validateRefreshToken = ValidateToken(refreshToken, TokenType.RefreshToken);
+                        if (validateRefreshToken != null && validateRefreshToken.IsValidToken && !validateRefreshToken.IsExpiredToken)
                         {
                             var newAccessToken = await CreateToken(user, TokenType.AccessToken);
-                            var newRefreshToken = await CreateToken(user, TokenType.RefreshToken);
-                            //create new access token
-                            if (!string.IsNullOrEmpty(newAccessToken) && !string.IsNullOrEmpty(newRefreshToken))
+                            
+                            if (!string.IsNullOrEmpty(newAccessToken))
                             {
-                                await SetTokenAsync(user, "system", Utils.GetEnumMemberValue(TokenType.RefreshToken), newRefreshToken);
                                 rs = Result.Success(newAccessToken);
                                 return rs;
                             }
                         }
+                        else
+                        {
+                            rs = Result.Failure("Refresh token expired. Please login again.");
+                            return rs;
+                        }
                     }
-                }
-                else if (user != null && !validateToken.IsExpiredToken)
-                {
-                    rs = Result.Success(token);
-                    return rs;
+                    else
+                    {
+                        rs = Result.Failure("No refresh token found.");
+                        return rs;
+                    }
                 }
             }
         }
@@ -394,6 +410,7 @@ public class IdentityService : IIdentityService
         {
             _logger.LogError("Exception at RefreshToken. Ex: {0}", ex.Message);
         }
+        
         rs = Result.Failure("Unauthorized");
         return rs;
     }
@@ -520,4 +537,201 @@ public class IdentityService : IIdentityService
         }
         return null;
     }
+
+    public async Task<Result> GetInforSocialUser(string accessToken, string provider)
+    {
+
+        Result rs = Result.Failure();
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(accessToken) as JwtSecurityToken;
+            dynamic email = null;
+            dynamic fullName = null;
+            dynamic avatar = null;
+
+            if (provider.Equals("MICROSOFT"))
+            {
+                var verifyToken = await ValidateToken(accessToken);
+                if (verifyToken != null)
+                {
+                    var data = verifyToken.Claims.Where(claim => claim.Type == "preferred_username").FirstOrDefault();
+                    if (data != null)
+                    {
+                        email = data.Value;
+                    }
+                }
+            }
+
+            if (provider.Equals("GOOGLE"))
+            {
+                var file = Path.Combine(Directory.GetCurrentDirectory(), "keys", "sso_key.json");
+                var gg = JsonConvert.DeserializeObject<GoogleInstance>(File.ReadAllText(file));
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    string googleEndpoint = $"https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={accessToken}";
+                    HttpResponseMessage response = await httpClient.GetAsync(googleEndpoint);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Parse the response to check if the client ID matches
+                        var responseData = await response.Content.ReadAsAsync<GoogleToken>();
+                        if (responseData != null && responseData.aud == gg.ClientIdGoogle)
+                        {
+                            email = responseData.email;
+                            fullName = responseData.name;
+                            avatar = responseData.picture;
+                        }
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                var user = await _userManager.FindByNameAsync(email);
+                string defaultPassword = null;
+                
+                if (user == null)
+                {
+                    defaultPassword = GenerateDefaultPassword();
+                    var rsRegister = await Register(email, null, email, defaultPassword, fullName, avatar);
+                    if (!rsRegister.Succeeded)
+                    {
+                        return Result.Failure(rsRegister.Errors);
+                    }
+                    user = await _userManager.FindByNameAsync(email);
+                }
+                bool isFirstLogin = user.LastLoginTime == null;
+                rs = await Login(email, null, AccountType.Social, isFirstLogin, defaultPassword);
+            }
+            return rs;
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetInforSocialUser. Ex: {0}", ex.Message);
+        }
+        return rs;
+    }
+
+    private string GenerateDefaultPassword()
+    {
+        // Generate a secure random password that meets all requirements
+        const string lowercase = "abcdefghijklmnopqrstuvwxyz";
+        const string uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const string digits = "0123456789";
+        const string special = "!@#$%^&*";
+        
+        var random = new Random();
+        var password = new char[12];
+        
+        // Ensure at least one of each required character type
+        password[0] = lowercase[random.Next(lowercase.Length)];
+        password[1] = uppercase[random.Next(uppercase.Length)];
+        password[2] = digits[random.Next(digits.Length)];
+        password[3] = special[random.Next(special.Length)];
+        
+        // Fill the rest randomly
+        string allChars = lowercase + uppercase + digits + special;
+        for (int i = 4; i < password.Length; i++)
+        {
+            password[i] = allChars[random.Next(allChars.Length)];
+        }
+        
+        // Shuffle the password
+        return new string(password.OrderBy(x => random.Next()).ToArray());
+    }
+
+    private async Task<JwtSecurityToken> ValidateToken(string accessToken)
+    {
+        try
+        {
+            var file = Path.Combine(Directory.GetCurrentDirectory(), "keys", "sso_key.json");
+            var ms = JsonConvert.DeserializeObject<MicrosoftInstance>(File.ReadAllText(file));
+            string instance = "https://login.microsoftonline.com/";
+            string tennantId = ms.TennantId;
+            string clientId = ms.ClientIdMS;
+            string endpoint = string.Format(@"{0}{1}/v2.0/.well-known/openid-configuration", instance, tennantId);
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            var configManager = new ConfigurationManager<OpenIdConnectConfiguration>(endpoint, new OpenIdConnectConfigurationRetriever());
+            OpenIdConnectConfiguration config = await configManager.GetConfigurationAsync();
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidAudience = clientId,
+                IssuerSigningKeys = config.SigningKeys,
+                ValidateIssuer = false,
+                ValidIssuer = instance,
+                ValidateAudience = true,
+                ValidateIssuerSigningKey = true,
+                RequireExpirationTime = false,
+                ValidateLifetime = false,
+
+            };
+
+
+            SecurityToken validatedToken;
+            var principal = tokenHandler.ValidateToken(accessToken, validationParameters, out validatedToken);
+
+            return validatedToken as JwtSecurityToken;
+
+        }
+        catch (SecurityTokenException ex)
+        {
+            _logger.LogError("Exception at ValidateToken. Ex: {0}", ex.Message);
+            return null;
+        }
+
+    }
+
+    public async Task<bool> CheckPassword(string userId, string password)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            return await _userManager.CheckPasswordAsync(user, password);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at CheckPassword. Ex: {0}", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<Result> ChangePassword(string userId, string newPassword)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Result.Failure("User not found.");
+            }
+
+            // Remove old password
+            await _userManager.RemovePasswordAsync(user);
+
+            // Add new password
+            var result = await _userManager.AddPasswordAsync(user, newPassword);
+
+            if (!result.Succeeded)
+            {
+                return Result.Failure(result.Errors.First().Description);
+            }
+
+            return Result.Success("Password changed successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at ChangePassword. Ex: {0}", ex.Message);
+            return Result.Failure($"An error occurred while changing password: {ex.Message}");
+        }
+    }
+
+    
 }

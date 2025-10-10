@@ -23,6 +23,7 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import DropDownProfile from "./drop-down-profile/DropDownProfile";
 import AvatarImage from "../../assets/images/avatar.jpg";
 import { useAuth } from "../../context/AuthContext";
+import useGetBasicUserInfo from "../../hooks/useGetBasicUserInfor";
 import NotificationPopup from "../notification-popup/NotificationPopup";
 import useGetNotificationsByUserId from "../../hooks/useGetNotificationByUserId";
 
@@ -32,6 +33,7 @@ function Header() {
 
   // Get auth state from context
   const { isAuthenticated, user } = useAuth();
+  const { data: userInfo } = useGetBasicUserInfo();
 
   //menu dropdown state
   const [anchorElMenu, setAnchorElMenu] = useState(null);
@@ -267,8 +269,8 @@ function Header() {
                     onClick={handleOpenProfile}
                   >
                     <Avatar
-                      alt={user?.fullName || user?.email || "User"}
-                      src={user?.avatar || AvatarImage}
+                      alt={userInfo?.fullName || user?.email || "User"}
+                      src={userInfo?.avatar || AvatarImage}
                       sx={{
                         width: isMobile ? 32 : 40,
                         height: isMobile ? 32 : 40,

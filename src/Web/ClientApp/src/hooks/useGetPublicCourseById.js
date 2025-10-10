@@ -1,20 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
+import { CoursesClient } from "../web-api-client.ts";
 
 const useGetPublicCourseById = (id) => {
   return useQuery({
     queryKey: ["publicCourse", id],
     queryFn: async () => {
-      const response = await fetch(`/api/Courses/public/${id}`);
+      const coursesClient = new CoursesClient();
       
-      if (!response.ok) {
-        if (response.status === 404) {
+      try {
+        const result = await coursesClient.getPublicCourseById(id);
+        
+        if (result === null) {
+          throw new Error("Course not found");
+        }
+        
+        return result;
+      } catch (error) {
+        if (error.status === 404) {
           throw new Error("Course not found");
         }
         throw new Error("Failed to fetch course information");
       }
-
-      const result = await response.json();
-      return result;
     },
     enabled: !!id, // Only fetch when id has a valid value
     retry: false, // Do not retry when course is not found

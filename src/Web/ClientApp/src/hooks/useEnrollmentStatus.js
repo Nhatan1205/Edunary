@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { EnrollmentsClient } from '../web-api-client.ts'
+import { EnrollmentClient } from '../web-api-client.ts'
 import { useAuth } from '../context/AuthContext'
 
 export const useEnrollmentStatus = (courseId) => {
@@ -12,7 +12,7 @@ export const useEnrollmentStatus = (courseId) => {
     try {
       setLoading(true)
       setError(null)
-      const enrollmentsClient = new EnrollmentsClient()
+      const enrollmentsClient = new EnrollmentClient()
       const response = await enrollmentsClient.checkEnrollment(courseId)
       setIsEnrolled(response.isEnrolled || false)
     } catch (err) {

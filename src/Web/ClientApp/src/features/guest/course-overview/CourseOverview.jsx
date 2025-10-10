@@ -1,4 +1,4 @@
-﻿import { Container, Box } from '@mui/material'
+import { Container, Box } from '@mui/material'
 import { useParams, useNavigate } from 'react-router'
 import { useEffect } from 'react'
 import { toast } from 'react-toastify'
@@ -38,75 +38,93 @@ const CourseOverview = () => {
   const { data: courseData, isLoading, isError, error } = useGetPublicCourseById(id)
 
   useEffect(() => {
-    if (isError) {
-      const errorMessage = error?.message === "Course not found" 
+    if (!isLoading && (isError || !courseData?.id)) {
+      const errorMessage = isError && error?.message === "Course not found"
         ? 'Course not found. The course you are looking for does not exist or has been removed.'
-        : 'Failed to load course. Please try again later.';
+        : 'Course not found or no data available.';
       
       toast.error(errorMessage);
-      setTimeout(() => {
-        navigate('/')
-      }, 2000)
+      setTimeout(() => navigate('/'), 2000);
     }
-  }, [isError, error, navigate])
+  }, [isLoading, isError, courseData, error, navigate])
 
+  // Show loading
   if (isLoading) {
     return <LoadingSpinner fullScreen message="Loading course details..." />
   }
 
-  if (isError || !courseData) {
+  // Show redirecting if no valid course
+  if (isError || !courseData?.id) {
     return <LoadingSpinner fullScreen message="Redirecting..." />
   }
 
   const transformedCourseData = {
     ...courseData,
     category: courseData.categoryTitle || "Course",
-    instructor: "Instructor",
+    instructor: courseData.targetAudience || "Instructor",
     rating: 4.8, 
-    totalRatings: 0, 
+    totalRatings: 156, 
     originalPrice: courseData.price * 1.3, 
     currentPrice: courseData.price,
     discount: 20,
-    sections: 0,
-    lectures: 0, 
-    duration: "0h 0m",
+    sections: 12,
+    lectures: 45, 
+    duration: "8h 30m",
     language: "English",
     image: courseData.imageUrl || "https://blocks.astratic.com/img/general-img-landscape.png",
+    level: courseData.level || "Beginner",
+    requirements: courseData.requirements || "No prior experience required",
+    learningObjectives: courseData.learningObjectives || "Master the fundamentals and build practical skills",
+    welcomeMessage: courseData.welcomeMessage || "",
+    topic: courseData.topic || courseData.categoryTitle || "Development",
+    subtitle: courseData.subtitle || "",
+    lastUpdated: "October 2024",
+    certificateOfCompletion: true,
+    lifetimeAccess: true,
+    mobileAccess: true,
+    downloadableResources: 15,
+    assignments: 8,
+    quizzes: 12
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Course Header */}
-      <CourseHeader courseData={transformedCourseData} />
-
-      {/* Main Content */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 4,
-          mb: 1,
-          flexDirection: { xs: 'column', md: 'row' },
-          alignItems: { xs: 'center', md: 'flex-start' },
-        }}
-      >
-        {/* Left Content */}
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* Main Content - 2 Column Layout */}
         <Box
           sx={{
-            flex: 1,
-            width: { xs: '100%', sm: '400px', md: '100%' },
-            maxWidth: { xs: 350, sm: 400, md: 'none' },
+            display: 'grid',
+            gridTemplateColumns: { 
+              xs: '1fr', 
+              md: '1fr 380px' 
+            },
+            gap: 4,
+            alignItems: 'flex-start',
           }}
         >
-          <CourseThumbnail image={transformedCourseData.image} title={transformedCourseData.title} />
+          {/* Left Column - Main Content */}
+          <Box sx={{ minWidth: 0 }}> {/* minWidth: 0 prevents grid overflow */}
+            {/* Course Thumbnail */}
+            <CourseThumbnail image={transformedCourseData.image} title={transformedCourseData.title} />
+            
+            {/* Course Header */}
+            <CourseHeader courseData={transformedCourseData} />
+            
+            {/* Course Tabs */}
+            <CourseTabs courseData={transformedCourseData} reviews={reviews} />
+          </Box>
+
+          {/* Right Column - Sidebar */}
+          <Box 
+            sx={{ 
+              order: { xs: -1, md: 0 } // Show sidebar first on mobile
+            }}
+          >
+            <CourseSidebar courseData={transformedCourseData} />
+          </Box>
         </Box>
-
-        {/* Right Sidebar */}
-        <CourseSidebar courseData={transformedCourseData} />
-      </Box>
-
-      {/* Tabs Section */}
-      <CourseTabs courseData={transformedCourseData} reviews={reviews} />
-    </Container>
+      </Container>
+    </Box>
   )
 }
 

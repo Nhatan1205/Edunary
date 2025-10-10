@@ -3,7 +3,7 @@ import { Box, Typography, Divider } from "@mui/material"
 export default function OrderDetails({ courses }) {
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: "#1a1a1a" }}>
+      <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: "text.primary" }}>
         Order Details ({courses.length} courses)
       </Typography>
       {courses.map((course, index) => (
@@ -41,7 +41,7 @@ export default function OrderDetails({ courses }) {
                 variant="body1"
                 sx={{
                   fontWeight: 500,
-                  color: "#1a1a1a",
+                  color: "text.primary",
                   lineHeight: 1.4,
                   mb: 0.5,
                 }}
@@ -56,7 +56,7 @@ export default function OrderDetails({ courses }) {
               variant="h6"
               sx={{
                 fontWeight: 700,
-                color: "#6366f1",
+                color: "brand.main",
                 fontSize: "1.1rem",
               }}
             >

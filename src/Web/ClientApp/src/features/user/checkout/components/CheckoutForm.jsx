@@ -4,7 +4,7 @@ import LockIcon from "@mui/icons-material/Lock"
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
-import { PaymentEndpointsClient } from "../../../../web-api-client.ts"
+import { PaymentClient } from "../../../../web-api-client.ts"
 import BillingAddress from "./BillingAddress"
 import OrderDetails from "./OrderDetails"
 
@@ -54,7 +54,7 @@ export default function CheckoutForm({
       if (paymentIntent && paymentIntent.status === 'succeeded') {
         // Step 4: Confirm payment on our backend
         try {
-          const paymentClient = new PaymentEndpointsClient()
+          const paymentClient = new PaymentClient()
           const confirmResponse = await paymentClient.confirmPayment({
             paymentIntentId: paymentIntent.id
           })
@@ -74,8 +74,6 @@ export default function CheckoutForm({
             toast.error(confirmResponse.message || 'Failed to confirm payment')
           }
         } catch (confirmError) {
-          console.error('Error confirming payment:', confirmError)
-          setError('Failed to confirm payment on server')
           toast.error('Payment succeeded but failed to confirm on server. Please contact support.')
         }
       } else {
@@ -116,21 +114,21 @@ export default function CheckoutForm({
         disabled={!stripe || processing}
         startIcon={<LockIcon />}
         sx={{
-          backgroundColor: processing ? "#9ca3af" : "#6366f1",
-          color: "white",
+          bgcolor: processing ? "action.disabled" : "brand.main",
+          color: "common.white",
           py: 1.5,
           fontSize: "1rem",
           fontWeight: 600,
           textTransform: "none",
           borderRadius: 2,
-          boxShadow: "0 4px 12px rgba(99, 102, 241, 0.4)",
+          boxShadow: 3,
           "&:hover": {
-            backgroundColor: processing ? "#9ca3af" : "#5855eb",
-            boxShadow: "0 6px 16px rgba(99, 102, 241, 0.5)",
+            bgcolor: processing ? "action.disabled" : "brand.dark",
+            boxShadow: 4,
           },
           "&:disabled": {
-            backgroundColor: "#9ca3af",
-            color: "white",
+            bgcolor: "action.disabled",
+            color: "common.white",
           },
         }}
       >

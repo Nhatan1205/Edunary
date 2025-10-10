@@ -423,7 +423,7 @@ export class CoursesClient {
         return Promise.resolve<GetCourseByIdDto>(null as any);
     }
 
-    getPublicCourseById(id: number): Promise<void> {
+    getPublicCourseById(id: number): Promise<GetPublicCourseByIdDto> {
         let url_ = this.baseUrl + "/api/Courses/public/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -433,6 +433,7 @@ export class CoursesClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                "Accept": "application/json"
             }
         };
 
@@ -441,24 +442,27 @@ export class CoursesClient {
         });
     }
 
-    protected processGetPublicCourseById(response: Response): Promise<void> {
+    protected processGetPublicCourseById(response: Response): Promise<GetPublicCourseByIdDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetPublicCourseByIdDto.fromJS(resultData200);
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<GetPublicCourseByIdDto>(null as any);
     }
 }
 
-export class EnrollmentsClient {
+export class EnrollmentClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -468,8 +472,8 @@ export class EnrollmentsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    checkEnrollment(courseId: number): Promise<CheckUserEnrollmentResponse> {
-        let url_ = this.baseUrl + "/api/Enrollments/check/{courseId}";
+    checkEnrollment(courseId: number): Promise<CheckUserEnrollmentDto> {
+        let url_ = this.baseUrl + "/api/Enrollment/check/{courseId}";
         if (courseId === undefined || courseId === null)
             throw new Error("The parameter 'courseId' must be defined.");
         url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
@@ -487,7 +491,7 @@ export class EnrollmentsClient {
         });
     }
 
-    protected processCheckEnrollment(response: Response): Promise<CheckUserEnrollmentResponse> {
+    protected processCheckEnrollment(response: Response): Promise<CheckUserEnrollmentDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -495,7 +499,7 @@ export class EnrollmentsClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CheckUserEnrollmentResponse.fromJS(resultData200);
+            result200 = CheckUserEnrollmentDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -503,95 +507,7 @@ export class EnrollmentsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<CheckUserEnrollmentResponse>(null as any);
-    }
-
-    getCoursesByStudentId(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCouresByStudentIdDto> {
-        let url_ = this.baseUrl + "/api/Enrollments?";
-        if (pageNumber === undefined || pageNumber === null)
-            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
-        else
-            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        if (pageSize === undefined || pageSize === null)
-            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
-        else
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCoursesByStudentId(_response);
-        });
-    }
-
-    protected processGetCoursesByStudentId(response: Response): Promise<PaginatedListOfGetCouresByStudentIdDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfGetCouresByStudentIdDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PaginatedListOfGetCouresByStudentIdDto>(null as any);
-    }
-
-    getStudentsByCourseId(courseId: number): Promise<GetStudentsByCourseIdDto[]> {
-        let url_ = this.baseUrl + "/api/Enrollments/{courseId}";
-        if (courseId === undefined || courseId === null)
-            throw new Error("The parameter 'courseId' must be defined.");
-        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetStudentsByCourseId(_response);
-        });
-    }
-
-    protected processGetStudentsByCourseId(response: Response): Promise<GetStudentsByCourseIdDto[]> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GetStudentsByCourseIdDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<GetStudentsByCourseIdDto[]>(null as any);
+        return Promise.resolve<CheckUserEnrollmentDto>(null as any);
     }
 }
 
@@ -676,7 +592,7 @@ export class NotificationClient {
     }
 }
 
-export class PaymentEndpointsClient {
+export class PaymentClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -686,8 +602,8 @@ export class PaymentEndpointsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    createPaymentIntent(command: CreatePaymentIntentCommand | undefined): Promise<CreatePaymentIntentResponse> {
-        let url_ = this.baseUrl + "/api/PaymentEndpoints/create-payment-intent";
+    createPaymentIntent(command: CreatePaymentIntentCommand | undefined): Promise<CreatePaymentIntentDto> {
+        let url_ = this.baseUrl + "/api/Payment/create-payment-intent";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -706,7 +622,7 @@ export class PaymentEndpointsClient {
         });
     }
 
-    protected processCreatePaymentIntent(response: Response): Promise<CreatePaymentIntentResponse> {
+    protected processCreatePaymentIntent(response: Response): Promise<CreatePaymentIntentDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -714,7 +630,7 @@ export class PaymentEndpointsClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CreatePaymentIntentResponse.fromJS(resultData200);
+            result200 = CreatePaymentIntentDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -722,11 +638,11 @@ export class PaymentEndpointsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<CreatePaymentIntentResponse>(null as any);
+        return Promise.resolve<CreatePaymentIntentDto>(null as any);
     }
 
-    confirmPayment(command: ConfirmPaymentCommand | undefined): Promise<ConfirmPaymentResponse> {
-        let url_ = this.baseUrl + "/api/PaymentEndpoints/confirm-payment";
+    confirmPayment(command: ConfirmPaymentCommand | undefined): Promise<ConfirmPaymentDto> {
+        let url_ = this.baseUrl + "/api/Payment/confirm-payment";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -745,7 +661,7 @@ export class PaymentEndpointsClient {
         });
     }
 
-    protected processConfirmPayment(response: Response): Promise<ConfirmPaymentResponse> {
+    protected processConfirmPayment(response: Response): Promise<ConfirmPaymentDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -753,7 +669,7 @@ export class PaymentEndpointsClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ConfirmPaymentResponse.fromJS(resultData200);
+            result200 = ConfirmPaymentDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -761,11 +677,11 @@ export class PaymentEndpointsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<ConfirmPaymentResponse>(null as any);
+        return Promise.resolve<ConfirmPaymentDto>(null as any);
     }
 
-    getPaymentStatus(paymentIntentId: string | null): Promise<PaymentStatusResponse> {
-        let url_ = this.baseUrl + "/api/PaymentEndpoints/payment-status/{paymentIntentId}";
+    getPaymentStatus(paymentIntentId: string | null): Promise<PaymentStatusDto> {
+        let url_ = this.baseUrl + "/api/Payment/payment-status/{paymentIntentId}";
         if (paymentIntentId === undefined || paymentIntentId === null)
             throw new Error("The parameter 'paymentIntentId' must be defined.");
         url_ = url_.replace("{paymentIntentId}", encodeURIComponent("" + paymentIntentId));
@@ -783,7 +699,7 @@ export class PaymentEndpointsClient {
         });
     }
 
-    protected processGetPaymentStatus(response: Response): Promise<PaymentStatusResponse> {
+    protected processGetPaymentStatus(response: Response): Promise<PaymentStatusDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -791,7 +707,7 @@ export class PaymentEndpointsClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaymentStatusResponse.fromJS(resultData200);
+            result200 = PaymentStatusDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -799,7 +715,7 @@ export class PaymentEndpointsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<PaymentStatusResponse>(null as any);
+        return Promise.resolve<PaymentStatusDto>(null as any);
     }
 }
 
@@ -2035,11 +1951,107 @@ export interface IGetCourseDto {
     topic?: string | undefined;
 }
 
-export class CheckUserEnrollmentResponse implements ICheckUserEnrollmentResponse {
+export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    topic?: string | undefined;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    categoryTitle?: string | undefined;
+
+    constructor(data?: IGetPublicCourseByIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.description = _data["description"];
+            this.level = _data["level"];
+            this.status = _data["status"];
+            this.topic = _data["topic"];
+            this.learningObjectives = _data["learningObjectives"];
+            this.requirements = _data["requirements"];
+            this.targetAudience = _data["targetAudience"];
+            this.imageUrl = _data["imageUrl"];
+            this.welcomeMessage = _data["welcomeMessage"];
+            this.congratulationsMessage = _data["congratulationsMessage"];
+            this.price = _data["price"];
+            this.categoryId = _data["categoryId"];
+            this.categoryTitle = _data["categoryTitle"];
+        }
+    }
+
+    static fromJS(data: any): GetPublicCourseByIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetPublicCourseByIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["description"] = this.description;
+        data["level"] = this.level;
+        data["status"] = this.status;
+        data["topic"] = this.topic;
+        data["learningObjectives"] = this.learningObjectives;
+        data["requirements"] = this.requirements;
+        data["targetAudience"] = this.targetAudience;
+        data["imageUrl"] = this.imageUrl;
+        data["welcomeMessage"] = this.welcomeMessage;
+        data["congratulationsMessage"] = this.congratulationsMessage;
+        data["price"] = this.price;
+        data["categoryId"] = this.categoryId;
+        data["categoryTitle"] = this.categoryTitle;
+        return data;
+    }
+}
+
+export interface IGetPublicCourseByIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    topic?: string | undefined;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    categoryTitle?: string | undefined;
+}
+
+export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {
     isEnrolled?: boolean;
     enrollmentDate?: Date | undefined;
 
-    constructor(data?: ICheckUserEnrollmentResponse) {
+    constructor(data?: ICheckUserEnrollmentDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2055,9 +2067,9 @@ export class CheckUserEnrollmentResponse implements ICheckUserEnrollmentResponse
         }
     }
 
-    static fromJS(data: any): CheckUserEnrollmentResponse {
+    static fromJS(data: any): CheckUserEnrollmentDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CheckUserEnrollmentResponse();
+        let result = new CheckUserEnrollmentDto();
         result.init(data);
         return result;
     }
@@ -2070,189 +2082,9 @@ export class CheckUserEnrollmentResponse implements ICheckUserEnrollmentResponse
     }
 }
 
-export interface ICheckUserEnrollmentResponse {
+export interface ICheckUserEnrollmentDto {
     isEnrolled?: boolean;
     enrollmentDate?: Date | undefined;
-}
-
-export class PaginatedListOfGetCouresByStudentIdDto implements IPaginatedListOfGetCouresByStudentIdDto {
-    items?: GetCouresByStudentIdDto[] | undefined;
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-
-    constructor(data?: IPaginatedListOfGetCouresByStudentIdDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(GetCouresByStudentIdDto.fromJS(item));
-            }
-            this.pageNumber = _data["pageNumber"];
-            this.totalPages = _data["totalPages"];
-            this.totalCount = _data["totalCount"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-        }
-    }
-
-    static fromJS(data: any): PaginatedListOfGetCouresByStudentIdDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfGetCouresByStudentIdDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["pageNumber"] = this.pageNumber;
-        data["totalPages"] = this.totalPages;
-        data["totalCount"] = this.totalCount;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        return data;
-    }
-}
-
-export interface IPaginatedListOfGetCouresByStudentIdDto {
-    items?: GetCouresByStudentIdDto[] | undefined;
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-}
-
-export class GetCouresByStudentIdDto implements IGetCouresByStudentIdDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    price?: number;
-    categoryId?: number;
-    imageUrl?: string | undefined;
-    status?: CourseStatus;
-    created?: Date;
-
-    constructor(data?: IGetCouresByStudentIdDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-            this.subtitle = _data["subtitle"];
-            this.price = _data["price"];
-            this.categoryId = _data["categoryId"];
-            this.imageUrl = _data["imageUrl"];
-            this.status = _data["status"];
-            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): GetCouresByStudentIdDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GetCouresByStudentIdDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        data["subtitle"] = this.subtitle;
-        data["price"] = this.price;
-        data["categoryId"] = this.categoryId;
-        data["imageUrl"] = this.imageUrl;
-        data["status"] = this.status;
-        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IGetCouresByStudentIdDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    price?: number;
-    categoryId?: number;
-    imageUrl?: string | undefined;
-    status?: CourseStatus;
-    created?: Date;
-}
-
-export class GetStudentsByCourseIdDto implements IGetStudentsByCourseIdDto {
-    id?: string | undefined;
-    email?: string | undefined;
-    fullName?: string | undefined;
-    phoneNumber?: string | undefined;
-    avatar?: string | undefined;
-
-    constructor(data?: IGetStudentsByCourseIdDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.email = _data["email"];
-            this.fullName = _data["fullName"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.avatar = _data["avatar"];
-        }
-    }
-
-    static fromJS(data: any): GetStudentsByCourseIdDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GetStudentsByCourseIdDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["email"] = this.email;
-        data["fullName"] = this.fullName;
-        data["phoneNumber"] = this.phoneNumber;
-        data["avatar"] = this.avatar;
-        return data;
-    }
-}
-
-export interface IGetStudentsByCourseIdDto {
-    id?: string | undefined;
-    email?: string | undefined;
-    fullName?: string | undefined;
-    phoneNumber?: string | undefined;
-    avatar?: string | undefined;
 }
 
 export class NotificationsVm implements INotificationsVm {
@@ -2391,12 +2223,12 @@ export interface IUpdateNotificationStatusCommand {
     id?: number;
 }
 
-export class CreatePaymentIntentResponse implements ICreatePaymentIntentResponse {
+export class CreatePaymentIntentDto implements ICreatePaymentIntentDto {
     clientSecret?: string | undefined;
     amount?: number;
     paymentIntentId?: string | undefined;
 
-    constructor(data?: ICreatePaymentIntentResponse) {
+    constructor(data?: ICreatePaymentIntentDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2413,9 +2245,9 @@ export class CreatePaymentIntentResponse implements ICreatePaymentIntentResponse
         }
     }
 
-    static fromJS(data: any): CreatePaymentIntentResponse {
+    static fromJS(data: any): CreatePaymentIntentDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CreatePaymentIntentResponse();
+        let result = new CreatePaymentIntentDto();
         result.init(data);
         return result;
     }
@@ -2429,7 +2261,7 @@ export class CreatePaymentIntentResponse implements ICreatePaymentIntentResponse
     }
 }
 
-export interface ICreatePaymentIntentResponse {
+export interface ICreatePaymentIntentDto {
     clientSecret?: string | undefined;
     amount?: number;
     paymentIntentId?: string | undefined;
@@ -2479,12 +2311,12 @@ export interface ICreatePaymentIntentCommand {
     courseIds?: string[] | undefined;
 }
 
-export class ConfirmPaymentResponse implements IConfirmPaymentResponse {
+export class ConfirmPaymentDto implements IConfirmPaymentDto {
     success?: boolean;
     message?: string | undefined;
     orderId?: string | undefined;
 
-    constructor(data?: IConfirmPaymentResponse) {
+    constructor(data?: IConfirmPaymentDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2501,9 +2333,9 @@ export class ConfirmPaymentResponse implements IConfirmPaymentResponse {
         }
     }
 
-    static fromJS(data: any): ConfirmPaymentResponse {
+    static fromJS(data: any): ConfirmPaymentDto {
         data = typeof data === 'object' ? data : {};
-        let result = new ConfirmPaymentResponse();
+        let result = new ConfirmPaymentDto();
         result.init(data);
         return result;
     }
@@ -2517,7 +2349,7 @@ export class ConfirmPaymentResponse implements IConfirmPaymentResponse {
     }
 }
 
-export interface IConfirmPaymentResponse {
+export interface IConfirmPaymentDto {
     success?: boolean;
     message?: string | undefined;
     orderId?: string | undefined;
@@ -2559,7 +2391,7 @@ export interface IConfirmPaymentCommand {
     paymentIntentId?: string | undefined;
 }
 
-export class PaymentStatusResponse implements IPaymentStatusResponse {
+export class PaymentStatusDto implements IPaymentStatusDto {
     paymentStatus?: string | undefined;
     orderStatus?: string | undefined;
     amount?: number;
@@ -2567,7 +2399,7 @@ export class PaymentStatusResponse implements IPaymentStatusResponse {
     paymentDate?: Date | undefined;
     orderItems?: OrderItemDto[] | undefined;
 
-    constructor(data?: IPaymentStatusResponse) {
+    constructor(data?: IPaymentStatusDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2591,9 +2423,9 @@ export class PaymentStatusResponse implements IPaymentStatusResponse {
         }
     }
 
-    static fromJS(data: any): PaymentStatusResponse {
+    static fromJS(data: any): PaymentStatusDto {
         data = typeof data === 'object' ? data : {};
-        let result = new PaymentStatusResponse();
+        let result = new PaymentStatusDto();
         result.init(data);
         return result;
     }
@@ -2614,7 +2446,7 @@ export class PaymentStatusResponse implements IPaymentStatusResponse {
     }
 }
 
-export interface IPaymentStatusResponse {
+export interface IPaymentStatusDto {
     paymentStatus?: string | undefined;
     orderStatus?: string | undefined;
     amount?: number;

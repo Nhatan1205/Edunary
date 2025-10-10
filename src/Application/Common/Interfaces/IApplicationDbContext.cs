@@ -17,5 +17,9 @@ public interface IApplicationDbContext
     public DbSet<Category> Categories { get; }
     public DbSet<Enrollment> Enrollments { get; }
 
+    public DbSet<Notification> Notifications { get; }
+
+    public DbSet<NotificationUser> NotificationUsers { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

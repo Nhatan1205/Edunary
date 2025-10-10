@@ -35,10 +35,18 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    public UpdateCourseCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    private readonly INotifyService _notifyService;
+    private readonly INotificationCourseService _notificationCourseService;
+    public UpdateCourseCommandHandler(
+        IApplicationDbContext context, 
+        ICurrentUserService currentUserService, 
+        INotifyService notifyService, 
+        INotificationCourseService notificationCourseService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _notifyService = notifyService;
+        _notificationCourseService = notificationCourseService;
     }
     public async Task<Result> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
     {
@@ -57,13 +65,13 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.Title = request.Title;
             entity.Subtitle = request.Subtitle;
             entity.Description = request.Description;
-                        entity.Topic = request.Topic;
-                entity.LearningObjectives = request.LearningObjectives;
-                entity.Requirements = request.Requirements;
-                entity.TargetAudience = request.TargetAudience;
-                entity.ImageUrl = request.ImageUrl;
-                entity.WelcomeMessage = request.WelcomeMessage;
-                entity.CongratulationsMessage = request.CongratulationsMessage;
+            entity.Topic = request.Topic;
+            entity.LearningObjectives = request.LearningObjectives;
+            entity.Requirements = request.Requirements;
+            entity.TargetAudience = request.TargetAudience;
+            entity.ImageUrl = request.ImageUrl;
+            entity.WelcomeMessage = request.WelcomeMessage;
+            entity.CongratulationsMessage = request.CongratulationsMessage;
             if (request.Price.HasValue)
             {
                 entity.Price = request.Price.Value;
@@ -84,7 +92,13 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
 
             entity.AddDomainEvent(new CourseUpdatedEvent(entity));
 
-            await _context.SaveChangesAsync(cancellationToken);
+            var result = await _context.SaveChangesAsync(cancellationToken);
+            if (result > 0)
+            {
+                //await _notifyService.SendMessage("System", $"The course {entity.Title} has been updated.");
+                await _notificationCourseService.NotifyCourseUpdatedAsync(entity.Id, "Update the course", $"Update the course {entity.Title}",cancellationToken);
+            }
+
 
             return Result.Success("Course updated successfully");
 

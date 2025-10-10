@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@microsoft/signalr": "^9.0.6",
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
     "@stripe/react-stripe-js": "^5.0.0",
@@ -80,5 +81,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).",
+  "main": "aspnetcore-https.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

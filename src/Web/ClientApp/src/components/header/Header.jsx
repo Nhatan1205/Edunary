@@ -23,6 +23,8 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import DropDownProfile from "./drop-down-profile/DropDownProfile";
 import AvatarImage from "../../assets/images/avatar.jpg";
 import { useAuth } from "../../context/AuthContext";
+import NotificationPopup from "../notification-popup/NotificationPopup";
+import useGetNotificationsByUserId from "../../hooks/useGetNotificationByUserId";
 
 function Header() {
   const theme = useTheme();
@@ -45,13 +47,23 @@ function Header() {
   const handleOpenProfile = (event) => setAnchorElProfile(event.currentTarget);
   const handleCloseProfile = () => setAnchorElProfile(null);
 
+  // Notification dropdown state
+  const [anchorElNotification, setAnchorElNotification] = useState(null);
+  const isOpenNotification = Boolean(anchorElNotification);
+
+  const handleOpenNotification = (event) =>
+    setAnchorElNotification(event.currentTarget);
+  const handleCloseNotification = () => setAnchorElNotification(null);
   //search bar mobile collapse state
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
 
+  //notification state
+  const { data: dataNofications } = useGetNotificationsByUserId();
+
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1, position: "sticky", top: 0, zIndex: 1000 }}>
       <AppBar
         position="static"
         sx={{
@@ -222,18 +234,24 @@ function Header() {
                         backgroundColor: "background.muted",
                       },
                     }}
+                    onClick={handleOpenNotification}
                   >
                     <Badge
-                      badgeContent={5}
+                      badgeContent={dataNofications?.unreadCount}
                       color="error"
                       size="medium"
-                      showZero
                     >
                       <NotificationsNoneOutlinedIcon
                         fontSize={isMobile ? "small" : "medium"}
                       />
                     </Badge>
                   </IconButton>
+                  <NotificationPopup
+                    open={isOpenNotification}
+                    anchorEl={anchorElNotification}
+                    handleClosePopup={handleCloseNotification}
+                    notifications={dataNofications?.list}
+                  />
 
                   <IconButton
                     size={isMobile ? "medium" : "large"}

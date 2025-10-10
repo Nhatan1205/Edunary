@@ -8,7 +8,6 @@ import theme from "./theme/theme";
 import { CssBaseline } from "@mui/material";
 import { AuthProvider } from "./context/AuthContext";
 import { setupApiInterceptor } from "./utils/apiInterceptor";
-
 // Setup API interceptor for token management
 setupApiInterceptor();
 
@@ -24,7 +23,7 @@ root.render(
         <App />
       </AuthProvider>
     </ThemeProvider>
-  </>
+  </>,
 );
 serviceWorkerRegistration.unregister();
 

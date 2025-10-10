@@ -41,30 +41,56 @@ const CourseSidebar = ({ courseData }) => {
   }
   return (
     <Box sx={{ width: 320 }}>
-      <Paper sx={{ p: 3, mb: 3 }}>
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: 3, 
+          mb: 3,
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 2
+        }}
+      >
         {/* Pricing */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+        <Box sx={{ mb: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Typography 
+              variant="h3" 
+              sx={{ 
+                fontWeight: 700,
+                color: 'text.primary'
+              }}
+            >
               US${courseData.currentPrice}
             </Typography>
-            <Typography variant="body1" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                textDecoration: 'line-through', 
+                color: 'text.tertiary' 
+              }}
+            >
               ${courseData.originalPrice}
             </Typography>
           </Box>
           <Chip
             label={`${courseData.discount}% OFF`}
             sx={{
-              backgroundColor: 'primary.main',
-              color: 'white',
-              fontWeight: 'bold',
+              backgroundColor: 'brand.main',
+              color: 'text.inverse',
+              fontWeight: 600,
               mb: 2,
+              px: 1,
+              '& .MuiChip-label': {
+                fontSize: '0.875rem'
+              }
             }}
           />
         </Box>
 
         {/* Action Buttons */}
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 4 }}>
           {isAuthenticated && isEnrolled ? (
             // User is enrolled - show "Go to Course" button
             <Button
@@ -75,11 +101,14 @@ const CourseSidebar = ({ courseData }) => {
               sx={{
                 py: 1.5,
                 mb: 2,
-                fontWeight: 'bold',
-                backgroundColor: '#22c55e',
+                fontWeight: 600,
+                backgroundColor: 'brand.main',
+                color: 'text.inverse',
                 '&:hover': {
-                  backgroundColor: '#16a34a',
+                  backgroundColor: 'brand.dark',
                 },
+                borderRadius: 1.5,
+                textTransform: 'none'
               }}
             >
               Go to Course
@@ -95,7 +124,14 @@ const CourseSidebar = ({ courseData }) => {
                 sx={{
                   py: 1.5,
                   mb: 2,
-                  fontWeight: 'bold',
+                  fontWeight: 600,
+                  backgroundColor: 'brand.main',
+                  color: 'text.inverse',
+                  '&:hover': {
+                    backgroundColor: 'brand.dark',
+                  },
+                  borderRadius: 1.5,
+                  textTransform: 'none'
                 }}
               >
                 {loading ? 'Checking...' : 'Buy Now'}
@@ -104,8 +140,19 @@ const CourseSidebar = ({ courseData }) => {
                 variant="outlined"
                 fullWidth
                 startIcon={<FavoriteBorder />}
-                color="primary"
                 disabled={loading}
+                sx={{
+                  py: 1.5,
+                  borderColor: 'brand.main',
+                  color: 'brand.main',
+                  fontWeight: 500,
+                  borderRadius: 1.5,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: 'brand.lighter',
+                    borderColor: 'brand.main',
+                  }
+                }}
               >
                 Wishlist
               </Button>
@@ -115,29 +162,57 @@ const CourseSidebar = ({ courseData }) => {
 
         {/* Course Details */}
         <List dense>
-          <ListItem sx={{ px: 0 }}>
+          <ListItem sx={{ px: 0, py: 1 }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
-              <MenuBook sx={{ color: 'text.secondary' }} />
+              <MenuBook sx={{ color: 'text.tertiary', fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText primary={`${courseData.sections} Section`} />
+            <ListItemText 
+              primary={`${courseData.sections} Section`}
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
           </ListItem>
-          <ListItem sx={{ px: 0 }}>
+          <ListItem sx={{ px: 0, py: 1 }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
-              <VideoLibrary sx={{ color: 'text.secondary' }} />
+              <VideoLibrary sx={{ color: 'text.tertiary', fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText primary={`${courseData.lectures} Lectures`} />
+            <ListItemText 
+              primary={`${courseData.lectures} Lectures`}
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
           </ListItem>
-          <ListItem sx={{ px: 0 }}>
+          <ListItem sx={{ px: 0, py: 1 }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
-              <Schedule sx={{ color: 'text.secondary' }} />
+              <Schedule sx={{ color: 'text.tertiary', fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText primary={`${courseData.duration} total length`} />
+            <ListItemText 
+              primary={`${courseData.duration} total length`}
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
           </ListItem>
-          <ListItem sx={{ px: 0 }}>
+          <ListItem sx={{ px: 0, py: 1 }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
-              <Language sx={{ color: 'text.secondary' }} />
+              <Language sx={{ color: 'text.tertiary', fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText primary={courseData.language} />
+            <ListItemText 
+              primary={courseData.language}
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary',
+                fontWeight: 500
+              }}
+            />
           </ListItem>
         </List>
       </Paper>

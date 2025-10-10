@@ -75,38 +75,40 @@ const CourseOverview = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Course Header */}
-      <CourseHeader courseData={transformedCourseData} />
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* Course Header */}
+        <CourseHeader courseData={transformedCourseData} />
 
-      {/* Main Content */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 4,
-          mb: 1,
-          flexDirection: { xs: 'column', md: 'row' },
-          alignItems: { xs: 'center', md: 'flex-start' },
-        }}
-      >
-        {/* Left Content */}
+        {/* Main Content */}
         <Box
           sx={{
-            flex: 1,
-            width: { xs: '100%', sm: '400px', md: '100%' },
-            maxWidth: { xs: 350, sm: 400, md: 'none' },
+            display: 'flex',
+            gap: 4,
+            mb: 6,
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'center', md: 'flex-start' },
           }}
         >
-          <CourseThumbnail image={transformedCourseData.image} title={transformedCourseData.title} />
+          {/* Left Content */}
+          <Box
+            sx={{
+              flex: 1,
+              width: { xs: '100%', sm: '400px', md: '100%' },
+              maxWidth: { xs: 350, sm: 400, md: 'none' },
+            }}
+          >
+            <CourseThumbnail image={transformedCourseData.image} title={transformedCourseData.title} />
+          </Box>
+
+          {/* Right Sidebar */}
+          <CourseSidebar courseData={transformedCourseData} />
         </Box>
 
-        {/* Right Sidebar */}
-        <CourseSidebar courseData={transformedCourseData} />
-      </Box>
-
-      {/* Tabs Section */}
-      <CourseTabs courseData={transformedCourseData} reviews={reviews} />
-    </Container>
+        {/* Tabs Section */}
+        <CourseTabs courseData={transformedCourseData} reviews={reviews} />
+      </Container>
+    </Box>
   )
 }
 

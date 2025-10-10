@@ -1,14 +1,18 @@
 import { Box } from "@mui/material";
 import CourseSubSection from "./CourseSubSection";
-import {
-  completeCourses,
-  kitaniStudioCourses,
-  trendingCourses,
-} from "./MockData";
+import { completeCourses } from "./MockData";
 import { PopoverProvider } from "../../../../context/PopoverContext";
+import useGetCourses from "../../../../hooks/useGetCourses";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 // Sample data matching your image
 
 function CourseSection() {
+  const { data: courseData, isLoading } = useGetCourses(1, 12);
+
+  if (isLoading) {
+    <LoadingSpinner />;
+  }
+
   return (
     <PopoverProvider>
       <Box sx={{ py: 4 }}>
@@ -20,16 +24,9 @@ function CourseSection() {
         />
 
         <CourseSubSection
-          title="More from Kitani Studio"
-          subtitle="We know the best things for You. Top picks for You."
-          courses={kitaniStudioCourses}
-          type="course"
-        />
-
-        <CourseSubSection
           title="Trending Course"
           subtitle="We know the best things for You. Top picks for You."
-          courses={trendingCourses}
+          courses={courseData?.items ?? []}
           type="course"
         />
       </Box>

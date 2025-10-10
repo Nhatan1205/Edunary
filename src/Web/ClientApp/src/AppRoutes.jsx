@@ -85,7 +85,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/instructor",
-    element: <InstructorLayout />,
+
+    element: (
+      <ProtectedRoute>
+        <InstructorLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -99,11 +104,19 @@ const router = createBrowserRouter([
   },
   {
     path: "/course/create/",
-    element: <CreateCourse />,
+    element: (
+      <ProtectedRoute>
+        <CreateCourse />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/instructor/course/:courseId/manage/",
-    element: <CourseManageLayout />,
+    element: (
+      <ProtectedRoute>
+        <CourseManageLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

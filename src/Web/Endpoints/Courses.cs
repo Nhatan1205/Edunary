@@ -19,7 +19,6 @@ public class Courses : EndpointGroupBase
         app.MapGroup(this)
             .RequireAuthorization()
             .MapPost(CreateCourse)
-            .MapGet(GetCoursesWithPagination)
             .MapGet(GetCoursesAuthorWithPagination, "author")
             .MapGet(GetCourseById, "{id}")
             .MapPut(UpdateCourse)
@@ -27,6 +26,7 @@ public class Courses : EndpointGroupBase
 
         // Public endpoint without authorization
         app.MapGroup(this)
+            .MapGet(GetCoursesWithPagination)
             .MapGet(GetPublicCourseById, "public/{id}");
         
     }

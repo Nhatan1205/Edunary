@@ -38,6 +38,7 @@ const CourseLandingPage = () => {
       level: "",
       categoryId: "",
       topic: "",
+      imageUrl: "",
     },
   });
 
@@ -349,36 +350,30 @@ const CourseLandingPage = () => {
                 pixels; .jpg, .jpeg, .gif, or .png. no text on the image.
               </Typography>
               <Box sx={{ display: "flex", gap: 1 }}>
-                {/* <Controller
-                  name="courseImage"
-                  control={control}
-                  render={({ field: { onChange, value, ...field } }) => (
-                    <>
-                      <input
-                        {...field}
-                        id="courseImageInput"
-                        type="file"
-                        accept=".jpg,.jpeg,.gif,.png"
-                        style={{ display: "none" }}
-                        onChange={(e) => handleImageChange(e, onChange)}
-                      />
-                      <TextField
-                        value={fileName}
-                        fullWidth
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                      <Button
-                        variant="contained"
-                        startIcon={<FileUploadIcon />}
-                        sx={{ whiteSpace: "nowrap", bgcolor: "brand.main" }}
-                      >
-                        Upload File
-                      </Button>
-                    </>
-                  )}
-                /> */}
+                <TextField
+                  {...register("imageUrl")}
+                  fullWidth
+                  label={
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      Upload your image here
+                      <InfoOutlinedIcon sx={{ fontSize: 18 }} />
+                    </Box>
+                  }
+                  sx={{
+                    "& label.Mui-focused": {
+                      color: "brand.dark",
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      "&:hover fieldset": {
+                        borderColor: "brand.main",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "brand.main",
+                        borderWidth: "3px",
+                      },
+                    },
+                  }}
+                />
               </Box>
             </Col>
           </Row>

@@ -13,9 +13,11 @@ import { Col } from "reactstrap";
 import CoursePopover from "../../../../components/course-popover/CoursePopover";
 import { usePopover } from "../../../../context/PopoverContext";
 import { getPopoverOrigin } from "../../../../utils/getPopoverOrigin";
+import DefaultImage from "../../../../assets/images/default.jpg";
+import { Link as RouterLink } from "react-router";
 
 function CourseCard({ course }) {
-  const { id, image, title, price, level, instructor, rating } = course;
+  const { id, imageUrl, title, price, level } = course;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -53,6 +55,8 @@ function CourseCard({ course }) {
   return (
     <Col xs={6} md={4} lg={3} className="mb-4">
       <Card
+        component={RouterLink}
+        to={`/course/${id}`}
         ref={cardRef}
         onMouseEnter={onMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -65,6 +69,7 @@ function CourseCard({ course }) {
           transition: "transform 0.2s ease-in-out",
           bgcolor: "background.default",
           boxShadow: "none",
+          textDecoration: "none",
           "&:hover": {
             transform: "translateY(-1px)",
             // boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
@@ -78,7 +83,7 @@ function CourseCard({ course }) {
         <CardMedia
           component="img"
           height="160"
-          image={image}
+          image={imageUrl ? imageUrl : DefaultImage}
           alt={title}
           sx={{
             objectFit: "cover",
@@ -131,8 +136,7 @@ function CourseCard({ course }) {
           >
             {title}
           </Typography>
-
-          {instructor && (
+          {/* {instructor && (
             <Typography
               variant="body2"
               sx={{
@@ -143,22 +147,19 @@ function CourseCard({ course }) {
             >
               {instructor}
             </Typography>
-          )}
-
+          )} */}
           {/* Rating */}
-          {rating && (
-            <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-              <Typography variant="body2" sx={{ color: "#FFA726", mr: 0.5 }}>
-                ★★★★★
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "#666", fontSize: "0.8rem" }}
-              >
-                ({rating})
-              </Typography>
-            </Box>
-          )}
+          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+            <Typography variant="body2" sx={{ color: "#FFA726", mr: 0.5 }}>
+              ★★★★★
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "#666", fontSize: "0.8rem" }}
+            >
+              4.8
+            </Typography>
+          </Box>
 
           {/* Price */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

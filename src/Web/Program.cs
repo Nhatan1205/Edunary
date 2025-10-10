@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
+using Edunary.Infrastructure.Hubs;
 using Edunary.Infrastructure.Identity;
 using Edunary.Web.Infrastructure;
 using NSwag;
@@ -13,13 +14,14 @@ builder.Services.AddKeyVaultIfConfigured(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
+builder.Services.AddSignalR(); //add websocket services
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // await app.InitialiseDatabaseAsync();
+     await app.InitialiseDatabaseAsync();
 }
 else
 {
@@ -38,7 +40,6 @@ app.UseSwaggerUi(settings =>
     settings.Path = "/api";
     settings.DocumentPath = "/api/specification.json";
 });
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(
@@ -51,7 +52,6 @@ app.MapFallbackToFile("index.html");
 
 
 app.MapEndpoints();
-
 app.Run();
 
 public partial class Program { }

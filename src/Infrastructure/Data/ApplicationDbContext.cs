@@ -24,6 +24,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
 
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    public DbSet<NotificationUser> NotificationUsers => Set<NotificationUser>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

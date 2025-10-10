@@ -116,17 +116,7 @@ function CoursePopover({
   anchorOrigin,
   transformOrigin,
 }) {
-  const {
-    title,
-    duration,
-    level,
-    subtitle,
-    description,
-    features,
-    isBestseller,
-    updatedDate,
-    isFavorite,
-  } = course;
+  const { title, level, subtitle, topic, learningObjectives } = course;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -161,25 +151,6 @@ function CoursePopover({
         {getArrowIcon(transformOrigin)}
       </Box>
       <Box sx={{ p: 0 }}>
-        {/* Header Image */}
-        <Box sx={{ position: "relative" }}>
-          {isBestseller && (
-            <Chip
-              label="Bestseller"
-              size="small"
-              sx={{
-                position: "absolute",
-                top: 8,
-                left: 8,
-                backgroundColor: "#f57c00",
-                color: "white",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-              }}
-            />
-          )}
-        </Box>
-
         {/* Content */}
         <Box sx={{ p: 3 }}>
           <Typography
@@ -189,38 +160,28 @@ function CoursePopover({
               mb: 1,
               fontSize: "1.1rem",
               lineHeight: 1.3,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {title}
           </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.primary",
+              fontSize: "0.85rem",
+              mb: 2,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {level} • {topic || "Subtitles, CC"}
+          </Typography>
 
-          {updatedDate && (
-            <Typography
-              variant="body2"
-              sx={{
-                color: "text.primary",
-                fontSize: "0.85rem",
-                mb: 1,
-              }}
-            >
-              Updated {updatedDate}
-            </Typography>
-          )}
-
-          {duration && (
-            <Typography
-              variant="body2"
-              sx={{
-                color: "text.primary",
-                fontSize: "0.85rem",
-                mb: 2,
-              }}
-            >
-              {duration} • {level} • {subtitle || "Subtitles, CC"}
-            </Typography>
-          )}
-
-          {description && (
+          {subtitle && (
             <Typography
               variant="body2"
               sx={{
@@ -228,16 +189,21 @@ function CoursePopover({
                 fontSize: "0.9rem",
                 mb: 2,
                 lineHeight: 1.4,
+                wordBreak: "break-word",
+                display: "-webkit-box",
+                WebkitLineClamp: 4,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
-              {description}
+              {subtitle}
             </Typography>
           )}
-
           {/* Features List */}
-          {features && features.length > 0 && (
+          {/* {learningObjectives && learningObjectives.length > 0 && (
             <Box sx={{ mb: 3 }}>
-              {features.map((feature, index) => (
+              {learningObjectives.map((feature, index) => (
                 <Box
                   key={index}
                   sx={{
@@ -268,7 +234,36 @@ function CoursePopover({
                 </Box>
               ))}
             </Box>
-          )}
+          )} */}
+          <Box sx={{ mb: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                mb: 1,
+              }}
+            >
+              <Check
+                sx={{
+                  color: "secondaryBrand.main",
+                  fontSize: "1rem",
+                  mr: 1,
+                  mt: 0.1,
+                  flexShrink: 0,
+                }}
+              />
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.primary",
+                  fontSize: "0.85rem",
+                  lineHeight: 1.4,
+                }}
+              >
+                {learningObjectives}
+              </Typography>
+            </Box>
+          </Box>
 
           {/* Action Buttons */}
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
@@ -304,11 +299,7 @@ function CoursePopover({
                 },
               }}
             >
-              {isFavorite ? (
-                <Favorite sx={{ color: "brand.main" }} />
-              ) : (
-                <FavoriteBorder sx={{ color: "brand.main" }} />
-              )}
+              <FavoriteBorder sx={{ color: "brand.main" }} />
             </IconButton>
           </Box>
         </Box>

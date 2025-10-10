@@ -229,49 +229,6 @@ export class CoursesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    getCoursesWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCourseDto> {
-        let url_ = this.baseUrl + "/api/Courses?";
-        if (pageNumber === undefined || pageNumber === null)
-            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
-        else
-            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        if (pageSize === undefined || pageSize === null)
-            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
-        else
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCoursesWithPagination(_response);
-        });
-    }
-
-    protected processGetCoursesWithPagination(response: Response): Promise<PaginatedListOfGetCourseDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfGetCourseDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PaginatedListOfGetCourseDto>(null as any);
-    }
-
     updateCourse(command: UpdateCourseCommand | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/Courses";
         url_ = url_.replace(/[?&]$/, "");
@@ -340,6 +297,49 @@ export class CoursesClient {
             });
         }
         return Promise.resolve<void>(null as any);
+    }
+
+    getCoursesWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCourseDto> {
+        let url_ = this.baseUrl + "/api/Courses?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoursesWithPagination(_response);
+        });
+    }
+
+    protected processGetCoursesWithPagination(response: Response): Promise<PaginatedListOfGetCourseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfGetCourseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfGetCourseDto>(null as any);
     }
 
     getCoursesAuthorWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCoursesAuthorDto> {
@@ -508,6 +508,175 @@ export class EnrollmentClient {
             });
         }
         return Promise.resolve<CheckUserEnrollmentDto>(null as any);
+    }
+
+    getCoursesByStudentId(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCouresByStudentIdDto> {
+        let url_ = this.baseUrl + "/api/Enrollments?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoursesByStudentId(_response);
+        });
+    }
+
+    protected processGetCoursesByStudentId(response: Response): Promise<PaginatedListOfGetCouresByStudentIdDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfGetCouresByStudentIdDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfGetCouresByStudentIdDto>(null as any);
+    }
+
+    getStudentsByCourseId(courseId: number): Promise<GetStudentsByCourseIdDto[]> {
+        let url_ = this.baseUrl + "/api/Enrollments/{courseId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetStudentsByCourseId(_response);
+        });
+    }
+
+    protected processGetStudentsByCourseId(response: Response): Promise<GetStudentsByCourseIdDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GetStudentsByCourseIdDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GetStudentsByCourseIdDto[]>(null as any);
+    }
+}
+
+export class NotificationClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getNotficationsByUserId(): Promise<NotificationsVm> {
+        let url_ = this.baseUrl + "/api/Notification";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetNotficationsByUserId(_response);
+        });
+    }
+
+    protected processGetNotficationsByUserId(response: Response): Promise<NotificationsVm> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = NotificationsVm.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<NotificationsVm>(null as any);
+    }
+
+    updateNotificationStatus(command: UpdateNotificationStatusCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Notification";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateNotificationStatus(_response);
+        });
+    }
+
+    protected processUpdateNotificationStatus(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -1370,126 +1539,6 @@ export interface ICreateCourseCommand {
     price?: number;
 }
 
-export class PaginatedListOfGetCourseDto implements IPaginatedListOfGetCourseDto {
-    items?: GetCourseDto[] | undefined;
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-
-    constructor(data?: IPaginatedListOfGetCourseDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(GetCourseDto.fromJS(item));
-            }
-            this.pageNumber = _data["pageNumber"];
-            this.totalPages = _data["totalPages"];
-            this.totalCount = _data["totalCount"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-        }
-    }
-
-    static fromJS(data: any): PaginatedListOfGetCourseDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfGetCourseDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["pageNumber"] = this.pageNumber;
-        data["totalPages"] = this.totalPages;
-        data["totalCount"] = this.totalCount;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        return data;
-    }
-}
-
-export interface IPaginatedListOfGetCourseDto {
-    items?: GetCourseDto[] | undefined;
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-}
-
-export class GetCourseDto implements IGetCourseDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    price?: number;
-    categoryId?: number;
-    imageUrl?: string | undefined;
-
-    constructor(data?: IGetCourseDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-            this.subtitle = _data["subtitle"];
-            this.price = _data["price"];
-            this.categoryId = _data["categoryId"];
-            this.imageUrl = _data["imageUrl"];
-        }
-    }
-
-    static fromJS(data: any): GetCourseDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GetCourseDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        data["subtitle"] = this.subtitle;
-        data["price"] = this.price;
-        data["categoryId"] = this.categoryId;
-        data["imageUrl"] = this.imageUrl;
-        return data;
-    }
-}
-
-export interface IGetCourseDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    price?: number;
-    categoryId?: number;
-    imageUrl?: string | undefined;
-}
-
 export class PaginatedListOfGetCoursesAuthorDto implements IPaginatedListOfGetCoursesAuthorDto {
     items?: GetCoursesAuthorDto[] | undefined;
     pageNumber?: number;
@@ -1869,6 +1918,84 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     categoryTitle?: string | undefined;
 
     constructor(data?: IGetPublicCourseByIdDto) {
+export class PaginatedListOfGetCourseDto implements IPaginatedListOfGetCourseDto {
+    items?: GetCourseDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetCourseDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetCourseDto {
+    items?: GetCourseDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class GetCourseDto implements IGetCourseDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    categoryName?: string | undefined;
+    imageUrl?: string | undefined;
+    level?: string | undefined;
+    description?: string | undefined;
+    learningObjectives?: string | undefined;
+    topic?: string | undefined;
+
+    constructor(data?: IGetCourseDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1901,6 +2028,20 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     static fromJS(data: any): GetPublicCourseByIdDto {
         data = typeof data === 'object' ? data : {};
         let result = new GetPublicCourseByIdDto();
+            this.price = _data["price"];
+            this.categoryId = _data["categoryId"];
+            this.categoryName = _data["categoryName"];
+            this.imageUrl = _data["imageUrl"];
+            this.level = _data["level"];
+            this.description = _data["description"];
+            this.learningObjectives = _data["learningObjectives"];
+            this.topic = _data["topic"];
+        }
+    }
+
+    static fromJS(data: any): GetCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCourseDto();
         result.init(data);
         return result;
     }
@@ -1923,6 +2064,14 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
         data["categoryTitle"] = this.categoryTitle;
+        data["price"] = this.price;
+        data["categoryId"] = this.categoryId;
+        data["categoryName"] = this.categoryName;
+        data["imageUrl"] = this.imageUrl;
+        data["level"] = this.level;
+        data["description"] = this.description;
+        data["learningObjectives"] = this.learningObjectives;
+        data["topic"] = this.topic;
         return data;
     }
 }
@@ -1947,6 +2096,21 @@ export interface IGetPublicCourseByIdDto {
 }
 
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {
+export interface IGetCourseDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    categoryName?: string | undefined;
+    imageUrl?: string | undefined;
+    level?: string | undefined;
+    description?: string | undefined;
+    learningObjectives?: string | undefined;
+    topic?: string | undefined;
+}
+
+export class CheckUserEnrollmentResponse implements ICheckUserEnrollmentResponse {
     isEnrolled?: boolean;
     enrollmentDate?: Date | undefined;
 
@@ -1987,6 +2151,323 @@ export interface ICheckUserEnrollmentDto {
 }
 
 export class CreatePaymentIntentDto implements ICreatePaymentIntentDto {
+export class PaginatedListOfGetCouresByStudentIdDto implements IPaginatedListOfGetCouresByStudentIdDto {
+    items?: GetCouresByStudentIdDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetCouresByStudentIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetCouresByStudentIdDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetCouresByStudentIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetCouresByStudentIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetCouresByStudentIdDto {
+    items?: GetCouresByStudentIdDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class GetCouresByStudentIdDto implements IGetCouresByStudentIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    imageUrl?: string | undefined;
+    status?: CourseStatus;
+    created?: Date;
+
+    constructor(data?: IGetCouresByStudentIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.price = _data["price"];
+            this.categoryId = _data["categoryId"];
+            this.imageUrl = _data["imageUrl"];
+            this.status = _data["status"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetCouresByStudentIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCouresByStudentIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["price"] = this.price;
+        data["categoryId"] = this.categoryId;
+        data["imageUrl"] = this.imageUrl;
+        data["status"] = this.status;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetCouresByStudentIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    imageUrl?: string | undefined;
+    status?: CourseStatus;
+    created?: Date;
+}
+
+export class GetStudentsByCourseIdDto implements IGetStudentsByCourseIdDto {
+    id?: string | undefined;
+    email?: string | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    avatar?: string | undefined;
+
+    constructor(data?: IGetStudentsByCourseIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.email = _data["email"];
+            this.fullName = _data["fullName"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.avatar = _data["avatar"];
+        }
+    }
+
+    static fromJS(data: any): GetStudentsByCourseIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetStudentsByCourseIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["email"] = this.email;
+        data["fullName"] = this.fullName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["avatar"] = this.avatar;
+        return data;
+    }
+}
+
+export interface IGetStudentsByCourseIdDto {
+    id?: string | undefined;
+    email?: string | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    avatar?: string | undefined;
+}
+
+export class NotificationsVm implements INotificationsVm {
+    unreadCount?: number;
+    list?: GetNotificationByUserIdDto[] | undefined;
+
+    constructor(data?: INotificationsVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.unreadCount = _data["unreadCount"];
+            if (Array.isArray(_data["list"])) {
+                this.list = [] as any;
+                for (let item of _data["list"])
+                    this.list!.push(GetNotificationByUserIdDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): NotificationsVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new NotificationsVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["unreadCount"] = this.unreadCount;
+        if (Array.isArray(this.list)) {
+            data["list"] = [];
+            for (let item of this.list)
+                data["list"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface INotificationsVm {
+    unreadCount?: number;
+    list?: GetNotificationByUserIdDto[] | undefined;
+}
+
+export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
+    id?: number;
+    title?: string | undefined;
+    message?: string | undefined;
+    created?: Date;
+    isRead?: boolean;
+
+    constructor(data?: IGetNotificationByUserIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.message = _data["message"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.isRead = _data["isRead"];
+        }
+    }
+
+    static fromJS(data: any): GetNotificationByUserIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetNotificationByUserIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["message"] = this.message;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["isRead"] = this.isRead;
+        return data;
+    }
+}
+
+export interface IGetNotificationByUserIdDto {
+    id?: number;
+    title?: string | undefined;
+    message?: string | undefined;
+    created?: Date;
+    isRead?: boolean;
+}
+
+export class UpdateNotificationStatusCommand implements IUpdateNotificationStatusCommand {
+    id?: number;
+
+    constructor(data?: IUpdateNotificationStatusCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): UpdateNotificationStatusCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateNotificationStatusCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IUpdateNotificationStatusCommand {
+    id?: number;
+}
+
+export class CreatePaymentIntentResponse implements ICreatePaymentIntentResponse {
     clientSecret?: string | undefined;
     amount?: number;
     paymentIntentId?: string | undefined;

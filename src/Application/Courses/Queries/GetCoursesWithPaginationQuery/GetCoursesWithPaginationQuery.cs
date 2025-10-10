@@ -24,6 +24,7 @@ public class GetCoursesWithPaginationQueryHandler : IRequestHandler<GetCoursesWi
     public async Task<PaginatedList<GetCourseDto>> Handle(GetCoursesWithPaginationQuery request, CancellationToken cancellationToken)
     {
             return await _context.Courses
+            .Include(c => c.Category)
             .OrderBy(x => x.Title)
             .ProjectTo<GetCourseDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);

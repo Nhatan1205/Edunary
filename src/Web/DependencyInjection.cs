@@ -2,6 +2,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Identity;
+using Edunary.Infrastructure.Services;
 using Edunary.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;

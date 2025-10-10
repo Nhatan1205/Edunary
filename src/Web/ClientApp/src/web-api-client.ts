@@ -423,7 +423,7 @@ export class CoursesClient {
         return Promise.resolve<GetCourseByIdDto>(null as any);
     }
 
-    getPublicCourseById(id: number): Promise<void> {
+    getPublicCourseById(id: number): Promise<GetPublicCourseByIdDto> {
         let url_ = this.baseUrl + "/api/Courses/public/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -433,6 +433,7 @@ export class CoursesClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                "Accept": "application/json"
             }
         };
 
@@ -441,20 +442,23 @@ export class CoursesClient {
         });
     }
 
-    protected processGetPublicCourseById(response: Response): Promise<void> {
+    protected processGetPublicCourseById(response: Response): Promise<GetPublicCourseByIdDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetPublicCourseByIdDto.fromJS(resultData200);
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<GetPublicCourseByIdDto>(null as any);
     }
 }
 
@@ -1844,6 +1848,102 @@ export class DeleteCourseCommand implements IDeleteCourseCommand {
 
 export interface IDeleteCourseCommand {
     id?: number;
+}
+
+export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    topic?: string | undefined;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    categoryTitle?: string | undefined;
+
+    constructor(data?: IGetPublicCourseByIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.description = _data["description"];
+            this.level = _data["level"];
+            this.status = _data["status"];
+            this.topic = _data["topic"];
+            this.learningObjectives = _data["learningObjectives"];
+            this.requirements = _data["requirements"];
+            this.targetAudience = _data["targetAudience"];
+            this.imageUrl = _data["imageUrl"];
+            this.welcomeMessage = _data["welcomeMessage"];
+            this.congratulationsMessage = _data["congratulationsMessage"];
+            this.price = _data["price"];
+            this.categoryId = _data["categoryId"];
+            this.categoryTitle = _data["categoryTitle"];
+        }
+    }
+
+    static fromJS(data: any): GetPublicCourseByIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetPublicCourseByIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["description"] = this.description;
+        data["level"] = this.level;
+        data["status"] = this.status;
+        data["topic"] = this.topic;
+        data["learningObjectives"] = this.learningObjectives;
+        data["requirements"] = this.requirements;
+        data["targetAudience"] = this.targetAudience;
+        data["imageUrl"] = this.imageUrl;
+        data["welcomeMessage"] = this.welcomeMessage;
+        data["congratulationsMessage"] = this.congratulationsMessage;
+        data["price"] = this.price;
+        data["categoryId"] = this.categoryId;
+        data["categoryTitle"] = this.categoryTitle;
+        return data;
+    }
+}
+
+export interface IGetPublicCourseByIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    topic?: string | undefined;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    categoryTitle?: string | undefined;
 }
 
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {

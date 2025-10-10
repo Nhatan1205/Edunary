@@ -76,16 +76,9 @@ public class Courses : EndpointGroupBase
         return await sender.Send(new GetCourseByIdQuery() { Id = id });
     }
 
-    public async Task<IResult> GetPublicCourseById(ISender sender, int id)
+    public async Task<GetPublicCourseByIdDto> GetPublicCourseById(ISender sender, int id)
     {
-        var result = await sender.Send(new GetPublicCourseByIdQuery() { Id = id });
-        
-        if (result == null)
-        {
-            return Results.NotFound("Course not found");
-        }
-        
-        return Results.Ok(result);
+        return await sender.Send(new GetPublicCourseByIdQuery() { Id = id });
     }
 }
 

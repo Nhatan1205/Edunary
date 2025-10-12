@@ -11,7 +11,9 @@ public static class WebApplicationExtensions
             .MapGroup($"/api/{groupName}")
             .WithGroupName(groupName)
             .WithTags(groupName)
-            .WithOpenApi();
+            .WithOpenApi()
+            .DisableAntiforgery();
+        
     }
 
     public static WebApplication MapEndpoints(this WebApplication app)

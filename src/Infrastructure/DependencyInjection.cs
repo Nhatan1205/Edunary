@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Edunary.Infrastructure.Helpers;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
@@ -32,6 +33,8 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString);
         });
 
+        services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<ApplicationDbContextInitialiser>();
@@ -43,6 +46,7 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
+        services.AddScoped<IImageService,CloudinaryService>();
         services.AddScoped<INotifyService, NotifyService>();
         services.AddScoped<INotificationCourseService, NotificationCourseService>();
 

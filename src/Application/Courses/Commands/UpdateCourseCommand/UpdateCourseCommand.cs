@@ -1,4 +1,6 @@
 ﻿namespace Edunary.Application.Courses.Commands.UpdateCourse;
+
+using System.Text.Json.Serialization;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
@@ -37,16 +39,18 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
     private readonly ICurrentUserService _currentUserService;
     private readonly INotifyService _notifyService;
     private readonly INotificationCourseService _notificationCourseService;
+    private readonly IImageService _imageService;
     public UpdateCourseCommandHandler(
         IApplicationDbContext context, 
         ICurrentUserService currentUserService, 
         INotifyService notifyService, 
-        INotificationCourseService notificationCourseService)
+        INotificationCourseService notificationCourseService, IImageService imageService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _notifyService = notifyService;
         _notificationCourseService = notificationCourseService;
+        _imageService = imageService;
     }
     public async Task<Result> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
     {
@@ -69,9 +73,10 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.LearningObjectives = request.LearningObjectives;
             entity.Requirements = request.Requirements;
             entity.TargetAudience = request.TargetAudience;
-            entity.ImageUrl = request.ImageUrl;
             entity.WelcomeMessage = request.WelcomeMessage;
             entity.CongratulationsMessage = request.CongratulationsMessage;
+            entity.ImageUrl = request.ImageUrl;
+            
             if (request.Price.HasValue)
             {
                 entity.Price = request.Price.Value;
@@ -88,7 +93,6 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             {
                 entity.Status = (CourseStatus)request.Status.Value;
             }
-    
 
             entity.AddDomainEvent(new CourseUpdatedEvent(entity));
 

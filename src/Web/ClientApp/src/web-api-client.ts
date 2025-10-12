@@ -268,17 +268,15 @@ export class CoursesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    updateCourse(command: UpdateCourseCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/Courses";
+    updateCourse(command: UpdateCourseCommand | null | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Courses?";
+        if (command !== undefined && command !== null)
+            url_ += "command=" + encodeURIComponent("" + command) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
-
         let options_: RequestInit = {
-            body: content_,
             method: "PUT",
             headers: {
-                "Content-Type": "application/json",
             }
         };
 
@@ -460,6 +458,45 @@ export class CoursesClient {
             });
         }
         return Promise.resolve<GetCourseByIdDto>(null as any);
+    }
+
+    updateCourseImage(id: number, file: FileParameter | null | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Courses/{id}/upload";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file !== null && file !== undefined)
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCourseImage(_response);
+        });
+    }
+
+    protected processUpdateCourseImage(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     getPublicCourseById(id: number): Promise<GetPublicCourseByIdDto> {
@@ -3298,6 +3335,11 @@ export interface IWeatherForecast {
     temperatureC?: number;
     temperatureF?: number;
     summary?: string | undefined;
+}
+
+export interface FileParameter {
+    data: any;
+    fileName: string;
 }
 
 export class SwaggerException extends Error {

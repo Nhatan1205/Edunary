@@ -196,17 +196,21 @@
           "Courses"
         ],
         "operationId": "UpdateCourse",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCourseCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
+        "parameters": [
+          {
+            "name": "command",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/UpdateCourseCommand"
+                }
+              ]
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -361,6 +365,52 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Courses/{id}/upload": {
+      "put": {
+        "tags": [
+          "Courses"
+        ],
+        "operationId": "UpdateCourseImage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "security": [

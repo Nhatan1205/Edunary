@@ -268,15 +268,17 @@ export class CoursesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    updateCourse(command: UpdateCourseCommand | null | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/Courses?";
-        if (command !== undefined && command !== null)
-            url_ += "command=" + encodeURIComponent("" + command) + "&";
+    updateCourse(command: UpdateCourseCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Courses";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(command);
+
         let options_: RequestInit = {
+            body: content_,
             method: "PUT",
             headers: {
+                "Content-Type": "application/json",
             }
         };
 

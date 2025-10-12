@@ -3,7 +3,7 @@
 namespace Edunary.Application.Common.Interfaces;
 public interface IImageService
 {
-    Task<ImageUploadResponse> AddImageAsync(Stream fileStream, string filename);
+    Task<ImageUploadResponse> AddImageAsync(Stream fileStream, string filename, string publicId);
 
-    Task<bool> DeletePhotoAsync(string publicId);
+    Task<bool> DeleteImageAsync(string publicId);
 }

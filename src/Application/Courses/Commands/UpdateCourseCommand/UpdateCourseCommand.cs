@@ -74,9 +74,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.Requirements = request.Requirements;
             entity.TargetAudience = request.TargetAudience;
             entity.WelcomeMessage = request.WelcomeMessage;
-            entity.CongratulationsMessage = request.CongratulationsMessage;
-            entity.ImageUrl = request.ImageUrl;
-            
+            entity.CongratulationsMessage = request.CongratulationsMessage;            
             if (request.Price.HasValue)
             {
                 entity.Price = request.Price.Value;
@@ -92,6 +90,11 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             if (request.Status.HasValue)
             {
                 entity.Status = (CourseStatus)request.Status.Value;
+            }
+            if(entity.ImageUrl != request.ImageUrl)
+            {
+                await _imageService.DeleteImageAsync(entity.Id.ToString());
+                entity.ImageUrl = request.ImageUrl;
             }
 
             entity.AddDomainEvent(new CourseUpdatedEvent(entity));

@@ -44,7 +44,7 @@ public class Courses : EndpointGroupBase
         return Results.Ok(result);
     }
 
-    public async Task<IResult> UpdateCourse(ISender sender, [FromForm] UpdateCourseCommand command)
+    public async Task<IResult> UpdateCourse(ISender sender, [FromBody] UpdateCourseCommand command)
     {
 
         var result = await sender.Send(command);

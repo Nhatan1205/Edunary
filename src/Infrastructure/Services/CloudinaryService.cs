@@ -7,6 +7,7 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Entities;
 using Edunary.Infrastructure.Helpers;
 using Microsoft.Extensions.Options;
 using Stripe.Tax;
@@ -21,26 +22,28 @@ public class CloudinaryService : IImageService
         var account = new Account(config.Value.CloudName, config.Value.ApiKey, config.Value.ApiSecret);
         _cloudinary = new Cloudinary(account);
     }
-    public async Task<ImageUploadResponse> AddImageAsync(Stream fileStream,string filename)
+    public async Task<ImageUploadResponse> AddImageAsync(Stream fileStream,string filename, string publicId)
     {
         var uploadParams = new ImageUploadParams
         {
             File = new FileDescription(filename, fileStream),
-            Folder = "uploads",
+            Folder = $"uploads",
+            PublicId = $"{publicId}",
+            Overwrite = true,
+            Invalidate = true
         };
         var result = await _cloudinary.UploadAsync(uploadParams);
         return new ImageUploadResponse
         {
             Url = result.SecureUrl.ToString(),
-            PublicId = result.PublicId
         };
     }
 
-    public async Task<bool> DeletePhotoAsync(string publicId)
+    public async Task<bool> DeleteImageAsync(string publicId)
     {
-        var deletionParams = new DeletionParams(publicId);
+        var deletionParams = new DeletionParams($"uploads/{publicId}");
         var  result = await _cloudinary.DestroyAsync(deletionParams);
-        if(result == null) return false;
+        if(result.Result == "ok") return false;
         return true;
     }
 }

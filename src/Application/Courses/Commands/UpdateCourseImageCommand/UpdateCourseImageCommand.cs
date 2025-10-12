@@ -40,7 +40,7 @@ public class UpdateCourseImageCommandHandler : IRequestHandler<UpdateCourseImage
             }
             if (request.ImageStream != null && request.ImageName != null)
             {
-                var uploadResult = await _imageService.AddImageAsync(request.ImageStream, request.ImageName);
+                var uploadResult = await _imageService.AddImageAsync(request.ImageStream, request.ImageName, entity.Id.ToString());
                 entity.ImageUrl = uploadResult.Url;
             }
             await _context.SaveChangesAsync(cancellationToken);

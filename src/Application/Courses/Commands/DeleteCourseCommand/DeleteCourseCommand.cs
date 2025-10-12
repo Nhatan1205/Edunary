@@ -12,10 +12,12 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    public DeleteCourseCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    private readonly IImageService _imageService;
+    public DeleteCourseCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService, IImageService imageService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _imageService = imageService;
     }
     public async Task<Result> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
     {
@@ -31,9 +33,10 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
             {
                 return Result.Failure("You are not authorized to delete this course.");
             }
-
+            
             _context.Courses.Remove(entity);
 
+            await _imageService.DeleteImageAsync(entity.Id.ToString());
             var result = await _context.SaveChangesAsync(cancellationToken);
             if (result > 0)
             {

@@ -18,7 +18,7 @@ const useUpdateCourseImage = () => {
       });
     },
     onSuccess: (_, variables) => {
-      toast.success("Course image updated successfully!");
+      // toast.success("Course image updated successfully!");
       // Làm mới lại dữ liệu liên quan
       queryClient.invalidateQueries(["courses"]);
       queryClient.invalidateQueries(["course", variables.id]);

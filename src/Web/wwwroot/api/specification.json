@@ -196,21 +196,17 @@
           "Courses"
         ],
         "operationId": "UpdateCourse",
-        "parameters": [
-          {
-            "name": "command",
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/UpdateCourseCommand"
-                }
-              ]
-            },
-            "x-position": 1
-          }
-        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""

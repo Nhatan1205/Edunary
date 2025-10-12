@@ -1,6 +1,7 @@
 const completeCourses = [
   {
-    image: "https://picsum.photos/seed/java/400/250",
+    image:
+      "https://fossbytes.com/wp-content/uploads/2017/09/Why-is-Java-the-best-programming-Language.png",
     title: "Java Programming Beginner",
     level: "Beginner",
     videosCompleted: 4,
@@ -9,7 +10,8 @@ const completeCourses = [
     progressPercentage: "40",
   },
   {
-    image: "https://picsum.photos/seed/swift/400/250",
+    image:
+      "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEijp1AxN6ameXbkuVsB3JNspYYigZp5605RiPEVdOP-cBg1iShOxHgCXRxhAFbS57f43YOYNGb3oMOMS3BHIeFy4IIRjC9BRcvswcptgxTzTxslxrdvR_im-zTmDTmO9ndmF0HNmSApYks/w1200-h630-p-k-no-nu/iOS+13+%2526+Swift+5.jpg",
     title: "iOS 13 & Swift 5 - Complete iOS App Development",
     level: "Intermediate",
     videosCompleted: 32,

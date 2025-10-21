@@ -2,17 +2,20 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { CoursesClient } from "../web-api-client.ts";
 import queryClient from "../configs/reactQuery.js";
+import getCookie from "../utils/cookies.js";
 
 const useUpdateCourseImage = () => {
   const coursesClient = new CoursesClient();
 
   return useMutation({
     mutationFn: async ({ id, file }) => {
+      const csrfToken = getCookie("XSRF-TOKEN");
       if (!id) throw new Error("Course ID is required");
       if (!file) throw new Error("Image file is required");
+      if (!csrfToken) throw new Error("Missing CSRF token");
 
       // Gọi API update image
-      return await coursesClient.updateCourseImage(id, {
+      return await coursesClient.updateCourseImage(id, csrfToken, {
         data: file,
         fileName: file.name,
       });

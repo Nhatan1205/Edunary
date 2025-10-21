@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { AuthClient } from "../web-api-client.ts";
+import { AntiforgeryClient, AuthClient } from "../web-api-client.ts";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -8,14 +8,18 @@ const useGoogleLogin = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const authClient = new AuthClient();
+  const antiforgeryClient = new AntiforgeryClient();
   const googleLoginMutation = useMutation({
     mutationFn: async (credential) => {
       return await authClient.loginWithSocialAccount(credential, "GOOGLE");
     },
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       if (response && response.token) {
         login(response.token);
         toast.success("Login with Google successful!");
+
+        //get antiforgery token
+        await antiforgeryClient.getToken();
         navigate("/");
       } else {
         toast.error("Google login failed");

@@ -12,6 +12,7 @@ using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer;
 
 namespace Edunary.Web.Endpoints;
 
@@ -62,10 +63,15 @@ public class Courses : EndpointGroupBase
             return Results.BadRequest("Missing CSRF token");
         if (file == null)
             return Results.BadRequest("No file provided.");
+        var imageDto = new FileUploadDto
+        {
+            FileName = Path.GetFileName(file.FileName),
+            Length = file.Length,
+            Stream = file.OpenReadStream()
+        };
         var result = await sender.Send(new UpdateCourseImageCommand() { 
             Id = id,
-            ImageStream = file.OpenReadStream(),
-            ImageName = file.FileName
+            Image = imageDto
         });
         if (!result.Succeeded)
         {

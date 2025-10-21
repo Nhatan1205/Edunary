@@ -10,8 +10,7 @@ namespace Edunary.Application.Courses.Commands.UpdateCourseImageCommand;
 public class UpdateCourseImageCommand : IRequest<Result>
 {
     public int Id { get; init; }
-    public Stream ImageStream { get; init; }
-    public string ImageName { get; init; }  
+    public FileUploadDto Image { get; init; }
 }
 
 public class UpdateCourseImageCommandHandler : IRequestHandler<UpdateCourseImageCommand, Result>
@@ -38,11 +37,9 @@ public class UpdateCourseImageCommandHandler : IRequestHandler<UpdateCourseImage
             {
                 return Result.Failure("You are not authorized to update this course.");
             }
-            if (request.ImageStream != null && request.ImageName != null)
-            {
-                var uploadResult = await _imageService.AddImageAsync(request.ImageStream, request.ImageName, entity.Id.ToString());
-                entity.ImageUrl = uploadResult.Url;
-            }
+            var uploadResult = await _imageService.AddImageAsync(request.Image.Stream, request.Image.FileName, entity.Id.ToString());
+            entity.ImageUrl = uploadResult.Url;
+
             await _context.SaveChangesAsync(cancellationToken);
             return Result.Success("Course image updated successfully");
         }

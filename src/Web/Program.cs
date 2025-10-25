@@ -15,7 +15,6 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
 builder.Services.AddSignalR(); //add websocket services
-builder.Services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
 var app = builder.Build();
 
@@ -43,7 +42,6 @@ app.UseSwaggerUi(settings =>
 });
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseAntiforgery();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");

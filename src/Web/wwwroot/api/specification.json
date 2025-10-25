@@ -6,24 +6,6 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/Antiforgery/token": {
-      "get": {
-        "tags": [
-          "Antiforgery"
-        ],
-        "operationId": "GetToken",
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/Auth/login": {
       "post": {
         "tags": [
@@ -404,16 +386,6 @@
               "format": "int32"
             },
             "x-position": 1
-          },
-          {
-            "name": "X-XSRF-TOKEN",
-            "x-originalName": "csrfToken",
-            "in": "header",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
           }
         ],
         "requestBody": {

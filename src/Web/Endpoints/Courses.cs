@@ -9,7 +9,6 @@ using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
 using Edunary.Application.Courses.Queries.GetPublicCourseById;
 using MediatR;
-using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer;
@@ -57,10 +56,8 @@ public class Courses : EndpointGroupBase
         return Results.Ok(result);
     }
 
-    public async Task<IResult> UpdateCourseImage(ISender sender, int id, IFormFile file, [FromHeader(Name = "X-XSRF-TOKEN")] string csrfToken)
+    public async Task<IResult> UpdateCourseImage(ISender sender, int id, IFormFile file)
     {
-        if (string.IsNullOrEmpty(csrfToken))
-            return Results.BadRequest("Missing CSRF token");
         if (file == null)
             return Results.BadRequest("No file provided.");
         var imageDto = new FileUploadDto

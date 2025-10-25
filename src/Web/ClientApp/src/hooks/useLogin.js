@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
-  AntiforgeryClient,
   AuthClient,
   AuthenticateModel,
 } from "../web-api-client.ts";
@@ -11,7 +10,6 @@ import queryClient from "../configs/reactQuery.js";
 
 const useLogin = () => {
   const authClient = new AuthClient();
-  const antiforgeryClient = new AntiforgeryClient();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,7 +23,7 @@ const useLogin = () => {
 
       return await authClient.login(model);
     },
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       if (data && data.token) {
         // Store token and extract user info
 
@@ -33,9 +31,6 @@ const useLogin = () => {
         toast.success("Login successful! Welcome back!");
         queryClient.invalidateQueries(["userInfo"]);
         const from = location.state?.from?.pathname || "/";
-
-        //get antiforgery token
-        await antiforgeryClient.getToken();
         navigate(from, { replace: true });
       }
     },

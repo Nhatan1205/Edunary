@@ -10,48 +10,6 @@
 
 import followIfLoginRedirect from './components/api-authorization/followIfLoginRedirect';
 
-export class AntiforgeryClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
-
-    getToken(): Promise<void> {
-        let url_ = this.baseUrl + "/api/Antiforgery/token";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetToken(_response);
-        });
-    }
-
-    protected processGetToken(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-}
-
 export class AuthClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -504,7 +462,7 @@ export class CoursesClient {
         return Promise.resolve<GetCourseByIdDto>(null as any);
     }
 
-    updateCourseImage(id: number, csrfToken: string | null | undefined, file: FileParameter | null | undefined): Promise<void> {
+    updateCourseImage(id: number, file: FileParameter | null | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/Courses/{id}/upload";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -519,7 +477,6 @@ export class CoursesClient {
             body: content_,
             method: "PUT",
             headers: {
-                "X-XSRF-TOKEN": csrfToken !== undefined && csrfToken !== null ? "" + csrfToken : "",
             }
         };
 

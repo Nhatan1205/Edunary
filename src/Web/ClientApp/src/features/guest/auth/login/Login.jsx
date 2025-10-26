@@ -14,8 +14,8 @@ import {
   Card,
   CardContent,
   Fade,
-  Checkbox,
-  FormControlLabel,
+  // Checkbox,
+  // FormControlLabel,
 } from "@mui/material";
 import {
   Visibility,
@@ -25,14 +25,17 @@ import {
   ArrowForward,
 } from "@mui/icons-material";
 import GoogleIcon from "@mui/icons-material/Google";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
+// import FacebookIcon from "@mui/icons-material/Facebook";
+// import GitHubIcon from "@mui/icons-material/GitHub";
 import useLogin from "../../../../hooks/useLogin";
+import useGoogleLogin from "../../../../hooks/useGoogleLogin";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
-
+import { GoogleLogin } from "@react-oauth/google";
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const loginMutation = useLogin();
+  // const { handleGoogleLogin, isLoading: isGoogleLoading } = useGoogleLogin();
+  const { handleGoogleLoginSuccess, handleGoogleLoginError, isLoading: isGoogleLoading } = useGoogleLogin();
   const {
     register,
     handleSubmit,
@@ -46,7 +49,7 @@ function Login() {
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   // Show loading spinner while logging in
-  if (loginMutation.isPending) {
+  if (loginMutation.isPending || isGoogleLoading) {
     return <LoadingSpinner fullScreen />;
   }
 
@@ -54,8 +57,8 @@ function Login() {
     <Box
       sx={{
         minHeight: "100vh",
-        background:
-          "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 25%, #FEF3C7 50%, #FED7AA 75%, #FECACA 100%)",
+        // background:
+        //   "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 25%, #FEF3C7 50%, #FED7AA 75%, #FECACA 100%)",
         backgroundSize: "400% 400%",
         animation: "gradient 15s ease infinite",
         py: 2,
@@ -384,8 +387,14 @@ function Login() {
                           {...register("password", {
                             required: "Password is required",
                             minLength: {
-                              value: 6,
-                              message: "Password must be at least 6 characters",
+                              value: 8,
+                              message: "Password must be at least 8 characters",
+                            },
+                            pattern: {
+                              value:
+                                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/,
+                              message:
+                                "Password must include uppercase, lowercase, number, and special character",
                             },
                           })}
                           error={Boolean(errors.password)}
@@ -462,12 +471,12 @@ function Login() {
                       <Box
                         sx={{
                           display: "flex",
-                          justifyContent: "space-between",
+                          justifyContent: "flex-end",
                           alignItems: "center",
                           mb: 3,
                         }}
                       >
-                        <FormControlLabel
+                        {/* <FormControlLabel
                           control={
                             <Checkbox
                               {...register("rememberMe")}
@@ -490,7 +499,7 @@ function Login() {
                               Remember me
                             </Typography>
                           }
-                        />
+                        /> */}
                         <Link
                           to="/forget-password"
                           style={{
@@ -552,7 +561,8 @@ function Login() {
                         </Button>
 
                         {/* Social Login Buttons */}
-                        <IconButton
+                        {/* <IconButton
+                          onClick={() => handleGoogleLogin()}
                           sx={{
                             border: "2px solid",
                             borderColor: "rgba(234, 67, 53, 0.2)",
@@ -570,9 +580,78 @@ function Login() {
                           }}
                         >
                           <GoogleIcon sx={{ color: "#EA4335", fontSize: 22 }} />
-                        </IconButton>
+                        </IconButton> */}
+                        <Box sx={{ 
+                          position: 'relative', 
+                          textAlign: 'center',
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: '50%',
+                            height: '1px',
+                            background: 'linear-gradient(90deg, transparent 0%, #E0E0E0 50%, transparent 100%)',
+                          }
+                        }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              display: 'inline-block',
+                              px: 2,
+                              backgroundColor: 'white',
+                              color: 'text.secondary',
+                              fontWeight: 600,
+                              fontSize: '0.875rem',
+                              position: 'relative',
+                              zIndex: 1,
+                            }}
+                          >
+                            OR
+                          </Typography>
+                        </Box>
+                        <Box sx={{ position: 'relative' }}>
+                          {/* Hidden GoogleLogin */}
+                          <Box sx={{ 
+                            position: 'absolute', 
+                            opacity: 0, 
+                            pointerEvents: 'none',
+                            '& > div': { display: 'none' }
+                          }}>
+                            <GoogleLogin
+                              onSuccess={handleGoogleLoginSuccess}
+                              onError={handleGoogleLoginError}
+                            />
+                          </Box>
+                          
+                          {/* Custom Button */}
+                          <IconButton
+                            onClick={() => {
+                              // Programmatically trigger Google login
+                              const googleButton = document.querySelector('[aria-labelledby="button-label"]');
+                              if (googleButton) googleButton.click();
+                            }}
+                            sx={{
+                              border: "2px solid",
+                              borderColor: "rgba(234, 67, 53, 0.2)",
+                              backgroundColor: "white",
+                              borderRadius: 2,
+                              width: 64,
+                              height: 44,
+                              transition: "all 0.3s ease",
+                              "&:hover": {
+                                borderColor: "#EA4335",
+                                backgroundColor: "rgba(234, 67, 53, 0.05)",
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 4px 12px rgba(234, 67, 53, 0.2)",
+                              },
+                            }}
+                          >
+                            <GoogleIcon sx={{ color: "#EA4335", fontSize: 22 }} />
+                          </IconButton>
+                        </Box>
 
-                        <IconButton
+                        {/* <IconButton
                           sx={{
                             border: "2px solid",
                             borderColor: "rgba(24, 119, 242, 0.2)",
@@ -612,7 +691,7 @@ function Login() {
                           }}
                         >
                           <GitHubIcon sx={{ color: "#333", fontSize: 22 }} />
-                        </IconButton>
+                        </IconButton> */}
                       </Box>
 
                       {/* Sign Up Link */}

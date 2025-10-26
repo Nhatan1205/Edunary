@@ -8,6 +8,7 @@ import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
+import GuestRoute from "./components/GuestRoute";
 import InstructorLayout from "./layouts/InstructorLayout";
 import CoursesManagement from "./features/instructor/courses-management/courses-list-page/CoursesManagement";
 import CourseOverview from "./features/guest/course-overview/CourseOverview";
@@ -51,15 +52,27 @@ const router = createBrowserRouter([
       },
       {
         path: "/register",
-        element: <Register />,
+        element: (
+          <GuestRoute>
+            <Register />
+          </GuestRoute>
+        ),
       },
       {
         path: "/login",
-        element: <Login />,
+        element: (
+          <GuestRoute>
+            <Login />
+          </GuestRoute>
+        ),
       },
       {
         path: "/forget-password",
-        element: <ForgetPassword />,
+        element: (
+          <GuestRoute>
+            <ForgetPassword />
+          </GuestRoute>
+        ),
       },
       {
         path: "/course/:id",
@@ -67,12 +80,20 @@ const router = createBrowserRouter([
       },
       {
         path: "/payment/checkout",
-        element: <CheckoutPage />,
+        element: (
+          <ProtectedRoute>
+            <CheckoutPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/payment-success",
-        element: <PaymentSuccess />,
-      },
+        element: (
+          <ProtectedRoute>
+            <PaymentSuccess />
+          </ProtectedRoute>
+        ),
+      }
     ],
   },
   {

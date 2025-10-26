@@ -26,12 +26,16 @@ import {
   ArrowForward,
 } from "@mui/icons-material";
 import GoogleIcon from "@mui/icons-material/Google";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
+// import FacebookIcon from "@mui/icons-material/Facebook";
+// import GitHubIcon from "@mui/icons-material/GitHub";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
+import useGoogleLogin from "../../../../hooks/useGoogleLogin";
+import { GoogleLogin } from "@react-oauth/google";
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const registerMutation = useRegister();
+  const { handleGoogleLoginSuccess, handleGoogleLoginError, isLoading: isGoogleLoading } = useGoogleLogin();
   const {
     register,
     handleSubmit,
@@ -44,12 +48,15 @@ function Register() {
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
+  if (registerMutation.isLoading || isGoogleLoading) {
+    return <LoadingSpinner fullScreen />;
+  }
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background:
-          "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 25%, #FEF3C7 50%, #FED7AA 75%, #FECACA 100%)",
+        // background:
+        //   "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 25%, #FEF3C7 50%, #FED7AA 75%, #FECACA 100%)",
         backgroundSize: "400% 400%",
         animation: "gradient 15s ease infinite",
         py: 2,
@@ -481,7 +488,7 @@ function Register() {
                         </Button>
 
                         {/* Social Login Buttons */}
-                        <IconButton
+                        {/* <IconButton
                           sx={{
                             border: "2px solid",
                             borderColor: "rgba(234, 67, 53, 0.2)",
@@ -499,9 +506,78 @@ function Register() {
                           }}
                         >
                           <GoogleIcon sx={{ color: "#EA4335", fontSize: 22 }} />
-                        </IconButton>
+                        </IconButton> */}
+                        <Box sx={{ 
+                          position: 'relative', 
+                          textAlign: 'center',
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: '50%',
+                            height: '1px',
+                            background: 'linear-gradient(90deg, transparent 0%, #E0E0E0 50%, transparent 100%)',
+                          }
+                        }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              display: 'inline-block',
+                              px: 2,
+                              backgroundColor: 'white',
+                              color: 'text.secondary',
+                              fontWeight: 600,
+                              fontSize: '0.875rem',
+                              position: 'relative',
+                              zIndex: 1,
+                            }}
+                          >
+                            OR
+                          </Typography>
+                        </Box>
+                        <Box sx={{ position: 'relative' }}>
+                          {/* Hidden GoogleLogin */}
+                          <Box sx={{ 
+                            position: 'absolute', 
+                            opacity: 0, 
+                            pointerEvents: 'none',
+                            '& > div': { display: 'none' }
+                          }}>
+                            <GoogleLogin
+                              onSuccess={handleGoogleLoginSuccess}
+                              onError={handleGoogleLoginError}
+                            />
+                          </Box>
+                          
+                          {/* Custom Button */}
+                          <IconButton
+                            onClick={() => {
+                              // Programmatically trigger Google login
+                              const googleButton = document.querySelector('[aria-labelledby="button-label"]');
+                              if (googleButton) googleButton.click();
+                            }}
+                            sx={{
+                              border: "2px solid",
+                              borderColor: "rgba(234, 67, 53, 0.2)",
+                              backgroundColor: "white",
+                              borderRadius: 2,
+                              width: 64,
+                              height: 44,
+                              transition: "all 0.3s ease",
+                              "&:hover": {
+                                borderColor: "#EA4335",
+                                backgroundColor: "rgba(234, 67, 53, 0.05)",
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 4px 12px rgba(234, 67, 53, 0.2)",
+                              },
+                            }}
+                          >
+                            <GoogleIcon sx={{ color: "#EA4335", fontSize: 22 }} />
+                          </IconButton>
+                        </Box>
 
-                        <IconButton
+                        {/* <IconButton
                           sx={{
                             border: "2px solid",
                             borderColor: "rgba(24, 119, 242, 0.2)",
@@ -541,7 +617,7 @@ function Register() {
                           }}
                         >
                           <GitHubIcon sx={{ color: "#333", fontSize: 22 }} />
-                        </IconButton>
+                        </IconButton> */}
                       </Box>
 
                       {/* Sign In Link */}

@@ -11,4 +11,6 @@ public class AppSettings
     public int AccessTokenTime { get; set; }
     public string RefreshTokenKey { get; set; }
     public int RefreshTokenTime { get; set; }
+    public string StripeSecretKey { get; set; }
+    public string StripePublishableKey { get; set; }
 }

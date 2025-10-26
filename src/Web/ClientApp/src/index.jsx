@@ -8,6 +8,9 @@ import theme from "./theme/theme";
 import { CssBaseline } from "@mui/material";
 import { AuthProvider } from "./context/AuthContext";
 import { setupApiInterceptor } from "./utils/apiInterceptor";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import Key from "./configs/sso_key.json";
+const GOOGLE_CLIENT_ID = Key.clientIdGoogle;
 // Setup API interceptor for token management
 setupApiInterceptor();
 
@@ -17,12 +20,14 @@ const root = createRoot(rootElement);
 
 root.render(
   <>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </ThemeProvider>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
+    </GoogleOAuthProvider>
   </>,
 );
 serviceWorkerRegistration.unregister();

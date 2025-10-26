@@ -81,6 +81,46 @@
         }
       }
     },
+    "/api/Auth/loginwithsocial": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "LoginWithSocialAccount",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Categories": {
       "get": {
         "tags": [
@@ -350,15 +390,22 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPublicCourseByIdDto"
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/Enrollments/check/{courseId}": {
+    "/api/Enrollment/check/{courseId}": {
       "get": {
         "tags": [
-          "Enrollments"
+          "Enrollment"
         ],
         "operationId": "CheckEnrollment",
         "parameters": [
@@ -379,94 +426,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckUserEnrollmentResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Enrollments": {
-      "get": {
-        "tags": [
-          "Enrollments"
-        ],
-        "operationId": "GetCoursesByStudentId",
-        "parameters": [
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfGetCouresByStudentIdDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Enrollments/{courseId}": {
-      "get": {
-        "tags": [
-          "Enrollments"
-        ],
-        "operationId": "GetStudentsByCourseId",
-        "parameters": [
-          {
-            "name": "courseId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GetStudentsByCourseIdDto"
-                  }
+                  "$ref": "#/components/schemas/CheckUserEnrollmentDto"
                 }
               }
             }
@@ -531,10 +491,10 @@
         ]
       }
     },
-    "/api/PaymentEndpoints/create-payment-intent": {
+    "/api/Payment/create-payment-intent": {
       "post": {
         "tags": [
-          "PaymentEndpoints"
+          "Payment"
         ],
         "operationId": "CreatePaymentIntent",
         "requestBody": {
@@ -554,7 +514,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreatePaymentIntentResponse"
+                  "$ref": "#/components/schemas/CreatePaymentIntentDto"
                 }
               }
             }
@@ -567,10 +527,10 @@
         ]
       }
     },
-    "/api/PaymentEndpoints/confirm-payment": {
+    "/api/Payment/confirm-payment": {
       "post": {
         "tags": [
-          "PaymentEndpoints"
+          "Payment"
         ],
         "operationId": "ConfirmPayment",
         "requestBody": {
@@ -590,7 +550,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConfirmPaymentResponse"
+                  "$ref": "#/components/schemas/ConfirmPaymentDto"
                 }
               }
             }
@@ -603,10 +563,10 @@
         ]
       }
     },
-    "/api/PaymentEndpoints/payment-status/{paymentIntentId}": {
+    "/api/Payment/payment-status/{paymentIntentId}": {
       "get": {
         "tags": [
-          "PaymentEndpoints"
+          "Payment"
         ],
         "operationId": "GetPaymentStatus",
         "parameters": [
@@ -627,7 +587,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaymentStatusResponse"
+                  "$ref": "#/components/schemas/PaymentStatusDto"
                 }
               }
             }
@@ -1011,6 +971,35 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/User/change-password": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "ChangePassword",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "security": [
@@ -1466,52 +1455,7 @@
           }
         }
       },
-      "CheckUserEnrollmentResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "isEnrolled": {
-            "type": "boolean"
-          },
-          "enrollmentDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
-        }
-      },
-      "PaginatedListOfGetCouresByStudentIdDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "items": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/GetCouresByStudentIdDto"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          }
-        }
-      },
-      "GetCouresByStudentIdDto": {
+      "GetPublicCourseByIdDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1527,6 +1471,44 @@
             "type": "string",
             "nullable": true
           },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "level": {
+            "$ref": "#/components/schemas/CourseLevel"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseStatus"
+          },
+          "topic": {
+            "type": "string",
+            "nullable": true
+          },
+          "learningObjectives": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirements": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetAudience": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "welcomeMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "congratulationsMessage": {
+            "type": "string",
+            "nullable": true
+          },
           "price": {
             "type": "number",
             "format": "float"
@@ -1535,41 +1517,22 @@
             "type": "integer",
             "format": "int32"
           },
-          "imageUrl": {
+          "categoryTitle": {
             "type": "string",
             "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/CourseStatus"
-          },
-          "created": {
-            "type": "string",
-            "format": "date-time"
           }
         }
       },
-      "GetStudentsByCourseIdDto": {
+      "CheckUserEnrollmentDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
+          "isEnrolled": {
+            "type": "boolean"
           },
-          "email": {
+          "enrollmentDate": {
             "type": "string",
-            "nullable": true
-          },
-          "fullName": {
-            "type": "string",
-            "nullable": true
-          },
-          "phoneNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "avatar": {
-            "type": "string",
+            "format": "date-time",
             "nullable": true
           }
         }
@@ -1626,7 +1589,7 @@
           }
         }
       },
-      "CreatePaymentIntentResponse": {
+      "CreatePaymentIntentDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1657,7 +1620,7 @@
           }
         }
       },
-      "ConfirmPaymentResponse": {
+      "ConfirmPaymentDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1684,7 +1647,7 @@
           }
         }
       },
-      "PaymentStatusResponse": {
+      "PaymentStatusDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2015,6 +1978,20 @@
             "nullable": true
           },
           "avatar": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ChangePasswordCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "oldPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "newPassword": {
             "type": "string",
             "nullable": true
           }

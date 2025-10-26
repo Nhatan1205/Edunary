@@ -1,6 +1,9 @@
 using Stripe;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
 using Microsoft.Extensions.Configuration;
+using Edunary.Domain.Common;
+using Microsoft.Extensions.Options;
 
 namespace Edunary.Infrastructure.Services;
 
@@ -8,15 +11,18 @@ public class StripePaymentService : IPaymentService
 {
     private readonly PaymentIntentService _paymentIntentService; // Stripe service
     private readonly IConfiguration _configuration;
+    private readonly AppSettings _appSettings;
 
-    public StripePaymentService(IConfiguration configuration)
+    public StripePaymentService(IConfiguration configuration, IOptions<AppSettings> appSettings)
     {
         _configuration = configuration;
-        StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
+        _appSettings = appSettings.Value;
+
+        StripeConfiguration.ApiKey = _appSettings.StripeSecretKey;
         _paymentIntentService = new PaymentIntentService();
     }
 
-    public async Task<CreatePaymentIntentResponse> CreatePaymentIntentAsync(
+    public async Task<CreatePaymentIntentDto> CreatePaymentIntentAsync(
         List<CoursePaymentInfo> courses, 
         string userEmail, 
         CancellationToken cancellationToken = default)
@@ -39,7 +45,7 @@ public class StripePaymentService : IPaymentService
 
         var paymentIntent = await _paymentIntentService.CreateAsync(options, cancellationToken: cancellationToken);
 
-        return new CreatePaymentIntentResponse
+        return new CreatePaymentIntentDto
         {
             ClientSecret = paymentIntent.ClientSecret,
             Amount = totalAmount,

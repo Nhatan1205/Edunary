@@ -34,7 +34,7 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")
-            .MinimumLength(6).WithMessage("Password must be at least 6 characters.")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters.")
             .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])")
             .WithMessage("Password must include uppercase, lowercase, number, and special character.");
 

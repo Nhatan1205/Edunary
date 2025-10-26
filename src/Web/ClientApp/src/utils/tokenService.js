@@ -1,6 +1,7 @@
 // Token management service
 const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
+const REQUIRES_PASSWORD_CHANGE_KEY = 'requires_password_change';
 
 export const tokenService = {
   // Get access token
@@ -9,9 +10,9 @@ export const tokenService = {
     if (!tokenData) return null;
     try {
       const parsed = JSON.parse(tokenData);
-      return parsed.value || tokenData; // Fallback to raw value for backward compatibility
+      return parsed.value || tokenData;
     } catch {
-      return tokenData; // Fallback for non-JSON tokens
+      return tokenData;
     }
   },
 
@@ -24,6 +25,12 @@ export const tokenService = {
       value: token,
     };
     localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenData));
+    
+    // Extract and store requiresPasswordChange from token
+    const decoded = this.decodeToken(token);
+    if (decoded && decoded.requiresPasswordChange !== undefined) {
+      this.setRequiresPasswordChange(decoded.requiresPasswordChange === 'true' || decoded.requiresPasswordChange === true);
+    }
   },
 
   // Get refresh token
@@ -53,11 +60,42 @@ export const tokenService = {
   clearAuth() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(REQUIRES_PASSWORD_CHANGE_KEY);
   },
 
   // Check if user is authenticated
   isAuthenticated() {
     return !!this.getToken();
+  },
+
+  // Set requires password change flag
+  setRequiresPasswordChange(value) {
+    localStorage.setItem(REQUIRES_PASSWORD_CHANGE_KEY, JSON.stringify(value));
+  },
+
+  // Get requires password change flag
+  getRequiresPasswordChange() {
+    const value = localStorage.getItem(REQUIRES_PASSWORD_CHANGE_KEY);
+    if (value === null) return false;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return false;
+    }
+  },
+
+  // Clear requires password change flag
+  clearRequiresPasswordChange() {
+    localStorage.removeItem(REQUIRES_PASSWORD_CHANGE_KEY);
+  },
+
+  // Get default password from token (for first login)
+  getDefaultPassword() {
+    const token = this.getToken();
+    if (!token) return null;
+    
+    const decoded = this.decodeToken(token);
+    return decoded?.defaultPassword || null;
   },
 
   // Decode JWT token to get user info

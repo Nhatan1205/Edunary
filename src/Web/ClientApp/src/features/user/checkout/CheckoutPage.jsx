@@ -1,20 +1,23 @@
 import { useState, useCallback, useEffect, useMemo } from "react"
-import { Container, Box, Paper, Grid, CircularProgress, Typography } from "@mui/material"
+import { Container, Box, Paper, Grid } from "@mui/material"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
 import { useLocation, useNavigate } from "react-router"
 import { toast } from "react-toastify"
-import { PaymentEndpointsClient } from "../../../web-api-client.ts"
+import { PaymentClient } from "../../../web-api-client.ts"
 import { useAuth } from "../../../context/AuthContext"
 import CheckoutHeader from "./components/CheckoutHeader"
 import CheckoutForm from "./components/CheckoutForm"
 import OrderSummary from "./components/OrderSummary"
+import LoadingSpinner from "../../../components/LoadingSpinner"
+import Key from "../../../configs/sso_key.json";
+
 
 // Initialize Stripe
-if (!process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY) {
+if (!Key.REACT_APP_STRIPE_PUBLISHABLE_KEY) {
   throw new Error("REACT_APP_STRIPE_PUBLISHABLE_KEY environment variable must be set.");
 }
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(Key.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
   const location = useLocation()
@@ -26,7 +29,6 @@ export default function CheckoutPage() {
   const [paymentIntentId, setPaymentIntentId] = useState("")
   const [loading, setLoading] = useState(true)
 
-  // Memoize courses to prevent unnecessary re-renders
   const courses = useMemo(() => {
     return location.state?.courses || []
   }, [location.state?.courses])
@@ -36,7 +38,7 @@ export default function CheckoutPage() {
   const createPaymentIntent = useCallback(async () => {
     try {
       setLoading(true)
-      const paymentClient = new PaymentEndpointsClient()
+      const paymentClient = new PaymentClient()
       
       const courseIds = courses.map(course => String(course.id || course.courseId))
       
@@ -57,14 +59,6 @@ export default function CheckoutPage() {
 
   // Step 1: Create PaymentIntent when component mounts
   useEffect(() => {
-    // Check authentication first
-    if (!isAuthenticated) {
-      toast.error("Please login to proceed with checkout")
-      navigate("/login")
-      return
-    }
-
-    // If no courses data in state, redirect to homepage
     if (!courses.length) {
       toast.error("No courses selected for checkout")
       navigate("/")
@@ -72,21 +66,15 @@ export default function CheckoutPage() {
     }
 
     createPaymentIntent()
-  }, [courses, navigate, createPaymentIntent, isAuthenticated])
+  }, [courses, navigate, createPaymentIntent])
 
-  // Show loading while creating payment intent
   if (loading || !clientSecret) {
     return (
-      <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 4 }}>
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
         <Container maxWidth="xl">
           <CheckoutHeader />
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-            <Box textAlign="center">
-              <CircularProgress size={60} sx={{ color: "#6366f1", mb: 2 }} />
-              <Typography variant="h6" color="text.secondary">
-                Initializing payment...
-              </Typography>
-            </Box>
+            <LoadingSpinner size={60} message="Initializing payment..." />
           </Box>
         </Container>
       </Box>
@@ -98,27 +86,28 @@ export default function CheckoutPage() {
     appearance: {
       theme: 'stripe',
       variables: {
-        colorPrimary: '#6366f1',
+        colorPrimary: '#3FCCB2',
       }
     }
   }
 
   return (
     <Elements stripe={stripePromise} options={stripeOptions}>
-      <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 4 }}>
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
         <Container maxWidth="xl">
           <CheckoutHeader />
 
           <Grid container spacing={3}>
             {/* Left Column - Checkout Form */}
-            <Grid item xs={12} lg={8}>
+            <Grid size={{ xs: 12, lg: 8 }}>
               <Paper
                 elevation={0}
                 sx={{
                   p: 3,
-                  backgroundColor: "white",
+                  bgcolor: "background.paper",
                   borderRadius: 2,
-                  border: "1px solid #e0e7ff",
+                  border: 1,
+                  borderColor: "divider",
                 }}
               >
                 <CheckoutForm 
@@ -135,7 +124,7 @@ export default function CheckoutPage() {
             </Grid>
 
             {/* Right Column - Order Summary */}
-            <Grid item xs={12} lg={4}>
+            <Grid size={{ xs: 12, lg: 4 }}>
               <OrderSummary courses={courses} totalPrice={totalPrice} />
             </Grid>
           </Grid>

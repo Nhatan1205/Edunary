@@ -9,15 +9,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Edunary.Infrastructure.Services;
 public class NotificationCourseService : INotificationCourseService
 {
-    private readonly IApplicationDbContext _context;
     private readonly INotifyService _notifyService;
     private readonly ISender _sender;
 
-    public NotificationCourseService(
-        IApplicationDbContext context,
-        INotifyService notifyService, ISender sender)
+    public NotificationCourseService(INotifyService notifyService, ISender sender)
     {
-        _context = context;
         _notifyService = notifyService;
         _sender = sender;
     }

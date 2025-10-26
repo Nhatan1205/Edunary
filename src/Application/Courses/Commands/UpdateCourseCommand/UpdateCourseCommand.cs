@@ -95,7 +95,6 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             var result = await _context.SaveChangesAsync(cancellationToken);
             if (result > 0)
             {
-                //await _notifyService.SendMessage("System", $"The course {entity.Title} has been updated.");
                 await _notificationCourseService.NotifyCourseUpdatedAsync(entity.Id, "Update the course", $"Update the course {entity.Title}",cancellationToken);
             }
 

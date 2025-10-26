@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.SignalR;
 namespace Edunary.Infrastructure.Services;
 public class NotifyService : INotifyService
 {
-    private readonly IHubContext<SignalRServiceHub> _hub;
+    private readonly IHubContext<NotificationHub> _hub;
 
-    public NotifyService(IHubContext<SignalRServiceHub> hub)
+    public NotifyService(IHubContext<NotificationHub> hub)
     {
         _hub = hub;
     }

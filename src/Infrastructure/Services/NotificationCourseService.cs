@@ -3,19 +3,25 @@ using Edunary.Application.Enrollments.Queries.GetStudentsByCourseIdQuery;
 using Edunary.Application.Notifications.Commands.CreateNotificationCommand;
 using Edunary.Application.NotificationUsers.Commands.CreateNotificationUserCommand;
 using Edunary.Domain.Entities;
+using Edunary.Infrastructure.Hubs;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Infrastructure.Services;
 public class NotificationCourseService : INotificationCourseService
 {
-    private readonly INotifyService _notifyService;
     private readonly ISender _sender;
+    private readonly IHubContext<NotificationHub> _hub;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IConnectionManagerService _connectionManager;
 
-    public NotificationCourseService(INotifyService notifyService, ISender sender)
+    public NotificationCourseService(ISender sender, IHubContext<NotificationHub> hub, ICurrentUserService currentUserService, IConnectionManagerService connectionManager)
     {
-        _notifyService = notifyService;
         _sender = sender;
+        _hub = hub;
+        _currentUserService = currentUserService;
+        _connectionManager = connectionManager;
     }
 
     public async Task NotifyCourseUpdatedAsync(int courseId, string title, string message, CancellationToken cancellationToken)
@@ -54,7 +60,17 @@ public class NotificationCourseService : INotificationCourseService
                 Created = DateTime.UtcNow
             };
 
-            await _notifyService.SendToGroupAsync($"{courseId}", "ReceiveMessage", payload);
+            await _hub.Clients.Group(courseId.ToString()).SendAsync("ReceiveMessage", payload);
+        }
+    }
+
+    public async Task JoinGroup(int courseId)
+    {
+        var userId = _currentUserService?.UserId;
+        var connections = _connectionManager.GetConnections(userId);
+        foreach (var connectionId in connections)
+        {
+            await _hub.Groups.AddToGroupAsync(connectionId, courseId.ToString());
         }
     }
 }

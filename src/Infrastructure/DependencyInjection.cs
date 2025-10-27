@@ -43,8 +43,8 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
-        services.AddScoped<INotifyService, NotifyService>();
         services.AddScoped<INotificationCourseService, NotificationCourseService>();
+        services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
 
         services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));

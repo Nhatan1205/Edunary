@@ -2,5 +2,7 @@
 public interface INotificationCourseService
 {
     Task NotifyCourseUpdatedAsync(int courseId, string title, string message, CancellationToken cancellationToken);
+
+    Task JoinGroup(int courseId);
 }
 

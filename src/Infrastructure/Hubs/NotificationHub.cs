@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Enrollments.Queries.GetCourseIdsByStudentIdQuery;
+using Edunary.Application.Users.Queries.GetBasicUserInfoQuery;
 using Edunary.Infrastructure.Data;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
@@ -13,12 +14,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Edunary.Infrastructure.Hubs;
 public class NotificationHub : Hub
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IConnectionManagerService _connectionManager;
     private readonly ISender _sender;
 
-    public NotificationHub(ApplicationDbContext context, ISender sender)
+    public NotificationHub(IConnectionManagerService connectionManager, ISender sender)
     {
-        _context = context;
+        _connectionManager = connectionManager;
         _sender = sender;
     }
 
@@ -33,11 +34,13 @@ public class NotificationHub : Hub
             {
                 await AddToGroup(courseId.Id.ToString());
             }
+            _connectionManager.AddConnection(userId, Context.ConnectionId);
         }
         await base.OnConnectedAsync();
     }
     public override async Task OnDisconnectedAsync(Exception exception)
     {
+        _connectionManager.RemoveConnection(Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
     public async Task AddToGroup(string groupName)

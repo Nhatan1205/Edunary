@@ -35,17 +35,14 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    private readonly INotifyService _notifyService;
     private readonly INotificationCourseService _notificationCourseService;
     public UpdateCourseCommandHandler(
         IApplicationDbContext context, 
         ICurrentUserService currentUserService, 
-        INotifyService notifyService, 
         INotificationCourseService notificationCourseService)
     {
         _context = context;
         _currentUserService = currentUserService;
-        _notifyService = notifyService;
         _notificationCourseService = notificationCourseService;
     }
     public async Task<Result> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)

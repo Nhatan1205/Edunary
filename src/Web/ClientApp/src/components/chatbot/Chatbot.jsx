@@ -19,7 +19,7 @@ function Chatbot() {
           </button>
         </div>
         <iframe 
-          src="http://localhost:8000/embed" 
+          src="https://edunary-ai-center.onrender.com/" 
           className="chatbot-iframe"
           title="AI Chatbot Demo"
           allow="microphone">

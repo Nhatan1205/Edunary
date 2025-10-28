@@ -3,7 +3,6 @@ using Edunary.Application.Common.Models;
 using Edunary.Application.Courses.Commands.CreateCourse;
 using Edunary.Application.Courses.Commands.DeleteCourse;
 using Edunary.Application.Courses.Commands.UpdateCourse;
-using Edunary.Application.Courses.Commands.UpdateCourseImageCommand;
 using Edunary.Application.Courses.Queries.GetCourseById;
 using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
@@ -25,7 +24,6 @@ public class Courses : EndpointGroupBase
             .MapGet(GetCoursesAuthorWithPagination, "author")
             .MapGet(GetCourseById, "{id}")
             .MapPut(UpdateCourse)
-            .MapPut(UpdateCourseImage, "{id}/upload")
             .MapDelete(DeleteCourse);
 
         // Public endpoint without authorization
@@ -49,27 +47,6 @@ public class Courses : EndpointGroupBase
     {
 
         var result = await sender.Send(command);
-        if (!result.Succeeded)
-        {
-            return Results.BadRequest(result);
-        }
-        return Results.Ok(result);
-    }
-
-    public async Task<IResult> UpdateCourseImage(ISender sender, int id, IFormFile file)
-    {
-        if (file == null)
-            return Results.BadRequest("No file provided.");
-        var imageDto = new FileUploadDto
-        {
-            FileName = Path.GetFileName(file.FileName),
-            Length = file.Length,
-            Stream = file.OpenReadStream()
-        };
-        var result = await sender.Send(new UpdateCourseImageCommand() { 
-            Id = id,
-            Image = imageDto
-        });
         if (!result.Succeeded)
         {
             return Results.BadRequest(result);

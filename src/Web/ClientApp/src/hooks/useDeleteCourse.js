@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { CoursesClient, DeleteCourseCommand } from "../web-api-client.ts";
 import queryClient from "../configs/reactQuery.js";
 
-const useDeleteCourse = () => {
+const useDeleteCourse = (onSuccessCallback) => {
   const coursesClient = new CoursesClient();
 
   return useMutation({
@@ -16,6 +16,9 @@ const useDeleteCourse = () => {
     onSuccess: () => {
       toast.success("Course deleted successfully!");
       queryClient.invalidateQueries(["courses"]);
+      if (onSuccessCallback) {
+        onSuccessCallback();
+      }
     },
     onError: (error) => {
       const msg =

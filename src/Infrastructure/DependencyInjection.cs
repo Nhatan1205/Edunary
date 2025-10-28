@@ -46,7 +46,7 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
-        services.AddScoped<IImageService,CloudinaryService>();
+        services.AddScoped<IUploadFileService, UploadFileService>();
         services.AddScoped<INotifyService, NotifyService>();
         services.AddScoped<INotificationCourseService, NotificationCourseService>();
 

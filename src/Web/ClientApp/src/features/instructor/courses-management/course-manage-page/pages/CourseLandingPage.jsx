@@ -12,24 +12,17 @@ import {
   Select,
   MenuItem,
   Paper,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import useGetCategories from "../../../../../hooks/useGetCategories";
 import useGetCourseById from "../../../../../hooks/useGetCourseById";
-
 import { useParams } from "react-router";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
-import useUpdateCourseImage from "../../../../../hooks/useUpdateCourseImage";
 import { toast } from "react-toastify";
 import { useState } from "react";
 const CourseLandingPage = () => {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
-  const [imageUploadMethod, setImageUploadMethod] = useState("upload");
   const { courseId } = useParams();
   const { data: courseData, isLoading: isCourseDataLoading } =
     useGetCourseById(courseId);
@@ -52,45 +45,45 @@ const CourseLandingPage = () => {
   });
 
   const updatecourseMutation = useUpdateCourse();
-  const { mutate: updateCourseImage, isLoading: IsCourseImageLoading } =
-    useUpdateCourseImage();
 
   const { data: categoryData, isLoading: isCategoryDataLoading } =
     useGetCategories(1, 20);
 
+  const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
+
   const onSubmit = (data) => {
-    updatecourseMutation.mutate({
+    const updateData = {
       ...data,
-    });
-    if (
-      imageUploadMethod === "upload" &&
-      imageFile &&
-      selectedImageUrl !== courseData.imageUrl
-    ) {
-      updateCourseImage({ id: courseId, file: imageFile });
+    };
+    
+    if (selectedImageUrl) {
+      updateData.imageUrl = selectedImageUrl;
     }
+    
+    updatecourseMutation.mutate(updateData);
   };
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
+    const mimeType = file.type;
+    if (!mimeType.includes("image")) {
+      toast.error("Only image files are allowed!");
+      return;
+    }
+    
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Only JPG and PNG images are allowed!");
       return;
     }
-    const imageUrl = URL.createObjectURL(file);
-    setSelectedImageUrl(imageUrl);
-    setImageFile(file);
-  };
-
-  const handleImageUploadMethodChange = (e) => {
-    const method = e.target.value;
-    setImageUploadMethod(method);
-    if (method === "url") {
-      setImageFile(null);
-      setSelectedImageUrl(null);
-    }
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (_event) => {
+      setSelectedImageUrl(reader.result.toString());
+    };
   };
 
   if (isCourseDataLoading || isCategoryDataLoading) {
@@ -391,84 +384,31 @@ const CourseLandingPage = () => {
                 pixels; .jpg, .jpeg, .gif, or .png. no text on the image.
               </Typography>
 
-              <FormControl component="fieldset" sx={{ mb: 2 }}>
-                <RadioGroup
-                  row
-                  value={imageUploadMethod}
-                  onChange={handleImageUploadMethodChange}
-                >
-                  <FormControlLabel
-                    value="upload"
-                    control={<Radio />}
-                    label="Upload Image"
-                  />
-                  <FormControlLabel
-                    value="url"
-                    control={<Radio />}
-                    label="Image URL"
-                  />
-                </RadioGroup>
-              </FormControl>
-
-              {/* Hiển thị button upload hoặc textfield tùy vào lựa chọn */}
-              {imageUploadMethod === "upload" ? (
-                <>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="upload-image"
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                  />
-                  <Button
-                    variant="outline"
-                    component="label"
-                    htmlFor="upload-image"
-                    fullWidth
-                    sx={{
-                      borderColor: "brand.main",
-                      border: "1px solid",
-                      color: "brand.main",
-                      backgroundColor: "background.default",
-                      "&:hover": {
-                        borderColor: "brand.dark",
-                        color: "brand.dark",
-                      },
-                    }}
-                    disabled={IsCourseImageLoading}
-                  >
-                    Choose Image
-                  </Button>
-                </>
-              ) : (
-                <TextField
-                  fullWidth
-                  {...register("imageUrl")}
-                  label="Image URL"
-                  placeholder="https://example.com/image.jpg"
-                  // value={courseData.imageUrl}
-                  sx={{
-                    "& label.Mui-focused": {
-                      color: "brand.dark",
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      "&:hover fieldset": {
-                        borderColor: "brand.main",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "brand.main",
-                        borderWidth: "3px",
-                      },
-                    },
-                  }}
-                />
-              )}
-
-              {IsCourseImageLoading && (
-                <div className="d-flex justify-content-center mt-2">
-                  <LoadingSpinner />
-                </div>
-              )}
+              <input
+                type="file"
+                accept="image/*"
+                id="upload-image"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <Button
+                variant="outline"
+                component="label"
+                htmlFor="upload-image"
+                fullWidth
+                sx={{
+                  borderColor: "brand.main",
+                  border: "1px solid",
+                  color: "brand.main",
+                  backgroundColor: "background.default",
+                  "&:hover": {
+                    borderColor: "brand.dark",
+                    color: "brand.dark",
+                  },
+                }}
+              >
+                Choose Image
+              </Button>
             </Col>
           </Row>
         </Box>
@@ -484,14 +424,18 @@ const CourseLandingPage = () => {
               "&:hover": {
                 backgroundColor: "brand.dark",
               },
+              position: "relative",
             }}
-            disabled={
-              IsCourseImageLoading ||
-              isCourseDataLoading ||
-              isCategoryDataLoading
-            }
+            disabled={isCourseDataLoading || isCategoryDataLoading || isUpdating}
           >
-            Save
+            {isUpdating ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <LoadingSpinner size={24} />
+                <span>Saving...</span>
+              </Box>
+            ) : (
+              "Save"
+            )}
           </Button>
         </Box>
       </form>

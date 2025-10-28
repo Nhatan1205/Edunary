@@ -12,12 +12,12 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IImageService _imageService;
-    public DeleteCourseCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService, IImageService imageService)
+    private readonly IUploadFileService _uploadFileService;
+    public DeleteCourseCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService, IUploadFileService uploadFileService)
     {
         _context = context;
         _currentUserService = currentUserService;
-        _imageService = imageService;
+        _uploadFileService = uploadFileService;
     }
     public async Task<Result> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
     {
@@ -29,14 +29,15 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
             Guard.Against.NotFound(request.Id, entity);
 
             var userId = _currentUserService?.UserId;
+            var courseTitle = entity.Title;
             if (entity.CreatedBy != userId)
             {
                 return Result.Failure("You are not authorized to delete this course.");
             }
             
             _context.Courses.Remove(entity);
-
-            await _imageService.DeleteImageAsync(entity.Id.ToString());
+            var imgId = $"{userId}-{request.Id}-{courseTitle}";
+            await _uploadFileService.DeleteImageInCloudinary(imgId);
             var result = await _context.SaveChangesAsync(cancellationToken);
             if (result > 0)
             {

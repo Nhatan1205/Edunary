@@ -370,52 +370,6 @@
         ]
       }
     },
-    "/api/Courses/{id}/upload": {
-      "put": {
-        "tags": [
-          "Courses"
-        ],
-        "operationId": "UpdateCourseImage",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/Courses/public/{id}": {
       "get": {
         "tags": [
@@ -1366,13 +1320,11 @@
           },
           "level": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "status": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "topic": {
             "type": "string",
@@ -1400,13 +1352,11 @@
           },
           "price": {
             "type": "number",
-            "format": "float",
-            "nullable": true
+            "format": "float"
           },
           "categoryId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           }
         }
       },

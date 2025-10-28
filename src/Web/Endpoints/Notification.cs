@@ -12,7 +12,7 @@ public class Notification : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapHub<NotificationHub>("/NotificationHub").RequireAuthorization();
+        app.MapHub<NotificationHub>("/NotificationHub");
         app.MapGroup(this)
             .RequireAuthorization()
             .MapGet(GetNotficationsByUserId)

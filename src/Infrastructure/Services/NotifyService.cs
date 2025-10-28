@@ -2,29 +2,26 @@
 using Edunary.Application.Enrollments.Queries.GetStudentsByCourseIdQuery;
 using Edunary.Application.Notifications.Commands.CreateNotificationCommand;
 using Edunary.Application.NotificationUsers.Commands.CreateNotificationUserCommand;
-using Edunary.Domain.Entities;
 using Edunary.Infrastructure.Hubs;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Infrastructure.Services;
-public class NotificationCourseService : INotificationCourseService
+public class NotifyService : INotifyService
 {
-    private readonly ISender _sender;
     private readonly IHubContext<NotificationHub> _hub;
+    private readonly ISender _sender;
     private readonly ICurrentUserService _currentUserService;
     private readonly IConnectionManagerService _connectionManager;
 
-    public NotificationCourseService(ISender sender, IHubContext<NotificationHub> hub, ICurrentUserService currentUserService, IConnectionManagerService connectionManager)
+    public NotifyService(ISender sender, IHubContext<NotificationHub> hub, ICurrentUserService currentUserService, IConnectionManagerService connectionManager)
     {
         _sender = sender;
         _hub = hub;
         _currentUserService = currentUserService;
         _connectionManager = connectionManager;
     }
-
-    public async Task NotifyCourseUpdatedAsync(int courseId, string title, string message, CancellationToken cancellationToken)
+    public async Task NotifyCourseUpdated(int courseId, string title, string message, CancellationToken cancellationToken)
     {
         // get all studnet in the course
         var students = await _sender.Send(new GetStudentsByCourseIdQuery { CourseId = courseId }, cancellationToken);
@@ -64,13 +61,31 @@ public class NotificationCourseService : INotificationCourseService
         }
     }
 
-    public async Task JoinGroup(int courseId)
+    public async Task JoinGroupCourse(int courseId)
     {
         var userId = _currentUserService?.UserId;
         var connections = _connectionManager.GetConnections(userId);
         foreach (var connectionId in connections)
         {
-            await _hub.Groups.AddToGroupAsync(connectionId, courseId.ToString());
+            await JoinRoom(courseId.ToString(), connectionId);
         }
     }
+
+    public async Task SendMessage(string sender, string message, string method = "ReceiveMessage")
+    {
+        await _hub.Clients.All.SendAsync(method, sender, message);
+    }
+    public async Task SendToUser(string userId, string method, object payload)
+    {
+        await _hub.Clients.User(userId).SendAsync(method, payload);
+    }
+    public async Task SendToGroup(string groupName, string method, object payload)
+    {
+        await _hub.Clients.Group(groupName).SendAsync(method, payload);
+    }
+    public async Task JoinRoom(string roomName, string connectionId)
+    {
+        await _hub.Groups.AddToGroupAsync(connectionId, roomName);
+    }
+
 }

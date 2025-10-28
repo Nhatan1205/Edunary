@@ -1,17 +1,17 @@
-﻿using Edunary.Application.Common.Interfaces;
+﻿using System.Text;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Common;
 using Edunary.Domain.Constants;
 using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Data.Interceptors;
 using Edunary.Infrastructure.Identity;
 using Edunary.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
@@ -43,7 +43,7 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
-        services.AddScoped<INotificationCourseService, NotificationCourseService>();
+        services.AddScoped<INotifyService, NotifyService>();
         services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
 
         services.AddAuthorization(options =>
@@ -68,6 +68,22 @@ public static class DependencyInjection
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettingsSection.Get<AppSettings>().AccessTokenKey)),
                 ValidateIssuer = false,
                 ValidateAudience = false
+            };
+            x.Events = new JwtBearerEvents
+            {
+                //for SignalR
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    var path = context.HttpContext.Request.Path;
+
+                    if (!string.IsNullOrEmpty(accessToken) &&
+                        path.StartsWithSegments("/NotificationHub"))
+                    {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
             };
         });
 

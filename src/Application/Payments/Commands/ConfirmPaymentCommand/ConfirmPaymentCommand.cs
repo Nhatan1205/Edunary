@@ -17,18 +17,18 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
     private readonly IApplicationDbContext _context;
     private readonly IPaymentService _paymentService;
     private readonly ILogger<ConfirmPaymentCommandHandler> _logger;
-    private readonly INotificationCourseService _notificationCourseService;
+    private readonly INotifyService _notifyService;
 
     public ConfirmPaymentCommandHandler(
         IApplicationDbContext context, 
         IPaymentService paymentService,
         ILogger<ConfirmPaymentCommandHandler> logger,
-        INotificationCourseService notificationCourseService)
+        INotifyService notifyService)
     {
         _context = context;
         _paymentService = paymentService;
         _logger = logger;
-        _notificationCourseService = notificationCourseService;
+        _notifyService = notifyService;
     }
 
     public async Task<ConfirmPaymentDto> Handle(ConfirmPaymentCommand request, CancellationToken cancellationToken)
@@ -110,7 +110,7 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
                     _logger.LogInformation("Created enrollment for CourseId: {CourseId}, UserId: {UserId}", courseId, order.UserId);
 
                     // Add connection to notification course group
-                    await _notificationCourseService.JoinGroup(courseId);
+                    await _notifyService.JoinGroupCourse(courseId);
                 }
                 else
                 {

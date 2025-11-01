@@ -20,8 +20,7 @@ public class UpdateCourseCommandValidator : AbstractValidator<UpdateCourseComman
             .MinimumLength(5).WithMessage("Subtitle must be at least 5 characters.")
             .MaximumLength(120).WithMessage("Subtitle must not exceed 120 characters.");
         RuleFor(x => x.Description)
-            .MinimumLength(5).WithMessage("Description must be at least 5 characters.")
-            .MaximumLength(10000).WithMessage("Description must not exceed 2000 characters.");
+            .MinimumLength(200).WithMessage("Description must be at least 200 characters.");
         RuleFor(x => x.LearningObjectives)
             .MinimumLength(5).WithMessage("Description must be at least 5 characters.")
             .MaximumLength(1000).WithMessage("Learning objectives must not exceed 1000 characters.");

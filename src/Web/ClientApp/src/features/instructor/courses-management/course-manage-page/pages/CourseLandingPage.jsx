@@ -20,6 +20,7 @@ import useGetCourseById from "../../../../../hooks/useGetCourseById";
 import { useParams } from "react-router";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
+import TextEditor from "../../../../../components/TextEditor";
 const CourseLandingPage = () => {
   const { courseId } = useParams();
   const { data: courseData, isLoading: isCourseDataLoading } =
@@ -172,42 +173,42 @@ const CourseLandingPage = () => {
             }}
           />
         </Box>
+
         {/* Course Description */}
         <Box sx={{ mb: 3 }}>
-          <TextField
-            {...register("description", {
+          <Typography
+            variant="subtitle1"
+            sx={{ mb: 1, fontWeight: 500 }}
+          >
+            Course Description
+          </Typography>
+
+          <Controller
+            name="description"
+            control={control}
+            rules={{
               minLength: {
                 value: 200,
                 message: "Minimum 200 characters required",
               },
-            })}
-            fullWidth
-            multiline
-            rows={5}
-            label="Course description"
-            placeholder="Insert your course description."
-            error={!!errors.description}
-            helperText={
-              errors.description
-                ? errors.description.message
-                : "Description should have minimum 200 words."
-            }
-            sx={{
-              "& label.Mui-focused": {
-                color: "brand.dark",
-              },
-              "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": {
-                  borderColor: "brand.main",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "brand.main",
-                  borderWidth: "3px",
-                },
-              },
             }}
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <>
+                <TextEditor value={value} onChange={onChange} />
+                {error ? (
+                  <Typography variant="caption" color="error">
+                    {error.message}
+                  </Typography>
+                ) : (
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                    Description should have minimum 200 words.
+                  </Typography>
+                )}
+              </>
+            )}
           />
         </Box>
+
         {/* Basic Info */}
         <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
           Basic info

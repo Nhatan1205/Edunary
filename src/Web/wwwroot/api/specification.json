@@ -1320,13 +1320,11 @@
           },
           "level": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "status": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "topic": {
             "type": "string",
@@ -1354,13 +1352,11 @@
           },
           "price": {
             "type": "number",
-            "format": "float",
-            "nullable": true
+            "format": "float"
           },
           "categoryId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           }
         }
       },

@@ -14,7 +14,14 @@ function CourseManageHeader() {
   // const { courseId } = useParams();
   // const { data: courseData } = useGetCourseById(courseId);
   return (
-    <AppBar position="static" sx={{ bgcolor: "#1c1d1f", boxShadow: "none" }}>
+    <AppBar
+      position="fixed"
+      sx={{
+        bgcolor: "#1c1d1f",
+        boxShadow: "none",
+        zIndex: 1201,
+      }}
+    >
       <Toolbar sx={{ px: { xs: 1, sm: 2 } }}>
         <Container fluid className="px-0">
           <Box

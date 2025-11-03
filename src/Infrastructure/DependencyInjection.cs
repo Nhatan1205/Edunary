@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Edunary.Infrastructure.Helpers;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection

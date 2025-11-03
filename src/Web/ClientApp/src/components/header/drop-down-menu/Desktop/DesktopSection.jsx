@@ -23,9 +23,10 @@ function DesktopSection({
       >
         {title}
       </Typography>
-      {items.map((item) =>
+      {items.map((item, index) =>
         bordered ? (
           <MenuItem
+            key={item.path || index}
             onClick={onItemClick}
             component={RouterLink}
             to={item.path}
@@ -53,6 +54,7 @@ function DesktopSection({
           </MenuItem>
         ) : (
           <MenuItem
+            key={item.path || index}
             onClick={onItemClick}
             component={RouterLink}
             to={item.path}

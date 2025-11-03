@@ -32,6 +32,8 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString);
         });
 
+        services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<ApplicationDbContextInitialiser>();
@@ -43,6 +45,7 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
+        services.AddScoped<IUploadFileService, UploadFileService>();
         services.AddScoped<INotifyService, NotifyService>();
         services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
 

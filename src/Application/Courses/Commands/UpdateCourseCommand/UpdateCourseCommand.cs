@@ -1,34 +1,27 @@
 ﻿namespace Edunary.Application.Courses.Commands.UpdateCourse;
+
+using System.Text.Json.Serialization;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Courses;
-#nullable enable
 public class UpdateCourseCommand : IRequest<Result>
 {
     public int Id { get; init; }
-    public string? Title { get; init; }
-
-    public string? Subtitle { get; init; }
-
-    public string? Description { get; init; }
-
-    public string? LearningObjectives { get; init; }
-    public int? Level { get; init; }
-    public int? Status { get; init; }
-    public string? Topic { get; init; }
-
-    public string? Requirements { get; init; }
-
-    public string? TargetAudience { get; init; }
-
-    public string? ImageUrl { get; init; }
-    public string? WelcomeMessage { get; init; }
-    public string? CongratulationsMessage { get; init; }
-
-    public float? Price { get; init; }
-
-    public int? CategoryId { get; init; }
+    public string Title { get; init; }
+    public string Subtitle { get; init; }
+    public string Description { get; init; }
+    public string LearningObjectives { get; init; }
+    public int Level { get; init; }
+    public int Status { get; init; }
+    public string Topic { get; init; }
+    public string Requirements { get; init; }
+    public string TargetAudience { get; init; }
+    public string ImageUrl { get; init; }
+    public string WelcomeMessage { get; init; }
+    public string CongratulationsMessage { get; init; }
+    public float Price { get; init; }
+    public int CategoryId { get; init; }
 }
 
 public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, Result>
@@ -36,14 +29,22 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotifyService _notifyService;
+    private readonly INotificationCourseService _notificationCourseService;    private readonly IUploadFileService _uploadFileService;
     public UpdateCourseCommandHandler(
         IApplicationDbContext context, 
         ICurrentUserService currentUserService,
         INotifyService notifyService)
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        INotifyService notifyService,
+        INotificationCourseService notificationCourseService,
+        IUploadFileService uploadFileService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _notifyService = notifyService;
+        _notificationCourseService = notificationCourseService;
+        _uploadFileService = uploadFileService;
     }
     public async Task<Result> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
     {
@@ -66,26 +67,18 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.LearningObjectives = request.LearningObjectives;
             entity.Requirements = request.Requirements;
             entity.TargetAudience = request.TargetAudience;
-            entity.ImageUrl = request.ImageUrl;
             entity.WelcomeMessage = request.WelcomeMessage;
             entity.CongratulationsMessage = request.CongratulationsMessage;
-            if (request.Price.HasValue)
+            entity.Price = request.Price;
+            entity.CategoryId = request.CategoryId;
+            entity.Level = (CourseLevel)request.Level;
+            entity.Status = (CourseStatus)request.Status;
+            if(!string.IsNullOrEmpty(request.ImageUrl) && entity.ImageUrl != request.ImageUrl)
             {
-                entity.Price = request.Price.Value;
+                var imgId = $"{userId}-{request.Id}-{entity.Title}";
+                var imageLink = await _uploadFileService.UploadImageToCloudinary(request.ImageUrl, imgId);
+                entity.ImageUrl = imageLink;
             }
-            if (request.CategoryId.HasValue)
-            {
-                entity.CategoryId = request.CategoryId.Value;
-            }
-            if (request.Level.HasValue)
-            {
-                entity.Level = (CourseLevel)request.Level.Value;
-            }
-            if (request.Status.HasValue)
-            {
-                entity.Status = (CourseStatus)request.Status.Value;
-            }
-    
 
             entity.AddDomainEvent(new CourseUpdatedEvent(entity));
 
@@ -93,6 +86,8 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             if (result > 0)
             {
                 await _notifyService.NotifyCourseUpdated(entity.Id, "Update the course", $"Update the course {entity.Title}",cancellationToken);
+                await _notificationCourseService.NotifyCourseUpdatedAsync(entity.Id, "Update the course", $"Update the course {entity.Title}",cancellationToken);
+                await _notificationCourseService.NotifyCourseUpdatedAsync(entity.Id, "Update the course", $"Update the course {entity.Title}",cancellationToken);
             }
 
 

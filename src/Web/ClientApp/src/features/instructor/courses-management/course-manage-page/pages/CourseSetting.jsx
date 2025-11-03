@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import { Container } from "reactstrap";
 import useGetCourseById from "../../../../../hooks/useGetCourseById";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useDeleteCourse from "../../../../../hooks/useDeleteCourse";
 import { useState } from "react";
@@ -10,11 +10,17 @@ import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
 
 function CourseSetting() {
   const { courseId } = useParams();
+  const navigate = useNavigate();
   const { data: courseData, isLoading: isCourseDataLoading } =
     useGetCourseById(courseId);
 
-  const deleteCourseMutation = useDeleteCourse();
+  const deleteCourseMutation = useDeleteCourse(() => {
+    navigate("/instructor/courses");
+  });
   const updatecourseMutation = useUpdateCourse();
+  
+  const isDeleting = deleteCourseMutation.isPending || deleteCourseMutation.isLoading;
+  const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
   const handleTogglePublish = () => {
     if (!courseData) return;
 
@@ -91,6 +97,7 @@ function CourseSetting() {
               <Button
                 variant="outlined"
                 onClick={handleTogglePublish}
+                disabled={isUpdating || isDeleting}
                 sx={{
                   width: "160px",
                   textTransform: "none",
@@ -104,7 +111,13 @@ function CourseSetting() {
                   },
                 }}
               >
-                {courseData?.status === 0 ? "Unpublish" : "Publish"}
+                {isUpdating ? (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <LoadingSpinner size={20} />
+                  </Box>
+                ) : (
+                  courseData?.status === 0 ? "Unpublish" : "Publish"
+                )}
               </Button>
               <Typography
                 sx={{
@@ -126,6 +139,7 @@ function CourseSetting() {
               <Button
                 variant="outlined"
                 onClick={handleDeleteClick}
+                disabled={isDeleting || isUpdating}
                 sx={{
                   width: "160px",
                   textTransform: "none",
@@ -139,7 +153,13 @@ function CourseSetting() {
                   },
                 }}
               >
-                Delete
+                {isDeleting ? (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <LoadingSpinner size={20} />
+                  </Box>
+                ) : (
+                  "Delete"
+                )}
               </Button>
               <Typography
                 sx={{

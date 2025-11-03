@@ -9,6 +9,8 @@ using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
 using Edunary.Application.Courses.Queries.GetPublicCourseById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer;
 
 namespace Edunary.Web.Endpoints;
 
@@ -43,6 +45,7 @@ public class Courses : EndpointGroupBase
 
     public async Task<IResult> UpdateCourse(ISender sender, [FromBody] UpdateCourseCommand command)
     {
+
         var result = await sender.Send(command);
         if (!result.Succeeded)
         {

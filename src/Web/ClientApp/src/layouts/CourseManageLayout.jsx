@@ -63,7 +63,7 @@ function CourseManageLayout() {
       <Container fluid className="flex-grow-1 py-4">
         <Row className="justify-content-center">
           <Col xs="12" md="10" lg="9">
-            <div className="d-flex">
+            <div className="d-flex" style={{ marginTop: "70px" }}>
               <CourseManageSidebar
                 sections={sections}
                 setActiveLabel={setActiveLabel}

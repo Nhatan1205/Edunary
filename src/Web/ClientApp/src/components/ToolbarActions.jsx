@@ -14,9 +14,12 @@ import {
   Button,
   Toolbar,
 } from "@mui/material";
+import useGetBasicUserInfo from "../hooks/useGetBasicUserInfor";
+import NotificationPopup from "./notification-popup/NotificationPopup";
+import useGetNotificationsByUserId from "../hooks/useGetNotificationByUserId";
 function ToolbarActions() {
   const { user } = useAuth();
-
+  const { data: userInfo } = useGetBasicUserInfo();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
@@ -25,6 +28,14 @@ function ToolbarActions() {
 
   const handleOpenProfile = (event) => setAnchorElProfile(event.currentTarget);
   const handleCloseProfile = () => setAnchorElProfile(null);
+
+  const [anchorElNotification, setAnchorElNotification] = useState(null);
+  const isOpenNotification = Boolean(anchorElNotification);
+
+  const handleOpenNotification = (event) =>
+    setAnchorElNotification(event.currentTarget);
+  const handleCloseNotification = () => setAnchorElNotification(null);
+  const { data: dataNofications } = useGetNotificationsByUserId();
   return (
     <Toolbar>
       <Button
@@ -74,13 +85,24 @@ function ToolbarActions() {
             backgroundColor: "background.muted",
           },
         }}
+        onClick={handleOpenNotification}
       >
-        <Badge badgeContent={5} color="error" size="medium" showZero>
+        <Badge
+          badgeContent={dataNofications?.unreadCount}
+          color="error"
+          size="medium"
+        >
           <NotificationsNoneOutlinedIcon
             fontSize={isMobile ? "small" : "medium"}
           />
         </Badge>
       </IconButton>
+      <NotificationPopup
+        open={isOpenNotification}
+        anchorEl={anchorElNotification}
+        handleClosePopup={handleCloseNotification}
+        notifications={dataNofications?.list}
+      />
 
       {/* dropdown profile */}
       <IconButton
@@ -97,8 +119,8 @@ function ToolbarActions() {
         onClick={handleOpenProfile}
       >
         <Avatar
-          alt={user?.fullName || user?.email || "User"}
-          src={user?.avatar || AvatarImage}
+          alt={userInfo?.fullName || user?.email || "User"}
+          src={userInfo?.avatar || AvatarImage}
           sx={{
             width: isMobile ? 32 : 40,
             height: isMobile ? 32 : 40,

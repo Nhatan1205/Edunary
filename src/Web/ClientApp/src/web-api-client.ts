@@ -1763,16 +1763,16 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
     subtitle?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    level?: number | undefined;
-    status?: number | undefined;
+    level?: number;
+    status?: number;
     topic?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
     imageUrl?: string | undefined;
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
-    price?: number | undefined;
-    categoryId?: number | undefined;
+    price?: number;
+    categoryId?: number;
 
     constructor(data?: IUpdateCourseCommand) {
         if (data) {
@@ -1837,16 +1837,16 @@ export interface IUpdateCourseCommand {
     subtitle?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    level?: number | undefined;
-    status?: number | undefined;
+    level?: number;
+    status?: number;
     topic?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
     imageUrl?: string | undefined;
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
-    price?: number | undefined;
-    categoryId?: number | undefined;
+    price?: number;
+    categoryId?: number;
 }
 
 export class DeleteCourseCommand implements IDeleteCourseCommand {

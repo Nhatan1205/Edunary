@@ -16,6 +16,7 @@ const useGoogleLogin = () => {
       if (response && response.token) {
         login(response.token);
         toast.success("Login with Google successful!");
+
         navigate("/");
       } else {
         toast.error("Google login failed");

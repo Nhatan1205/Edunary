@@ -16,12 +16,14 @@ import {
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import useGetCategories from "../../../../../hooks/useGetCategories";
 import useGetCourseById from "../../../../../hooks/useGetCourseById";
-
 import { useParams } from "react-router";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
 import TextEditor from "../../../../../components/TextEditor";
+import { toast } from "react-toastify";
+import { useState } from "react";
 const CourseLandingPage = () => {
+  const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const { courseId } = useParams();
   const { data: courseData, isLoading: isCourseDataLoading } =
     useGetCourseById(courseId);
@@ -48,10 +50,41 @@ const CourseLandingPage = () => {
   const { data: categoryData, isLoading: isCategoryDataLoading } =
     useGetCategories(1, 20);
 
+  const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
+
   const onSubmit = (data) => {
-    updatecourseMutation.mutate({
+    const updateData = {
       ...data,
-    });
+    };
+    
+    if (selectedImageUrl) {
+      updateData.imageUrl = selectedImageUrl;
+    }
+    
+    updatecourseMutation.mutate(updateData);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const mimeType = file.type;
+    if (!mimeType.includes("image")) {
+      toast.error("Only image files are allowed!");
+      return;
+    }
+    
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Only JPG and PNG images are allowed!");
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (_event) => {
+      setSelectedImageUrl(reader.result.toString());
+    };
   };
 
   if (isCourseDataLoading || isCategoryDataLoading) {
@@ -210,7 +243,7 @@ const CourseLandingPage = () => {
         </Box>
 
         {/* Basic Info */}
-        <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
+        <Typography variant="h6" sx={{ mt: 4, mb: 2, fontWeight: "semibold" }}>
           Basic info
         </Typography>
         <Row>
@@ -316,16 +349,16 @@ const CourseLandingPage = () => {
           />
         </Box>
         {/* Course Image */}
+        {/* Course Image */}
         <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "semibold" }}>
             Course image
           </Typography>
           <Row>
-            <Col md={5}>
+            <Col md={6}>
               <Paper
                 variant="outlined"
                 sx={{
-                  p: 3,
                   minHeight: 200,
                   display: "flex",
                   alignItems: "center",
@@ -338,47 +371,49 @@ const CourseLandingPage = () => {
                   sx={{
                     textAlign: "center",
                     objectFit: "cover",
-                    height: 200,
+                    height: 320,
+                    width: "100%",
                   }}
-                  src={defaultImage}
+                  src={selectedImageUrl || courseData.imageUrl || defaultImage}
                 />
               </Paper>
             </Col>
-            <Col md={7}>
+            <Col md={6}>
               <Typography variant="body2" sx={{ mb: 2 }}>
                 Upload your course image here. It must meet our course image
                 quality standards to be accepted. Important guidelines: 750x422
                 pixels; .jpg, .jpeg, .gif, or .png. no text on the image.
               </Typography>
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <TextField
-                  {...register("imageUrl")}
-                  fullWidth
-                  label={
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      Upload your image here
-                      <InfoOutlinedIcon sx={{ fontSize: 18 }} />
-                    </Box>
-                  }
-                  sx={{
-                    "& label.Mui-focused": {
-                      color: "brand.dark",
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      "&:hover fieldset": {
-                        borderColor: "brand.main",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "brand.main",
-                        borderWidth: "3px",
-                      },
-                    },
-                  }}
-                />
-              </Box>
+
+              <input
+                type="file"
+                accept="image/*"
+                id="upload-image"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <Button
+                variant="outline"
+                component="label"
+                htmlFor="upload-image"
+                fullWidth
+                sx={{
+                  borderColor: "brand.main",
+                  border: "1px solid",
+                  color: "brand.main",
+                  backgroundColor: "background.default",
+                  "&:hover": {
+                    borderColor: "brand.dark",
+                    color: "brand.dark",
+                  },
+                }}
+              >
+                Choose Image
+              </Button>
             </Col>
           </Row>
         </Box>
+
         <Box sx={{ mt: 10 }}>
           <Button
             fullWidth
@@ -390,9 +425,18 @@ const CourseLandingPage = () => {
               "&:hover": {
                 backgroundColor: "brand.dark",
               },
+              position: "relative",
             }}
+            disabled={isCourseDataLoading || isCategoryDataLoading || isUpdating}
           >
-            Save
+            {isUpdating ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <LoadingSpinner size={24} />
+                <span>Saving...</span>
+              </Box>
+            ) : (
+              "Save"
+            )}
           </Button>
         </Box>
       </form>

@@ -1,6 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { AuthClient, AuthenticateModel } from "../web-api-client.ts";
+import {
+  AuthClient,
+  AuthenticateModel,
+} from "../web-api-client.ts";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router";
 import queryClient from "../configs/reactQuery.js";

@@ -6,6 +6,7 @@ import useGetCourseById from "../../../../../hooks/useGetCourseById";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
 import { Controller, useForm } from "react-hook-form";
+import ValidationAlert from "../../../../../components/ValidationAlert";
 
 function CourseIntenedLearners() {
     const { courseId } = useParams();
@@ -73,18 +74,17 @@ function CourseIntenedLearners() {
               <TextList
                 items={value || []}
                 onChange={onChange}
-                minLength={4}
+                minItemLength={4}
+                maxLength={160}
               />
               {error && (
-                <Typography variant="caption" color="error" sx={{ my: 1, display: "block" }}>
-                  {error.message}
-                </Typography>
+                <ValidationAlert severity="error" message={error.message}/>
               )}
             </>
           )}
         />
         {/* requirements */}
-        <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+        <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, fontWeight: 700 }}>
           What are the requirements or prerequisites for taking your course?
         </Typography>
         <Typography variant="body2" sx={{ color: "text.primary", textAlign: "justify", mb: 3 }}>
@@ -99,7 +99,7 @@ If there are no requirements, use this space as an opportunity to lower the barr
               <TextList
                 items={value || []}
                 onChange={onChange}
-                minLength={2}
+                minItemLength={2}
               />
               {error && (
                 <Typography variant="caption" color="error" sx={{ my: 1, display: "block" }}>
@@ -110,7 +110,7 @@ If there are no requirements, use this space as an opportunity to lower the barr
           )}
         />
                 {/* Target audience */}
-        <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+        <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, fontWeight: 700 }}>
           Who is this course for?
         </Typography>
         <Typography variant="body2" sx={{ color: "text.primary", textAlign: "justify", mb: 3 }}>
@@ -124,7 +124,7 @@ If there are no requirements, use this space as an opportunity to lower the barr
               <TextList
                 items={value || []}
                 onChange={onChange}
-                minLength={1}
+                minItemLength={1}
               />
               {error && (
                 <Typography variant="caption" color="error" sx={{ mt: 1, display: "block" }}>

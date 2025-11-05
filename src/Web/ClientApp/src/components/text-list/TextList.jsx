@@ -11,18 +11,18 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableItem } from "./SortableItem";
-import { Button, IconButton, TextField } from "@mui/material";
+import { Button, IconButton, TextField, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from '@mui/icons-material/Add';
 
-export default function TextList({ items: initialItems = [], onChange, minLength = 4 }) {
+export default function TextList({ items: initialItems = [], onChange, minItemLength = 4,maxLength = null }) {
   const items = initialItems.length > 0 
   ? initialItems.map((text, index) => ({
       id: index + 1,
       text,
     }))
-  : Array.from({ length: minLength }, (_, index) => ({
+  : Array.from({ length: minItemLength }, (_, index) => ({
       id: index + 1,
       text: "",
     }));
@@ -48,11 +48,12 @@ export default function TextList({ items: initialItems = [], onChange, minLength
     const newItems = items.map((item) =>
       item.id === id ? { ...item, text: newText } : item
     );
+    
     onChange(newItems.map((item) => item.text));
   };
 
   const handleDelete = (id) => {
-    if (items.length <= minLength) {
+    if (items.length <= minItemLength) {
       return;
     }
     const newItems = items.filter((item) => item.id !== id);
@@ -93,15 +94,25 @@ export default function TextList({ items: initialItems = [], onChange, minLength
                 className="sortable-item"
               >
                 <TextField
+                  type="text"
                   variant="standard"
                   fullWidth
                   placeholder="Add your response here"
                   value={item.text}
                   onChange={(e) => handleTextChange(item.id, e.target.value)}
                   slotProps={{
+                    htmlInput: { maxLength: maxLength },
                     input: {
                       disableUnderline: true,
                       style: { fontSize: "14px", padding: "12px 16px" },
+                      endAdornment: maxLength ? (
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "text.secondary",display: "flex", alignItems: "center", lineHeight: 1, }}
+                        >
+                          {item.text?.length || 0}/{maxLength}
+                        </Typography>
+                      ) : null,
                     },
                   }}
                   sx={{
@@ -120,21 +131,28 @@ export default function TextList({ items: initialItems = [], onChange, minLength
                   }
                 />
 
-                <IconButton
-                  size="small"
-                  onClick={() => handleDelete(item.id)}
-                  sx={{
-                    padding: "4px",
-                    color: "#999",
-                    flexShrink: 0,
-                    "&:hover": {
-                      backgroundColor: "#f5f5f5",
-                    },
+                <div
+                  style={{
+                    display: "inline-block",
+                    cursor: items.length > minItemLength ? "pointer" : "not-allowed",
                   }}
                 >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(item.id)}
+                    disabled={!(items.length > minItemLength)}
+                    sx={{
+                      padding: "4px",
+                      color: "#999",
+                      flexShrink: 0,
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5",
+                      },
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </div>
                 <div
                   className="drag-handle"
                   style={{ cursor: "grab", color: "#999", flexShrink: 0 }}

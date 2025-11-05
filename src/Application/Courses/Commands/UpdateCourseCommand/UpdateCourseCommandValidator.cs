@@ -20,20 +20,19 @@ public class UpdateCourseCommandValidator : AbstractValidator<UpdateCourseComman
             .MinimumLength(5).WithMessage("Subtitle must be at least 5 characters.")
             .MaximumLength(120).WithMessage("Subtitle must not exceed 120 characters.");
         RuleFor(x => x.Description)
-            .MinimumLength(5).WithMessage("Description must be at least 5 characters.")
-            .MaximumLength(10000).WithMessage("Description must not exceed 2000 characters.");
-        RuleFor(x => x.LearningObjectives)
-            .MinimumLength(5).WithMessage("Description must be at least 5 characters.")
-            .MaximumLength(1000).WithMessage("Learning objectives must not exceed 1000 characters.");
+            .MinimumLength(200).WithMessage("Description must be at least 200 characters.");
+        //RuleFor(x => x.LearningObjectives)
+        //    .MinimumLength(5).WithMessage("Description must be at least 5 characters.")
+        //    .MaximumLength(1000).WithMessage("Learning objectives must not exceed 1000 characters.");
         RuleFor(x => x.Topic)
             .MinimumLength(5).WithMessage("Description must be at least 5 characters.")
             .MaximumLength(100).WithMessage("Topic must not exceed 100 characters.");
-        RuleFor(x => x.Requirements)
-            .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
-            .MaximumLength(1000).WithMessage("Requirements must not exceed 1000 characters.");
-        RuleFor(x => x.TargetAudience)
-            .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
-            .MaximumLength(500).WithMessage("Target audience must not exceed 500 characters.");
+        //RuleFor(x => x.Requirements)
+        //    .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
+        //    .MaximumLength(1000).WithMessage("Requirements must not exceed 1000 characters.");
+        //RuleFor(x => x.TargetAudience)
+        //    .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
+        //    .MaximumLength(500).WithMessage("Target audience must not exceed 500 characters.");
         RuleFor(x => x.ImageUrl)
             .MinimumLength(5).WithMessage("Title must be at least 5 characters.");
         RuleFor(x => x.WelcomeMessage)

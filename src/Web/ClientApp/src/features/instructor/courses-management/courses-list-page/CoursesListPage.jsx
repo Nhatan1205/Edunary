@@ -1,13 +1,13 @@
 import { useState, useMemo } from "react";
-import { Container } from "reactstrap";
+import { Col, Container, Row } from "reactstrap";
 import ToolbarCourse from "./ToolbarCourse";
-import CourseList from "./CourseList";
 import PageTitle from "../../../../components/PageTitle";
 import useGetCoursesAuthor from "../../../../hooks/useGetCoursesAuthor";
 import { Pagination, Typography } from "@mui/material";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
+import CourseCard from "./CourseCard";
 
-function CoursesManagement() {
+function CoursesListPage() {
   const [pageNumber, setPageNumber] = useState(1);
   const { data: coursesData, isLoading: isCourseDataLoading } =
     useGetCoursesAuthor(pageNumber, 5);
@@ -78,7 +78,13 @@ function CoursesManagement() {
         onFilterChange={handleFilterChange}
       />
       {filteredCourses.length > 0 ? (
-        <CourseList courses={filteredCourses} />
+          <Row className="g-3">
+          {filteredCourses.map((course) => (
+            <Col key={course.id} xs={12}>
+              <CourseCard course={course} />
+            </Col>
+          ))}
+        </Row>
       ) : (
         <Typography
           variant="h6"
@@ -105,4 +111,4 @@ function CoursesManagement() {
   );
 }
 
-export default CoursesManagement;
+export default CoursesListPage;

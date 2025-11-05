@@ -23,6 +23,7 @@ import {
   Quiz,
   Schedule
 } from '@mui/icons-material'
+import DOMPurify from "dompurify";
 
 const CourseTabs = ({ courseData, reviews }) => {
   const [activeTab, setActiveTab] = useState(0)
@@ -45,18 +46,19 @@ const CourseTabs = ({ courseData, reviews }) => {
       </Typography>
       
       {courseData.description && (
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            lineHeight: 1.7, 
-            color: 'text.secondary',
-            fontSize: '1.1rem',
-            mb: 4
+        <Typography
+          variant="body1"
+          sx={{
+            lineHeight: 1.7,
+            fontSize: "1.1rem",
+            mb: 4,
           }}
-        >
-          {courseData.description}
-        </Typography>
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(courseData.description),
+          }}
+        />
       )}
+
 
       {courseData.welcomeMessage && (
         <Box sx={{ mb: 4 }}>

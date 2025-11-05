@@ -36,3 +36,7 @@ code {
     width: 30px;
     height: 30px;
 }
+
+.jodit-dialog__box .jodit-button {
+  background-color: #3FCCB2 important;
+}

@@ -1314,10 +1314,6 @@
             "type": "string",
             "nullable": true
           },
-          "learningObjectives": {
-            "type": "string",
-            "nullable": true
-          },
           "level": {
             "type": "integer",
             "format": "int32"
@@ -1330,13 +1326,26 @@
             "type": "string",
             "nullable": true
           },
+          "learningObjectives": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
           "requirements": {
-            "type": "string",
-            "nullable": true
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
           },
           "targetAudience": {
-            "type": "string",
-            "nullable": true
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
           },
           "imageUrl": {
             "type": "string",

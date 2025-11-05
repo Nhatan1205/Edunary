@@ -5,7 +5,7 @@ const theme = createTheme({
     mode: "light",
 
     brand: {
-      lighter: "#b2e9de",
+      lighter: "#E9FAF7",
       light: "#7edbc9",
       main: "#3FCCB2",
       dark: "#00b190",

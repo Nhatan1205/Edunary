@@ -1762,12 +1762,12 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
     title?: string | undefined;
     subtitle?: string | undefined;
     description?: string | undefined;
-    learningObjectives?: string | undefined;
     level?: number;
     status?: number;
     topic?: string | undefined;
-    requirements?: string | undefined;
-    targetAudience?: string | undefined;
+    learningObjectives?: string[] | undefined;
+    requirements?: string[] | undefined;
+    targetAudience?: string[] | undefined;
     imageUrl?: string | undefined;
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
@@ -1789,12 +1789,24 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
             this.title = _data["title"];
             this.subtitle = _data["subtitle"];
             this.description = _data["description"];
-            this.learningObjectives = _data["learningObjectives"];
             this.level = _data["level"];
             this.status = _data["status"];
             this.topic = _data["topic"];
-            this.requirements = _data["requirements"];
-            this.targetAudience = _data["targetAudience"];
+            if (Array.isArray(_data["learningObjectives"])) {
+                this.learningObjectives = [] as any;
+                for (let item of _data["learningObjectives"])
+                    this.learningObjectives!.push(item);
+            }
+            if (Array.isArray(_data["requirements"])) {
+                this.requirements = [] as any;
+                for (let item of _data["requirements"])
+                    this.requirements!.push(item);
+            }
+            if (Array.isArray(_data["targetAudience"])) {
+                this.targetAudience = [] as any;
+                for (let item of _data["targetAudience"])
+                    this.targetAudience!.push(item);
+            }
             this.imageUrl = _data["imageUrl"];
             this.welcomeMessage = _data["welcomeMessage"];
             this.congratulationsMessage = _data["congratulationsMessage"];
@@ -1816,12 +1828,24 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
         data["title"] = this.title;
         data["subtitle"] = this.subtitle;
         data["description"] = this.description;
-        data["learningObjectives"] = this.learningObjectives;
         data["level"] = this.level;
         data["status"] = this.status;
         data["topic"] = this.topic;
-        data["requirements"] = this.requirements;
-        data["targetAudience"] = this.targetAudience;
+        if (Array.isArray(this.learningObjectives)) {
+            data["learningObjectives"] = [];
+            for (let item of this.learningObjectives)
+                data["learningObjectives"].push(item);
+        }
+        if (Array.isArray(this.requirements)) {
+            data["requirements"] = [];
+            for (let item of this.requirements)
+                data["requirements"].push(item);
+        }
+        if (Array.isArray(this.targetAudience)) {
+            data["targetAudience"] = [];
+            for (let item of this.targetAudience)
+                data["targetAudience"].push(item);
+        }
         data["imageUrl"] = this.imageUrl;
         data["welcomeMessage"] = this.welcomeMessage;
         data["congratulationsMessage"] = this.congratulationsMessage;
@@ -1836,12 +1860,12 @@ export interface IUpdateCourseCommand {
     title?: string | undefined;
     subtitle?: string | undefined;
     description?: string | undefined;
-    learningObjectives?: string | undefined;
     level?: number;
     status?: number;
     topic?: string | undefined;
-    requirements?: string | undefined;
-    targetAudience?: string | undefined;
+    learningObjectives?: string[] | undefined;
+    requirements?: string[] | undefined;
+    targetAudience?: string[] | undefined;
     imageUrl?: string | undefined;
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;

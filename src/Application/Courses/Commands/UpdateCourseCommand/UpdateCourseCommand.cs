@@ -1,6 +1,6 @@
 ﻿namespace Edunary.Application.Courses.Commands.UpdateCourse;
 
-using System.Text.Json.Serialization;
+using System.Text.Json;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
@@ -11,12 +11,12 @@ public class UpdateCourseCommand : IRequest<Result>
     public string Title { get; init; }
     public string Subtitle { get; init; }
     public string Description { get; init; }
-    public string LearningObjectives { get; init; }
     public int Level { get; init; }
     public int Status { get; init; }
     public string Topic { get; init; }
-    public string Requirements { get; init; }
-    public string TargetAudience { get; init; }
+    public List<string> LearningObjectives { get; init; }
+    public List<string> Requirements { get; init; }
+    public List<string> TargetAudience { get; init; }
     public string ImageUrl { get; init; }
     public string WelcomeMessage { get; init; }
     public string CongratulationsMessage { get; init; }
@@ -29,7 +29,8 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotifyService _notifyService;
-    private readonly INotificationCourseService _notificationCourseService;    private readonly IUploadFileService _uploadFileService;
+    private readonly INotificationCourseService _notificationCourseService;    
+    private readonly IUploadFileService _uploadFileService;
     public UpdateCourseCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
@@ -61,9 +62,9 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.Subtitle = request.Subtitle;
             entity.Description = request.Description;
             entity.Topic = request.Topic;
-            entity.LearningObjectives = request.LearningObjectives;
-            entity.Requirements = request.Requirements;
-            entity.TargetAudience = request.TargetAudience;
+            entity.LearningObjectives = JsonSerializer.Serialize(request.LearningObjectives);
+            entity.Requirements = JsonSerializer.Serialize(request.Requirements);
+            entity.TargetAudience = JsonSerializer.Serialize(request.TargetAudience);
             entity.WelcomeMessage = request.WelcomeMessage;
             entity.CongratulationsMessage = request.CongratulationsMessage;
             entity.Price = request.Price;

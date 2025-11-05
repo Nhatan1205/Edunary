@@ -12,7 +12,16 @@ const useGetCourseById = (id) => {
         throw new Error("Failed to fetch course information");
       }
 
-      return result;
+      let learningObjectives = JSON.parse(result.learningObjectives || "[]");
+      let requirements = JSON.parse(result.requirements || "[]");
+      let targetAudience = JSON.parse(result.targetAudience || "[]");
+      
+      return {
+        ...result,
+        learningObjectives,
+        requirements,
+        targetAudience,
+      };
     },
     enabled: !!id, // Chỉ fetch khi id có giá trị hợp lệ
   });

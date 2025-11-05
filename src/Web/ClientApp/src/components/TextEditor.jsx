@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 import JoditEditor from "jodit-react";
 
-export default function TextEditor({ value, onChange }) {
+export default function TextEditor({ value, onChange, buttons = ['bold','italic','|','ul','ol','|','link','image','|','source']}) {
   const editor = useRef(null);
 
   const config =  useMemo(() => ({
@@ -17,10 +17,8 @@ export default function TextEditor({ value, onChange }) {
     processPasteHTML: true,
     processPaste: true,
     defaultActionOnPaste: "insert_as_html",
-    buttons: [
-      'bold','italic','|','ul','ol','|','link','image','|','source'
-    ],
-  }),[]);
+    buttons: buttons,
+  }),[buttons]);
 
   return (
     <JoditEditor

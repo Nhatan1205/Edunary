@@ -95,11 +95,14 @@ export default function TextList({ items: initialItems = [], onChange, minLength
                 <TextField
                   variant="standard"
                   fullWidth
+                  placeholder="Add your response here"
                   value={item.text}
                   onChange={(e) => handleTextChange(item.id, e.target.value)}
-                  InputProps={{
-                    disableUnderline: true,
-                    style: { fontSize: "14px", padding: "12px 16px" },
+                  slotProps={{
+                    input: {
+                      disableUnderline: true,
+                      style: { fontSize: "14px", padding: "12px 16px" },
+                    },
                   }}
                   sx={{
                     "& .MuiInputBase-input": {

@@ -61,7 +61,7 @@ function CourseMessages() {
               </>
             )}
           />
-       <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+       <Typography variant="subtitle1" sx={{ mt: 3,mb: 1, fontWeight: 700 }}>
             Congratulations Message
       </Typography>
         <Controller

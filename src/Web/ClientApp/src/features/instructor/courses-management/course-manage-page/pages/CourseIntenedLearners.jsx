@@ -76,7 +76,7 @@ function CourseIntenedLearners() {
                 minLength={4}
               />
               {error && (
-                <Typography variant="caption" color="error" sx={{ mt: 1, display: "block" }}>
+                <Typography variant="caption" color="error" sx={{ my: 1, display: "block" }}>
                   {error.message}
                 </Typography>
               )}
@@ -94,18 +94,6 @@ If there are no requirements, use this space as an opportunity to lower the barr
         <Controller
           name="requirements"
           control={control}
-          rules={{
-            validate: (value) => {
-              if (!value || value.length < 2) {
-                return "At least 2 requirements are required";
-              }
-              const allFilled = value.every((text) => text.trim() !== "");
-              if (!allFilled) {
-                return "All requirements must be filled";
-              }
-              return true;
-            },
-          }}
           render={({ field: { onChange, value }, fieldState: { error } }) => (
             <>
               <TextList
@@ -114,7 +102,7 @@ If there are no requirements, use this space as an opportunity to lower the barr
                 minLength={2}
               />
               {error && (
-                <Typography variant="caption" color="error" sx={{ mt: 1, display: "block" }}>
+                <Typography variant="caption" color="error" sx={{ my: 1, display: "block" }}>
                   {error.message}
                 </Typography>
               )}
@@ -131,18 +119,6 @@ If there are no requirements, use this space as an opportunity to lower the barr
         <Controller
           name="targetAudience"
           control={control}
-          rules={{
-            validate: (value) => {
-              if (!value || value.length < 1) {
-                return "At least 1 target audience are required";
-              }
-              const allFilled = value.every((text) => text.trim() !== "");
-              if (!allFilled) {
-                return "All target audiences must be filled";
-              }
-              return true;
-            },
-          }}
           render={({ field: { onChange, value }, fieldState: { error } }) => (
             <>
               <TextList

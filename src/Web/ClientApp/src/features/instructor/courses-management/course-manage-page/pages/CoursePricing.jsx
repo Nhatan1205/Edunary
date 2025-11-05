@@ -8,7 +8,6 @@ import LoadingSpinner from "../../../../../components/LoadingSpinner";
 
 function CoursePricing() {
   const { courseId } = useParams();
-  console.log(courseId);
   const { data: courseData, isLoading: isCourseDataLoading } =
       useGetCourseById(courseId);
   const {

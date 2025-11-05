@@ -22,7 +22,7 @@ import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
 import TextEditor from "../../../../../components/TextEditor";
 import { toast } from "react-toastify";
 import { useState } from "react";
-const CourseLandingPage = () => {
+function CourseLandingPage() {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const { courseId } = useParams();
   const { data: courseData, isLoading: isCourseDataLoading } =

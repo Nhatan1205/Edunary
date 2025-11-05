@@ -8,11 +8,12 @@ import {
   Typography,
 } from "@mui/material";
 import { Container } from "reactstrap";
-import { Link as RouterLink } from "react-router";
+import { Link as RouterLink, useParams } from "react-router";
+import useGetCourseById from "../../../../hooks/useGetCourseById";
 
 function CourseManageHeader() {
-  // const { courseId } = useParams();
-  // const { data: courseData } = useGetCourseById(courseId);
+  const { courseId } = useParams();
+  const { data: courseData } = useGetCourseById(courseId);
   return (
     <AppBar
       position="fixed"
@@ -76,7 +77,7 @@ function CourseManageHeader() {
                   textOverflow: { xs: "ellipsis", sm: "clip" },
                 }}
               >
-                {/* {courseData.title} */}
+                {courseData ? courseData.title : ""}
               </Typography>
             </Box>
 
@@ -91,7 +92,7 @@ function CourseManageHeader() {
               }}
             >
               <Chip
-                label="DRAFT"
+                label={courseData ? (courseData.status === 0 ? "DRAFT" : "PUBLIC") : "LOADING"}
                 size="small"
                 sx={{
                   bgcolor: "#6a6f73",

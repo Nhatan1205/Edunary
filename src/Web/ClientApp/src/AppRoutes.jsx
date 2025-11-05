@@ -10,7 +10,6 @@ import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword"
 import ProtectedRoute from "./components/ProtectedRoute";
 import GuestRoute from "./components/GuestRoute";
 import InstructorLayout from "./layouts/InstructorLayout";
-import CoursesManagement from "./features/instructor/courses-management/courses-list-page/CoursesManagement";
 import CourseOverview from "./features/guest/course-overview/CourseOverview";
 import CheckoutPage from "./features/user/checkout/CheckoutPage";
 import PaymentSuccess from "./features/user/checkout/PaymentSuccess";
@@ -25,6 +24,7 @@ import CourseMessages from "./features/instructor/courses-management/course-mana
 import CourseCurriculum from "./features/instructor/courses-management/course-manage-page/pages/CourseCurriculum";
 import CourseCaptions from "./features/instructor/courses-management/course-manage-page/pages/CourseCaptions";
 import CourseAccessiblity from "./features/instructor/courses-management/course-manage-page/pages/CourseAccessiblity";
+import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 
 const router = createBrowserRouter([
   {
@@ -111,7 +111,7 @@ const router = createBrowserRouter([
       },
       {
         path: "courses",
-        element: <CoursesManagement />,
+        element: <CoursesListPage />,
       },
     ],
   },

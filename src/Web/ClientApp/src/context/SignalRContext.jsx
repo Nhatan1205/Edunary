@@ -1,16 +1,20 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 import queryClient from "../configs/reactQuery";
+import { tokenService } from "../utils/tokenService";
 //step 1: creat Context
 const SignalRContext = createContext(null);
 
 //step 2: Create provider
 export const SignalRProvider = ({ children }) => {
   const [connection, setConnection] = useState(null);
+  const token = tokenService.getToken();
   useEffect(() => {
     // Khởi tạo connection
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("/NotificationHub", {})
+      .withUrl("/NotificationHub",{
+        accessTokenFactory: () => token || "",
+      })
       .withAutomaticReconnect()
       // .configureLogging(signalR.LogLevel.Information)
 

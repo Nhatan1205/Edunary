@@ -9,7 +9,7 @@ public class CourseUpdatedEventHandler : INotificationHandler<CourseUpdatedEvent
     private readonly ILogger<CourseUpdatedEventHandler> _logger;
 
 
-    public CourseUpdatedEventHandler(ILogger<CourseUpdatedEventHandler> logger, INotifyService notifyService)
+    public CourseUpdatedEventHandler(ILogger<CourseUpdatedEventHandler> logger)
     {
         _logger = logger;
 

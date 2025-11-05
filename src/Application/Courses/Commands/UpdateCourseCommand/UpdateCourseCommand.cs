@@ -29,18 +29,16 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotifyService _notifyService;
-    private readonly INotificationCourseService _notificationCourseService;    private readonly IUploadFileService _uploadFileService;
+    private readonly IUploadFileService _uploadFileService;
     public UpdateCourseCommandHandler(
-        IApplicationDbContext context,
+        IApplicationDbContext context, 
         ICurrentUserService currentUserService,
         INotifyService notifyService,
-        INotificationCourseService notificationCourseService,
         IUploadFileService uploadFileService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _notifyService = notifyService;
-        _notificationCourseService = notificationCourseService;
         _uploadFileService = uploadFileService;
     }
     public async Task<Result> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
@@ -82,7 +80,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             var result = await _context.SaveChangesAsync(cancellationToken);
             if (result > 0)
             {
-                await _notificationCourseService.NotifyCourseUpdatedAsync(entity.Id, "Update the course", $"Update the course {entity.Title}",cancellationToken);
+                await _notifyService.NotifyCourseUpdated(entity.Id, "Update the course", $"Update the course {entity.Title}",cancellationToken);
             }
 
 

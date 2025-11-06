@@ -227,7 +227,7 @@ function CourseLandingPage() {
             }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <>
-                <TextEditor value={value} onChange={onChange} />
+                <TextEditor value={value} onChange={onChange} buttons={['bold','italic','|','ul','ol']}/>
                 {error ? (
                   <Typography variant="caption" color="error">
                     {error.message}

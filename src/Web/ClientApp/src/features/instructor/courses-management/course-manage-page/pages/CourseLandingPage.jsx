@@ -4,7 +4,6 @@ import defaultImage from "../../../../../assets/images/default.jpg";
 import {
   TextField,
   Button,
-  Alert,
   Typography,
   Box,
   FormControl,
@@ -22,6 +21,7 @@ import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
 import TextEditor from "../../../../../components/TextEditor";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import AlertBox from "../../../../../components/AlertBox";
 function CourseLandingPage() {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const { courseId } = useParams();
@@ -97,18 +97,13 @@ function CourseLandingPage() {
 
   return (
     <Container className="py-4">
-      <Alert
-        severity="info"
-        sx={{ mb: 3, py: 3, backgroundColor: "background.muted" }}
-      >
-        <Typography variant="body2" sx={{ mb: 1, color: "text.primary" }}>
+      <AlertBox severity="info" sx={{borderRadius: 6,borderColor: "divider",py: 2,mb: 4}}>
           Your course landing page is crucial to your success on Edunary. If
           it's done right, it can also help you gain visibility in search
           engines like Google. As you complete this section, think about
           creating a compelling Course Landing Page that demonstrates why
           someone would want to enroll in your course. Learn more about.
-        </Typography>
-      </Alert>
+      </AlertBox>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Course Title */}

@@ -6,7 +6,7 @@ import useGetCourseById from "../../../../../hooks/useGetCourseById";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
 import { Controller, useForm } from "react-hook-form";
-import ValidationAlert from "../../../../../components/ValidationAlert";
+import AlertBox from "../../../../../components/AlertBox";
 
 function CourseIntenedLearners() {
     const { courseId } = useParams();
@@ -78,7 +78,7 @@ function CourseIntenedLearners() {
                 maxLength={160}
               />
               {error && (
-                <ValidationAlert severity="error" message={error.message}/>
+                <AlertBox severity="error">{error.message}</AlertBox>
               )}
             </>
           )}

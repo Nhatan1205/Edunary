@@ -24,11 +24,6 @@ public class UpdateCourseCommandValidator : AbstractValidator<UpdateCourseComman
         RuleFor(x => x.Topic)
             .MinimumLength(5).WithMessage("Description must be at least 5 characters.")
             .MaximumLength(100).WithMessage("Topic must not exceed 100 characters.");
-        RuleFor(x => x.LearningObjectives)
-            .NotNull().WithMessage("Learning objectives must not be null.")
-            .Must(lo => lo.Count >= 4).WithMessage("There must be at least 4 learning objectives.")
-            .ForEach(loItem => loItem
-                .MaximumLength(160).WithMessage("Each learning objective must not exceed 160 characters."));
         RuleFor(x => x.ImageUrl)
             .MinimumLength(5).WithMessage("Title must be at least 5 characters.");
         RuleFor(x => x.WelcomeMessage)

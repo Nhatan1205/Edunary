@@ -1,5 +1,6 @@
 import { InputAdornment, TextField, Typography } from "@mui/material";
 import { Container } from "reactstrap";
+import AlertBox from "../../../../../components/AlertBox";
 
 function StepCoursePrice({ register, errors }) {
   return (
@@ -47,16 +48,9 @@ function StepCoursePrice({ register, errors }) {
           }}
         />
         {errors.price && (
-          <Typography
-            sx={{
-              color: "#d32f2f",
-              fontSize: "0.875rem",
-              mt: "8px",
-              textAlign: "left",
-            }}
-          >
+            <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
             {errors.price.message}
-          </Typography>
+          </AlertBox>
         )}
       </div>
     </Container>

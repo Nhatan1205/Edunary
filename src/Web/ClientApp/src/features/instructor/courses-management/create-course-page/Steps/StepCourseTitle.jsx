@@ -1,5 +1,6 @@
 import { Container } from "reactstrap";
 import { TextField, Typography } from "@mui/material";
+import AlertBox from "../../../../../components/AlertBox";
 function StepCourseTitle({ register, watch, errors }) {
   return (
     <Container className="py-5">
@@ -32,8 +33,7 @@ function StepCourseTitle({ register, watch, errors }) {
           fullWidth
           variant="outlined"
           placeholder="Enter your course title"
-          error={!!errors.courseTitle}
-          helperText={errors.title && errors.title.message}
+          error={!!errors.title}
           slotProps={{
             htmlInput: { maxLength: 60 },
             input: {
@@ -58,6 +58,11 @@ function StepCourseTitle({ register, watch, errors }) {
             },
           }}
         />
+        {errors.title && (  
+          <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
+            {errors.title.message}
+          </AlertBox>
+        )}
       </div>
     </Container>
   );

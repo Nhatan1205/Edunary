@@ -1,24 +1,20 @@
-import { Alert, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { Container } from "reactstrap";
+import AlertBox from "../../../../../components/AlertBox";
 
 function CourseAccessiblity() {
   return (
   <Container className="py-4">
-      <Alert
-        severity="info"
-        sx={{ mb: 3, py: 3, backgroundColor: "background.default", borderRadius: 6, border: 1, borderColor: "divider" }}
-      >
-        <Typography variant="body2" sx={{ mb: 1, color: "text.primary", fontWeight: 600 }}>
-          Create accessible learning content
-        </Typography>
+      <AlertBox severity="info" title="Create accessible learning content" sx={{borderRadius: 6,borderColor: "divider",py: 3}}>
         <Typography variant="body2" sx={{ mb: 1, color: "text.primary" }}>
           Accessibility provides a person with a disability access to — and benefits of — the same information, interactions, and services as a person without a disability in a way that’s sensible, meaningful, and usable. In short, it’s the inclusive practice of ensuring there are no barriers to learning for as many people as possible.
         </Typography>
         <Typography variant="body2" sx={{ mb: 1, color: "text.primary" }}>
           Some may think that accessibility is primarily aimed at helping people with physical disabilities, such as those with hearing or vision loss. However, making content accessible to everyone isn’t just the equitable thing to do, it also helps to broaden your reach so that more learners can benefit from your courses.
         </Typography>
-      </Alert>
-      <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+      </AlertBox>
+
+      <Typography variant="subtitle1" sx={{mt: 3, mb: 1, fontWeight: 700 }}>
           Accessibility checklists
         </Typography>
         <Typography variant="body2" sx={{ color: "text.primary", textAlign: "justify", mb: 3 }}>

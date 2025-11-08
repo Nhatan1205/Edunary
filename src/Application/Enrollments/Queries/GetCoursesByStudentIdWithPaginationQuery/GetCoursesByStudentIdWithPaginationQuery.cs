@@ -1,17 +1,15 @@
 ﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Enrollments.Queries.GetCoursesByStudentIdQuery;
-using MediatR;
 
-namespace Edunary.Application.Enrollments.Queries.GetCoursesByUserIdQuery;
-public class GetCoursesByStudentIdWithPaginationQuery : IRequest<PaginatedList<GetCouresByStudentIdDto>>
+namespace Edunary.Application.Enrollments.Queries.GetCoursesByStudentIdQuery;
+public class GetCoursesByStudentIdWithPaginationQuery : IRequest<PaginatedList<GetCoursesByStudentIdDto>>
 {
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
 }
 
-public class GetCoursesByStudentIdWithPaginationQueryHandler : IRequestHandler<GetCoursesByStudentIdWithPaginationQuery, PaginatedList<GetCouresByStudentIdDto>>
+public class GetCoursesByStudentIdWithPaginationQueryHandler : IRequestHandler<GetCoursesByStudentIdWithPaginationQuery, PaginatedList<GetCoursesByStudentIdDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -24,13 +22,13 @@ public class GetCoursesByStudentIdWithPaginationQueryHandler : IRequestHandler<G
         _currentUserService = currentUserService;
     }
 
-    public async Task<PaginatedList<GetCouresByStudentIdDto>> Handle(GetCoursesByStudentIdWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<GetCoursesByStudentIdDto>> Handle(GetCoursesByStudentIdWithPaginationQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
         return await _context.Enrollments
             .Where(e => e.StudentId == userId)
             .Select(e => e.Course)
-            .ProjectTo<GetCouresByStudentIdDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<GetCoursesByStudentIdDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
     }
 

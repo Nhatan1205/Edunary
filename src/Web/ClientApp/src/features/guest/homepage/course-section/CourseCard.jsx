@@ -72,10 +72,8 @@ function CourseCard({ course }) {
           textDecoration: "none",
           "&:hover": {
             transform: "translateY(-1px)",
-            // boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-            // bgcolor: "background.alt",
             "& .MuiCardMedia-root": {
-              filter: "brightness(0.5)", // chỉ ảnh tối lại
+              filter: "brightness(0.5)",
             },
           },
         }}

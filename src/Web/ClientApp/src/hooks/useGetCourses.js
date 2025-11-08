@@ -15,8 +15,21 @@ const useGetCourses = (pageNumber = 1, pageSize = 10) => {
         throw new Error("Failed to fetch courses");
       }
 
+      const newItems = result.items.map((course) => {
+        let learningObjectives = JSON.parse(course.learningObjectives || "[]");
+        let requirements = JSON.parse(course.requirements || "[]");
+        let targetAudience = JSON.parse(course.targetAudience || "[]");
+
+        return {
+          ...course,
+          learningObjectives,
+          requirements,
+          targetAudience,
+        }
+      })
+
       return {
-        items: result.items,
+        items: newItems,
         pageNumber: result.pageNumber,
         totalPages: result.totalPages,
         totalCount: result.totalCount,

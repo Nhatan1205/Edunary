@@ -7,6 +7,7 @@ using Edunary.Application.Courses.Queries.GetCourseById;
 using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
 using Edunary.Application.Courses.Queries.GetPublicCourseById;
+using Edunary.Application.Enrollments.Queries.GetCoursesByStudentIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -22,6 +23,7 @@ public class Courses : EndpointGroupBase
             .RequireAuthorization()
             .MapPost(CreateCourse)
             .MapGet(GetCoursesAuthorWithPagination, "author")
+            .MapGet(GetCoursesStudentWithPagination, "student/list")
             .MapGet(GetCourseById, "{id}")
             .MapPut(UpdateCourse)
             .MapDelete(DeleteCourse);
@@ -74,6 +76,11 @@ public class Courses : EndpointGroupBase
         return await sender.Send(query);
     }
 
+    public async Task<PaginatedList<GetCoursesByStudentIdDto>> GetCoursesStudentWithPagination(ISender sender, [AsParameters] GetCoursesByStudentIdWithPaginationQuery query)
+    {
+        return await sender.Send(query);
+    }
+
     public async Task<GetCourseByIdDto> GetCourseById(ISender sender, int id)
     {
         return await sender.Send(new GetCourseByIdQuery() { Id = id });
@@ -83,5 +90,6 @@ public class Courses : EndpointGroupBase
     {
         return await sender.Send(new GetPublicCourseByIdQuery() { Id = id });
     }
+
 }
 

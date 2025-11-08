@@ -1,15 +1,18 @@
 import { Box } from "@mui/material";
 import CourseSubSection from "./CourseSubSection";
-import { completeCourses } from "./MockData";
 import { PopoverProvider } from "../../../../context/PopoverContext";
 import useGetCourses from "../../../../hooks/useGetCourses";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
+import useGetCoursesStudent from "../../../../hooks/useGetCoursesStudent";
 // Sample data matching your image
 
 function CourseSection() {
-  const { data: courseData, isLoading } = useGetCourses(1, 12);
+  const { data: courseData, isLoading: isCourseLoading } = useGetCourses(1, 12);
+  const {data: courseStudentData, isLoading: isCourseStudentLoading} = useGetCoursesStudent(1,4);
 
-  if (isLoading) {
+  console.log("Fetched courseStudentData data:", courseStudentData);
+
+  if (isCourseLoading || isCourseStudentLoading) {
     <LoadingSpinner />;
   }
 
@@ -19,7 +22,7 @@ function CourseSection() {
         <CourseSubSection
           title="Complete your Course"
           subtitle="We know the best things for You. Top picks for You."
-          courses={completeCourses}
+          courses={courseStudentData?.items ?? []}
           type="user"
         />
 

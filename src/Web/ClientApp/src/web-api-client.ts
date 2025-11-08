@@ -424,6 +424,49 @@ export class CoursesClient {
         return Promise.resolve<PaginatedListOfGetCoursesAuthorDto>(null as any);
     }
 
+    getCoursesStudentWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCoursesByStudentIdDto> {
+        let url_ = this.baseUrl + "/api/Courses/student/list?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoursesStudentWithPagination(_response);
+        });
+    }
+
+    protected processGetCoursesStudentWithPagination(response: Response): Promise<PaginatedListOfGetCoursesByStudentIdDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfGetCoursesByStudentIdDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfGetCoursesByStudentIdDto>(null as any);
+    }
+
     getCourseById(id: number): Promise<GetCourseByIdDto> {
         let url_ = this.baseUrl + "/api/Courses/{id}";
         if (id === undefined || id === null)
@@ -1656,6 +1699,134 @@ export interface IGetCoursesAuthorDto {
 export enum CourseStatus {
     Draft = 0,
     Public = 1,
+}
+
+export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOfGetCoursesByStudentIdDto {
+    items?: GetCoursesByStudentIdDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetCoursesByStudentIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetCoursesByStudentIdDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetCoursesByStudentIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetCoursesByStudentIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetCoursesByStudentIdDto {
+    items?: GetCoursesByStudentIdDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    imageUrl?: string | undefined;
+    status?: CourseStatus;
+    created?: Date;
+
+    constructor(data?: IGetCoursesByStudentIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.price = _data["price"];
+            this.categoryId = _data["categoryId"];
+            this.imageUrl = _data["imageUrl"];
+            this.status = _data["status"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetCoursesByStudentIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCoursesByStudentIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["price"] = this.price;
+        data["categoryId"] = this.categoryId;
+        data["imageUrl"] = this.imageUrl;
+        data["status"] = this.status;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetCoursesByStudentIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    imageUrl?: string | undefined;
+    status?: CourseStatus;
+    created?: Date;
 }
 
 export class GetCourseByIdDto implements IGetCourseByIdDto {

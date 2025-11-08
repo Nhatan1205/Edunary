@@ -7,46 +7,46 @@ import {
   Box,
 } from "@mui/material";
 import { Col } from "reactstrap";
+import DefaultImage from "../../../../assets/images/default.jpg";
 
 function UserCourseCard({ course }) {
   const {
-    image,
+    imageUrl,
     title,
     level,
-    videosCompleted,
-    totalVideos,
-    progressPercentage,
   } = course;
 
   return (
     <Col xs={6} md={4} lg={3} className="mb-4">
       <Card
         sx={{
-          height: "280px",
+          height: "320px",
+          position: "relative",
           borderRadius: 2,
           overflow: "hidden",
           cursor: "pointer",
           transition: "transform 0.2s ease-in-out",
           bgcolor: "background.default",
           boxShadow: "none",
-
+          textDecoration: "none",
           "&:hover": {
-            transform: "translateY(-2px)",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.12)",
-            bgcolor: "background.alt",
+            "& .MuiCardMedia-root": {
+              filter: "brightness(0.5)",
+            },
           },
         }}
       >
         <CardMedia
           component="img"
-          height="120"
-          image={image}
+          height="160"
+          image={imageUrl ? imageUrl : DefaultImage}
           alt={title}
           sx={{
-            flexShrink: 0,
             objectFit: "cover",
-            filter: "brightness(0.9)",
+            filter: "brightness(0.8)",
             borderRadius: 2,
+            flexShrink: 0,
+            transition: "filter 0.3s ease, transform 0.3s ease",
           }}
         />
 
@@ -101,12 +101,12 @@ function UserCourseCard({ course }) {
                 mb: 1,
               }}
             >
-              {videosCompleted}/{totalVideos} Videos Completed
+              4/32 Videos Completed
             </Typography>
 
             <LinearProgress
               variant="determinate"
-              value={Number(progressPercentage)}
+              value={30}
               sx={{
                 height: 6,
                 borderRadius: 3,

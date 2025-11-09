@@ -29,7 +29,16 @@ public class Course : BaseAuditableEntity
 
     public int CategoryId { get; set; }
 
+    public float Ratings { get; set; }
+
+    public int TotalStudents { get; set; }
+
     // Navigation properties
     public Category Category { get; set; } = null!;
     public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+
+    public void UpdateTotalStudents()
+    {
+        TotalStudents++;
+    }
 }

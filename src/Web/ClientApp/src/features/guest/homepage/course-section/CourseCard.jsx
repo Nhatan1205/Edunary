@@ -17,7 +17,7 @@ import DefaultImage from "../../../../assets/images/default.jpg";
 import { Link as RouterLink } from "react-router";
 
 function CourseCard({ course }) {
-  const { id, imageUrl, title, price, level } = course;
+  const { id, imageUrl, title, price, level, ratings } = course;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -149,13 +149,13 @@ function CourseCard({ course }) {
           {/* Rating */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <Typography variant="body2" sx={{ color: "#FFA726", mr: 0.5 }}>
-              ★★★★★
+              {"★".repeat(Math.floor(ratings || 0))}{"☆".repeat(5 - Math.floor(ratings || 0))}
             </Typography>
             <Typography
               variant="body2"
               sx={{ color: "#666", fontSize: "0.8rem" }}
             >
-              4.8
+              {ratings?.toFixed(1) || "0.0"}
             </Typography>
           </Box>
 

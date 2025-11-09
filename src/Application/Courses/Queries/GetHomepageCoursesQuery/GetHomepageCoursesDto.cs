@@ -1,7 +1,7 @@
 ﻿using Edunary.Domain.Entities;
 
-namespace Edunary.Application.Courses.Queries.GetCoursesWithPagination;
-public class GetCourseDto
+namespace Edunary.Application.Courses.Queries.GetHomepageCoursesQuery;
+public class GetHomepageCoursesDto
 {
     public int Id { get; set; }
     public string Title { get; set; }
@@ -21,14 +21,14 @@ public class GetCourseDto
     {
         public Mapping()
         {
-            CreateMap<Course, GetCourseDto>()
+            CreateMap<Course, GetHomepageCoursesDto>()
                     .ForMember(
                         dest => dest.Level,
-                        opt => opt.MapFrom(src => src.Level.ToString()) 
+                        opt => opt.MapFrom(src => src.Level.ToString())
                     )
                     .ForMember(
                         dest => dest.CategoryName,
-                        opt => opt.MapFrom(src => src.Category.Title) 
+                        opt => opt.MapFrom(src => src.Category.Title)
             );
 
         }

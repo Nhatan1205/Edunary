@@ -2,10 +2,11 @@ import { Container, Row } from "reactstrap";
 import { Typography, Box } from "@mui/material";
 import CourseCard from "./CourseCard";
 import UserCourseCard from "./UserCourseCard";
+import { PopoverProvider } from "../../../../context/PopoverContext";
 
 function CourseSubSection({ title, subtitle, courses, type = "course" }) {
   return (
-    <Box sx={{ mb: 6 }}>
+    <PopoverProvider>
       <Container>
         <Box sx={{ mb: 3 }}>
           <Typography
@@ -43,7 +44,7 @@ function CourseSubSection({ title, subtitle, courses, type = "course" }) {
           )}
         </Row>
       </Container>
-    </Box>
+    </PopoverProvider>
   );
 }
 

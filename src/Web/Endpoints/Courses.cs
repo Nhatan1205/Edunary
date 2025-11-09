@@ -5,7 +5,9 @@ using Edunary.Application.Courses.Commands.DeleteCourse;
 using Edunary.Application.Courses.Commands.UpdateCourse;
 using Edunary.Application.Courses.Queries.GetCourseById;
 using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
+using Edunary.Application.Courses.Queries.GetCoursesHomepageQuery;
 using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
+using Edunary.Application.Courses.Queries.GetHomepageCoursesQuery;
 using Edunary.Application.Courses.Queries.GetPublicCourseById;
 using Edunary.Application.Enrollments.Queries.GetCoursesByStudentIdQuery;
 using MediatR;
@@ -23,7 +25,7 @@ public class Courses : EndpointGroupBase
             .RequireAuthorization()
             .MapPost(CreateCourse)
             .MapGet(GetCoursesAuthorWithPagination, "author")
-            .MapGet(GetCoursesStudentWithPagination, "student/list")
+            .MapGet(GetCoursesStudentWithPagination, "student")
             .MapGet(GetCourseById, "{id}")
             .MapPut(UpdateCourse)
             .MapDelete(DeleteCourse);
@@ -31,6 +33,7 @@ public class Courses : EndpointGroupBase
         // Public endpoint without authorization
         app.MapGroup(this)
             .MapGet(GetCoursesWithPagination)
+            .MapGet(GetHomepageCourses, "homepage")
             .MapGet(GetPublicCourseById, "public/{id}");
         
     }
@@ -67,6 +70,11 @@ public class Courses : EndpointGroupBase
     }
 
     public async Task<PaginatedList<GetCourseDto>> GetCoursesWithPagination(ISender sender, [AsParameters] GetCoursesWithPaginationQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<HomepageCoursesVm> GetHomepageCourses(ISender sender, [AsParameters] GetHomepageCoursesQuery query)
     {
         return await sender.Send(query);
     }

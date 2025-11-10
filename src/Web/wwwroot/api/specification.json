@@ -417,6 +417,50 @@
         ]
       }
     },
+    "/api/Courses/search": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "operationId": "GetCoursesWithFilter",
+        "parameters": [
+          {
+            "name": "queries",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "CategoryId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetCoursesWithFilterDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Courses/homepage": {
       "get": {
         "tags": [
@@ -1600,6 +1644,58 @@
           "totalStudents": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "GetCoursesWithFilterDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Title": {
+            "type": "string",
+            "nullable": true
+          },
+          "Subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "Topic": {
+            "type": "string",
+            "nullable": true
+          },
+          "Price": {
+            "type": "number",
+            "format": "float"
+          },
+          "Level": {
+            "$ref": "#/components/schemas/CourseLevel"
+          },
+          "Status": {
+            "$ref": "#/components/schemas/CourseStatus"
+          },
+          "LearningObjectives": {
+            "type": "string",
+            "nullable": true
+          },
+          "Ratings": {
+            "type": "number",
+            "format": "float"
+          },
+          "TotalStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "CategoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ImageUrl": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

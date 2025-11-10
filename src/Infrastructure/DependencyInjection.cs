@@ -34,6 +34,8 @@ public static class DependencyInjection
         });
 
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+        services.Configure<AlgoliaSettings>(configuration.GetSection("AlgoliaSettings"));
+
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
@@ -48,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<IUploadFileService, UploadFileService>();
         services.AddScoped<INotifyService, NotifyService>();
+        services.AddSingleton<ISearchService, SearchService>();
         services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
 
         services.AddAuthorization(options =>

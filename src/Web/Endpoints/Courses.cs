@@ -6,6 +6,7 @@ using Edunary.Application.Courses.Commands.UpdateCourse;
 using Edunary.Application.Courses.Queries.GetCourseById;
 using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Application.Courses.Queries.GetCoursesHomepageQuery;
+using Edunary.Application.Courses.Queries.GetCoursesWithFilterQuery;
 using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
 using Edunary.Application.Courses.Queries.GetHomepageCoursesQuery;
 using Edunary.Application.Courses.Queries.GetPublicCourseById;
@@ -33,6 +34,7 @@ public class Courses : EndpointGroupBase
         // Public endpoint without authorization
         app.MapGroup(this)
             .MapGet(GetCoursesWithPagination)
+            .MapGet(GetCoursesWithFilter, "search")
             .MapGet(GetHomepageCourses, "homepage")
             .MapGet(GetPublicCourseById, "public/{id}");
         
@@ -75,6 +77,11 @@ public class Courses : EndpointGroupBase
     }
 
     public async Task<HomepageCoursesVm> GetHomepageCourses(ISender sender, [AsParameters] GetHomepageCoursesQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<List<GetCoursesWithFilterDto>> GetCoursesWithFilter(ISender sender,[AsParameters] GetCoursesWithFilterQuery query)
     {
         return await sender.Send(query);
     }

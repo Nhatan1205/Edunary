@@ -7,9 +7,9 @@ import useGetHomepageCourses from "../../../../hooks/useGetCoursesHomepage";
 // Sample data matching your image
 
 function CourseSection() {
-  const { data: courseData, isLoading: isCourseLoading } = useGetHomepageCourses();
-  const {data: courseStudentData, isLoading: isCourseStudentLoading} = useGetCoursesStudent(1,4);
   const { isAuthenticated } = useAuth();
+  const { data: courseData, isLoading: isCourseLoading } = useGetHomepageCourses();
+  const {data: courseStudentData, isLoading: isCourseStudentLoading} = useGetCoursesStudent(1,4,isAuthenticated);
 
   if (isCourseLoading || isCourseStudentLoading) {
     <LoadingSpinner />;

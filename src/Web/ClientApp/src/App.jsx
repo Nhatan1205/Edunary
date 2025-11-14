@@ -1,11 +1,9 @@
 import { RouterProvider } from "react-router/dom";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "./custom.css";
 import { ToastContainer } from "react-toastify";
 import router from "./AppRoutes";
 import queryClient from "./configs/reactQuery";
-import Chatbot from "./components/chatbot/Chatbot";
 import { useAuth } from "./context/AuthContext";
 import { SignalRProvider } from "./context/SignalRContext";
 
@@ -26,7 +24,6 @@ function App() {
         pauseOnHover
         theme="colored"
       />
-      <Chatbot />
       {/* <ReactQueryDevtools initialIsOpen={false}  /> */}
     </QueryClientProvider>
   );

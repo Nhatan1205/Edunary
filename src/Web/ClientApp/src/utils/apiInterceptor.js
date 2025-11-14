@@ -27,21 +27,15 @@ async function refreshToken() {
     
     if (response && response.token) {
       tokenService.setToken(response.token);
-      const userInfo = tokenService.extractUserInfoFromToken(response.token);
-      if (userInfo) {
-        tokenService.setUserInfo(userInfo);
-      }
       return response.token;
     }
     
     // If refresh fails, clear auth and redirect to login
     tokenService.clearAuth();
-    window.location.href = '/login';
     return null;
   } catch (error) {
     console.error('Token refresh failed:', error);
     tokenService.clearAuth();
-    window.location.href = '/login';
     return null;
   }
 }
@@ -51,7 +45,10 @@ export function setupApiInterceptor() {
   window.fetch = async function(url, options = {}) {
     // Add authorization header if token exists
     const token = tokenService.getToken();
-    
+    if (token && tokenService.isTokenExpired(token)) {
+      tokenService.clearAuth();
+      return Promise.reject(new Error('Token expired'));
+    }
     if (token && !options.headers?.['Authorization']) {
       options.headers = {
         ...options.headers,
@@ -65,6 +62,10 @@ export function setupApiInterceptor() {
 
       // If unauthorized and we have a token, try to refresh
       if (response.status === 401 && token) {
+        if (url.includes('/refresh-token')) {
+          tokenService.clearAuth();
+          return Promise.reject(new Error('Token expired'));
+        }
         if (!isRefreshing) {
           isRefreshing = true;
           
@@ -78,6 +79,8 @@ export function setupApiInterceptor() {
             // Retry the original request with new token
             options.headers['Authorization'] = `Bearer ${newToken}`;
             response = await originalFetch(url, options);
+          } else {
+            refreshSubscribers = [];
           }
         } else {
           // If already refreshing, wait for it to complete

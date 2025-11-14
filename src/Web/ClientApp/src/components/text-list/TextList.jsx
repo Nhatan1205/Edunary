@@ -12,9 +12,9 @@ import {
 } from "@dnd-kit/sortable";
 import { SortableItem } from "./SortableItem";
 import { Button, IconButton, TextField, Typography } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from '@mui/icons-material/Add';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 export default function TextList({ items: initialItems = [], onChange, minItemLength = 4,maxLength = null }) {
   const items = initialItems.length > 0 
@@ -157,7 +157,7 @@ export default function TextList({ items: initialItems = [], onChange, minItemLe
                   className="drag-handle"
                   style={{ cursor: "grab", color: "#999", flexShrink: 0 }}
                 >
-                  <MenuIcon />
+                  <DragIndicatorIcon />
                 </div>
               </div>
             </SortableItem>

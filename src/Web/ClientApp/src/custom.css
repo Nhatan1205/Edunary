@@ -40,3 +40,7 @@ code {
 .jodit-dialog__box .jodit-button {
   background-color: #3FCCB2 important;
 }
+.jodit-wysiwyg {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important; 
+}

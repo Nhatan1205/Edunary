@@ -21,5 +21,7 @@ public interface IApplicationDbContext
 
     public DbSet<NotificationUser> NotificationUsers { get; }
 
+    public DbSet<CourseContent> CourseContents { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

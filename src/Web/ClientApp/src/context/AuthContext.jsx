@@ -9,6 +9,7 @@ import {
 import { tokenService } from "../utils/tokenService";
 import { AuthClient } from "../web-api-client.ts";
 import queryClient from "../configs/reactQuery.js";
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
       } else {
         tokenService.clearAuth();
+        setIsAuthenticated(false);
       }
       setIsLoading(false);
     };

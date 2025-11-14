@@ -6,6 +6,7 @@ import { useParams } from "react-router";
 import useGetCourseById from "../../../../../hooks/useGetCourseById";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
+import AlertBox from "../../../../../components/AlertBox";
 
 function CourseMessages() {
 
@@ -39,11 +40,11 @@ function CourseMessages() {
     }
 
   return (
-    <Container className="py-4">
+    <Container className="py-2">
       <form onSubmit={handleSubmit(onSubmit)}>
-      <Typography variant="body2" sx={{ color: "text.primary",textAlign: "justify",mb: 3 }}>
+      <AlertBox severity="info" sx={{ mb: 3}}>
             Write messages to your students (optional) that will be sent automatically when they join or complete your course to encourage students to engage with course content. If you do not wish to send a welcome or congratulations message, leave the text box blank.
-      </Typography>
+      </AlertBox>
       <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
             Welcome Message
       </Typography>

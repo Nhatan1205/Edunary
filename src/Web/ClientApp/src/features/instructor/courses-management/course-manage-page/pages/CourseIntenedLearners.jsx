@@ -42,11 +42,9 @@ function CourseIntenedLearners() {
         );
       }
   return (
-    <Container className="py-4">
+    <Container className="py-2">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Typography variant="body2" sx={{ color: "text.primary", textAlign: "justify", mb: 4 }}>
-          The following descriptions will be publicly visible on your Course Landing Page and will have a direct impact on your course performance. These descriptions will help learners decide if your course is right for them.
-        </Typography>
+        <AlertBox severity="info" sx={{ mb: 4 }}>The following descriptions will be publicly visible on your Course Landing Page and will have a direct impact on your course performance. These descriptions will help learners decide if your course is right for them.</AlertBox>
         {/* learning Objectives */}
         <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
           What will students learn in your course?

@@ -1,5 +1,6 @@
 ﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Application.CourseContents.Commands.UnsetCourseIdForAllContentsCommand;
 using Edunary.Domain.Events.Courses;
 
 namespace Edunary.Application.Courses.Commands.DeleteCourse;
@@ -13,11 +14,18 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUploadFileService _uploadFileService;
-    public DeleteCourseCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService, IUploadFileService uploadFileService)
+    private readonly ISender _sender;
+    
+    public DeleteCourseCommandHandler(
+        IApplicationDbContext context, 
+        ICurrentUserService currentUserService, 
+        IUploadFileService uploadFileService,
+        ISender sender)
     {
         _context = context;
         _currentUserService = currentUserService;
         _uploadFileService = uploadFileService;
+        _sender = sender;
     }
     public async Task<Result> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
     {
@@ -29,15 +37,26 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
             Guard.Against.NotFound(request.Id, entity);
 
             var userId = _currentUserService?.UserId;
+            var imgLink = entity.ImageUrl;
             var courseTitle = entity.Title;
             if (entity.CreatedBy != userId)
             {
                 return Result.Failure("You are not authorized to delete this course.");
             }
-            
+
+            // Release all videos associated with this course
+            var unsetCommand = new UnsetCourseIdForAllContentsCommand
+            {
+                CourseId = request.Id
+            };
+            await _sender.Send(unsetCommand, cancellationToken);
+
             _context.Courses.Remove(entity);
-            var imgId = $"{userId}-{request.Id}-{courseTitle}";
-            await _uploadFileService.DeleteImageInCloudinary(imgId);
+            if (!string.IsNullOrEmpty(imgLink))
+            {   
+                var imgId = $"{userId}-{request.Id}-{courseTitle}";
+                await _uploadFileService.DeleteImageInCloudinary(imgId);
+            }
             var result = await _context.SaveChangesAsync(cancellationToken);
             if (result > 0)
             {

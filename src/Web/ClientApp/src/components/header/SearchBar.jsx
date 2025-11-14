@@ -4,6 +4,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import {useRef, useState } from "react";
 import DropDownSearch from "./drop-down-search/DropDownSearch";
+import { useNavigate } from "react-router";
 const Search = styled("div", {
   shouldForwardProp: (prop) => prop !== "isMobileExpanded",
 })(({ theme, isMobileExpanded }) => ({
@@ -85,22 +86,30 @@ function SearchBar({ isMobileExpanded = false, onClose }) {
   const [searchValue, setSearchValue] = useState("");
   const [open, setOpen] = useState(false);
   const inputRef = useRef(null);
+  const navigate = useNavigate();
 
-  const handleInputChange = (event) => {
-    const value = event.target.value;
+  function handleInputChange(e){
+    const value = e.target.value;
     setSearchValue(value);
     setOpen(value.length > 2);
   };
 
-  const handleClosePopover = () => {
+  function handleEnter(e) {
+    if (e.key === "Enter" && searchValue.trim()) {
+      navigate(`/course/search?query=${encodeURIComponent(searchValue)}`);
+      setOpen(false);
+    }
+  }
+
+  function handleClosePopover() {
     setOpen(false);
   };
 
-  const handleClear = () => {
+  function handleClear() {
       setSearchValue("");
       setOpen(false)
       if (onClose) onClose();
-    };
+  };
 
   return (
   <>
@@ -116,7 +125,7 @@ function SearchBar({ isMobileExpanded = false, onClose }) {
         value={searchValue}
         onChange={handleInputChange}
         inputRef={inputRef}
-        onFocus={() => searchValue.length > 2 && setOpen(true)}
+        onKeyDown={handleEnter}
       />
     </Search>
 

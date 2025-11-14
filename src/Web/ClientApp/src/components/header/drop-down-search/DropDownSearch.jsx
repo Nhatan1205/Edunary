@@ -5,9 +5,12 @@ import { Link as RouterLink } from "react-router";
 function DropDownSearch({ searchValue, handleClose }) {
   return (
     <Box sx={{ py: 2, px: 1 }}>
-        <Box 
+        <Box
             component={RouterLink}
-            to={"course/search"}
+            to={{
+                pathname: "/course/search",
+                search: `?query=${encodeURIComponent(searchValue)}`
+            }}
             onClick={handleClose}
             sx={{
                 display: "flex",

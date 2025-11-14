@@ -22,6 +22,7 @@ function CourseSection() {
             title="Complete your Course"
             subtitle="Pick up right where you left off."
             courses={courseStudentData?.items ?? []}
+            isLoading={isCourseStudentLoading}
             type="user"
           />
         )}
@@ -29,18 +30,21 @@ function CourseSection() {
           title="Trending Course"
           subtitle="We know the best things for You. Top picks for You."
           courses={courseData?.newCourses ?? []}
+          isLoading={isCourseLoading}
           type="course"
         />
         <CourseSubSection
           title="Most Popular Courses"
           subtitle="These courses are loved by thousands of learners."
           courses={courseData?.popularCourses ?? []}
+          isLoading={isCourseLoading}
           type="course"
         />
         <CourseSubSection
           title="Recommended to you based on ratings"
           subtitle="Handpicked courses based on learner ratings."
           courses={courseData?.topRatedCourses ?? []}
+          isLoading={isCourseLoading}
           type="course"
         />
       </Box>

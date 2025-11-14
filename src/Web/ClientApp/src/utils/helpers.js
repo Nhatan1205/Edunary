@@ -1,4 +1,4 @@
-export default function formatTimeAgo(date) {
+export function formatTimeAgo(date) {
   const now = new Date();
   const createdDate = new Date(date);
   const diffMs = now - createdDate; // chênh lệch theo mili giây
@@ -17,4 +17,15 @@ export default function formatTimeAgo(date) {
   } else {
     return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
   }
+}
+
+const LEVEL_MAP = {
+  0: "Beginner",
+  1: "Intermediate",
+  2: "Advanced",
+  3: "All Levels"
+};
+
+export function getLevelLabel(value) {
+  return LEVEL_MAP[value] || "Unknown";
 }

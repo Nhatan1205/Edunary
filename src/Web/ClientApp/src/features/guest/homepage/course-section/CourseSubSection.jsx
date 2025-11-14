@@ -1,10 +1,10 @@
-import { Container, Row } from "reactstrap";
-import { Typography, Box } from "@mui/material";
+import { Col, Container, Row } from "reactstrap";
+import { Typography, Box, Skeleton } from "@mui/material";
 import CourseCard from "./CourseCard";
 import UserCourseCard from "./UserCourseCard";
 import { PopoverProvider } from "../../../../context/PopoverContext";
 
-function CourseSubSection({ title, subtitle, courses, type = "course" }) {
+function CourseSubSection({ title, subtitle, courses,isLoading, type = "course" }) {
   return (
     <PopoverProvider>
       <Container>
@@ -35,13 +35,23 @@ function CourseSubSection({ title, subtitle, courses, type = "course" }) {
         </Box>
 
         <Row>
-          {courses.map((course, index) =>
-            type === "user" ? (
-              <UserCourseCard key={index} course={course} />
-            ) : (
-              <CourseCard key={course.id} course={course} />
-            )
-          )}
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <Col xs={6} md={4} lg={3} className="mb-4" key={i}>
+                  <Skeleton
+                    variant="rectangular"
+                    height={160}
+                    sx={{ borderRadius: 2 }}
+                  />
+                </Col>
+              ))
+            : courses.map((course, index) =>
+                type === "user" ? (
+                  <UserCourseCard key={index} course={course} />
+                ) : (
+                  <CourseCard key={course.id} course={course} />
+                )
+              )}
         </Row>
       </Container>
     </PopoverProvider>

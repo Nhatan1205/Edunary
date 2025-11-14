@@ -1,11 +1,45 @@
 import { Star } from '@mui/icons-material';
-import { Box, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, CardMedia, Typography, useMediaQuery, useTheme } from '@mui/material';
+import DefaultImage from "../../../../assets/images/default.jpg";
 import MetaChip from '../../../../components/MetaChip';
+import { getLevelLabel } from '../../../../utils/helpers';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import { usePopover } from '../../../../context/PopoverContext';
+import { useRef } from 'react';
+import { getPopoverOrigin } from '../../../../utils/getPopoverOrigin';
+import { Link as RouterLink } from "react-router";
+import CoursePopoverMin from '../../../../components/course-popover/CoursePopoverMin';
 
 export default function SearchCourseCard({ course }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const cardRef = useRef(null);
+  const {
+      anchorEl,
+      isPopoverActive,
+      handleMouseEnter,
+      handleMouseLeave,
+      handlePopoverMouseEnter,
+      handlePopoverMouseLeave,
+    } = usePopover();
+
+  const isThisPopoverActive = isPopoverActive(course.id);
+  const open = Boolean(anchorEl) && isThisPopoverActive;
+
+  function onMouseEnter(event) {
+    handleMouseEnter(course.id, cardRef.current || event.currentTarget);
+  }
+
+  const popoverOrigins = getPopoverOrigin(isMobile, cardRef);
 
   return (
+    <>
     <Card
+      component={RouterLink}
+      to={`/course/${course.id}`}
+      ref={cardRef}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={handleMouseLeave}
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -15,7 +49,8 @@ export default function SearchCourseCard({ course }) {
         cursor: 'pointer',
         transition: 'background-color 0.2s ease',
         padding: 2,
-        height: 520,
+        height: 480,
+        textDecoration: "none",
         '&:hover': {
           backgroundColor: '#f7f9fa'
         }
@@ -24,7 +59,7 @@ export default function SearchCourseCard({ course }) {
       <CardMedia
         component="img"
         height="200"
-        image={course.image}
+        image={course.imageUrl || DefaultImage}
         alt={course.title}
         sx={{ objectFit: 'cover', borderRadius: '8px', mb: 2 }}
       />
@@ -32,18 +67,17 @@ export default function SearchCourseCard({ course }) {
         sx={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',   // ✅ THÊM
+            justifyContent: 'space-between',
             flexGrow: 1,
-            p: 0,
-            '&:last-child': { pb: 2 }
+            padding: "0 !important",
         }}
       >
         <div>
         <Typography
           variant="h6"
           component="h3"
-          sx={{ 
-            fontSize: '16px',
+          sx={{
+            fontSize: '18px',
             fontWeight: 700,
             mb: 1,
             lineHeight: 1.4,
@@ -61,7 +95,7 @@ export default function SearchCourseCard({ course }) {
           variant="body2"
           sx={{
             color: '#6a6f73',
-            fontSize: '13px',
+            fontSize: '15px',
             mb: 1,
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -69,7 +103,7 @@ export default function SearchCourseCard({ course }) {
             overflow: 'hidden'
           }}
         >
-          {course.description}
+          {course.subtitle}
         </Typography>
         <Typography
           variant="body2"
@@ -85,7 +119,7 @@ export default function SearchCourseCard({ course }) {
 
         <div>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 1, flexWrap: 'wrap' }}>
-          {course.isBestseller && (
+          {course.totalStudents > 0 && (
             <MetaChip
                 label={"Bestseller"}
                 backgroundColor={"#eceb98"}
@@ -95,14 +129,15 @@ export default function SearchCourseCard({ course }) {
           )}
           <MetaChip
                 icon = {<Star sx={{ color: '#b4690e !important  ' }} />}
-                label={course.rating}
+                label={course.ratings}
             />
           <MetaChip
-                label={course.ratingsCount}
+                icon = {<PeopleAltOutlinedIcon />}
+                label={course.totalStudents}
             />
-            <MetaChip
-                label={course.level}
-            />
+          <MetaChip
+              label={getLevelLabel(course.level)}
+          />
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 'auto' }}>
@@ -118,9 +153,35 @@ export default function SearchCourseCard({ course }) {
               ${course.price}
             </Typography>
           </Box>
+          <Box>
+            <Button
+              variant="outlines"
+              sx={{
+                border: "2px solid",
+                borderColor: "brand.main",
+                fontWeight: "600",
+                color: "brand.main",
+                "&:hover": {
+                  backgroundColor: "background.muted",
+                },
+              }}
+            >
+              Add to cart
+            </Button>
+          </Box>
         </Box>
         </div>
       </CardContent>
     </Card>
+    <CoursePopoverMin
+        open={open}
+        anchorEl={anchorEl}
+        course={course}
+        onMouseEnter={handlePopoverMouseEnter}
+        onMouseLeave={handlePopoverMouseLeave}
+        anchorOrigin={popoverOrigins.anchorOrigin}
+        transformOrigin={popoverOrigins.transformOrigin}
+      />
+    </>
   );
 }

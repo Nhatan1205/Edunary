@@ -23,7 +23,7 @@ function SearchHeader({ title = "llm", resultCount = 30 }) {
             color: 'text.primary'
           }}
         >
-          <span style={{ fontWeight: 600 }}>{resultCount}</span> Results
+          <span style={{ fontWeight: 600 }}>{resultCount}</span> {resultCount === 1 ? 'Result' : 'Results'}
         </Typography>
       </Box>
     </Container>

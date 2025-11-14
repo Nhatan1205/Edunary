@@ -62,7 +62,7 @@ function CourseManageLayout() {
       <CourseManageHeader />
       <Container fluid className="flex-grow-1 py-4">
         <Row className="justify-content-center">
-          <Col xs="12" md="10" lg="9">
+          <Col xs="12" md="11" lg="10">
             <div className="d-flex" style={{ marginTop: "70px" }}>
               <CourseManageSidebar
                 sections={sections}
@@ -80,8 +80,12 @@ function CourseManageLayout() {
                     py: 4,
                   }}
                 >
-                  <PageTitle title={activeLabel} />
-                  <Divider sx={{ mb: 3 }} />
+                  {(activeLabel !== "Curriculum" ) && (
+                    <>
+                      <PageTitle title={activeLabel} />
+                      <Divider sx={{ mb: 3 }} />
+                    </>
+                  )}
                   <Outlet />
                 </Paper>
               </div>

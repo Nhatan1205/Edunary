@@ -223,6 +223,252 @@ export class CategoriesClient {
     }
 }
 
+export class CourseContentClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getCourseContentsByUserId(): Promise<CourseContentDto[]> {
+        let url_ = this.baseUrl + "/api/CourseContent";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseContentsByUserId(_response);
+        });
+    }
+
+    protected processGetCourseContentsByUserId(response: Response): Promise<CourseContentDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CourseContentDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseContentDto[]>(null as any);
+    }
+
+    deleteCourseContentById(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseContent?";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined and cannot be null.");
+        else
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteCourseContentById(_response);
+        });
+    }
+
+    protected processDeleteCourseContentById(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    createCourseContent(isOverride: boolean | undefined, courseId: number | null | undefined, file: FileParameter | null | undefined): Promise<ReturnResultOfCourseContentDto> {
+        let url_ = this.baseUrl + "/api/CourseContent?";
+        if (isOverride === null)
+            throw new Error("The parameter 'isOverride' cannot be null.");
+        else if (isOverride !== undefined)
+            url_ += "isOverride=" + encodeURIComponent("" + isOverride) + "&";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file !== null && file !== undefined)
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCourseContent(_response);
+        });
+    }
+
+    protected processCreateCourseContent(response: Response): Promise<ReturnResultOfCourseContentDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCourseContentDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCourseContentDto>(null as any);
+    }
+
+    checkContentExists(fileName: string | null | undefined): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/CourseContent/exists?";
+        if (fileName !== undefined && fileName !== null)
+            url_ += "fileName=" + encodeURIComponent("" + fileName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCheckContentExists(_response);
+        });
+    }
+
+    protected processCheckContentExists(response: Response): Promise<boolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    setCourseIdForContent(command: SetCourseIdForContentCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseContent/set-course-id";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetCourseIdForContent(_response);
+        });
+    }
+
+    protected processSetCourseIdForContent(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    addLinkToCourseContent(command: AddLinkToCCCommand | undefined): Promise<ReturnResultOfCourseContentDto> {
+        let url_ = this.baseUrl + "/api/CourseContent/add-link";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAddLinkToCourseContent(_response);
+        });
+    }
+
+    protected processAddLinkToCourseContent(response: Response): Promise<ReturnResultOfCourseContentDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCourseContentDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCourseContentDto>(null as any);
+    }
+}
+
 export class CoursesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1481,6 +1727,206 @@ export interface ICategoryDto {
     title?: string | undefined;
 }
 
+export class CourseContentDto implements ICourseContentDto {
+    id?: number;
+    userId?: string | undefined;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
+    lastModified?: Date;
+
+    constructor(data?: ICourseContentDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.fileName = _data["fileName"];
+            this.fileUrl = _data["fileUrl"];
+            this.contentType = _data["contentType"];
+            this.courseId = _data["courseId"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CourseContentDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseContentDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["fileName"] = this.fileName;
+        data["fileUrl"] = this.fileUrl;
+        data["contentType"] = this.contentType;
+        data["courseId"] = this.courseId;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICourseContentDto {
+    id?: number;
+    userId?: string | undefined;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
+    lastModified?: Date;
+}
+
+export class SetCourseIdForContentCommand implements ISetCourseIdForContentCommand {
+    contentIds?: number[] | undefined;
+    courseId?: number | undefined;
+
+    constructor(data?: ISetCourseIdForContentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["contentIds"])) {
+                this.contentIds = [] as any;
+                for (let item of _data["contentIds"])
+                    this.contentIds!.push(item);
+            }
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): SetCourseIdForContentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetCourseIdForContentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.contentIds)) {
+            data["contentIds"] = [];
+            for (let item of this.contentIds)
+                data["contentIds"].push(item);
+        }
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface ISetCourseIdForContentCommand {
+    contentIds?: number[] | undefined;
+    courseId?: number | undefined;
+}
+
+export class ReturnResultOfCourseContentDto implements IReturnResultOfCourseContentDto {
+    result?: CourseContentDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCourseContentDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CourseContentDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCourseContentDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCourseContentDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCourseContentDto {
+    result?: CourseContentDto | undefined;
+    message?: string | undefined;
+}
+
+export class AddLinkToCCCommand implements IAddLinkToCCCommand {
+    title?: string | undefined;
+    url?: string | undefined;
+    contentType?: string | undefined;
+    isOverride?: boolean;
+    courseId?: number | undefined;
+
+    constructor(data?: IAddLinkToCCCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+            this.url = _data["url"];
+            this.contentType = _data["contentType"];
+            this.isOverride = _data["isOverride"];
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): AddLinkToCCCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddLinkToCCCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        data["url"] = this.url;
+        data["contentType"] = this.contentType;
+        data["isOverride"] = this.isOverride;
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IAddLinkToCCCommand {
+    title?: string | undefined;
+    url?: string | undefined;
+    contentType?: string | undefined;
+    isOverride?: boolean;
+    courseId?: number | undefined;
+}
+
 export class CreateCourseCommand implements ICreateCourseCommand {
     title?: string | undefined;
     categoryId?: number;
@@ -1674,6 +2120,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     congratulationsMessage?: string | undefined;
     price?: number;
     categoryId?: number;
+    content?: string | undefined;
 
     constructor(data?: IGetCourseByIdDto) {
         if (data) {
@@ -1701,6 +2148,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             this.congratulationsMessage = _data["congratulationsMessage"];
             this.price = _data["price"];
             this.categoryId = _data["categoryId"];
+            this.content = _data["content"];
         }
     }
 
@@ -1728,6 +2176,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["congratulationsMessage"] = this.congratulationsMessage;
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
+        data["content"] = this.content;
         return data;
     }
 }
@@ -1748,6 +2197,7 @@ export interface IGetCourseByIdDto {
     congratulationsMessage?: string | undefined;
     price?: number;
     categoryId?: number;
+    content?: string | undefined;
 }
 
 export enum CourseLevel {
@@ -1773,6 +2223,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
     congratulationsMessage?: string | undefined;
     price?: number;
     categoryId?: number;
+    content?: string | undefined;
 
     constructor(data?: IUpdateCourseCommand) {
         if (data) {
@@ -1812,6 +2263,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
             this.congratulationsMessage = _data["congratulationsMessage"];
             this.price = _data["price"];
             this.categoryId = _data["categoryId"];
+            this.content = _data["content"];
         }
     }
 
@@ -1851,6 +2303,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
         data["congratulationsMessage"] = this.congratulationsMessage;
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
+        data["content"] = this.content;
         return data;
     }
 }
@@ -1871,6 +2324,7 @@ export interface IUpdateCourseCommand {
     congratulationsMessage?: string | undefined;
     price?: number;
     categoryId?: number;
+    content?: string | undefined;
 }
 
 export class DeleteCourseCommand implements IDeleteCourseCommand {
@@ -3322,6 +3776,11 @@ export interface IWeatherForecast {
     temperatureC?: number;
     temperatureF?: number;
     summary?: string | undefined;
+}
+
+export interface FileParameter {
+    data: any;
+    fileName: string;
 }
 
 export class SwaggerException extends Error {

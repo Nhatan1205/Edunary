@@ -22,6 +22,7 @@ public class UpdateCourseCommand : IRequest<Result>
     public string CongratulationsMessage { get; init; }
     public float Price { get; init; }
     public int CategoryId { get; init; }
+    public string Content { get; init; }
 }
 
 public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, Result>
@@ -68,6 +69,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.CategoryId = request.CategoryId;
             entity.Level = (CourseLevel)request.Level;
             entity.Status = (CourseStatus)request.Status;
+            entity.Content = request.Content;
             if(!string.IsNullOrEmpty(request.ImageUrl) && entity.ImageUrl != request.ImageUrl)
             {
                 var imgId = $"{userId}-{request.Id}-{entity.Title}";

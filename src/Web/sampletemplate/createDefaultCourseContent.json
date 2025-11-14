@@ -1,0 +1,19 @@
+{
+  "sectionId": "section-1",
+  "title": "Introduction",
+  "learningObjectives": "",
+  "items": [
+    {
+      "itemId": "item-1",
+      "title": "Introduction",
+      "description": "",
+      "content": "",
+      "type": "lecture",
+      "isPendingType": false,
+      "downloadable": false,
+      "resources": []
+    }
+  ],
+  "isEditMode": false,
+  "published": false
+}

@@ -96,8 +96,8 @@ function CourseLandingPage() {
   }
 
   return (
-    <Container className="py-4">
-      <AlertBox severity="info" sx={{borderRadius: 6,borderColor: "divider",py: 2,mb: 4}}>
+    <Container className="py-2">
+      <AlertBox severity="info" sx={{py: 2,mb: 4}}>
           Your course landing page is crucial to your success on Edunary. If
           it's done right, it can also help you gain visibility in search
           engines like Google. As you complete this section, think about
@@ -108,6 +108,9 @@ function CourseLandingPage() {
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Course Title */}
         <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+            Course Title
+          </Typography>
           <TextField
             {...register("title", {
               required: "Course title is required",
@@ -117,7 +120,6 @@ function CourseLandingPage() {
               },
             })}
             fullWidth
-            label="Course title"
             placeholder="Enter your course title"
             error={!!errors.title}
             helperText={
@@ -156,6 +158,9 @@ function CourseLandingPage() {
         </Box>
         {/* Course Subtitle */}
         <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+            Course Subtitle
+          </Typography>
           <TextField
             {...register("subtitle", {
               maxLength: {
@@ -164,7 +169,6 @@ function CourseLandingPage() {
               },
             })}
             fullWidth
-            label="Course subtitle"
             placeholder="Insert your course subtitle"
             error={!!errors.subtitle}
             helperText={
@@ -206,7 +210,7 @@ function CourseLandingPage() {
         <Box sx={{ mb: 3 }}>
           <Typography
             variant="subtitle1"
-            sx={{ mb: 1, fontWeight: 500 }}
+            sx={{ mb: 1, fontWeight: 700 }}
           >
             Course Description
           </Typography>
@@ -222,7 +226,7 @@ function CourseLandingPage() {
             }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <>
-                <TextEditor value={value} onChange={onChange} buttons={['bold','italic','|','ul','ol']}/>
+                <TextEditor value={value} onChange={onChange} buttons={['bold','italic','underline','|','ul','ol']}/>
                 {error ? (
                   <Typography variant="caption" color="error">
                     {error.message}
@@ -238,8 +242,8 @@ function CourseLandingPage() {
         </Box>
 
         {/* Basic Info */}
-        <Typography variant="h6" sx={{ mt: 4, mb: 2, fontWeight: "semibold" }}>
-          Basic info
+        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
+          Basic Info
         </Typography>
         <Row>
           <Col md={6}>
@@ -346,8 +350,8 @@ function CourseLandingPage() {
         {/* Course Image */}
         {/* Course Image */}
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: "semibold" }}>
-            Course image
+          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+            Course Image
           </Typography>
           <Row>
             <Col md={6}>
@@ -374,11 +378,11 @@ function CourseLandingPage() {
               </Paper>
             </Col>
             <Col md={6}>
-              <Typography variant="body2" sx={{ mb: 2 }}>
+              <AlertBox severity="info" sx={{ mb: 2, mt: 0 }}>
                 Upload your course image here. It must meet our course image
                 quality standards to be accepted. Important guidelines: 750x422
                 pixels; .jpg, .jpeg, .gif, or .png. no text on the image.
-              </Typography>
+              </AlertBox>
 
               <input
                 type="file"

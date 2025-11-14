@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import Footer from "../components/footer/Footer";
 import Header from "../components/header/Header";
+import Chatbot from "../components/chatbot/Chatbot";
 
 function UserLayout() {
   return (
@@ -8,6 +9,7 @@ function UserLayout() {
       <Header />
       <main className="mx-auto">
         <Outlet />
+        <Chatbot />
       </main>
       <Footer />
     </div>

@@ -62,16 +62,10 @@ function CourseSetting() {
         onClose={handleCloseDialog}
         onConfirm={handleConfirmDelete}
       />
-      <Container>
-        <Box sx={{ py: 3 }}>
+      <Container className="py-2">
+        <Box>
           <Typography
-            variant="h5"
-            component="h2"
-            sx={{
-              fontWeight: 600,
-              mb: 2,
-              color: "text.primary",
-            }}
+            variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}
           >
             Course Status
           </Typography>

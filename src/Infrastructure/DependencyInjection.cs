@@ -1,9 +1,12 @@
 ﻿using System.Text;
+using Amazon;
+using Amazon.S3;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Common;
 using Edunary.Domain.Constants;
 using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Data.Interceptors;
+using Edunary.Infrastructure.Helpers;
 using Edunary.Infrastructure.Identity;
 using Edunary.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,8 +14,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Edunary.Infrastructure.Helpers;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
@@ -34,6 +37,21 @@ public static class DependencyInjection
         });
 
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+        
+        services.Configure<DigitalOceanSettings>(configuration.GetSection("DigitalOceanSettings"));
+        services.AddSingleton<IAmazonS3>(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<DigitalOceanSettings>>().Value;
+
+            return new AmazonS3Client(
+                settings.AccessKey,
+                settings.SecretKey,
+                new AmazonS3Config
+                {
+                    ServiceURL = settings.Endpoint,
+                    ForcePathStyle = true
+                });
+        });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 

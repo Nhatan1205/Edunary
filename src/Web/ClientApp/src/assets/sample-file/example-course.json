@@ -1,0 +1,274 @@
+{
+  "courseId": "course-123",
+  "title": "Complete Web Development Bootcamp",
+  "sections": [
+    {
+      "sectionId": "section-1",
+      "title": "Introduction to Programming",
+      "learningObjectives": "- Understand basic programming concepts\n- Write simple programs in Python\n- Learn debugging techniques",
+      "curriculumItems": [
+        {
+          "itemId": "item-1-1",
+          "type": "lecture",
+          "title": "What is Programming?",
+          "description": "An introduction to the basics of programming and computational thinking.",
+          "isFree": true,
+          "content": {
+            "contentType": "video",
+            "video": {
+              "url": "http://example.com/videos/what-is-programming.mp4",
+              "duration": "12:30",
+              "thumbnail": "http://example.com/thumbnails/programming.jpg",
+              "captions": [
+                {
+                  "language": "en",
+                  "url": "http://example.com/captions/programming-en.vtt"
+                },
+                {
+                  "language": "vi",
+                  "url": "http://example.com/captions/programming-vi.vtt"
+                }
+              ]
+            }
+          },
+          "resources": [
+            {
+              "resourceId": "res-1",
+              "title": "Programming Basics Guide",
+              "type": "document",
+              "url": "http://example.com/docs/programming-basics.pdf",
+              "fileSize": "2.5MB"
+            },
+            {
+              "resourceId": "res-2",
+              "title": "Source Code",
+              "type": "source-code",
+              "url": "http://example.com/code/examples.zip",
+              "fileSize": "150KB"
+            }
+          ],
+          "isCompleted": false
+        },
+        {
+          "itemId": "item-1-2",
+          "type": "lecture",
+          "title": "History of Programming Languages",
+          "description": "Learn about the evolution of programming languages.",
+          "isFree": false,
+          "content": {
+            "contentType": "article",
+            "article": {
+              "htmlContent": "<h2>The Evolution of Programming</h2><p>Programming languages have evolved...</p>",
+              "estimatedReadTime": "8 min",
+              "attachedImages": [
+                "http://example.com/images/timeline.png"
+              ]
+            }
+          },
+          "resources": [],
+          "isCompleted": false
+        },
+        {
+          "itemId": "item-1-3",
+          "type": "quiz",
+          "title": "Programming Fundamentals Quiz",
+          "description": "Test your understanding of programming basics.",
+          "isFree": false,
+          "quizData": {
+            "timeLimit": 600,
+            "passingScore": 70,
+            "shuffleQuestions": true,
+            "showCorrectAnswers": true,
+            "allowMultipleAttempts": true,
+            "questions": [
+              {
+                "questionId": "q1",
+                "type": "multiple-choice",
+                "question": "What is a variable in programming?",
+                "points": 1,
+                "options": [
+                  "A container for storing data",
+                  "A type of function",
+                  "A programming language",
+                  "None of the above"
+                ],
+                "correctAnswer": 0,
+                "explanation": "A variable is a container that stores data values that can be changed during program execution."
+              },
+              {
+                "questionId": "q2",
+                "type": "true-false",
+                "question": "Python is a compiled programming language.",
+                "points": 1,
+                "correctAnswer": false,
+                "explanation": "Python is an interpreted language, not a compiled one."
+              },
+              {
+                "questionId": "q3",
+                "type": "multiple-answer",
+                "question": "Which of the following are programming languages? (Select all that apply)",
+                "points": 2,
+                "options": [
+                  "Python",
+                  "HTML",
+                  "JavaScript",
+                  "CSS"
+                ],
+                "correctAnswers": [0, 2],
+                "explanation": "Python and JavaScript are programming languages. HTML and CSS are markup/styling languages."
+              }
+            ]
+          },
+          "isCompleted": false,
+          "userScore": null,
+          "attempts": 0
+        },
+        {
+          "itemId": "item-1-4",
+          "type": "coding-exercise",
+          "title": "Hello World Exercise",
+          "description": "Write your first Python program.",
+          "isFree": false,
+          "codingExerciseData": {
+            "language": "python",
+            "instructions": "Write a program that prints 'Hello, World!' to the console.",
+            "starterCode": "# Write your code here\n",
+            "solutionCode": "print('Hello, World!')",
+            "testCases": [
+              {
+                "input": "",
+                "expectedOutput": "Hello, World!",
+                "isHidden": false
+              }
+            ],
+            "hints": [
+              "Use the print() function",
+              "Don't forget the quotes around the text"
+            ],
+            "timeLimit": 300,
+            "allowedAttempts": -1
+          },
+          "isCompleted": false,
+          "isPassed": false
+        },
+        {
+          "itemId": "item-1-5",
+          "type": "assignment",
+          "title": "Build a Simple Calculator",
+          "description": "Create a calculator that can perform basic operations.",
+          "isFree": false,
+          "assignmentData": {
+            "instructions": "<h3>Requirements:</h3><ul><li>Add, subtract, multiply, divide functions</li><li>Handle division by zero</li><li>User-friendly interface</li></ul>",
+            "dueDate": null,
+            "estimatedTime": "2 hours",
+            "allowLateSubmission": true,
+            "maxFileSize": "10MB",
+            "allowedFileTypes": [".py", ".zip"],
+            "rubric": [
+              {
+                "criterion": "Functionality",
+                "points": 40,
+                "description": "All operations work correctly"
+              },
+              {
+                "criterion": "Error Handling",
+                "points": 30,
+                "description": "Proper handling of edge cases"
+              },
+              {
+                "criterion": "Code Quality",
+                "points": 30,
+                "description": "Clean, readable code with comments"
+              }
+            ],
+            "sampleSolution": {
+              "url": "http://example.com/solutions/calculator.py",
+              "availableAfterSubmission": true
+            }
+          },
+          "isCompleted": false,
+          "isSubmitted": false,
+          "submissionData": null,
+          "grade": null,
+          "feedback": null
+        },
+        {
+          "itemId": "item-1-6",
+          "type": "lecture",
+          "title": "Mixed Content Lecture",
+          "description": "A lecture with both video and article content.",
+          "isFree": false,
+          "content": {
+            "contentType": "mixed",
+            "items": [
+              {
+                "type": "video",
+                "video": {
+                  "url": "http://example.com/videos/intro.mp4",
+                  "duration": "10:00"
+                }
+              },
+              {
+                "type": "article",
+                "article": {
+                  "htmlContent": "<h3>Key Concepts</h3><p>Important points to remember...</p>",
+                  "estimatedReadTime": "5 min"
+                }
+              },
+              {
+                "type": "video",
+                "video": {
+                  "url": "http://example.com/videos/demo.mp4",
+                  "duration": "15:00"
+                }
+              }
+            ]
+          },
+          "resources": [],
+          "isCompleted": false
+        }
+      ],
+      "totalDuration": "37:30",
+      "totalItems": 6
+    },
+    {
+      "sectionId": "section-2",
+      "title": "Python Basics",
+      "learningObjectives": "- Master Python syntax\n- Work with data types and variables\n- Understand control flow",
+      "curriculumItems": [
+        {
+          "itemId": "item-2-1",
+          "type": "lecture",
+          "title": "Variables and Data Types",
+          "description": "Deep dive into Python variables and data types.",
+          "isFree": false,
+          "content": {
+            "contentType": "video",
+            "video": {
+              "url": "http://example.com/videos/variables.mp4",
+              "duration": "20:00"
+            }
+          },
+          "resources": [
+            {
+              "resourceId": "res-3",
+              "title": "Cheat Sheet",
+              "type": "document",
+              "url": "http://example.com/docs/python-cheatsheet.pdf"
+            }
+          ],
+          "isCompleted": false
+        }
+      ],
+      "totalDuration": "20:00",
+      "totalItems": 1
+    }
+  ],
+  "totalDuration": "57:30",
+  "totalLectures": 4,
+  "totalQuizzes": 1,
+  "totalCodingExercises": 1,
+  "totalAssignments": 1,
+  "totalSections": 2,
+  "lastUpdated": "2025-11-07T10:00:00Z"
+}

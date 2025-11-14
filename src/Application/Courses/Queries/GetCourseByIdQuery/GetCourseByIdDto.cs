@@ -20,6 +20,7 @@ public class GetCourseByIdDto
     public string CongratulationsMessage { get; set; } = null!;
     public float Price { get; set; }
     public int CategoryId { get; set; }
+    public string Content { get; set; } = null!;
 
     private class Mapping : Profile
     {

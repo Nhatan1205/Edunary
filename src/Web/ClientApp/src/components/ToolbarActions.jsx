@@ -17,11 +17,13 @@ import {
 import useGetBasicUserInfo from "../hooks/useGetBasicUserInfor";
 import NotificationPopup from "./notification-popup/NotificationPopup";
 import useGetNotificationsByUserId from "../hooks/useGetNotificationByUserId";
+import { useNavigate } from "react-router";
 function ToolbarActions() {
   const { user } = useAuth();
   const { data: userInfo } = useGetBasicUserInfo();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const navigate = useNavigate();
 
   const [anchorElProfile, setAnchorElProfile] = useState(null);
   const isOpenProfile = Boolean(anchorElProfile);
@@ -68,6 +70,7 @@ function ToolbarActions() {
             backgroundColor: "background.muted",
           },
         }}
+        onClick={() => navigate("/cart")}
       >
         <Badge badgeContent={3} color="error" showZero>
           <ShoppingCartOutlinedIcon fontSize={isMobile ? "small" : "medium"} />

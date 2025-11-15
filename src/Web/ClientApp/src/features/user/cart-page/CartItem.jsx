@@ -10,8 +10,14 @@ import {
   Link,
   Stack,
 } from "@mui/material"
+import LoadingSpinner from "../../../components/LoadingSpinner"
 
-const CartItem = ({ item, onRemove }) => {
+const CartItem = ({ item, onRemove, loading }) => {
+  const handleRemove = async () => {
+    await onRemove(item.id)
+  }
+  const imageUrl = item.imageUrl || "https://via.placeholder.com/200x120?text=No+Image"
+
   return (
     <Card
       sx={{
@@ -39,7 +45,7 @@ const CartItem = ({ item, onRemove }) => {
               borderRadius: 1,
               flexShrink: 0,
             }}
-            image={item.image}
+            image={imageUrl}
             alt={item.title}
           />
 
@@ -66,6 +72,19 @@ const CartItem = ({ item, onRemove }) => {
                 {item.title}
               </Typography>
 
+              {item.subtitle && (
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{
+                    mb: 1,
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  }}
+                >
+                  {item.subtitle}
+                </Typography>
+              )}
+
               <Typography
                 variant="body1"
                 color="text.secondary"
@@ -74,7 +93,7 @@ const CartItem = ({ item, onRemove }) => {
                   fontSize: { xs: "0.75rem", sm: "0.875rem" },
                 }}
               >
-                {item.instructor}
+                By {item.instructorName}
               </Typography>
 
               <Box
@@ -86,36 +105,30 @@ const CartItem = ({ item, onRemove }) => {
                   flexWrap: "wrap",
                 }}
               >
-                {item.bestseller && (
-                  <Chip
-                    label="Bestseller"
-                    size="small"
-                    sx={{
-                      backgroundColor: "background.muted",
-                      color: "text.primary",
-                      fontWeight: "bold",
-                      fontSize: { xs: "0.625rem", sm: "0.75rem" },
-                    }}
-                  />
+                {item.rating > 0 && (
+                  <>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "text.primary",
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                      }}
+                    >
+                      {item.rating.toFixed(1)}
+                    </Typography>
+                    <Rating value={item.rating} readOnly size="small" precision={0.1} />
+                    {item.reviewCount > 0 && (
+                      <Typography
+                        variant="body1"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      >
+                        ({item.reviewCount.toLocaleString()} ratings)
+                      </Typography>
+                    )}
+                  </>
                 )}
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "text.primary",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                >
-                  {item.rating}
-                </Typography>
-                <Rating value={item.rating} readOnly size="small" precision={0.1} />
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                >
-                  ({item.reviews.toLocaleString()} ratings)
-                </Typography>
               </Box>
 
               <Typography
@@ -123,7 +136,9 @@ const CartItem = ({ item, onRemove }) => {
                 color="text.secondary"
                 sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
               >
-                {item.totalHours} • {item.lectures} • {item.level}
+                {item.totalHours > 0 && `${item.totalHours} hours`}
+                {item.totalLectures > 0 && ` • ${item.totalLectures} lectures`}
+                {item.level && ` • ${item.level}`}
               </Typography>
             </Box>
 
@@ -155,35 +170,15 @@ const CartItem = ({ item, onRemove }) => {
                     color: "brand.main",
                     textDecoration: "none",
                     fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5
                   }}
                   underline="hover"
-                  onClick={() => onRemove(item.id)}
+                  onClick={handleRemove}
+                  disabled={loading}
                 >
-                  Remove
-                </Link>
-                <Link
-                  component="button"
-                  variant="body1"
-                  sx={{
-                    color: "brand.main",
-                    textDecoration: "none",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                  underline="hover"
-                >
-                  Save for Later
-                </Link>
-                <Link
-                  component="button"
-                  variant="body1"
-                  sx={{
-                    color: "brand.main",
-                    textDecoration: "none",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                  underline="hover"
-                >
-                  Move to Wishlist
+                  {loading ? <LoadingSpinner size={14} /> : 'Remove ⛔'}
                 </Link>
               </Stack>
 
@@ -197,17 +192,7 @@ const CartItem = ({ item, onRemove }) => {
                     fontSize: { xs: "1rem", sm: "1.25rem" },
                   }}
                 >
-                  {item.currentPrice}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    textDecoration: "line-through",
-                    color: "text.secondary",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                >
-                  {item.originalPrice}
+                  ${item.price.toFixed(2)}
                 </Typography>
               </Box>
             </Box>

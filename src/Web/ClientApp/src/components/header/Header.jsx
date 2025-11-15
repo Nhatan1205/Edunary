@@ -26,14 +26,18 @@ import { useAuth } from "../../context/AuthContext";
 import useGetBasicUserInfo from "../../hooks/useGetBasicUserInfor";
 import NotificationPopup from "../notification-popup/NotificationPopup";
 import useGetNotificationsByUserId from "../../hooks/useGetNotificationByUserId";
+import { useNavigate } from "react-router";
+import { useCart } from "../../hooks/useCart";
 
 function Header() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const navigate = useNavigate();
 
   // Get auth state from context
   const { isAuthenticated, user } = useAuth();
   const { data: userInfo } = useGetBasicUserInfo();
+  const { itemCount } = useCart();
 
   //menu dropdown state
   const [anchorElMenu, setAnchorElMenu] = useState(null);
@@ -217,8 +221,9 @@ function Header() {
                         backgroundColor: "background.muted",
                       },
                     }}
+                    onClick={() => navigate("/cart")}
                   >
-                    <Badge badgeContent={3} color="error" showZero>
+                    <Badge badgeContent={itemCount} color="error" showZero={false}>
                       <ShoppingCartOutlinedIcon
                         fontSize={isMobile ? "small" : "medium"}
                       />

@@ -28,11 +28,13 @@ import {
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
 import { useEnrollmentStatus } from '../../../../hooks/useEnrollmentStatus'
+import { useAddToCart } from '../../../../hooks/useAddToCart'
 
 const CourseSidebar = ({ courseData }) => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const { isEnrolled, loading } = useEnrollmentStatus(courseData.id)
+  const { addToCart, loading: addingToCart } = useAddToCart()
 
   const handleBuyNow = () => {
     // Navigate to checkout with course data
@@ -54,6 +56,15 @@ const CourseSidebar = ({ courseData }) => {
   const handleGoToCourse = () => {
     navigate(`/course/${courseData.id}/learn`)
   }
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+    await addToCart(courseData.id)
+  }
+
   return (
     <Box sx={{ width: '100%', maxWidth: 380 }}>
       <Paper 
@@ -156,8 +167,9 @@ const CourseSidebar = ({ courseData }) => {
               <Button
                 variant="outlined"
                 fullWidth
+                onClick={handleAddToCart}
                 startIcon={<FavoriteBorder />}
-                disabled={loading}
+                disabled={loading || addingToCart}
                 sx={{
                   py: 1.5,
                   borderColor: 'brand.main',
@@ -171,7 +183,7 @@ const CourseSidebar = ({ courseData }) => {
                   }
                 }}
               >
-                Wishlist
+                {addingToCart ? 'Adding...' : 'Add to Cart'}
               </Button>
             </>
           )}

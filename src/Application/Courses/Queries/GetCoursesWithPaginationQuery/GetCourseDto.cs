@@ -1,4 +1,5 @@
 ﻿using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetCoursesWithPagination;
 public class GetCourseDto
@@ -8,10 +9,8 @@ public class GetCourseDto
     public string Subtitle { get; set; }
     public float Price { get; set; }
     public int CategoryId { get; set; }
-    public string CategoryName { get; set; }
     public string ImageUrl { get; set; }
-    public string Level { get; set; }
-    public string Description { get; set; }
+    public CourseLevel Level { get; set; }
     public string LearningObjectives { get; set; }
     public string Topic { get; set; }
     public float Ratings { get; set; }
@@ -21,15 +20,7 @@ public class GetCourseDto
     {
         public Mapping()
         {
-            CreateMap<Course, GetCourseDto>()
-                    .ForMember(
-                        dest => dest.Level,
-                        opt => opt.MapFrom(src => src.Level.ToString()) 
-                    )
-                    .ForMember(
-                        dest => dest.CategoryName,
-                        opt => opt.MapFrom(src => src.Category.Title) 
-            );
+            CreateMap<Course, GetCourseDto>();
 
         }
     }

@@ -244,46 +244,6 @@
             "JWT": []
           }
         ]
-      },
-      "get": {
-        "tags": [
-          "Courses"
-        ],
-        "operationId": "GetCoursesWithPagination",
-        "parameters": [
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfGetCourseDto"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/api/Courses/author": {
@@ -418,42 +378,29 @@
       }
     },
     "/api/Courses/search": {
-      "get": {
+      "post": {
         "tags": [
           "Courses"
         ],
-        "operationId": "GetCoursesWithFilter",
-        "parameters": [
-          {
-            "name": "queries",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
+        "operationId": "GetCoursesWithPagination",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetCoursesWithPaginationQuery"
+              }
+            }
           },
-          {
-            "name": "CategoryId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
-            },
-            "x-position": 2
-          }
-        ],
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GetCoursesWithFilterDto"
-                  }
+                  "$ref": "#/components/schemas/PaginatedListOfGetCourseDto"
                 }
               }
             }
@@ -1613,21 +1560,12 @@
             "type": "integer",
             "format": "int32"
           },
-          "categoryName": {
-            "type": "string",
-            "nullable": true
-          },
           "imageUrl": {
             "type": "string",
             "nullable": true
           },
           "level": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/CourseLevel"
           },
           "learningObjectives": {
             "type": "string",
@@ -1647,53 +1585,48 @@
           }
         }
       },
-      "GetCoursesWithFilterDto": {
+      "GetCoursesWithPaginationQuery": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "searchText": {
+            "type": "string",
+            "nullable": true
+          },
+          "filterData": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterData"
+            }
+          },
+          "pageNumber": {
             "type": "integer",
             "format": "int32"
           },
-          "Title": {
-            "type": "string",
-            "nullable": true
-          },
-          "Subtitle": {
-            "type": "string",
-            "nullable": true
-          },
-          "Topic": {
-            "type": "string",
-            "nullable": true
-          },
-          "Price": {
-            "type": "number",
-            "format": "float"
-          },
-          "Level": {
-            "$ref": "#/components/schemas/CourseLevel"
-          },
-          "Status": {
-            "$ref": "#/components/schemas/CourseStatus"
-          },
-          "LearningObjectives": {
-            "type": "string",
-            "nullable": true
-          },
-          "Ratings": {
-            "type": "number",
-            "format": "float"
-          },
-          "TotalStudents": {
+          "pageSize": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "FilterData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "property": {
+            "type": "string",
+            "nullable": true
           },
-          "CategoryId": {
-            "type": "integer",
-            "format": "int32"
+          "value": {
+            "type": "string",
+            "nullable": true
           },
-          "ImageUrl": {
+          "operation": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
             "type": "string",
             "nullable": true
           }

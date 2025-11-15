@@ -338,49 +338,6 @@ export class CoursesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    getCoursesWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCourseDto> {
-        let url_ = this.baseUrl + "/api/Courses?";
-        if (pageNumber === undefined || pageNumber === null)
-            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
-        else
-            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        if (pageSize === undefined || pageSize === null)
-            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
-        else
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCoursesWithPagination(_response);
-        });
-    }
-
-    protected processGetCoursesWithPagination(response: Response): Promise<PaginatedListOfGetCourseDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfGetCourseDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PaginatedListOfGetCourseDto>(null as any);
-    }
-
     getCoursesAuthorWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCoursesAuthorDto> {
         let url_ = this.baseUrl + "/api/Courses/author?";
         if (pageNumber === undefined || pageNumber === null)
@@ -505,27 +462,27 @@ export class CoursesClient {
         return Promise.resolve<GetCourseByIdDto>(null as any);
     }
 
-    getCoursesWithFilter(queries: string | null | undefined, categoryId: number | null | undefined): Promise<GetCoursesWithFilterDto[]> {
-        let url_ = this.baseUrl + "/api/Courses/search?";
-        if (queries !== undefined && queries !== null)
-            url_ += "queries=" + encodeURIComponent("" + queries) + "&";
-        if (categoryId !== undefined && categoryId !== null)
-            url_ += "CategoryId=" + encodeURIComponent("" + categoryId) + "&";
+    getCoursesWithPagination(query: GetCoursesWithPaginationQuery | undefined): Promise<PaginatedListOfGetCourseDto> {
+        let url_ = this.baseUrl + "/api/Courses/search";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(query);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCoursesWithFilter(_response);
+            return this.processGetCoursesWithPagination(_response);
         });
     }
 
-    protected processGetCoursesWithFilter(response: Response): Promise<GetCoursesWithFilterDto[]> {
+    protected processGetCoursesWithPagination(response: Response): Promise<PaginatedListOfGetCourseDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -533,14 +490,7 @@ export class CoursesClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GetCoursesWithFilterDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = PaginatedListOfGetCourseDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -548,7 +498,7 @@ export class CoursesClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<GetCoursesWithFilterDto[]>(null as any);
+        return Promise.resolve<PaginatedListOfGetCourseDto>(null as any);
     }
 
     getHomepageCourses(): Promise<HomepageCoursesVm> {
@@ -2231,10 +2181,8 @@ export class GetCourseDto implements IGetCourseDto {
     subtitle?: string | undefined;
     price?: number;
     categoryId?: number;
-    categoryName?: string | undefined;
     imageUrl?: string | undefined;
-    level?: string | undefined;
-    description?: string | undefined;
+    level?: CourseLevel;
     learningObjectives?: string | undefined;
     topic?: string | undefined;
     ratings?: number;
@@ -2256,10 +2204,8 @@ export class GetCourseDto implements IGetCourseDto {
             this.subtitle = _data["subtitle"];
             this.price = _data["price"];
             this.categoryId = _data["categoryId"];
-            this.categoryName = _data["categoryName"];
             this.imageUrl = _data["imageUrl"];
             this.level = _data["level"];
-            this.description = _data["description"];
             this.learningObjectives = _data["learningObjectives"];
             this.topic = _data["topic"];
             this.ratings = _data["ratings"];
@@ -2281,10 +2227,8 @@ export class GetCourseDto implements IGetCourseDto {
         data["subtitle"] = this.subtitle;
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
-        data["categoryName"] = this.categoryName;
         data["imageUrl"] = this.imageUrl;
         data["level"] = this.level;
-        data["description"] = this.description;
         data["learningObjectives"] = this.learningObjectives;
         data["topic"] = this.topic;
         data["ratings"] = this.ratings;
@@ -2299,31 +2243,21 @@ export interface IGetCourseDto {
     subtitle?: string | undefined;
     price?: number;
     categoryId?: number;
-    categoryName?: string | undefined;
     imageUrl?: string | undefined;
-    level?: string | undefined;
-    description?: string | undefined;
+    level?: CourseLevel;
     learningObjectives?: string | undefined;
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
 }
 
-export class GetCoursesWithFilterDto implements IGetCoursesWithFilterDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    topic?: string | undefined;
-    price?: number;
-    level?: CourseLevel;
-    status?: CourseStatus;
-    learningObjectives?: string | undefined;
-    ratings?: number;
-    totalStudents?: number;
-    categoryId?: number;
-    imageUrl?: string | undefined;
+export class GetCoursesWithPaginationQuery implements IGetCoursesWithPaginationQuery {
+    searchText?: string | undefined;
+    filterData?: FilterData[] | undefined;
+    pageNumber?: number;
+    pageSize?: number;
 
-    constructor(data?: IGetCoursesWithFilterDto) {
+    constructor(data?: IGetCoursesWithPaginationQuery) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2334,59 +2268,91 @@ export class GetCoursesWithFilterDto implements IGetCoursesWithFilterDto {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["Id"];
-            this.title = _data["Title"];
-            this.subtitle = _data["Subtitle"];
-            this.topic = _data["Topic"];
-            this.price = _data["Price"];
-            this.level = _data["Level"];
-            this.status = _data["Status"];
-            this.learningObjectives = _data["LearningObjectives"];
-            this.ratings = _data["Ratings"];
-            this.totalStudents = _data["TotalStudents"];
-            this.categoryId = _data["CategoryId"];
-            this.imageUrl = _data["ImageUrl"];
+            this.searchText = _data["searchText"];
+            if (Array.isArray(_data["filterData"])) {
+                this.filterData = [] as any;
+                for (let item of _data["filterData"])
+                    this.filterData!.push(FilterData.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.pageSize = _data["pageSize"];
         }
     }
 
-    static fromJS(data: any): GetCoursesWithFilterDto {
+    static fromJS(data: any): GetCoursesWithPaginationQuery {
         data = typeof data === 'object' ? data : {};
-        let result = new GetCoursesWithFilterDto();
+        let result = new GetCoursesWithPaginationQuery();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["Id"] = this.id;
-        data["Title"] = this.title;
-        data["Subtitle"] = this.subtitle;
-        data["Topic"] = this.topic;
-        data["Price"] = this.price;
-        data["Level"] = this.level;
-        data["Status"] = this.status;
-        data["LearningObjectives"] = this.learningObjectives;
-        data["Ratings"] = this.ratings;
-        data["TotalStudents"] = this.totalStudents;
-        data["CategoryId"] = this.categoryId;
-        data["ImageUrl"] = this.imageUrl;
+        data["searchText"] = this.searchText;
+        if (Array.isArray(this.filterData)) {
+            data["filterData"] = [];
+            for (let item of this.filterData)
+                data["filterData"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["pageSize"] = this.pageSize;
         return data;
     }
 }
 
-export interface IGetCoursesWithFilterDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    topic?: string | undefined;
-    price?: number;
-    level?: CourseLevel;
-    status?: CourseStatus;
-    learningObjectives?: string | undefined;
-    ratings?: number;
-    totalStudents?: number;
-    categoryId?: number;
-    imageUrl?: string | undefined;
+export interface IGetCoursesWithPaginationQuery {
+    searchText?: string | undefined;
+    filterData?: FilterData[] | undefined;
+    pageNumber?: number;
+    pageSize?: number;
+}
+
+export class FilterData implements IFilterData {
+    property?: string | undefined;
+    value?: string | undefined;
+    operation?: string | undefined;
+    type?: string | undefined;
+
+    constructor(data?: IFilterData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.property = _data["property"];
+            this.value = _data["value"];
+            this.operation = _data["operation"];
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): FilterData {
+        data = typeof data === 'object' ? data : {};
+        let result = new FilterData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["property"] = this.property;
+        data["value"] = this.value;
+        data["operation"] = this.operation;
+        data["type"] = this.type;
+        return data;
+    }
+}
+
+export interface IFilterData {
+    property?: string | undefined;
+    value?: string | undefined;
+    operation?: string | undefined;
+    type?: string | undefined;
 }
 
 export class HomepageCoursesVm implements IHomepageCoursesVm {

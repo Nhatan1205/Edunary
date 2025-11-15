@@ -84,6 +84,10 @@ function ResourceContent({ item, onUpdate, onClose }) {
 
     setFileUploadInfo(null);
     setSelectedFile(null);
+
+    if (onClose) {
+      onClose();
+    }
   };
 
   const handleCheckExistFile = async (file) => {
@@ -137,10 +141,10 @@ function ResourceContent({ item, onUpdate, onClose }) {
         uploadDate: formatDate(new Date()),
         status: "Uploading...",
         showProgress: true,
-        override: true,
+        override: overrideChecked,
       });
 
-      await handleUploadFile(pendingFile, true);
+      await handleUploadFile(pendingFile, overrideChecked);
     } else if (pendingLink) {
       await handleSaveLink(pendingLink.title, pendingLink.url, overrideChecked);
     }

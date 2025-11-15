@@ -51,9 +51,24 @@ public class AddLinkToCCCommandHandler : IRequestHandler<AddLinkToCCCommand, Ret
         }
         else
         {
+            var baseTitle = request.Title.Trim();
+            var newTitle = request.Title.Trim();
+            var count = 1;
+            var existingTitles = await _context.CourseContents
+                .Where(cc => cc.FileName.StartsWith(baseTitle) && 
+                            cc.UserId == userId && 
+                            cc.ContentType == request.ContentType) 
+                .Select(cc => cc.FileName)
+                .ToHashSetAsync(cancellationToken);
+
+            while (existingTitles.Contains(newTitle))
+            {
+                newTitle = $"{baseTitle}({count})";
+                count++;
+            }
             var linkContent = new CourseContent
             {
-                FileName = request.Title,
+                FileName = newTitle,
                 FileUrl = request.Url,
                 ContentType = request.ContentType,
                 UserId = userId,

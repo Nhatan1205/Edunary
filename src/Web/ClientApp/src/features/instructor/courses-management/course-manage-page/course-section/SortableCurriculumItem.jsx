@@ -23,6 +23,9 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
     setNodeRef,
     transform,
     transition,
+    attributes,
+    listeners, 
+    isDragging,
   } = useSortable({ id: item.itemId });
 
   const [itemType, setItemType] = useState(item.type);
@@ -31,7 +34,7 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: 1,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   const handleSelectType = (type) => {
@@ -195,6 +198,11 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
           globalIndex={globalIndex}
           onDelete={onDelete}
           onUpdate={onUpdate}
+          dndRef={setNodeRef}
+          dndStyle={style}
+          dndAttributes={attributes}
+          dndListeners={listeners}
+          isDragging={isDragging}
         />
       );
     case "quiz":

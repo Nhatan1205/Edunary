@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 import JoditEditor from "jodit-react";
 
-export default function TextEditor({ value, onChange, buttons = ['bold','italic','underline','|','ul','ol','|','link','image','|','source']}) {
+export default function TextEditor({ value, onChange, buttons = ['bold','italic','underline','|','ul','ol','brush','|','link','image','|','source']}) {
   const editor = useRef(null);
 
   const config =  useMemo(() => ({

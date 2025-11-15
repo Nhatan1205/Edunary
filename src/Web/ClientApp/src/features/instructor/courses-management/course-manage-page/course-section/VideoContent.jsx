@@ -146,6 +146,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
       
       await handleCheckExistFile(file);
     }
+    e.target.value = '';
   };
 
   const handleConfirmOverride = async () => {

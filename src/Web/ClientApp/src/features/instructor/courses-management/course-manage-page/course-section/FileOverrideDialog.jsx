@@ -6,12 +6,25 @@ import {
   DialogActions,
   Button,
   IconButton,
-  Checkbox,
-  FormControlLabel,
+  // Checkbox,
+  // FormControlLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { useMemo } from "react";
 
-function FileOverrideDialog({ open, fileName, overrideChecked, onOverrideChange, onConfirm, onCancel }) {
+function FileOverrideDialog({ open, fileName, overrideChecked = false, onOverrideChange, onConfirm, onCancel }) {
+  const exampleName = useMemo(() => {
+    if (!fileName) return "file(1).ext";
+    
+    const dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex === -1) {
+      return `${fileName}(1)`;
+    }
+    const baseName = fileName.substring(0, dotIndex);
+    const extension = fileName.substring(dotIndex);
+    return `${baseName}(1)${extension}`;
+    
+  }, [fileName]);
   return (
     <Dialog
       open={open}
@@ -38,10 +51,13 @@ function FileOverrideDialog({ open, fileName, overrideChecked, onOverrideChange,
 
       <DialogContent>
         <DialogContentText sx={{ mb: 2 }}>
-          A file with the name "{fileName}" already exists. Do you want to replace it?
+          A file with the name "<strong>{fileName}</strong>" already exists.
+          <br /><br />
+          Do you want to upload it anyway? It will be saved with a new, unique 
+          name (e.g., "<strong>{exampleName}</strong>").
         </DialogContentText>
         
-        <FormControlLabel
+        {/* <FormControlLabel
           control={
             <Checkbox 
               checked={overrideChecked}
@@ -55,7 +71,7 @@ function FileOverrideDialog({ open, fileName, overrideChecked, onOverrideChange,
             />
           }
           label="Override existing file"
-        />
+        /> */}
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>

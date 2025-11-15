@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import {
   Box,
   Button,
@@ -32,16 +30,8 @@ import ResourceContent from "./ResourceContent";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import useSetCourseIdForContent from "../../../../../hooks/useSetCourseIdForContent";
 
-function LectureItem({ item, globalIndex, onDelete, onUpdate }) {
+function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, dndAttributes, dndListeners, isDragging }) {
   const setCourseIdForContent = useSetCourseIdForContent();
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.itemId });
 
   const [expanded, setExpanded] = useState(false);
   const [showDescriptionForm, setShowDescriptionForm] = useState(false);
@@ -52,12 +42,6 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate }) {
   const [showResourcesForm, setShowResourcesForm] = useState(false);
   const [showDeleteResourceConfirm, setShowDeleteResourceConfirm] = useState(false);
   const [pendingDeleteResource, setPendingDeleteResource] = useState(null);
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
 
   const handleSaveDescription = () => {
     // Strip HTML tags to check if content is actually empty
@@ -186,16 +170,16 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate }) {
         onSave={handleSaveTitle}
         onCancel={handleCancelEditTitle}
         saveButtonText="Save"
-        dragRef={setNodeRef}
-        dragStyle={style}
+        dragRef={dndRef}
+        dragStyle={dndStyle}
       />
     );
   }
 
   return (
     <Paper
-      ref={setNodeRef}
-      style={style}
+      ref={dndRef}
+      style={dndStyle}
       data-type="item"
       sx={{
         mb: 1.5,
@@ -216,8 +200,8 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate }) {
       }}>
         <IconButton
           size="small"
-          {...attributes}
-          {...listeners}
+          {...dndAttributes}
+          {...dndListeners}
           style={{ cursor: "grab" }}
           sx={{
             color: "text.secondary",
@@ -634,7 +618,7 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate }) {
       <ConfirmDialog
         open={showDeleteResourceConfirm}
         title="Remove Resource"
-        message={`Are you sure you want to remove "${pendingDeleteResource?.fileName}"?`}
+        message={`Are you sure you want to remove a resource "${pendingDeleteResource?.fileName}"?`}
         onConfirm={handleConfirmDeleteResource}
         onClose={handleCancelDeleteResource}
       />

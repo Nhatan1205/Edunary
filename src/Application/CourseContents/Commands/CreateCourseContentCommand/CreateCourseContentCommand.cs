@@ -57,18 +57,17 @@ public class CreateCourseContentCommandHandler : IRequestHandler<CreateCourseCon
         {
             var baseFileName = Path.GetFileNameWithoutExtension(request.FileName);
             var extension = Path.GetExtension(request.FileName);
-            var count = await _context.CourseContents
-                .Where(cc => cc.FileName.StartsWith(baseFileName) && cc.UserId == userId && cc.ContentType == request.ContentType)
-                .CountAsync(cancellationToken);
+            var newFileName = request.FileName;
+            var count = 1;
+            var existingFileNames = await _context.CourseContents
+            .Where(cc => cc.FileName.StartsWith(baseFileName) && cc.UserId == userId && cc.ContentType == request.ContentType)
+            .Select(cc => cc.FileName)
+            .ToHashSetAsync(cancellationToken);
 
-            string newFileName;
-            if (count == 0)
-            {
-                newFileName = request.FileName;
-            }
-            else
+            while (existingFileNames.Contains(newFileName))
             {
                 newFileName = $"{baseFileName}({count}){extension}";
+                count++;
             }
 
             fileUrl = await _uploadFileService.UploadFileToSpacesAsync(request.File, newFileName, request.ContentType);

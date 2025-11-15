@@ -21,6 +21,9 @@ import useCreateCourseContent from "../../../../../hooks/useCreateCourseContent"
 import useGetCourseContent from "../../../../../hooks/useGetCourseContent";
 import useDeleteCourseContentById from "../../../../../hooks/useDeleteCourseContentById";
 import useSetCourseIdForContent from "../../../../../hooks/useSetCourseIdForContent";
+import useGenerateUploadUrl from "../../../../../hooks/useGenerateUploadUrl";
+import useUploadToSpaces from "../../../../../hooks/useUploadToSpaces";
+import useAddLinkToCC from "../../../../../hooks/useAddLinkToCC";
 import FileOverrideDialog from "./FileOverrideDialog";
 import FileUploadSection from "./FileUploadSection";
 import FileLibraryTable from "./FileLibraryTable";
@@ -50,6 +53,9 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const createCourseContent = useCreateCourseContent();
   const deleteCourseContent = useDeleteCourseContentById();
   const setCourseIdForContent = useSetCourseIdForContent();
+  const generateUploadUrl = useGenerateUploadUrl();
+  const uploadToSpaces = useUploadToSpaces();
+  const addLinkToCC = useAddLinkToCC();
   const { data: courseContents, isLoading : isLoadingCourseContents } = useGetCourseContent();
 
   // Format date helper
@@ -84,26 +90,58 @@ function VideoContent({ item, onUpdate, onCancel }) {
       });
     }
     setVideoUploadInfo(prev => prev ? { ...prev, status: "Uploading..." } : null);
-    
-    const result = await createCourseContent.mutateAsync({ 
-      file, 
-      isOverride: override,
-      courseId: courseId ? parseInt(courseId) : null
-    });
-    
-    if (result && result.result) {
-      setUploadedContent(result.result.fileUrl);
-      setIsDownloadable(false);
-      
-      if (onUpdate) {
-        onUpdate(item.itemId, { 
-          content: result.result.fileUrl,
-          downloadable: false,
-          videoId : result.result.id
-        });
+    const fileSize = file.size;
+    const maxSize = 5 * 1024 * 1024;
+    if (fileSize > maxSize) {
+      const data = await generateUploadUrl.mutateAsync({ 
+        fileName: file.name, 
+        contentType: file.type
+      });
+      const { uploadUrl, fileName, fileUrl } = data.result;
+      const uploadResult = await uploadToSpaces.mutateAsync({ uploadUrl, file });
+      if (!uploadResult.ok) {
+        setVideoUploadInfo(prev => prev ? { ...prev, status: "Upload failed" } : null);
+        return;
+      }
+      const result = await addLinkToCC.mutateAsync({ 
+        title: fileName, 
+        url: fileUrl,
+        isOverride: override,
+        courseId: courseId ? parseInt(courseId) : null,
+        contentType: file.type
+      });
+      if (result && result.result) {
+        setUploadedContent(result.result.fileUrl);
+        setIsDownloadable(false);
+        
+        if (onUpdate) {
+          onUpdate(item.itemId, { 
+            content: result.result.fileUrl,
+            downloadable: false,
+            videoId : result.result.id
+          });
+        }
       }
     }
-    
+    else {
+      const result = await createCourseContent.mutateAsync({ 
+        file, 
+        isOverride: override,
+        courseId: courseId ? parseInt(courseId) : null
+      });
+      if (result && result.result) {
+        setUploadedContent(result.result.fileUrl);
+        setIsDownloadable(false);
+        
+        if (onUpdate) {
+          onUpdate(item.itemId, { 
+            content: result.result.fileUrl,
+            downloadable: false,
+            videoId : result.result.id
+          });
+        }
+      }
+    }
     setVideoUploadInfo(null);
     setSelectedVideoFile(null);
     setShowVideoUploadForm(false);

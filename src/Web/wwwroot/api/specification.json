@@ -380,6 +380,42 @@
         ]
       }
     },
+    "/api/CourseContent/generate-upload-url": {
+      "post": {
+        "tags": [
+          "CourseContent"
+        ],
+        "operationId": "GenerateUploadUrl",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateUploadUrlCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfGenerateUploadUrlDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Courses": {
       "post": {
         "tags": [
@@ -1427,6 +1463,56 @@
           "courseId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "ReturnResultOfGenerateUploadUrlDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GenerateUploadUrlDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GenerateUploadUrlDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uploadUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GenerateUploadUrlCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contentType": {
+            "type": "string",
             "nullable": true
           }
         }

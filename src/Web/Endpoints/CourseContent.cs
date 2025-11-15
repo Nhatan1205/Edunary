@@ -7,6 +7,7 @@ using Edunary.Application.Common.Models;
 using Edunary.Application.CourseContents.Commands.AddLinkToCCCommand;
 using Edunary.Application.CourseContents.Commands.CreateCourseContentCommand;
 using Edunary.Application.CourseContents.Commands.DeleteCourseContentCommand;
+using Edunary.Application.CourseContents.Commands.GenerateUploadUrl;
 using Edunary.Application.CourseContents.Commands.SetCourseIdForContentCommand;
 using Edunary.Application.CourseContents.Queries.GetCourseContentByUserIdQuery;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,8 @@ public class CourseContent : EndpointGroupBase
             .MapDelete(DeleteCourseContentById)
             .MapPost(CheckContentExists, "/exists")
             .MapPost(SetCourseIdForContent, "/set-course-id")
-            .MapPost(AddLinkToCourseContent, "/add-link");
+            .MapPost(AddLinkToCourseContent, "/add-link")
+            .MapPost(GenerateUploadUrl, "/generate-upload-url");
 
         app.MapGroup(this)
             .RequireAuthorization()
@@ -102,6 +104,12 @@ public class CourseContent : EndpointGroupBase
     }
     
     public async Task<ReturnResult<CourseContentDto>> AddLinkToCourseContent(ISender sender, AddLinkToCCCommand command)
+    {
+        var result = await sender.Send(command);
+        return result;
+    }
+
+    public async Task<ReturnResult<GenerateUploadUrlDto>> GenerateUploadUrl(ISender sender, GenerateUploadUrlCommand command)
     {
         var result = await sender.Send(command);
         return result;

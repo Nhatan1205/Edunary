@@ -15,6 +15,8 @@ import useAddLinkToCC from "../../../../../hooks/useAddLinkToCC";
 import useGetCourseContent from "../../../../../hooks/useGetCourseContent";
 import useDeleteCourseContentById from "../../../../../hooks/useDeleteCourseContentById";
 import useSetCourseIdForContent from "../../../../../hooks/useSetCourseIdForContent";
+import useGenerateUploadUrl from "../../../../../hooks/useGenerateUploadUrl";
+import useUploadToSpaces from "../../../../../hooks/useUploadToSpaces";
 import FileOverrideDialog from "./FileOverrideDialog";
 import FileUploadSection from "./FileUploadSection";
 import FileLibraryTable from "./FileLibraryTable";
@@ -45,6 +47,8 @@ function ResourceContent({ item, onUpdate, onClose }) {
   const deleteCourseContent = useDeleteCourseContentById();
   const setCourseIdForContent = useSetCourseIdForContent();
   const { data: courseContents, isLoading: isLoadingCourseContents } = useGetCourseContent();
+  const generateUploadUrl = useGenerateUploadUrl();
+  const uploadToSpaces = useUploadToSpaces();
 
   // Format date helper
   const formatDate = (date) => {
@@ -63,22 +67,56 @@ function ResourceContent({ item, onUpdate, onClose }) {
   const handleUploadFile = async (file, override = false) => {
     setFileUploadInfo(prev => prev ? { ...prev, status: "Uploading..." } : null);
 
-    const result = await createCourseContent.mutateAsync({
-      file,
-      isOverride: override,
-      courseId: courseId ? parseInt(courseId) : null
-    });
-
-    if (result && result.result) {
-      // Add to resources list
-      if (onUpdate) {
-        onUpdate(item.itemId, {
-          resources: [...(item.resources || []), {
-            id: result.result.id,
-            fileName: result.result.fileName,
-            fileUrl: result.result.fileUrl
-          }]
-        });
+    const fileSize = file.size;
+    const maxSize = 5 * 1024 * 1024;
+    if (fileSize > maxSize) {
+      const data = await generateUploadUrl.mutateAsync({ 
+        fileName: file.name, 
+        contentType: file.type
+      });
+      const { uploadUrl, fileName, fileUrl } = data.result;
+      const uploadResult = await uploadToSpaces.mutateAsync({ uploadUrl, file });
+      if (!uploadResult.ok) {
+        setFileUploadInfo(prev => prev ? { ...prev, status: "Upload failed" } : null);
+        return;
+      }
+      const result = await addLinkToCC.mutateAsync({ 
+        title: fileName, 
+        url: fileUrl,
+        isOverride: override,
+        courseId: courseId ? parseInt(courseId) : null,
+        contentType: file.type
+      });
+      if (result && result.result) {
+        if (onUpdate) {
+          onUpdate(item.itemId, { 
+            resources: [...(item.resources || []), {
+              id: result.result.id,
+              fileName: result.result.fileName,
+              fileUrl: result.result.fileUrl
+            }]
+          });
+        }
+      }
+    }
+    else {
+      const result = await createCourseContent.mutateAsync({
+        file,
+        isOverride: override,
+        courseId: courseId ? parseInt(courseId) : null
+      });
+  
+      if (result && result.result) {
+        // Add to resources list
+        if (onUpdate) {
+          onUpdate(item.itemId, {
+            resources: [...(item.resources || []), {
+              id: result.result.id,
+              fileName: result.result.fileName,
+              fileUrl: result.result.fileUrl
+            }]
+          });
+        }
       }
     }
 
@@ -203,7 +241,8 @@ function ResourceContent({ item, onUpdate, onClose }) {
       title,
       url,
       isOverride: override,
-      courseId: courseId ? parseInt(courseId) : null
+      courseId: courseId ? parseInt(courseId) : null,
+      contentType: "external-link"
     });
 
     if (result && result.result) {

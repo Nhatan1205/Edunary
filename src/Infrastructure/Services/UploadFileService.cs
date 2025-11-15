@@ -95,4 +95,24 @@ public class UploadFileService : IUploadFileService
         var response = await _s3Client.DeleteObjectAsync(deleteRequest);
         return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent;
     }
+
+    public string GeneratePresignedUrl(string fileName, string contentType)
+    {
+        var userId = _currentUserService?.UserId;
+        var folder = $"courses/{userId}";
+        var key = $"{folder}/{fileName}";
+        var duration = 5;
+
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = _spacesSettings.SpaceName,
+            Key = key,
+            Verb = HttpVerb.PUT,
+            ContentType = contentType,
+            Expires = DateTime.UtcNow.AddMinutes(duration),
+        };
+        request.Parameters.Add("x-amz-acl", "public-read");
+        string url = _s3Client.GetPreSignedURL(request);
+        return url;
+    }
 }

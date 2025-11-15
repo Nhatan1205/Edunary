@@ -5,12 +5,12 @@ import { CourseContentClient, AddLinkToCCCommand } from "../web-api-client.ts";
 
 const useAddLinkToCC = () => {
     return useMutation({
-        mutationFn: async ({ title ,url, isOverride = false, courseId = null }) => {
+        mutationFn: async ({ title, url, isOverride = false, courseId = null, contentType = "external-link" }) => {
             const client = new CourseContentClient();
             const command = new AddLinkToCCCommand({
                 title: title,
                 url: url,
-                contentType: "external-link",
+                contentType: contentType,
                 isOverride: isOverride,
                 courseId: courseId
             });

@@ -467,6 +467,45 @@ export class CourseContentClient {
         }
         return Promise.resolve<ReturnResultOfCourseContentDto>(null as any);
     }
+
+    generateUploadUrl(command: GenerateUploadUrlCommand | undefined): Promise<ReturnResultOfGenerateUploadUrlDto> {
+        let url_ = this.baseUrl + "/api/CourseContent/generate-upload-url";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGenerateUploadUrl(_response);
+        });
+    }
+
+    protected processGenerateUploadUrl(response: Response): Promise<ReturnResultOfGenerateUploadUrlDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfGenerateUploadUrlDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfGenerateUploadUrlDto>(null as any);
+    }
 }
 
 export class CoursesClient {
@@ -1925,6 +1964,130 @@ export interface IAddLinkToCCCommand {
     contentType?: string | undefined;
     isOverride?: boolean;
     courseId?: number | undefined;
+}
+
+export class ReturnResultOfGenerateUploadUrlDto implements IReturnResultOfGenerateUploadUrlDto {
+    result?: GenerateUploadUrlDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfGenerateUploadUrlDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? GenerateUploadUrlDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfGenerateUploadUrlDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfGenerateUploadUrlDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfGenerateUploadUrlDto {
+    result?: GenerateUploadUrlDto | undefined;
+    message?: string | undefined;
+}
+
+export class GenerateUploadUrlDto implements IGenerateUploadUrlDto {
+    uploadUrl?: string | undefined;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+
+    constructor(data?: IGenerateUploadUrlDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.uploadUrl = _data["uploadUrl"];
+            this.fileName = _data["fileName"];
+            this.fileUrl = _data["fileUrl"];
+        }
+    }
+
+    static fromJS(data: any): GenerateUploadUrlDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateUploadUrlDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["uploadUrl"] = this.uploadUrl;
+        data["fileName"] = this.fileName;
+        data["fileUrl"] = this.fileUrl;
+        return data;
+    }
+}
+
+export interface IGenerateUploadUrlDto {
+    uploadUrl?: string | undefined;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+}
+
+export class GenerateUploadUrlCommand implements IGenerateUploadUrlCommand {
+    fileName?: string | undefined;
+    contentType?: string | undefined;
+
+    constructor(data?: IGenerateUploadUrlCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.contentType = _data["contentType"];
+        }
+    }
+
+    static fromJS(data: any): GenerateUploadUrlCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateUploadUrlCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["contentType"] = this.contentType;
+        return data;
+    }
+}
+
+export interface IGenerateUploadUrlCommand {
+    fileName?: string | undefined;
+    contentType?: string | undefined;
 }
 
 export class CreateCourseCommand implements ICreateCourseCommand {

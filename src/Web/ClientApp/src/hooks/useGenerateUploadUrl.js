@@ -4,7 +4,6 @@ import { CourseContentClient, GenerateUploadUrlCommand } from "../web-api-client
 const useGenerateUploadUrl = () => {
     return useMutation({
         mutationFn: async ({ fileName, contentType }) => {
-            console.log("Generating upload URL for:", fileName, contentType);
             const client = new CourseContentClient();
             const command = new GenerateUploadUrlCommand({
                 fileName: fileName,

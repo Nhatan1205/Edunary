@@ -15,7 +15,6 @@ import {
 import {
   DragIndicator as DragIndicatorIcon,
   Delete as DeleteIcon,
-  VideoLibrary as VideoIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   Add as AddIcon,
@@ -442,7 +441,7 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate }) {
                 <TextEditor
                   value={description}
                   onChange={setDescription}
-                  buttons={['bold', 'italic', '|', 'ul', 'ol']}
+                  buttons={['bold', 'italic', 'underline', '|', 'ul', 'ol']}
                 />
 
                 <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>

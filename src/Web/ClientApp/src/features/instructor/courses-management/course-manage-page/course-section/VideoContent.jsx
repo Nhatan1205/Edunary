@@ -77,6 +77,12 @@ function VideoContent({ item, onUpdate, onCancel }) {
   };
 
   const handleUploadFile = async (file, override = false) => {
+    if (item.videoId) {
+      await setCourseIdForContent.mutateAsync({ 
+        contentIds: [item.videoId],
+        courseId: null
+      });
+    }
     setVideoUploadInfo(prev => prev ? { ...prev, status: "Uploading..." } : null);
     
     const result = await createCourseContent.mutateAsync({ 

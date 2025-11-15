@@ -96,7 +96,7 @@ function ArticleContent({ item, onUpdate, onCancel }) {
         <TextEditor
           value={articleContent}
           onChange={setArticleContent}
-          buttons={['bold', 'italic', '|', 'ul', 'ol', '|', 'link', 'image', '|', 'source']}
+          buttons={['bold', 'italic', 'underline', '|', 'ul', 'ol', '|', 'link', 'image', '|', 'source']}
         />
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>

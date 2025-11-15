@@ -35,21 +35,12 @@ function CourseCurriculum() {
   const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseById(courseId);
   const updatecourseMutation = useUpdateCourse();
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
-  const initialSections = courseData?.content
-    ? JSON.parse(courseData.content)?.contents || []
-    : [];
-  const initialNextSectionId = courseData?.content
-    ? JSON.parse(courseData.content)?.nextSectionId || 1
-    : 1;
-  const initialNextItemId = courseData?.content
-    ? JSON.parse(courseData.content)?.nextItemId || 1
-    : 1;
-  const [sections, setSections] = useState(initialSections);
-  const [initialContent, setInitialContent] = useState(initialSections);
+  const [sections, setSections] = useState([]);
+  const [initialContent, setInitialContent] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [activeType, setActiveType] = useState(null); 
-  const [nextSectionId, setNextSectionId] = useState(initialNextSectionId);
-  const [nextItemId, setNextItemId] = useState(initialNextItemId);
+  const [nextSectionId, setNextSectionId] = useState(1);
+  const [nextItemId, setNextItemId] = useState(1);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     title: "",
@@ -65,6 +56,24 @@ function CourseCurriculum() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  useEffect(() => {
+    if (courseData) {
+      const initialSections = courseData?.content
+        ? JSON.parse(courseData.content)?.contents || []
+        : [];
+      const initialNextSectionId = courseData?.content
+        ? JSON.parse(courseData.content)?.nextSectionId || 1
+        : 1;
+      const initialNextItemId = courseData?.content
+        ? JSON.parse(courseData.content)?.nextItemId || 1
+        : 1;
+      setSections(initialSections);
+      setInitialContent(initialSections);
+      setNextSectionId(initialNextSectionId);
+      setNextItemId(initialNextItemId);
+    }
+  }, [courseData]);
 
   const getGlobalIndex = (sectionIndex, itemIndex) => {
     let count = 1;
@@ -351,7 +360,7 @@ function CourseCurriculum() {
 
   // Handle discard from dialog
   const handleDiscardChanges = async () => {
-    const oldIds = getAllContentIds(initialSections); 
+    const oldIds = getAllContentIds(initialContent); 
     const newIds = getAllContentIds(sections);        
     const addedIds = newIds.filter(id => !oldIds.includes(id));
     const removedIds = oldIds.filter(id => !newIds.includes(id));

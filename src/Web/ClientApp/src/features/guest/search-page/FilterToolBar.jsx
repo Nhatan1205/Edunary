@@ -1,10 +1,11 @@
 import MultipleSelect from '../../../components/drop-down/MultipleSelect';
 import RadioSelect from '../../../components/drop-down/RadioSelect';
 import { useSearchParams } from 'react-router';
+import useGetCategories from '../../../hooks/useGetCategories';
 
 const priceData = [
-  { label: "Paid", value: "price-paid" },
-  { label: "Free", value: "price-free" },
+  { label: "Paid", value: "paid" },
+  { label: "Free", value: "free" },
 ];
 
 const ratingsData = [
@@ -15,14 +16,28 @@ const ratingsData = [
 ];
 
 const levelsData = [
-  { label: "All Levels", value: "all" },
-  { label: "Beginner", value: "beginner" },
-  { label: "Intermediate", value: "intermediate" },
-  { label: "Expert", value: "expert" },
+  { label: "Beginner", value: "0" },
+  { label: "Intermediate", value: "1" },
+  { label: "Advanced", value: "2" },
+  { label: "All Levels", value: "3" },
+];
+
+const publishDateData = [
+  { label: "Past Week", value: "in_last_week" },
+  { label: "Past Month", value: "in_last_month" },
+  { label: "Past Three Months", value: "in_last_3months" },
+  { label: "Past Year", value: "in_last_year" },
 ];
 
 function FilterToolBar() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { data: categoryData } = useGetCategories(1,10);
+  //convert category
+  const categories = categoryData?.items?.map(cat => ({
+    label: cat.title,
+    value: cat.id.toString(),
+  })) || [];
+
 
   // derive value trực tiếp từ URL
   const price = searchParams.getAll("price")
@@ -35,6 +50,14 @@ function FilterToolBar() {
 
   const levels = searchParams.getAll("instructional_level")
     .map(val => levelsData.find(item => item.value === val))
+    .filter(Boolean);
+
+  const publishDate = searchParams.getAll("time")
+    .map(val => publishDateData.find(item => item.value === val))
+    .filter(Boolean);
+
+  const selectedCategories = searchParams.getAll("category")
+    .map(val => categories.find(item => item.value === val))
     .filter(Boolean);
 
   const updateQueryParam = (key, selectedItems) => {
@@ -60,23 +83,38 @@ function FilterToolBar() {
       padding: '16px',
       flexWrap: 'wrap'
     }}>
-      <MultipleSelect
+      <RadioSelect
         title="Price"
         data={priceData}
         value={price}
         onChange={selected => updateQueryParam('price', selected)}
+        defaultLabel='Any Price'
       />
       <RadioSelect
         title="Ratings"
         data={ratingsData}
         value={ratings}
         onChange={selected => updateQueryParam('ratings', selected)}
+        defaultLabel='Any Rating'
       />
       <MultipleSelect
         title="Level"
         data={levelsData}
         value={levels}
         onChange={selected => updateQueryParam('instructional_level', selected)}
+      />
+      <RadioSelect
+        title="Publish Date"
+        data={publishDateData}
+        value={publishDate}
+        onChange={selected => updateQueryParam('time', selected)}
+        defaultLabel='All Time'
+      />
+      <MultipleSelect
+        title="Category"
+        data={categories}
+        value={selectedCategories}
+        onChange={selected => updateQueryParam('category', selected)}
       />
     </div>
   );

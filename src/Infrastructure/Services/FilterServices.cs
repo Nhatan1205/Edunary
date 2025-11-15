@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Globalization;
+using System.Linq.Expressions;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
@@ -55,21 +56,51 @@ public class FilterService : IFilterService
                     }
 
                 case "Equals":
-                    query = query.Where(x =>
-                        EF.Property<string>(x, filter.Property).ToLower() ==
-                        value.ToLower());
+                    if (filter.Type == "datetime")
+                    {
+                        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateValue))
+                        {
+                            query = query.Where(x =>
+                                EF.Property<DateTime>(x, filter.Property) == dateValue);
+                        }
+                    }
+                    else
+                    {
+                        query = query.Where(x =>
+                            EF.Property<string>(x, filter.Property).ToLower() ==
+                            value.ToLower());
+                    }
                     break;
 
                 case "NotEquals":
-                    query = query.Where(x =>
-                        EF.Property<string>(x, filter.Property).ToLower() !=
-                        value.ToLower());
+                    if (filter.Type == "datetime")
+                    {
+                        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateValue))
+                        {
+                            query = query.Where(x =>
+                                EF.Property<DateTime>(x, filter.Property) != dateValue);
+                        }
+                    }
+                    else
+                    {
+                        query = query.Where(x =>
+                            EF.Property<string>(x, filter.Property).ToLower() !=
+                            value.ToLower());
+                    }
                     break;
 
                 case "GreaterThan":
-                    if (filter.Type == "float")
+                    if (filter.Type == "datetime")
                     {
-                        float numValue = float.Parse(value);
+                        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateValue))
+                        {
+                            query = query.Where(x =>
+                                EF.Property<DateTime>(x, filter.Property) > dateValue);
+                        }
+                    }
+                    else if (filter.Type == "float")
+                    {
+                        float numValue = float.Parse(value, CultureInfo.InvariantCulture);
                         query = query.Where(x =>
                             EF.Property<float>(x, filter.Property) > numValue);
                     }
@@ -82,9 +113,17 @@ public class FilterService : IFilterService
                     break;
 
                 case "GreaterOrEqual":
-                    if (filter.Type == "float")
+                    if (filter.Type == "datetime")
                     {
-                        float numValue = float.Parse(value);
+                        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateValue))
+                        {
+                            query = query.Where(x =>
+                                EF.Property<DateTime>(x, filter.Property) >= dateValue);
+                        }
+                    }
+                    else if (filter.Type == "float")
+                    {
+                        float numValue = float.Parse(value, CultureInfo.InvariantCulture);
                         query = query.Where(x =>
                             EF.Property<float>(x, filter.Property) >= numValue);
                     }
@@ -97,9 +136,17 @@ public class FilterService : IFilterService
                     break;
 
                 case "LessThan":
-                    if (filter.Type == "float")
+                    if (filter.Type == "datetime")
                     {
-                        float numValue = float.Parse(value);
+                        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateValue))
+                        {
+                            query = query.Where(x =>
+                                EF.Property<DateTime>(x, filter.Property) < dateValue);
+                        }
+                    }
+                    else if (filter.Type == "float")
+                    {
+                        float numValue = float.Parse(value, CultureInfo.InvariantCulture);
                         query = query.Where(x =>
                             EF.Property<float>(x, filter.Property) < numValue);
                     }
@@ -112,9 +159,17 @@ public class FilterService : IFilterService
                     break;
 
                 case "LessOrEqual":
+                    if (filter.Type == "datetime")
+                    {
+                        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateValue))
+                        {
+                            query = query.Where(x =>
+                                EF.Property<DateTime>(x, filter.Property) < dateValue);
+                        }
+                    }
                     if (filter.Type == "float")
                     {
-                        float numValue = float.Parse(value);
+                        float numValue = float.Parse(value, CultureInfo.InvariantCulture);
                         query = query.Where(x =>
                             EF.Property<float>(x, filter.Property) <= numValue);
                     }

@@ -29,3 +29,31 @@ const LEVEL_MAP = {
 export function getLevelLabel(value) {
   return LEVEL_MAP[value] || "Unknown";
 }
+
+export function getPublishDate(timeValue) {
+  const now = new Date();
+  let pastDate = null;
+
+  switch (timeValue) {
+    case "in_last_week":
+      pastDate = new Date();
+      pastDate.setDate(now.getDate() - 7);
+      break;
+    case "in_last_month":
+      pastDate = new Date();
+      pastDate.setMonth(now.getMonth() - 1);
+      break;
+    case "in_last_3months":
+      pastDate = new Date();
+      pastDate.setMonth(now.getMonth() - 3);
+      break;
+    case "in_last_year":
+      pastDate = new Date();
+      pastDate.setFullYear(now.getFullYear() - 1);
+      break;
+    default:
+      return null;
+  }
+  pastDate.setHours(0, 0, 0, 0);
+  return pastDate.toISOString();
+};

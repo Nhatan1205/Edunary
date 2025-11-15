@@ -7,11 +7,13 @@ import {
   Select,
 } from "@mui/material";
 
-function RadioSelect({ title, data, value = [], onChange }) {
-  // value là array object [{ label, value }]
-
+function RadioSelect({ title, data, value = [], onChange, defaultLabel = "All" }) {
   const handleChange = (event) => {
-    const selectedValue = event.target.value; // value của MenuItem
+    const selectedValue = event.target.value;
+    if (selectedValue === "") {
+      onChange && onChange([]);
+      return;
+    }
     const selectedItem = data.find(item => item.value === selectedValue) || null;
     onChange && onChange(selectedItem ? [selectedItem] : []);
   };
@@ -27,7 +29,7 @@ function RadioSelect({ title, data, value = [], onChange }) {
     <FormControl size="small" sx={{ width: "auto", minWidth: "100px" }}>
       <Select
         displayEmpty
-        value={value[0]?.value || ""} // DÙNG VALUE, không dùng label
+        value={value[0]?.value || ""}
         onChange={handleChange}
         input={<OutlinedInput placeholder={title} />}
         renderValue={() => renderValue(value)}
@@ -46,11 +48,11 @@ function RadioSelect({ title, data, value = [], onChange }) {
         }}
       >
         {data.map(item => {
-          const isSelected = value[0]?.value === item.value; // so sánh với value
+          const isSelected = value[0]?.value === item.value;
           return (
             <MenuItem
               key={item.value}
-              value={item.value} // value của MenuItem = value object
+              value={item.value}
               sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: "200px" }}
             >
               <Radio
@@ -64,6 +66,19 @@ function RadioSelect({ title, data, value = [], onChange }) {
             </MenuItem>
           );
         })}
+        <MenuItem
+          value=""
+          sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: "200px" }}
+        >
+          <Radio
+            checked={!value || value.length === 0}
+            sx={{ p: 0.5, "&.Mui-checked": { color: "brand.main" } }}
+          />
+          <ListItemText
+            primary={defaultLabel}
+            sx={{ "& span": { fontSize: "0.9rem" } }}
+          />
+        </MenuItem>
       </Select>
     </FormControl>
   );

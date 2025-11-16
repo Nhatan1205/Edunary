@@ -20,17 +20,23 @@ function NoResult({searchValue = "",sx = {}}) {
           color: '#000000',
         }}
       >
-        Your search for "
-        <Box
-          component="span"
-          sx={{
-            color: 'brand.dark',
-            fontWeight: 600
-          }}
-        >
-          {searchValue}
-        </Box>
-        " didn't return any results.
+       {searchValue ? (
+          <>
+            Your search for "
+            <Box
+              component="span"
+              sx={{
+                color: 'brand.dark',
+                fontWeight: 600
+              }}
+            >
+              {searchValue}
+            </Box>
+            " didn't return any results.
+          </>
+        ) : (
+          "No Results Found"
+        )}
       </Typography>
     </Box>
   );

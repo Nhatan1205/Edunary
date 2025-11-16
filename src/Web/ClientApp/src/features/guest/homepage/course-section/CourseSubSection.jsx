@@ -1,10 +1,11 @@
 import { Col, Container, Row } from "reactstrap";
-import { Typography, Box, Skeleton, Button } from "@mui/material";
+import { Typography, Box, Button } from "@mui/material";
 import CourseCard from "./CourseCard";
 import UserCourseCard from "./UserCourseCard";
 import { PopoverProvider } from "../../../../context/PopoverContext";
 import { Link as RouterLink } from "react-router";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CourseSkeleton from "../../../../components/skeleton/CourseSkeleton";
 
 function CourseSubSection({ title, subtitle, courses,isLoading, type = "course", buttonText, buttonPath = ""}) {
   return (
@@ -71,11 +72,7 @@ function CourseSubSection({ title, subtitle, courses,isLoading, type = "course",
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => (
                 <Col xs={6} md={4} lg={3} className="mb-4" key={i}>
-                  <Skeleton
-                    variant="rectangular"
-                    height={160}
-                    sx={{ borderRadius: 2 }}
-                  />
+                  <CourseSkeleton height={320}/>
                 </Col>
               ))
             : courses.map((course, index) =>

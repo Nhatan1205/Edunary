@@ -35,6 +35,7 @@ public class Course : BaseAuditableEntity
 
     // Navigation properties
     public Category Category { get; set; } = null!;
+
     public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 
     public void UpdateTotalStudents()

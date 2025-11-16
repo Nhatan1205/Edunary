@@ -1,16 +1,8 @@
-import {
-  FormControl,
-  MenuItem,
-  Select,
-} from "@mui/material";
+import { FormControl, MenuItem, Select } from "@mui/material";
 
 function DefaultSelect({ data, value = [], onChange, defaultLabel = "All" }) {
   const handleChange = (event) => {
     const selectedValue = event.target.value;
-    if (selectedValue === "") {
-      onChange && onChange([]);
-      return;
-    }
     const selectedItem = data.find(item => item.value === selectedValue) || null;
     onChange && onChange(selectedItem ? [selectedItem] : []);
   };
@@ -18,20 +10,15 @@ function DefaultSelect({ data, value = [], onChange, defaultLabel = "All" }) {
   return (
     <FormControl size="small" sx={{ width: "auto", minWidth: "230px" }}>
       <Select
-        defaultValue={defaultLabel}
+        value={value[0]?.value || ""}
         onChange={handleChange}
+        displayEmpty
+        renderValue={() => value[0]?.label || defaultLabel}
         MenuProps={{
-          PaperProps: {
-            sx: {
-              mt: 1,
-              borderRadius: "8px",
-            }
-          },
+          PaperProps: { sx: { mt: 1, borderRadius: "8px" } },
           anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
           transformOrigin: { vertical: 'top', horizontal: 'left' },
-          MenuListProps: {
-            sx: { "& .MuiMenuItem-root.Mui-selected": { backgroundColor: "transparent !important" } },
-          },
+          MenuListProps: { sx: { "& .MuiMenuItem-root.Mui-selected": { backgroundColor: "transparent !important" } } },
         }}
         sx={{
           borderRadius: "24px",
@@ -40,17 +27,15 @@ function DefaultSelect({ data, value = [], onChange, defaultLabel = "All" }) {
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#858585" },
         }}
       >
-        {data.map(item => {
-          return (
-            <MenuItem
-              key={item.value}
-              value={item.value}
-              sx={{ display: "flex", alignItems: "center", gap: 1 }}
-            >
-                <strong>{item.label}</strong>
-            </MenuItem>
-          );
-        })}
+        {data.map(item => (
+          <MenuItem
+            key={item.value}
+            value={item.value}
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+          >
+            <strong>{item.label}</strong>
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
   );

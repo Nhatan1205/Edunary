@@ -34,7 +34,6 @@ public static class DependencyInjection
         });
 
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
-        services.Configure<AlgoliaSettings>(configuration.GetSection("AlgoliaSettings"));
 
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());

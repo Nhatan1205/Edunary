@@ -138,7 +138,7 @@ function FilterToolBar({categoryData}) {
         data={sortData}
         value={sortby}
         onChange={selected => updateQueryParam('sort', selected)}
-        defaultLabel="relevant"
+        defaultLabel="Most Relevant"
       />
     </div>
   );

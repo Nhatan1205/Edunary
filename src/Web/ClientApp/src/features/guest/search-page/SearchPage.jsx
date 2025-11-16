@@ -1,4 +1,4 @@
-import { Box, Pagination } from "@mui/material";
+import { Box} from "@mui/material";
 import SearchHeader from "./SearchHeader";
 import { Container } from "reactstrap";
 import SearchSection from "./search-section/SearchSection";
@@ -9,6 +9,7 @@ import useGetCourses from "../../../hooks/useGetCourses";
 import { getCourseSortBy, getPublishDate } from "../../../utils/helpers";
 import useGetCategories from "../../../hooks/useGetCategories";
 import { useState } from "react";
+import CustomPagination from "../../../components/pagination/CustomPagination";
 
 function buildFilterData(params){
   const filterData = [];
@@ -101,8 +102,6 @@ function getHeaderTitle(params,categories= []) {
         return "Popular Courses";
       case "highest_rated":
         return "Top Rated Courses";
-      case "relevant":
-        return "Relevant Courses";
       default:
         return "";
     }
@@ -135,19 +134,7 @@ function SearchPage() {
             <SearchSection coursesData={coursesData?.items} isLoading={isCourseDataLoading}/>
             {coursesData && coursesData.totalPages > 1 && (
               <div className="d-flex justify-content-center mt-4">
-                <Pagination
-                  count={coursesData.totalPages}
-                  page={pageNumber}
-                  onChange={handlePageChange}
-                  shape="rounded"
-                  size="large"
-                  sx={{
-                    "& .MuiPaginationItem-root.Mui-selected": {
-                      backgroundColor: "#3FCCB2",
-                      color: "#fff"
-                    },
-                  }}
-                />
+                <CustomPagination count={100} page={pageNumber} onChange={handlePageChange}/>
               </div>
             )}
             {(coursesData?.items?.length === 0) && <NoResult searchValue={query} sx={{mt: "80px",mb:"120px"}}/>}

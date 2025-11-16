@@ -5,6 +5,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useRef, useState } from "react";
 import DropDownSearch from "./drop-down-search/DropDownSearch";
 import { useNavigate } from "react-router";
+import useDebounce from "../../hooks/useDebounce";
 const Search = styled("div", {
   shouldForwardProp: (prop) => prop !== "isMobileExpanded",
 })(({ theme, isMobileExpanded }) => ({
@@ -84,6 +85,7 @@ const StyledInputBase = styled(InputBase, {
 
 function SearchBar({ isMobileExpanded = false, onClose }) {
   const [searchValue, setSearchValue] = useState("");
+  const debouncedSearch = useDebounce(searchValue, 1000); //delay 1s
   const [open, setOpen] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -150,7 +152,7 @@ function SearchBar({ isMobileExpanded = false, onClose }) {
         },
       }}
     >
-      <DropDownSearch searchValue={searchValue} handleClose={handleClear} />
+      <DropDownSearch searchValue={searchValue} debouncedValue={debouncedSearch} handleClose={handleClear} />
     </Popover>
   </>
 

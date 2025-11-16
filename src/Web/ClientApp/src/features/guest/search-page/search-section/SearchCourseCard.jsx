@@ -173,7 +173,8 @@ export default function SearchCourseCard({ course }) {
         </div>
       </CardContent>
     </Card>
-    <CoursePopoverMin
+    {course.learningObjectives && course.learningObjectives.length > 0 && (
+      <CoursePopoverMin
         open={open}
         anchorEl={anchorEl}
         course={course}
@@ -182,6 +183,7 @@ export default function SearchCourseCard({ course }) {
         anchorOrigin={popoverOrigins.anchorOrigin}
         transformOrigin={popoverOrigins.transformOrigin}
       />
+      )}
     </>
   );
 }

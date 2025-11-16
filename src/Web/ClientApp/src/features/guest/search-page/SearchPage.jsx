@@ -140,6 +140,7 @@ function SearchPage() {
                   page={pageNumber}
                   onChange={handlePageChange}
                   shape="rounded"
+                  size="large"
                   sx={{
                     "& .MuiPaginationItem-root.Mui-selected": {
                       backgroundColor: "#3FCCB2",

@@ -1,11 +1,13 @@
 ﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetCoursesWithPagination;
 public record GetCoursesWithPaginationQuery : IRequest<PaginatedList<GetCourseDto>>
 {
     public string SearchText { get; init; }
+    public CourseSortBy sortBy { get; init; }
     public List<FilterData> FilterData { get; init; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
@@ -27,9 +29,28 @@ public class GetCoursesWithPaginationQueryHandler : IRequestHandler<GetCoursesWi
     public async Task<PaginatedList<GetCourseDto>> Handle(GetCoursesWithPaginationQuery request, CancellationToken cancellationToken)
     {
         // base query
-        var query = _context.Courses
-            .OrderBy(x => x.Title)
-            .AsQueryable();
+        var query = _context.Courses.AsQueryable();
+
+        // sort courses
+        switch (request.sortBy)
+        {
+            case CourseSortBy.Newest:
+                query = query.OrderByDescending(x => x.Created);
+                break;
+
+            case CourseSortBy.Popular:
+                query = query.OrderByDescending(x => x.TotalStudents);
+                break;
+
+            case CourseSortBy.TopRated:
+                query = query.OrderByDescending(x => x.Ratings);
+                break;
+
+            case CourseSortBy.Relevant:
+            default:
+                query = query.OrderBy(x => x.Title);
+                break;
+        }
 
         // search courses based on title and subtitle
         if (!string.IsNullOrWhiteSpace(request.SearchText))

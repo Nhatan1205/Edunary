@@ -150,7 +150,7 @@ export default function SearchCourseCard({ course }) {
                 color: '#1c1d1f'
               }}
             >
-              ${course.price}
+              {course.price === 0 ? "Free" : `$${course.price}`}
             </Typography>
           </Box>
           <Box>

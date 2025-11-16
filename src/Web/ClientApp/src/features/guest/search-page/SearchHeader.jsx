@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { Container } from "reactstrap";
 
-function SearchHeader({ title = "llm", resultCount = 30 }) {
+function SearchHeader({ title, resultCount }) {
   return (
     <Container fluid className="px-3 px-md-4">
       <Box sx={{ py: 3 }}>
@@ -14,12 +14,12 @@ function SearchHeader({ title = "llm", resultCount = 30 }) {
             color: 'text.primary'
           }}
         >
-          Result for "{title}"
+          {title && title}
         </Typography>
         <Typography
           variant="h6"
           sx={{
-            fontSize: { xs: '0.75rem', md: '1rem' },
+            fontSize: { xs: '1rem', md: '1.25rem' },
             color: 'text.primary'
           }}
         >

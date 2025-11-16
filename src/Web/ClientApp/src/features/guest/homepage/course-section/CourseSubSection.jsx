@@ -1,10 +1,12 @@
 import { Col, Container, Row } from "reactstrap";
-import { Typography, Box, Skeleton } from "@mui/material";
+import { Typography, Box, Skeleton, Button } from "@mui/material";
 import CourseCard from "./CourseCard";
 import UserCourseCard from "./UserCourseCard";
 import { PopoverProvider } from "../../../../context/PopoverContext";
+import { Link as RouterLink } from "react-router";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-function CourseSubSection({ title, subtitle, courses,isLoading, type = "course" }) {
+function CourseSubSection({ title, subtitle, courses,isLoading, type = "course", buttonText, buttonPath = ""}) {
   return (
     <PopoverProvider>
       <Container>
@@ -21,17 +23,48 @@ function CourseSubSection({ title, subtitle, courses,isLoading, type = "course" 
           >
             {title}
           </Typography>
-          {subtitle && (
-            <Typography
-              variant="body1"
-              sx={{
-                color: "#666",
-                fontSize: "1rem",
-              }}
-            >
-              {subtitle}
-            </Typography>
-          )}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 1
+            }}
+          >
+            {subtitle && (
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#666",
+                  fontSize: "1rem",
+                  flex: 1,
+                  minWidth: { xs: '100%', sm: 'auto' }
+                }}
+              >
+                {subtitle}
+              </Typography>
+            )}
+            {buttonText && (
+              <Button
+                variant="text"
+                component={RouterLink}
+                to={buttonPath}
+                endIcon={<ArrowForwardIcon />}
+                sx={{
+                  color: 'brand.dark',
+                  fontSize: '1.2rem',
+                  fontWeight: 700,
+                  lineHeight: 1.2,
+                  '&:hover': {
+                    color: 'brand.darker',
+                  },
+                }}
+              >
+                {buttonText}
+              </Button>
+            )}
+          </Box>
         </Box>
 
         <Row>

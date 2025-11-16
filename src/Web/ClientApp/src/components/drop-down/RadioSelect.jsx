@@ -34,6 +34,12 @@ function RadioSelect({ title, data, value = [], onChange, defaultLabel = "All" }
         input={<OutlinedInput placeholder={title} />}
         renderValue={() => renderValue(value)}
         MenuProps={{
+          PaperProps: {
+            sx: {
+              mt: 1,
+              borderRadius: "8px",
+            }
+          },
           anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
           transformOrigin: { vertical: 'top', horizontal: 'left' },
           MenuListProps: {
@@ -48,7 +54,6 @@ function RadioSelect({ title, data, value = [], onChange, defaultLabel = "All" }
         }}
       >
         {data.map(item => {
-          const isSelected = value[0]?.value === item.value;
           return (
             <MenuItem
               key={item.value}
@@ -56,7 +61,7 @@ function RadioSelect({ title, data, value = [], onChange, defaultLabel = "All" }
               sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: "200px" }}
             >
               <Radio
-                checked={isSelected}
+                checked={value[0]?.value === item.value}
                 sx={{ p: 0.5, "&.Mui-checked": { color: "brand.main" } }}
               />
               <ListItemText

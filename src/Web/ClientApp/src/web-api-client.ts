@@ -2253,6 +2253,7 @@ export interface IGetCourseDto {
 
 export class GetCoursesWithPaginationQuery implements IGetCoursesWithPaginationQuery {
     searchText?: string | undefined;
+    sortBy?: CourseSortBy;
     filterData?: FilterData[] | undefined;
     pageNumber?: number;
     pageSize?: number;
@@ -2269,6 +2270,7 @@ export class GetCoursesWithPaginationQuery implements IGetCoursesWithPaginationQ
     init(_data?: any) {
         if (_data) {
             this.searchText = _data["searchText"];
+            this.sortBy = _data["sortBy"];
             if (Array.isArray(_data["filterData"])) {
                 this.filterData = [] as any;
                 for (let item of _data["filterData"])
@@ -2289,6 +2291,7 @@ export class GetCoursesWithPaginationQuery implements IGetCoursesWithPaginationQ
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["searchText"] = this.searchText;
+        data["sortBy"] = this.sortBy;
         if (Array.isArray(this.filterData)) {
             data["filterData"] = [];
             for (let item of this.filterData)
@@ -2302,9 +2305,17 @@ export class GetCoursesWithPaginationQuery implements IGetCoursesWithPaginationQ
 
 export interface IGetCoursesWithPaginationQuery {
     searchText?: string | undefined;
+    sortBy?: CourseSortBy;
     filterData?: FilterData[] | undefined;
     pageNumber?: number;
     pageSize?: number;
+}
+
+export enum CourseSortBy {
+    Relevant = 0,
+    Newest = 1,
+    Popular = 2,
+    TopRated = 3,
 }
 
 export class FilterData implements IFilterData {

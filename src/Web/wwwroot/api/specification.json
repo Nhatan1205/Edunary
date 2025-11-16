@@ -1593,6 +1593,9 @@
             "type": "string",
             "nullable": true
           },
+          "sortBy": {
+            "$ref": "#/components/schemas/CourseSortBy"
+          },
           "filterData": {
             "type": "array",
             "nullable": true,
@@ -1609,6 +1612,22 @@
             "format": "int32"
           }
         }
+      },
+      "CourseSortBy": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Relevant",
+          "Newest",
+          "Popular",
+          "TopRated"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
       "FilterData": {
         "type": "object",

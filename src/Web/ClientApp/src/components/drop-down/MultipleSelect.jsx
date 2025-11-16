@@ -60,6 +60,12 @@ function MultipleSelect({ title, data,value=[], onChange }) {
         input={<OutlinedInput placeholder={title} />}
         renderValue={renderValue}
         MenuProps={{
+          PaperProps: {
+            sx: {
+              mt: 1,
+              borderRadius: "8px",
+            }
+          },
           anchorOrigin: {
             vertical: 'bottom',
             horizontal: 'left',
@@ -90,7 +96,6 @@ function MultipleSelect({ title, data,value=[], onChange }) {
         }}
       >
         {data.map((item) => {
-          const isSelected = value.some(v => v.label === item.label);
           return (
             <MenuItem
               key={item.label}
@@ -103,10 +108,9 @@ function MultipleSelect({ title, data,value=[], onChange }) {
               }}
             >
               <Checkbox
-                checked={isSelected}
+                checked={value.some(v => v.label === item.label)}
                 sx={{
                   p: 0.5,
-                  color: isSelected ? "brand.main" : undefined,
                   "&.Mui-checked": {
                     color: "brand.main",
                   },

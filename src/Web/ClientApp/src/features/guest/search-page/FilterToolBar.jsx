@@ -1,7 +1,7 @@
 import MultipleSelect from '../../../components/drop-down/MultipleSelect';
 import RadioSelect from '../../../components/drop-down/RadioSelect';
 import { useSearchParams } from 'react-router';
-import useGetCategories from '../../../hooks/useGetCategories';
+import DefaultSelect from '../../../components/drop-down/DefaultSelect';
 
 const priceData = [
   { label: "Paid", value: "paid" },
@@ -29,9 +29,15 @@ const publishDateData = [
   { label: "Past Year", value: "in_last_year" },
 ];
 
-function FilterToolBar() {
+const sortData = [
+  { label: "Most Relevant", value: "relevant" },
+  { label: "Most Recent", value: "newest" },
+  { label: "Number of Students", value: "num_students" },
+  { label: "Highest Rated", value: "highest_rated" },
+];
+
+function FilterToolBar({categoryData}) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data: categoryData } = useGetCategories(1,10);
   //convert category
   const categories = categoryData?.items?.map(cat => ({
     label: cat.title,
@@ -59,16 +65,19 @@ function FilterToolBar() {
   const selectedCategories = searchParams.getAll("category")
     .map(val => categories.find(item => item.value === val))
     .filter(Boolean);
+  
+  const sortby = searchParams.getAll("sort")
+    .map(val => sortData.find(item => item.value === val))
+    .filter(Boolean);
 
   const updateQueryParam = (key, selectedItems) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    // xóa các query cũ của key
     params.delete(key);
 
     if (selectedItems && selectedItems.length > 0) {
       selectedItems.forEach(item => {
-        params.append(key, item.value); // append từng item riêng
+        params.append(key, item.value);
       });
     }
 
@@ -78,43 +87,58 @@ function FilterToolBar() {
   return (
     <div style={{
       display: 'flex',
-      gap: '12px',
+      justifyContent: 'space-between',
       alignItems: 'center',
       padding: '16px',
-      flexWrap: 'wrap'
+      flexWrap: 'wrap',
+      gap: '12px'
     }}>
-      <RadioSelect
-        title="Price"
-        data={priceData}
-        value={price}
-        onChange={selected => updateQueryParam('price', selected)}
-        defaultLabel='Any Price'
-      />
-      <RadioSelect
-        title="Ratings"
-        data={ratingsData}
-        value={ratings}
-        onChange={selected => updateQueryParam('ratings', selected)}
-        defaultLabel='Any Rating'
-      />
-      <MultipleSelect
-        title="Level"
-        data={levelsData}
-        value={levels}
-        onChange={selected => updateQueryParam('instructional_level', selected)}
-      />
-      <RadioSelect
-        title="Publish Date"
-        data={publishDateData}
-        value={publishDate}
-        onChange={selected => updateQueryParam('time', selected)}
-        defaultLabel='All Time'
-      />
-      <MultipleSelect
-        title="Category"
-        data={categories}
-        value={selectedCategories}
-        onChange={selected => updateQueryParam('category', selected)}
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
+        <RadioSelect
+          title="Price"
+          data={priceData}
+          value={price}
+          onChange={selected => updateQueryParam('price', selected)}
+          defaultLabel='Any Price'
+        />
+        <RadioSelect
+          title="Ratings"
+          data={ratingsData}
+          value={ratings}
+          onChange={selected => updateQueryParam('ratings', selected)}
+          defaultLabel='Any Rating'
+        />
+        <MultipleSelect
+          title="Level"
+          data={levelsData}
+          value={levels}
+          onChange={selected => updateQueryParam('instructional_level', selected)}
+        />
+        <RadioSelect
+          title="Publish Date"
+          data={publishDateData}
+          value={publishDate}
+          onChange={selected => updateQueryParam('time', selected)}
+          defaultLabel='All Time'
+        />
+        <MultipleSelect
+          title="Category"
+          data={categories}
+          value={selectedCategories}
+          onChange={selected => updateQueryParam('category', selected)}
+        />
+      </div>
+
+      <DefaultSelect
+        data={sortData}
+        value={sortby}
+        onChange={selected => updateQueryParam('sort', selected)}
+        defaultLabel="relevant"
       />
     </div>
   );

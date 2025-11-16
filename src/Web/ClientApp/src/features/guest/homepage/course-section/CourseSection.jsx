@@ -24,6 +24,7 @@ function CourseSection() {
             courses={courseStudentData?.items ?? []}
             isLoading={isCourseStudentLoading}
             type="user"
+            buttonText="My Learning"
           />
         )}
         <CourseSubSection
@@ -32,6 +33,8 @@ function CourseSection() {
           courses={courseData?.newCourses ?? []}
           isLoading={isCourseLoading}
           type="course"
+          buttonText="View All Trending Courses"
+          buttonPath="/course/search?sort=newest"
         />
         <CourseSubSection
           title="Most Popular Courses"
@@ -39,6 +42,8 @@ function CourseSection() {
           courses={courseData?.popularCourses ?? []}
           isLoading={isCourseLoading}
           type="course"
+          buttonText="View All Popular Courses"
+          buttonPath="/course/search?sort=num_students"
         />
         <CourseSubSection
           title="Recommended to you based on ratings"
@@ -46,6 +51,8 @@ function CourseSection() {
           courses={courseData?.topRatedCourses ?? []}
           isLoading={isCourseLoading}
           type="course"
+          buttonText="View All Top Rated Courses"
+          buttonPath="/course/search?sort=highest_rated"
         />
       </Box>
   );

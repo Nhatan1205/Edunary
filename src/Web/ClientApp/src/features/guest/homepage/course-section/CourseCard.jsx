@@ -169,20 +169,8 @@ function CourseCard({ course }) {
                 fontSize: "1.1rem",
               }}
             >
-              ${price}
+              {price === 0 ? "Free" : `$${price}`}
             </Typography>
-            {price && (
-              <Typography
-                variant="body2"
-                sx={{
-                  textDecoration: "line-through",
-                  color: "#999",
-                  fontSize: "0.9rem",
-                }}
-              >
-                ${price}
-              </Typography>
-            )}
           </Box>
         </CardContent>
       </Card>

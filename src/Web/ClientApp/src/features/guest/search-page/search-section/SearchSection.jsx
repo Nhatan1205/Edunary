@@ -1,7 +1,7 @@
 import { Col, Container, Row } from "reactstrap";
 import SearchCourseCard from "./SearchCourseCard";
 import { PopoverProvider } from "../../../../context/PopoverContext";
-import { Skeleton } from "@mui/material";
+import { Pagination, Skeleton } from "@mui/material";
 
 function SearchSection({ coursesData, isLoading }) {
   return (

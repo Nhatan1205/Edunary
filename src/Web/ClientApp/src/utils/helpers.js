@@ -1,3 +1,17 @@
+const LEVEL_MAP = {
+  0: "Beginner",
+  1: "Intermediate",
+  2: "Advanced",
+  3: "All Levels"
+};
+
+const CourseSortBy = {
+  Relevant: 0,
+  Newest: 1,
+  Popular: 2,
+  TopRated: 3,
+};
+
 export function formatTimeAgo(date) {
   const now = new Date();
   const createdDate = new Date(date);
@@ -18,13 +32,6 @@ export function formatTimeAgo(date) {
     return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
   }
 }
-
-const LEVEL_MAP = {
-  0: "Beginner",
-  1: "Intermediate",
-  2: "Advanced",
-  3: "All Levels"
-};
 
 export function getLevelLabel(value) {
   return LEVEL_MAP[value] || "Unknown";
@@ -57,3 +64,17 @@ export function getPublishDate(timeValue) {
   pastDate.setHours(0, 0, 0, 0);
   return pastDate.toISOString();
 };
+
+export function getCourseSortBy(value) {
+  switch (value) {
+    case "newest":
+      return CourseSortBy.Newest;
+    case "num_students":
+      return CourseSortBy.Popular;
+    case "highest_rated":
+      return CourseSortBy.TopRated;
+    case "relevant":
+    default:
+      return CourseSortBy.Relevant;
+  }
+}

@@ -12,6 +12,15 @@ const CourseSortBy = {
   TopRated: 3,
 };
 
+const CourseManagementSortBy = {
+  Newest: 0,
+  Oldest: 1,
+  TitleAscending: 2,
+  TitleDescending: 3,
+  PublishedFirst: 4,
+  UnpublishedFirst: 5,
+};
+
 export function formatTimeAgo(date) {
   const now = new Date();
   const createdDate = new Date(date);
@@ -76,5 +85,23 @@ export function getCourseSortBy(value) {
     case "relevant":
     default:
       return CourseSortBy.Relevant;
+  }
+}
+
+export function getCourseManagementSortBy(value) {
+  switch (value) {
+    case "oldest":
+      return CourseManagementSortBy.Oldest;
+    case "titleascending":
+      return CourseManagementSortBy.TitleAscending;
+    case "titledescending":
+      return CourseManagementSortBy.TitleDescending;
+    case "publishedfirst":
+      return CourseManagementSortBy.PublishedFirst;
+    case "unpublishedFirst":
+      return CourseManagementSortBy.UnpublishedFirst;
+    case "newest":
+    default:
+      return CourseManagementSortBy.Newest;
   }
 }

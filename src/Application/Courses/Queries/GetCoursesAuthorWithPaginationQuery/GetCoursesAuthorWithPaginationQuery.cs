@@ -4,11 +4,14 @@ using System.Linq;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 
 namespace Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 public class GetCoursesAuthorWithPaginationQuery : IRequest<PaginatedList<GetCoursesAuthorDto>>
 {
+    public string SearchText { get; init; }
+    public CourseManagementSortBy sortBy { get; init; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
 }
@@ -28,9 +31,47 @@ public class GetCoursesAuthorWithPaginationQueryHandler : IRequestHandler<GetCou
     public async Task<PaginatedList<GetCoursesAuthorDto>> Handle(GetCoursesAuthorWithPaginationQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
-        return await _context.Courses
+
+        //base query
+        var query = _context.Courses
             .Where(c => c.CreatedBy == userId)
-            .OrderBy(x => x.Title)
+            .AsQueryable();
+
+        //sort courses
+        switch(request.sortBy)
+        {
+            case CourseManagementSortBy.Oldest:
+                query = query.OrderBy(x => x.Created);
+                break;
+            case CourseManagementSortBy.TitleAscending:
+                query = query.OrderBy(x => x.Title);
+                break;
+            case CourseManagementSortBy.TitleDescending:
+                query = query.OrderByDescending(x=> x.Title);
+                break;
+            case CourseManagementSortBy.PublishedFirst:
+                query = query.OrderByDescending(x => x.Status)
+                            .ThenBy(x => x.Title);
+                break;
+            case CourseManagementSortBy.UnpublishedFirst:
+                query = query.OrderBy(x => x.Status)
+                            .ThenBy(x => x.Title);
+                break;
+            case CourseManagementSortBy.Newest:
+            default:
+                query = query.OrderByDescending(x => x.Created);
+                break;
+
+        }
+
+        // search courses based on title
+        if (!string.IsNullOrWhiteSpace(request.SearchText))
+        {
+            string search = request.SearchText.Trim().ToLower();
+            query = query.Where(c => c.Title.ToLower().Contains(search));
+        }
+
+        return await query
             .ProjectTo<GetCoursesAuthorDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
     }

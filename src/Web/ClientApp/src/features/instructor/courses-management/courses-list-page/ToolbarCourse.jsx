@@ -1,24 +1,56 @@
 import {
   TextField,
   Button,
-  Select,
-  MenuItem,
-  FormControl,
   InputAdornment,
   Box,
   IconButton,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router";
+import { Link as RouterLink, useSearchParams } from "react-router";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import DefaultSelect from "../../../../components/drop-down/DefaultSelect";
+import { useState } from "react";
 
-function ToolbarCourse({
-  searchInput,
-  filter,
-  onSearchInputChange,
-  onSearchClick,
-  onFilterChange,
-}) {
+const sortData = [
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+  { label: "A-Z", value: "titleascending" },
+  { label: "Z-A", value: "titledescending" },
+  { label: "Published first", value: "publishedfirst" },
+  { label: "Unpublished first", value: "unpublishedFirst" },
+];
+
+function ToolbarCourse() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [keyword, setKeyword] = useState(() => {
+    return decodeURIComponent(searchParams.get("query") || "");
+  });
+  const sortby = searchParams.getAll("ordering")
+    .map(val => sortData.find(item => item.value === val))
+    .filter(Boolean);
+  function handleSearch() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("query");
+    if (keyword.trim() !== "") {
+      params.append("query", encodeURIComponent(keyword.trim()));
+    }
+    setSearchParams(params);
+  }
+
+  function updateQueryParam(key, selectedItems) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.delete(key);
+
+    if (selectedItems && selectedItems.length > 0) {
+      selectedItems.forEach(item => {
+        params.append(key, item.value);
+      });
+    }
+
+    setSearchParams(params);
+  };
+
   return (
     <Box
       sx={{
@@ -30,10 +62,15 @@ function ToolbarCourse({
         {/* Left section: Search bar and Filter */}
         <div className="d-flex flex-column flex-sm-row gap-3 w-100 w-md-auto">
           <TextField
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
             size="small"
             placeholder="Search your courses"
-            value={searchInput}
-            onChange={onSearchInputChange}
             slotProps={{
               input: {
                 startAdornment: (
@@ -50,9 +87,9 @@ function ToolbarCourse({
           />
 
           <IconButton
+            onClick={handleSearch}
             size={"medium"}
             aria-label="show cart items"
-            onClick={onSearchClick}
             sx={{
               color: "text.inverse",
               padding: "6px",
@@ -66,34 +103,12 @@ function ToolbarCourse({
             <SearchIcon sx={{ fontSize: "24px" }} />
           </IconButton>
 
-          <FormControl
-            size="small"
-            sx={{
-              width: { xs: "100%", sm: "140px" },
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "brand.main",
-              },
-              "&:hover": {
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "brand.main",
-                },
-              },
-            }}
-          >
-            <Select
-              value={filter}
-              onChange={onFilterChange}
-              sx={{
-                backgroundColor: "white",
-                color: "brand.main",
-              }}
-            >
-              <MenuItem value="newest">Newest</MenuItem>
-              <MenuItem value="oldest">Oldest</MenuItem>
-              <MenuItem value="title">Title A-Z</MenuItem>
-              <MenuItem value="status">Status</MenuItem>
-            </Select>
-          </FormControl>
+          <DefaultSelect
+            data={sortData}
+            value={sortby}
+            onChange={selected => updateQueryParam('ordering', selected)}
+            defaultLabel="Newest"
+          />
         </div>
 
         {/* Right section: New course button */}

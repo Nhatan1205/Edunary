@@ -4,7 +4,7 @@ import AlertBox from "../../../../../components/AlertBox";
 
 function CourseAccessiblity() {
   return (
-  <Container className="py-4">
+  <Container className="py-2">
       <AlertBox severity="info" title="Create accessible learning content" sx={{borderRadius: 6,borderColor: "divider",py: 3}}>
         <Typography variant="body2" sx={{ mb: 1, color: "text.primary" }}>
           Accessibility provides a person with a disability access to — and benefits of — the same information, interactions, and services as a person without a disability in a way that’s sensible, meaningful, and usable. In short, it’s the inclusive practice of ensuring there are no barriers to learning for as many people as possible.

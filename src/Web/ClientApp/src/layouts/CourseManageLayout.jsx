@@ -1,14 +1,15 @@
 import { Divider, Paper } from "@mui/material";
 import CourseManageHeader from "../features/instructor/courses-management/course-manage-page/CourseManageHeader";
 import CourseManageSidebar from "../features/instructor/courses-management/course-manage-page/CourseManageSidebar";
-import { Outlet, useParams } from "react-router";
+import { Outlet, useParams, useLocation } from "react-router";
 import { Col, Container, Row } from "reactstrap";
 import PageTitle from "../components/PageTitle";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 function CourseManageLayout() {
   const [activeLabel, setActiveLabel] = useState("Course landing page");
   const { courseId } = useParams();
+  const location = useLocation();
   const sections = useMemo(
     () => [
       {
@@ -57,12 +58,24 @@ function CourseManageLayout() {
     [courseId],
   );
 
+  useEffect(() => {
+    const currentPath = location.pathname;
+    
+    for (const section of sections) {
+      const foundItem = section.items.find(item => item.path === currentPath);
+      if (foundItem) {
+        setActiveLabel(foundItem.label);
+        break;
+      }
+    }
+  }, [location.pathname, sections]);
+
   return (
     <div className="d-flex flex-column vh-100">
       <CourseManageHeader />
       <Container fluid className="flex-grow-1 py-4">
         <Row className="justify-content-center">
-          <Col xs="12" md="10" lg="9">
+          <Col xs="12" md="11" lg="10">
             <div className="d-flex" style={{ marginTop: "70px" }}>
               <CourseManageSidebar
                 sections={sections}
@@ -80,8 +93,12 @@ function CourseManageLayout() {
                     py: 4,
                   }}
                 >
-                  <PageTitle title={activeLabel} />
-                  <Divider sx={{ mb: 3 }} />
+                  {(activeLabel !== "Curriculum" ) && (
+                    <>
+                      <PageTitle title={activeLabel} />
+                      <Divider sx={{ mb: 3 }} />
+                    </>
+                  )}
                   <Outlet />
                 </Paper>
               </div>

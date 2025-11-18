@@ -28,6 +28,7 @@ public class Course : BaseAuditableEntity
     public float Price { get; set; }
 
     public int CategoryId { get; set; }
+    public string Content { get; set; }
 
     public float Ratings { get; set; }
 
@@ -37,6 +38,8 @@ public class Course : BaseAuditableEntity
     public Category Category { get; set; } = null!;
 
     public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+
+    public ICollection<CourseContent> Contents { get; set; } = new List<CourseContent>();
 
     public void UpdateTotalStudents()
     {

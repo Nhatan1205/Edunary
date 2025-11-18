@@ -8,4 +8,7 @@ public interface IUploadFileService
 {
     Task<string> UploadImageToCloudinary(string img, string imgId);
     Task<bool> DeleteImageInCloudinary(string imgId);
+    Task<string> UploadFileToSpacesAsync(Stream fileStream, string fileName, string contentType);
+    Task<bool> DeleteFileFromSpacesAsync(string fileName);
+    string GeneratePresignedUrl(string fileName, string contentType);
 }

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Edunary.Application.Common.Interfaces;
@@ -52,6 +54,21 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
             _context.Courses.Add(entity);
 
             var result = await _context.SaveChangesAsync(cancellationToken);
+
+            StreamReader reader = new StreamReader(string.Concat(Environment.CurrentDirectory, "/sampletemplate/createDefaultCourseContent.json"));
+            string sampleText = reader.ReadToEnd();
+            var createDefaultContent = JsonSerializer.Deserialize<JsonElement>(sampleText);
+            var courseContent = new
+            {
+                id = entity.Id.ToString(),   
+                title = entity.Title,
+                contents = new[] { createDefaultContent },
+                nextSectionId = 2,
+                nextItemId = 2
+            };
+            string contentJsonToSave = JsonSerializer.Serialize(courseContent);
+            entity.Content = contentJsonToSave;
+            await _context.SaveChangesAsync(cancellationToken);
 
             var dto = _mapper.Map<CreatedCourseDto>(entity);
 

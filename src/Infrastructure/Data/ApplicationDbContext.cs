@@ -28,6 +28,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<NotificationUser> NotificationUsers => Set<NotificationUser>();
 
+    public DbSet<CourseContent> CourseContents => Set<CourseContent>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

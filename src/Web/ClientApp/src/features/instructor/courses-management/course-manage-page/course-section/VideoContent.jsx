@@ -80,6 +80,11 @@ function VideoContent({ item, onUpdate, onCancel }) {
     const seconds = Math.floor(duration % 60);
     const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     setVideoDuration(formattedDuration);
+    if (onUpdate) {
+      onUpdate(item.itemId, { 
+        videoDuration: formattedDuration
+      });
+    }
   };
 
   const handleUploadFile = async (file, override = false) => {
@@ -239,7 +244,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
       onUpdate(item.itemId, { 
         content: null,
         contentType: null,
-        videoId: null
+        videoId: null,
+        videoDuration: null
       });
     }
     if (onCancel) {

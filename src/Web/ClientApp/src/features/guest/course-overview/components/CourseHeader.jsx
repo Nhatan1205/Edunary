@@ -1,5 +1,6 @@
-import { Box, Typography, Rating, Chip, Stack } from '@mui/material'
-import { Schedule, TrendingUp, Update, Language } from '@mui/icons-material'
+import { Box, Typography, Rating, Chip, Stack} from '@mui/material'
+import { Schedule, TrendingUp, Update, Language, Check } from '@mui/icons-material'
+import { Container} from 'reactstrap'
 
 const CourseHeader = ({ courseData }) => {
   return (
@@ -49,10 +50,10 @@ const CourseHeader = ({ courseData }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3, flexWrap: 'wrap' }}>
         <Typography 
           variant="body1" 
-          color="brand.main" 
+          color="text.primary" 
           sx={{ fontWeight: 600 }}
         >
-          Created by {courseData.instructor}
+          Created by {courseData.instructorName}
         </Typography>
         
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -131,19 +132,98 @@ const CourseHeader = ({ courseData }) => {
         />
       </Stack>
 
-      {courseData.learningObjectives && (
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            color: 'text.secondary',
-            fontStyle: 'italic',
-            lineHeight: 1.6,
-            maxWidth: '600px'
+      <Container className="py-4 px-0 bord">
+        <Box
+          sx={{
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1,
+            padding: "32px",
+            backgroundColor: "white",
           }}
         >
-          {courseData.learningObjectives}
-        </Typography>
-      )}
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 700,
+              marginBottom: 3,
+              fontSize: '24px',
+              color: '#1c1d1f'
+            }}
+          >
+            What you'll learn
+          </Typography>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {Array.from({ 
+                length: Math.ceil(courseData?.learningObjectives.length / 2) 
+              }).map((_, rowIndex) => {
+                const leftItem = courseData?.learningObjectives[rowIndex];
+                const rightItem = courseData?.learningObjectives[rowIndex + Math.ceil(courseData?.learningObjectives.length / 2)];
+                
+                return (
+                  <tr key={rowIndex}>
+                    <td style={{ 
+                      width: '50%', 
+                      padding: '6px 16px 6px 0',
+                      verticalAlign: 'top'
+                    }}>
+                      {leftItem && (
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                          <Check
+                            sx={{
+                              fontSize: '16px',
+                              mr: 1.5,
+                              mt: '2px',
+                              flexShrink: 0,
+                              color: '#1c1d1f'
+                            }}
+                          />
+                          <span 
+                            dangerouslySetInnerHTML={{ __html: leftItem }}
+                            style={{
+                              fontSize: '14px',
+                              lineHeight: '1.4',
+                              color: '#1c1d1f'
+                            }}
+                          />
+                        </Box>
+                      )}
+                    </td>
+                    <td style={{ 
+                      width: '50%', 
+                      padding: '6px 0 6px 16px',
+                      verticalAlign: 'top'
+                    }}>
+                      {rightItem && (
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                          <Check
+                            sx={{
+                              fontSize: '16px',
+                              mr: 1.5,
+                              mt: '2px',
+                              flexShrink: 0,
+                              color: '#1c1d1f'
+                            }}
+                          />
+                          <span 
+                            dangerouslySetInnerHTML={{ __html: rightItem }}
+                            style={{
+                              fontSize: '14px',
+                              lineHeight: '1.4',
+                              color: '#1c1d1f'
+                            }}
+                          />
+                        </Box>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </Box>
+      </Container>
     </Box>
   )
 }

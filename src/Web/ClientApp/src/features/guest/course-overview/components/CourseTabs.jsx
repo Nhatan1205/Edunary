@@ -45,7 +45,43 @@ const CourseTabs = ({ courseData, reviews }) => {
         About This Course
       </Typography>
       
+      {courseData.requirements && (
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              mb: 2,
+            }}
+          >
+            Requirements
+          </Typography>
+
+          <Box component="ul" sx={{ pl: 3}}>
+            {courseData.requirements.map((req, index) => (
+              <Typography
+                key={index}
+                component="li"
+                variant="body1"
+                sx={{ lineHeight: 1.7, mb: 1 }}
+              >
+                {req}
+              </Typography>
+            ))}
+          </Box>
+        </Box>
+      )}
       {courseData.description && (
+        <Box sx={{ mb: 4 }}>
+        <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              mb: 2,
+            }}
+          >
+            Description
+          </Typography>
         <Typography
           variant="body1"
           sx={{
@@ -57,107 +93,35 @@ const CourseTabs = ({ courseData, reviews }) => {
             __html: DOMPurify.sanitize(courseData.description),
           }}
         />
-      )}
-
-
-      {courseData.welcomeMessage && (
-        <Box sx={{ mb: 4 }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600, 
-              mb: 2,
-              color: 'text.primary'
-            }}
-          >
-            Welcome Message
-          </Typography>
-          <Typography 
-            variant="body1" 
-            sx={{ 
-              lineHeight: 1.7, 
-              color: 'text.secondary',
-              fontStyle: 'italic',
-              p: 2,
-              bgcolor: 'background.alt',
-              borderRadius: 1,
-              borderLeft: '4px solid',
-              borderColor: 'brand.main'
-            }}
-          >
-            {courseData.welcomeMessage}
-          </Typography>
         </Box>
       )}
 
-      <Box sx={{ mb: 4 }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 2,
-            color: 'text.primary'
-          }}
-        >
-          What You'll Learn
-        </Typography>
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            lineHeight: 1.7, 
-            color: 'text.secondary'
-          }}
-        >
-          {courseData.learningObjectives}
-        </Typography>
-      </Box>
-
-      {courseData.requirements && (
-        <Box sx={{ mb: 4 }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600, 
+      {courseData.targetAudience && (
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
               mb: 2,
-              color: 'text.primary'
             }}
           >
-            Requirements
+            Who this course is for:
           </Typography>
-          <Typography 
-            variant="body1" 
-            sx={{ 
-              lineHeight: 1.7, 
-              color: 'text.secondary'
-            }}
-          >
-            {courseData.requirements}
-          </Typography>
+
+          <Box component="ul" sx={{ pl: 3}}>
+            {courseData.targetAudience.map((text, index) => (
+              <Typography
+                key={index}
+                component="li"
+                variant="body1"
+                sx={{ lineHeight: 1.7, mb: 1 }}
+              >
+                {text}
+              </Typography>
+            ))}
+          </Box>
         </Box>
       )}
-
-      <Box>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 2,
-            color: 'text.primary'
-          }}
-        >
-          Who This Course Is For
-        </Typography>
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            lineHeight: 1.7, 
-            color: 'text.secondary'
-          }}
-        >
-          This course is perfect for beginners who want to learn {courseData.topic.toLowerCase()} from scratch, 
-          as well as intermediate learners looking to strengthen their foundation and learn best practices.
-        </Typography>
-      </Box>
     </Box>
   )
 

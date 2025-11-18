@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router'
 import { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import CourseHeader from './components/CourseHeader'
-import CourseThumbnail from './components/CourseThumbnail'
 import CourseSidebar from './components/CourseSidebar'
 import CourseTabs from './components/CourseTabs'
 import useGetPublicCourseById from '../../../hooks/useGetPublicCourseById'
@@ -36,6 +35,8 @@ const CourseOverview = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const { data: courseData, isLoading, isError, error } = useGetPublicCourseById(id)
+
+  console.log("course",courseData);
 
   useEffect(() => {
     if (!isLoading && (isError || !courseData?.id)) {
@@ -105,7 +106,7 @@ const CourseOverview = () => {
           {/* Left Column - Main Content */}
           <Box sx={{ minWidth: 0 }}> {/* minWidth: 0 prevents grid overflow */}
             {/* Course Thumbnail */}
-            <CourseThumbnail image={transformedCourseData.image} title={transformedCourseData.title} />
+            {/* <CourseThumbnail image={transformedCourseData.image} title={transformedCourseData.title} /> */}
             
             {/* Course Header */}
             <CourseHeader courseData={transformedCourseData} />

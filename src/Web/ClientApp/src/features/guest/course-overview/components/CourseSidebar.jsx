@@ -2,7 +2,6 @@ import {
   Box,
   Typography,
   Button,
-  Chip,
   Paper,
   List,
   ListItem,
@@ -12,18 +11,14 @@ import {
   Stack
 } from '@mui/material'
 import { 
-  FavoriteBorder, 
-  Schedule, 
-  Language, 
-  MenuBook, 
-  VideoLibrary, 
-  PlayArrow,
-  Assignment,
-  Quiz,
-  GetApp,
-  PhonelinkSetup,
+  PlayCircleOutline,
+  Schedule,
+  Description,
+  PhoneAndroid,
   AllInclusive,
-  EmojiEvents
+  ClosedCaption,
+  RecordVoiceOver,
+  EmojiEvents,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
@@ -35,7 +30,6 @@ const CourseSidebar = ({ courseData }) => {
   const { isEnrolled, loading } = useEnrollmentStatus(courseData.id)
 
   const handleBuyNow = () => {
-    // Navigate to checkout with course data
     navigate('/payment/checkout', {
       state: {
         courses: [{
@@ -54,268 +48,301 @@ const CourseSidebar = ({ courseData }) => {
   const handleGoToCourse = () => {
     navigate(`/course/${courseData.id}/learn`)
   }
+
   return (
     <Box sx={{ width: '100%', maxWidth: 380 }}>
       <Paper 
         elevation={0}
         sx={{ 
-          p: 3, 
-          mb: 3,
-          bgcolor: 'background.paper',
           border: '1px solid',
           borderColor: 'divider',
-          borderRadius: 2,
+          borderRadius: 1,
+          overflow: 'hidden',
           position: 'sticky',
           top: 24
         }}
       >
-        {/* Pricing */}
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-            <Typography 
-              variant="h3" 
-              sx={{ 
-                fontWeight: 700,
-                color: 'text.primary'
-              }}
-            >
-              US${courseData.currentPrice}
-            </Typography>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                textDecoration: 'line-through', 
-                color: 'text.tertiary' 
-              }}
-            >
-              ${courseData.originalPrice}
-            </Typography>
-          </Box>
-          <Chip
-            label={`${courseData.discount}% OFF`}
+        {/* Course Preview Image */}
+        <Box 
+          sx={{ 
+            position: 'relative',
+            width: '100%',
+            paddingTop: '56.25%', // 16:9 aspect ratio
+            backgroundColor: '#f7f9fa',
+            overflow: 'hidden'
+          }}
+        >
+          <Box
+            component="img"
+            src={courseData.imageUrl}
+            alt={courseData.title}
             sx={{
-              backgroundColor: 'brand.main',
-              color: 'text.inverse',
-              fontWeight: 600,
-              mb: 2,
-              px: 1,
-              '& .MuiChip-label': {
-                fontSize: '0.875rem'
-              }
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
             }}
-          />
+          />  
         </Box>
 
-        {/* Action Buttons */}
-        <Box sx={{ mb: 4 }}>
-          {isAuthenticated && isEnrolled ? (
-            // User is enrolled - show "Go to Course" button
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={handleGoToCourse}
-              startIcon={<PlayArrow />}
-              sx={{
-                py: 1.5,
-                mb: 2,
-                fontWeight: 600,
-                backgroundColor: 'brand.main',
-                color: 'text.inverse',
-                '&:hover': {
-                  backgroundColor: 'brand.dark',
-                },
-                borderRadius: 1.5,
-                textTransform: 'none'
+        {/* Content */}
+        <Box sx={{ p: 3 }}>
+          {/* Pricing */}
+          <Box sx={{ mb: 3 }}>
+            <Typography 
+              variant="h4" 
+              sx={{ 
+                fontWeight: 700,
+                color: 'text.primary',
+                mb: 1
               }}
             >
-              Go to Course
-            </Button>
-          ) : (
-            // User is not enrolled or not authenticated - show buy/wishlist buttons
-            <>
+              US${courseData.currentPrice}  
+            </Typography>
+          </Box>
+
+          {/* Action Buttons */}
+          <Box sx={{ mb: 2 }}>
+            {isAuthenticated && isEnrolled ? (
               <Button
                 variant="contained"
                 fullWidth
-                onClick={handleBuyNow}
+                onClick={handleGoToCourse}
                 disabled={loading}
                 sx={{
                   py: 1.5,
-                  mb: 2,
+                  mb: 1.5,
                   fontWeight: 600,
                   backgroundColor: 'brand.main',
-                  color: 'text.inverse',
+                  color: 'white',
                   '&:hover': {
                     backgroundColor: 'brand.dark',
                   },
-                  borderRadius: 1.5,
-                  textTransform: 'none'
-                }}
-              >
-                {loading ? 'Checking...' : 'Buy Now'}
-              </Button>
-              <Button
-                variant="outlined"
-                fullWidth
-                startIcon={<FavoriteBorder />}
-                disabled={loading}
-                sx={{
-                  py: 1.5,
-                  borderColor: 'brand.main',
-                  color: 'brand.main',
-                  fontWeight: 500,
-                  borderRadius: 1.5,
+                  borderRadius: 0,
                   textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: 'brand.lighter',
-                    borderColor: 'brand.main',
-                  }
+                  fontSize: '1rem'
                 }}
               >
-                Wishlist
+                Go to Course
               </Button>
-            </>
-          )}
-        </Box>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleBuyNow}
+                  disabled={loading}
+                  sx={{
+                    py: 1.5,
+                    mb: 1.5,
+                    fontWeight: 600,
+                    backgroundColor: 'brand.main',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'brand.dark',
+                    },
+                    borderRadius: 0,
+                    textTransform: 'none',
+                    fontSize: '1rem'
+                  }}
+                >
+                  {loading ? 'Checking...' : 'Buy Now'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  disabled={loading}
+                  sx={{
+                    py: 1.5,
+                    mb: 2,
+                    borderColor: 'brand.main',
+                    color: 'brand.main',
+                    fontWeight: 600,
+                    borderRadius: 0,
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    '&:hover': {
+                      backgroundColor: 'brand.lighter',
+                      borderColor: 'brand.main',
+                    }
+                  }}
+                >
+                  Wishlist
+                </Button>
+              </>
+            )}
+          </Box>
 
-        {/* Course Details */}
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 2,
-            color: 'text.primary'
-          }}
-        >
-          This course includes:
-        </Typography>
-        
-        <List dense>
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <VideoLibrary sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary={`${courseData.lectures} on-demand video lectures`}
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
-          
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <MenuBook sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary={`${courseData.sections} sections`}
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
-          
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <Assignment sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary={`${courseData.assignments} assignments`}
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
+          {/* Money Back Guarantee */}
+          <Typography
+            variant="body2"
+            sx={{ 
+              textAlign: 'center',
+              color: 'text.secondary',
+              mb: 2,
+              fontSize: '0.75rem'
+            }}
+          >
+            30-Day Money-Back Guarantee
+          </Typography>
 
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <Quiz sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary={`${courseData.quizzes} practice quizzes`}
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
+          {/* Course Details */}
+          <Typography
+            variant="subtitle1"
+            sx={{ 
+              fontWeight: 700,
+              mb: 1.5,
+              color: 'text.primary',
+              fontSize: '1rem'
+            }}
+          >
+            This course includes:
+          </Typography>
+          <List dense sx={{ mb: 2 }}>
+            <ListItem sx={{ px: 0, py: 0.75 }}>
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <PlayCircleOutline sx={{ color: 'text.secondary', fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary={`${courseData.duration || '32 hours'} on-demand video`}
+                slotProps={{
+                  typography: {
+                    variant: 'body2',
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                  },
+                }}
+              />
+            </ListItem>
 
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <GetApp sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary={`${courseData.downloadableResources} downloadable resources`}
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
+            <ListItem sx={{ px: 0, py: 0.75 }}>
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <Schedule sx={{ color: 'text.secondary', fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary={`${courseData.quizzes || '1'} practice test`}
+                slotProps={{
+                  typography: {
+                    variant: 'body2',
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                  },
+                }}
+              />
+            </ListItem>
 
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <AllInclusive sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Full lifetime access"
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
+            <ListItem sx={{ px: 0, py: 0.75 }}>
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <Description sx={{ color: 'text.secondary', fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary={`${courseData.downloadableResources || '9'} articles`}
+                slotProps={{
+                  typography: {
+                    variant: 'body2',
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                  },
+                }}
+              />
+            </ListItem>
 
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <PhonelinkSetup sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Access on mobile and TV"
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
+            <ListItem sx={{ px: 0, py: 0.75 }}>
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <PhoneAndroid sx={{ color: 'text.secondary', fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Access on mobile and TV"
+                slotProps={{
+                  typography: {
+                    variant: 'body2',
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                  },
+                }}
+              />
+            </ListItem>
 
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <EmojiEvents sx={{ color: 'text.tertiary', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Certificate of completion"
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary',
-                fontWeight: 500
-              }}
-            />
-          </ListItem>
-        </List>
-        
-        <Divider sx={{ my: 3 }} />
-        
-        {/* Course Info */}
-        <Typography 
-          variant="subtitle2" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 1,
-            color: 'text.primary'
-          }}
-        >
-          Course Information
-        </Typography>
+            <ListItem sx={{ px: 0, py: 0.75 }}>
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <AllInclusive sx={{ color: 'text.secondary', fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Full lifetime access"
+                slotProps={{
+                  typography: {
+                    variant: 'body2',
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                  },
+                }}
+              />
+            </ListItem>
+
+            <ListItem sx={{ px: 0, py: 0.75 }}>
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <ClosedCaption sx={{ color: 'text.secondary', fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Closed captions"
+                slotProps={{
+                  typography: {
+                    variant: 'body2',
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                  },
+                }}
+              />
+            </ListItem>
+
+            <ListItem sx={{ px: 0, py: 0.75 }}>
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <RecordVoiceOver sx={{ color: 'text.secondary', fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Audio description in existing audio"
+                slotProps={{
+                  typography: {
+                    variant: 'body2',
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                  },
+                }}
+              />
+            </ListItem>
+
+            <ListItem sx={{ px: 0, py: 0.75 }}>
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <EmojiEvents sx={{ color: 'text.secondary', fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Certificate of completion"
+                slotProps={{
+                  typography: {
+                    variant: 'body2',
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                  },
+                }}
+              />
+            </ListItem>
+          </List>
+
+
+          <Divider sx={{ my: 2 }} />
+
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              fontWeight: 600, 
+              mb: 1,
+              color: 'text.primary'
+            }}
+          >
+            Course Information
+          </Typography>
         
         <Stack spacing={1}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -343,6 +370,8 @@ const CourseSidebar = ({ courseData }) => {
             </Typography>
           </Box>
         </Stack>
+
+        </Box>
       </Paper>
     </Box>
   )

@@ -3177,8 +3177,10 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
     price?: number;
+    createdBy?: string | undefined;
     categoryId?: number;
     categoryTitle?: string | undefined;
+    instructorName?: string | undefined;
 
     constructor(data?: IGetPublicCourseByIdDto) {
         if (data) {
@@ -3205,8 +3207,10 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.welcomeMessage = _data["welcomeMessage"];
             this.congratulationsMessage = _data["congratulationsMessage"];
             this.price = _data["price"];
+            this.createdBy = _data["createdBy"];
             this.categoryId = _data["categoryId"];
             this.categoryTitle = _data["categoryTitle"];
+            this.instructorName = _data["instructorName"];
         }
     }
 
@@ -3233,8 +3237,10 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["welcomeMessage"] = this.welcomeMessage;
         data["congratulationsMessage"] = this.congratulationsMessage;
         data["price"] = this.price;
+        data["createdBy"] = this.createdBy;
         data["categoryId"] = this.categoryId;
         data["categoryTitle"] = this.categoryTitle;
+        data["instructorName"] = this.instructorName;
         return data;
     }
 }
@@ -3254,8 +3260,10 @@ export interface IGetPublicCourseByIdDto {
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
     price?: number;
+    createdBy?: string | undefined;
     categoryId?: number;
     categoryTitle?: string | undefined;
+    instructorName?: string | undefined;
 }
 
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {

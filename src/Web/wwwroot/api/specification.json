@@ -2253,11 +2253,19 @@
             "type": "number",
             "format": "float"
           },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
           "categoryId": {
             "type": "integer",
             "format": "int32"
           },
           "categoryTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
             "type": "string",
             "nullable": true
           }

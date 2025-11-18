@@ -379,12 +379,17 @@ function CourseCurriculum() {
 
   // Handle update course
   const handleUpdateCourse = async () => {
+    const videoContentIds = getAllVideoContentIds(sections);
+    const totalVideoDuration = getTotalVideoDuration(sections);
     const data = {
       id: courseId,
       title: courseData.title,
       contents: sections,
       nextSectionId: nextSectionId,
       nextItemId: nextItemId,
+      videoContentIds: videoContentIds,
+      totalVideo: videoContentIds.length,
+      totalVideoDuration: totalVideoDuration,
     }
     const updateData = {
       ...courseData,
@@ -409,6 +414,37 @@ function CourseCurriculum() {
 
     return ids;
   };
+
+  const getAllVideoContentIds = (sections) => {
+    const ids = [];
+    sections.forEach(section => {
+      section.items.forEach(item => {
+        if (item.videoId) ids.push(item.videoId);
+      });
+    });
+    return ids;
+  };
+
+  const getTotalVideoDuration = (sections) => {
+    let totalSeconds = 0;
+    sections.forEach(section => {
+      section.items.forEach(item => {
+        if (item.videoDuration) {
+          const [mm, ss] = item.videoDuration.split(":").map(Number);
+          totalSeconds += mm * 60 + ss;
+        }
+      });
+    });
+    const hours = totalSeconds / 3600;
+    if (hours >= 1) {
+      return `${hours.toFixed(1)} hours`;
+    }
+    const minutes = totalSeconds / 60;
+    if (minutes >= 1) {
+      return `${Math.round(minutes)} minutes`;
+    }
+    return `${totalSeconds} seconds`;
+  }
 
   const setContentIds = async (contentIds, courseId) => {
     if (contentIds.length > 0) {

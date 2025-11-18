@@ -21,7 +21,11 @@ namespace Edunary.Infrastructure.Data.Configurations
                 
             builder.Property(cc => cc.ContentType)
                 .HasMaxLength(100);
-            
+
+            builder.Property(cc => cc.IsDeleted)
+                .HasDefaultValue(false)   
+                .IsRequired();
+
             // Configure relationship with Course
             builder.HasOne(cc => cc.Course)
                 .WithMany(c => c.Contents) 

@@ -41,6 +41,10 @@ public class SetCourseIdForContentCommandHandler : IRequestHandler<SetCourseIdFo
         foreach (var content in contents)
         {
             content.CourseId = request.CourseId;
+            if (content.IsDeleted == true && request.CourseId != null)
+            {
+                content.IsDeleted = false;
+            }
         }
 
         var result = await _context.SaveChangesAsync(cancellationToken);

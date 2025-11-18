@@ -23,24 +23,36 @@ public class DeleteCourseContentCommandHandler : IRequestHandler<DeleteCourseCon
     {
         var entity = await _context.CourseContents.FindAsync(new object[] { request.Id }, cancellationToken);
         Guard.Against.NotFound(request.Id, entity);
-        var fileName = entity.FileName;
-        var deleteFileResult = await _uploadFileService.DeleteFileFromSpacesAsync(fileName);
-        if (deleteFileResult)
+
+        // temporary comment the logic for deleting content on server
+        // var fileName = entity.FileName;
+        // var deleteFileResult = await _uploadFileService.DeleteFileFromSpacesAsync(fileName);
+        // if (deleteFileResult)
+        // {
+        //     _context.CourseContents.Remove(entity);
+        //     var result = await _context.SaveChangesAsync(cancellationToken);
+        //     if (result > 0)
+        //     {
+        //         return Result.Success($"Deleted successfully.");
+        //     }
+        //     else
+        //     {
+        //         return Result.Failure("Failed to delete this course content.");
+        //     }
+        // }
+        // else
+        // {
+        //     return Result.Failure("Failed to delete the file from storage.");
+        // }
+        entity.IsDeleted = true;
+        var result = await _context.SaveChangesAsync(cancellationToken);
+        if (result > 0)
         {
-            _context.CourseContents.Remove(entity);
-            var result = await _context.SaveChangesAsync(cancellationToken);
-            if (result > 0)
-            {
-                return Result.Success($"Deleted successfully.");
-            }
-            else
-            {
-                return Result.Failure("Failed to delete this course content.");
-            }
+            return Result.Success($"Deleted successfully.");
         }
         else
         {
-            return Result.Failure("Failed to delete the file from storage.");
+            return Result.Failure("Failed to delete this course content.");
         }
     }
 }

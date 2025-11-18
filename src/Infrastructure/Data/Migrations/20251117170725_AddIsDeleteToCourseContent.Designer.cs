@@ -4,6 +4,7 @@ using Edunary.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Edunary.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251117170725_AddIsDeleteToCourseContent")]
+    partial class AddIsDeleteToCourseContent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,9 +97,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<float>("Ratings")
-                        .HasColumnType("real");
-
                     b.Property<string>("Requirements")
                         .HasColumnType("nvarchar(max)");
 
@@ -114,9 +114,6 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.Property<string>("Topic")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TotalStudents")
-                        .HasColumnType("int");
 
                     b.Property<string>("WelcomeMessage")
                         .HasColumnType("nvarchar(max)");

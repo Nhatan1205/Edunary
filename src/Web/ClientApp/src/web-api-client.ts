@@ -2187,6 +2187,9 @@ export class GetCourseDto implements IGetCourseDto {
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    instructorName?: string | undefined;
+    createdBy?: string | undefined;
+    created?: string | undefined;
 
     constructor(data?: IGetCourseDto) {
         if (data) {
@@ -2210,6 +2213,9 @@ export class GetCourseDto implements IGetCourseDto {
             this.topic = _data["topic"];
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
+            this.instructorName = _data["instructorName"];
+            this.createdBy = _data["createdBy"];
+            this.created = _data["created"];
         }
     }
 
@@ -2233,6 +2239,9 @@ export class GetCourseDto implements IGetCourseDto {
         data["topic"] = this.topic;
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
+        data["instructorName"] = this.instructorName;
+        data["createdBy"] = this.createdBy;
+        data["created"] = this.created;
         return data;
     }
 }
@@ -2249,6 +2258,9 @@ export interface IGetCourseDto {
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    instructorName?: string | undefined;
+    createdBy?: string | undefined;
+    created?: string | undefined;
 }
 
 export class GetCoursesWithPaginationQuery implements IGetCoursesWithPaginationQuery {
@@ -2448,6 +2460,8 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    createdBy?: string | undefined;
+    instructorName?: string | undefined;
 
     constructor(data?: IGetHomepageCoursesDto) {
         if (data) {
@@ -2473,6 +2487,8 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
             this.topic = _data["topic"];
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
+            this.createdBy = _data["createdBy"];
+            this.instructorName = _data["instructorName"];
         }
     }
 
@@ -2498,6 +2514,8 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
         data["topic"] = this.topic;
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
+        data["createdBy"] = this.createdBy;
+        data["instructorName"] = this.instructorName;
         return data;
     }
 }
@@ -2516,6 +2534,8 @@ export interface IGetHomepageCoursesDto {
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    createdBy?: string | undefined;
+    instructorName?: string | undefined;
 }
 
 export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {

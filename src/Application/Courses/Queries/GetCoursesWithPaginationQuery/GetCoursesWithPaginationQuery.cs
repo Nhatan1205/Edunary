@@ -18,12 +18,14 @@ public class GetCoursesWithPaginationQueryHandler : IRequestHandler<GetCoursesWi
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IFilterService _filterService;
+    private readonly IIdentityService _identityService;
 
-    public GetCoursesWithPaginationQueryHandler(IApplicationDbContext context, IMapper mapper, IFilterService filterService)
+    public GetCoursesWithPaginationQueryHandler(IApplicationDbContext context, IMapper mapper, IFilterService filterService, IIdentityService identityService)
     {
         _context = context;
         _mapper = mapper;
         _filterService = filterService;
+        _identityService = identityService;
     }
 
     public async Task<PaginatedList<GetCourseDto>> Handle(GetCoursesWithPaginationQuery request, CancellationToken cancellationToken)
@@ -69,6 +71,27 @@ public class GetCoursesWithPaginationQueryHandler : IRequestHandler<GetCoursesWi
         PaginatedList<GetCourseDto> courses = await query
             .ProjectTo<GetCourseDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
+
+        //add instructor name
+        var instructorIds = courses.Items
+            .Select(c => c.CreatedBy)
+            .Where(id => !string.IsNullOrEmpty(id))
+            .Distinct()
+            .ToList();
+        var instructorNames = new Dictionary<string, string>();
+        foreach (var instructorId in instructorIds)
+        {
+            var name = await _identityService.GetFullNameAsync(instructorId);
+            instructorNames[instructorId] = name;
+        }
+        foreach (var course in courses.Items)
+        {
+            if (!string.IsNullOrEmpty(course.CreatedBy) &&
+                instructorNames.ContainsKey(course.CreatedBy))
+            {
+                course.InstructorName = instructorNames[course.CreatedBy];
+            }
+        }
 
         return courses;
     }

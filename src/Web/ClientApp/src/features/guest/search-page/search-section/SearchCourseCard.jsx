@@ -49,7 +49,7 @@ export default function SearchCourseCard({ course }) {
         cursor: 'pointer',
         transition: 'background-color 0.2s ease',
         padding: 2,
-        height: 480,
+        height: 470,
         textDecoration: "none",
         '&:hover': {
           backgroundColor: '#f7f9fa'
@@ -109,11 +109,11 @@ export default function SearchCourseCard({ course }) {
           variant="body2"
           sx={{
             color: '#6a6f73',
-            fontSize: '12px',
+            fontSize: '14px',
             mb: 1.5
           }}
         >
-          {course.instructor}
+          {course.instructorName}
         </Typography>
         </div>
 

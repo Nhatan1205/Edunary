@@ -134,7 +134,7 @@ function SearchPage() {
             <SearchSection coursesData={coursesData?.items} isLoading={isCourseDataLoading}/>
             {coursesData && coursesData.totalPages > 1 && (
               <div className="d-flex justify-content-center mt-4">
-                <CustomPagination count={100} page={pageNumber} onChange={handlePageChange}/>
+                <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange}/>
               </div>
             )}
             {(coursesData?.items?.length === 0) && <NoResult searchValue={query} sx={{mt: "80px",mb:"120px"}}/>}

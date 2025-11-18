@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
+
 
 namespace Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 public class GetCoursesAuthorWithPaginationQuery : IRequest<PaginatedList<GetCoursesAuthorDto>>

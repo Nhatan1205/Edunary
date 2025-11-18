@@ -1582,6 +1582,18 @@
           "totalStudents": {
             "type": "integer",
             "format": "int32"
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "created": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -1733,6 +1745,14 @@
           "totalStudents": {
             "type": "integer",
             "format": "int32"
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

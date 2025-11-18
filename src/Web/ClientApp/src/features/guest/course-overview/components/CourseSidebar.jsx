@@ -12,7 +12,7 @@ import {
   Stack
 } from '@mui/material'
 import { 
-  FavoriteBorder, 
+  ShoppingCart, 
   Schedule, 
   Language, 
   MenuBook, 
@@ -168,7 +168,7 @@ const CourseSidebar = ({ courseData }) => {
                 variant="outlined"
                 fullWidth
                 onClick={handleAddToCart}
-                startIcon={<FavoriteBorder />}
+                startIcon={<ShoppingCart />}
                 disabled={loading || addingToCart}
                 sx={{
                   py: 1.5,

@@ -65,7 +65,7 @@ public class GetCartItemsQueryHandler : IRequestHandler<GetCartItemsQuery, List<
         var creators = new Dictionary<string, string>();
         foreach (var creatorId in creatorIds)
         {
-            var userName = await _identityService.GetUserNameAsync(creatorId);
+            var userName = await _identityService.GetFullNameAsync(creatorId);
             creators[creatorId] = userName;
         }
 
@@ -81,7 +81,7 @@ public class GetCartItemsQueryHandler : IRequestHandler<GetCartItemsQuery, List<
                     Title = course.Title,
                     Subtitle = course.Subtitle ?? string.Empty,
                     ImageUrl = course.ImageUrl ?? string.Empty,
-                    InstructorName = creators[course.CreatedBy],
+                    InstructorName = creators.GetValueOrDefault(course.CreatedBy, "Unknown"),
                     Price = course.Price,
                     Rating = 0, // TODO: Calculate from reviews
                     ReviewCount = 0, // TODO: Get from reviews

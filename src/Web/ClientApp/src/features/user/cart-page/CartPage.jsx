@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import {
   Box,
   Typography,
@@ -14,10 +14,92 @@ import { useNavigate } from "react-router"
 
 const CartPage = () => {
   const navigate = useNavigate()
-  const { cartItems, loading, error, removeFromCart, totalPrice, itemCount } = useCart()
+  const { cartItems, loading, error, removeFromCart } = useCart()
+  const [items, setItems] = useState([])
+  const [savingItemId, setSavingItemId] = useState(null)
 
   const formatPrice = (price) => {
     return `$${price.toFixed(2)}`
+  }
+
+  useEffect(() => {
+    setItems(cartItems.map(item => ({ ...item, isSaved: false })))
+  }, [cartItems])
+
+  const cartTotalPrice = useMemo(() => {
+    return items
+      .filter(item => !item.isSaved)
+      .reduce((sum, item) => sum + (item.price ?? 0), 0)
+  }, [items])
+
+  const cartItemCount = useMemo(() => {
+    return items.filter(item => !item.isSaved).length
+  }, [items])
+
+  const handleSaveForLater = async (itemId) => {
+    setSavingItemId(itemId)
+    try {
+      setItems(prevItems =>
+        prevItems.map(item =>
+          item.id === itemId ? { ...item, isSaved: true } : item
+        )
+      )
+      console.log('Save for later:', itemId)
+    } catch (err) {
+      console.error('Failed to save for later:', err)
+      setItems(prevItems =>
+        prevItems.map(item =>
+          item.id === itemId ? { ...item, isSaved: false } : item
+        )
+      )
+    } finally {
+      setSavingItemId(null)
+    }
+  }
+
+  const handleMoveToCart = async (itemId) => {
+    setSavingItemId(itemId)
+    try {
+      setItems(prevItems =>
+        prevItems.map(item =>
+          item.id === itemId ? { ...item, isSaved: false } : item
+        )
+      )
+      console.log('Move to cart:', itemId)
+    } catch (err) {
+      console.error('Failed to move to cart:', err)
+      setItems(prevItems =>
+        prevItems.map(item =>
+          item.id === itemId ? { ...item, isSaved: true } : item
+        )
+      )
+    } finally {
+      setSavingItemId(null)
+    }
+  }
+
+  const handleCheckout = () => {
+    const checkoutItems = items.filter(item => !item.isSaved)
+    
+    if (checkoutItems.length === 0) {
+      return
+    }
+
+    const courses = checkoutItems.map(ci => ({
+      id: ci.courseId ?? ci.id,
+      title: ci.title,
+      subtitle: ci.subtitle ?? '',
+      price: ci.price ?? 0,
+      imageUrl: ci.imageUrl ?? '',
+      categoryTitle: ci.categoryTitle ?? ''
+    }))
+
+    navigate('/payment/checkout', {
+      state: {
+        courses,
+        totalAmount: cartTotalPrice
+      }
+    })
   }
 
   if (loading && cartItems.length === 0) {
@@ -59,24 +141,6 @@ const CartPage = () => {
     )
   }
 
-  const handleCheckout = () => {
-    const courses = cartItems.map(ci => ({
-      id: ci.courseId ?? ci.id,
-      title: ci.title,
-      subtitle: ci.subtitle ?? '',
-      price: ci.price ?? 0,
-      imageUrl: ci.imageUrl ?? ci.image ?? '',
-      categoryTitle: ci.categoryTitle ?? ci.category ?? ''
-    }))
-
-    navigate('/payment/checkout', {
-      state: {
-        courses,
-        totalAmount: totalPrice
-      }
-    })
-  }
-
   return (
     <Box sx={{ 
       width: '100%',
@@ -111,7 +175,7 @@ const CartPage = () => {
             fontSize: { xs: "0.875rem", sm: "1rem", md: "1.25rem" },
           }}
         >
-          {itemCount} {itemCount === 1 ? 'Course' : 'Courses'} in Cart
+          {cartItemCount} {cartItemCount === 1 ? 'Course' : 'Courses'} in Cart
         </Typography>
 
         {/* Main Content */}
@@ -124,10 +188,17 @@ const CartPage = () => {
         >
           {/* Cart Items */}
           <Box sx={{ flex: 1 }}>
-            {cartItems.map((item, index) => (
+            {items.map((item, index) => (
               <React.Fragment key={item.id}>
-                <CartItem item={item} onRemove={removeFromCart} loading={loading} />
-                {index < cartItems.length - 1 && <Divider sx={{ my: 2 }} />}
+                <CartItem 
+                  item={item} 
+                  onRemove={removeFromCart}
+                  onSaveForLater={handleSaveForLater}
+                  onMoveToCart={handleMoveToCart}
+                  loading={savingItemId === item.id}
+                  isSavedForLater={item.isSaved}
+                />
+                {index < items.length - 1 && <Divider sx={{ my: 2 }} />}
               </React.Fragment>
             ))}
           </Box>
@@ -165,7 +236,7 @@ const CartPage = () => {
                   fontSize: { xs: "1.5rem", sm: "2rem" },
                 }}
               >
-                {formatPrice(totalPrice)}
+                {formatPrice(cartTotalPrice)}
               </Typography>
             </Box>
 
@@ -174,6 +245,7 @@ const CartPage = () => {
               fullWidth
               size="large"
               onClick={handleCheckout}
+              disabled={cartItemCount === 0}
               sx={{
                 backgroundColor: "brand.main",
                 "&:hover": { backgroundColor: "brand.dark" },

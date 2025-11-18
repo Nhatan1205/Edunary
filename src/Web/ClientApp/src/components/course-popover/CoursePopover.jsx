@@ -284,8 +284,7 @@ function CoursePopover({
                 variant="contained"
                 fullWidth
                 startIcon={<PlayArrow />}
-                onClick={ handleGoToCourse}
-                disabled={addingToCart}
+                onClick={handleGoToCourse}
                 sx={{
                   backgroundColor: "brand.main",
                   color: "white",

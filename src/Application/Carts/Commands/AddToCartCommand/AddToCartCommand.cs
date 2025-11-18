@@ -55,7 +55,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
 
             if (existingCartItem != null)
             {
-                return Result.Failure("This course is already in your cart");
+                return Result.Success("This course is already in your cart");
             }
 
             // Check if already enrolled
@@ -65,7 +65,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
 
             if (existingEnrollment != null)
             {
-                return Result.Failure("This course has already been paid for by you");
+                return Result.Success("This course has already been paid for by you");
             }
 
             // Add to cart
@@ -85,9 +85,17 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
 
             return Result.Failure("Failed to add course to cart");
         }
-        catch (Exception ex)
+        catch (DbUpdateException dbEx)
         {
-            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+            return Result.Failure($"A database error occurred: {dbEx.Message}");
+        }
+        catch (InvalidOperationException invOpEx)
+        {
+            return Result.Failure($"An invalid operation occurred: {invOpEx.Message}");
+        }
+        catch (ArgumentException argEx)
+        {
+            return Result.Failure($"An argument error occurred: {argEx.Message}");
         }
     }
 }

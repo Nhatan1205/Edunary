@@ -58,6 +58,13 @@ public class IdentityService : IIdentityService
         return user?.UserName;
     }
 
+    public async Task<string> GetFullNameAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        return user?.FullName ?? user?.UserName;
+    }
+
     public async Task<Result> Register(string userName, string phoneNumber, string email, string password, string fullName, string avatar = null)
     {
         Result rs = Result.Failure();

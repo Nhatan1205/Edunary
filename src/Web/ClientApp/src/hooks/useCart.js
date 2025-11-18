@@ -1,46 +1,32 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { CartClient } from '../web-api-client.ts'
 import { toast } from 'react-toastify'
 import { useAuth } from '../context/AuthContext'
 
 export const useCart = () => {
   const { isAuthenticated } = useAuth()
-  const [cartItems, setCartItems] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const queryClient = useQueryClient()
 
-  const fetchCartItems = useCallback(async () => {
-    if (!isAuthenticated) {
-      setCartItems([])
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
+  const { data: cartItems = [], isLoading: loading, error } = useQuery({
+    queryKey: ["cart"],
+    queryFn: async () => {
       const cartClient = new CartClient()
       const items = await cartClient.getCartItems()
-      setCartItems(items || [])
-    } catch (err) {
-      console.error('Error fetching cart items:', err)
-      setError(err)
-      setCartItems([])
-    } finally {
-      setLoading(false)
-    }
-  }, [isAuthenticated])
+      return items || []
+    },
+    enabled: isAuthenticated,
+  })
 
-  const removeFromCart = async (cartItemId) => {
-    try {
-      setLoading(true)
+  const removeFromCartMutation = useMutation({
+    mutationFn: async (cartItemId) => {
       const cartClient = new CartClient()
       await cartClient.removeFromCart(cartItemId)
-      
-      // Remove item from local state
-      setCartItems(prevItems => prevItems.filter(item => item.id !== cartItemId))
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["cart"])
       toast.success('Item removed from cart')
-      return { success: true }
-    } catch (err) {
+    },
+    onError: (err) => {
       console.error('Error removing from cart:', err)
       
       let errorMessage = 'Failed to remove item from cart'
@@ -56,31 +42,23 @@ export const useCart = () => {
       }
       
       toast.error(errorMessage)
-      return { success: false, error: errorMessage }
-    } finally {
-      setLoading(false)
+    }
+  })
+
+  const removeFromCart = async (cartItemId) => {
+    try {
+      await removeFromCartMutation.mutateAsync(cartItemId)
+      return { success: true }
+    } catch (err) {
+      return { success: false, error: err.message }
     }
   }
-
-  const getTotalPrice = useCallback(() => {
-    return cartItems.reduce((sum, item) => sum + item.price, 0)
-  }, [cartItems])
-
-  const getItemCount = useCallback(() => {
-    return cartItems.length
-  }, [cartItems])
-
-  useEffect(() => {
-    fetchCartItems()
-  }, [fetchCartItems])
 
   return {
     cartItems,
     loading,
     error,
     removeFromCart,
-    refetch: fetchCartItems,
-    totalPrice: getTotalPrice(),
-    itemCount: getItemCount()
+    refetch: () => queryClient.invalidateQueries(["cart"]),
   }
 }

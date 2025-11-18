@@ -15,7 +15,7 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
             .IsRequired()
             .HasMaxLength(450);
 
-        // Create composite unique index to prevent duplicate enrollments
+        // Create composite unique index to prevent duplicate cart items
         builder.HasIndex(e => new { e.CourseId, e.CustomerId })
             .IsUnique()
             .HasDatabaseName("IX_Carts_CourseId_CustomerId");

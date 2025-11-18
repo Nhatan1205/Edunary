@@ -37,7 +37,7 @@ function Header() {
   // Get auth state from context
   const { isAuthenticated, user } = useAuth();
   const { data: userInfo } = useGetBasicUserInfo();
-  const { itemCount } = useCart();
+  const { cartItems } = useCart();
 
   //menu dropdown state
   const [anchorElMenu, setAnchorElMenu] = useState(null);
@@ -223,7 +223,7 @@ function Header() {
                     }}
                     onClick={() => navigate("/cart")}
                   >
-                    <Badge badgeContent={itemCount} color="error" showZero={false}>
+                    <Badge badgeContent={cartItems.length} color="error" showZero={false}>
                       <ShoppingCartOutlinedIcon
                         fontSize={isMobile ? "small" : "medium"}
                       />

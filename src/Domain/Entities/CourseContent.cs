@@ -10,9 +10,10 @@ public class CourseContent : BaseAuditableEntity
     public string FileName { get; set; }
     public string FileUrl { get; set; }
     public string ContentType { get; set; }
-    public int? CourseId { get; set; } 
+    public int? CourseId { get; set; }
 
+    public bool IsDeleted { get; set; }
     // Navigation properties
-    #nullable enable
+#nullable enable
     public Course? Course { get; set; }
 }

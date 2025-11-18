@@ -27,7 +27,7 @@ public class GetCourseContentByUserIdHandler : IRequestHandler<GetCourseContentB
     {
         var userId = _currentUserService?.UserId;
         return await _context.CourseContents
-            .Where(cc => cc.UserId == userId)
+            .Where(cc => cc.UserId == userId && cc.IsDeleted == false)
             .OrderByDescending(cc => cc.LastModified)
             .ProjectTo<CourseContentDto>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);

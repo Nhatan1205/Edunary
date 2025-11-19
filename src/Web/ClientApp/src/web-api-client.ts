@@ -3092,6 +3092,8 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    createdBy?: string | undefined;
+    instructorName?: string | undefined;
 
     constructor(data?: IGetHomepageCoursesDto) {
         if (data) {
@@ -3117,6 +3119,8 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
             this.topic = _data["topic"];
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
+            this.createdBy = _data["createdBy"];
+            this.instructorName = _data["instructorName"];
         }
     }
 
@@ -3142,6 +3146,8 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
         data["topic"] = this.topic;
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
+        data["createdBy"] = this.createdBy;
+        data["instructorName"] = this.instructorName;
         return data;
     }
 }
@@ -3160,6 +3166,8 @@ export interface IGetHomepageCoursesDto {
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    createdBy?: string | undefined;
+    instructorName?: string | undefined;
 }
 
 export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {

@@ -10,7 +10,7 @@ import {
   Divider,
   Stack
 } from '@mui/material'
-import { 
+import {
   PlayCircleOutline,
   Description,
   PhoneAndroid,
@@ -67,12 +67,11 @@ const CourseSidebar = ({ courseData }) => {
           top: 24
         }}
       >
-        {/* Course Preview Image */}
         <Box 
           sx={{ 
             position: 'relative',
             width: '100%',
-            paddingTop: '56.25%', // 16:9 aspect ratio
+            paddingTop: '56.25%',
             backgroundColor: '#f7f9fa',
             overflow: 'hidden'
           }}
@@ -92,7 +91,6 @@ const CourseSidebar = ({ courseData }) => {
           />  
         </Box>
 
-        {/* Content */}
         <Box sx={{ p: 3 }}>
           {/* Pricing */}
           <Box sx={{ mb: 3 }}>
@@ -350,12 +348,6 @@ const CourseSidebar = ({ courseData }) => {
           </Typography>
         
         <Stack spacing={1}>
-          {/* <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body2" color="text.tertiary">Duration:</Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight={500}>
-              {courseData.duration}
-            </Typography>
-          </Box> */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="body2" color="text.tertiary">Language:</Typography>
             <Typography variant="body2" color="text.secondary" fontWeight={500}>

@@ -40,6 +40,8 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
             var summary = new CourseContentSummaryDto
             {
                 TotalVideoDuration = contentObj.TotalVideoDuration,
+                TotalSection = contentObj.Contents.Count,
+                TotalLecturer = contentObj.Contents.Sum(s => s.Items.Count),
                 Sections = contentObj.Contents.Select(section => new SectionSummaryDto
                 {
                     Title = section.Title,

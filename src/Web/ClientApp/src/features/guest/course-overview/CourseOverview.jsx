@@ -1,7 +1,5 @@
 import { Container, Box } from '@mui/material'
-import { useParams, useNavigate } from 'react-router'
-import { useEffect } from 'react'
-import { toast } from 'react-toastify'
+import { useParams } from 'react-router'
 import CourseHeader from './components/CourseHeader'
 import CourseSidebar from './components/CourseSidebar'
 import CourseTabs from './components/CourseTabs'
@@ -33,19 +31,8 @@ const reviews = [
 
 const CourseOverview = () => {
   const { id } = useParams()
-  const navigate = useNavigate()
-  const { data: courseData, isLoading, isError, error } = useGetPublicCourseById(id)
 
-  useEffect(() => {
-    if (!isLoading && (isError || !courseData?.id)) {
-      const errorMessage = isError && error?.message === "Course not found"
-        ? 'Course not found. The course you are looking for does not exist or has been removed.'
-        : 'Course not found or no data available.';
-      
-      toast.error(errorMessage);
-      setTimeout(() => navigate('/'), 2000);
-    }
-  }, [isLoading, isError, courseData, error, navigate])
+  const { data: courseData, isLoading, isError } = useGetPublicCourseById(id)
 
   // Show loading
   if (isLoading) {
@@ -85,8 +72,15 @@ const CourseOverview = () => {
 
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        {/* Main Content - 2 Column Layout */}
+      <Box sx={{ bgcolor: '#1c1d1f', color: 'white' }}>
+        <Container maxWidth="xl" sx={{ py: 4 }}>
+          <Box sx={{ minWidth: 0, maxWidth: { md: 'calc(100% - 380px - 32px)' } }}>
+            <CourseHeader courseData={transformedCourseData} />
+          </Box>
+        </Container>
+      </Box>
+
+      <Container maxWidth="xl" sx={{ position: 'relative' }}>
         <Box
           sx={{
             display: 'grid',
@@ -95,25 +89,18 @@ const CourseOverview = () => {
               md: '1fr 380px' 
             },
             gap: 4,
-            alignItems: 'flex-start',
+            mt: { xs: 3, md: 0 }
           }}
         >
-          {/* Left Column - Main Content */}
-          <Box sx={{ minWidth: 0 }}> {/* minWidth: 0 prevents grid overflow */}
-            {/* Course Thumbnail */}
-            {/* <CourseThumbnail image={transformedCourseData.image} title={transformedCourseData.title} /> */}
-            
-            {/* Course Header */}
-            <CourseHeader courseData={transformedCourseData} />
-            
-            {/* Course Tabs */}
+          <Box sx={{ minWidth: 0, py: 4 }}>
             <CourseTabs courseData={transformedCourseData} reviews={reviews} />
           </Box>
-
-          {/* Right Column - Sidebar */}
+          
           <Box 
             sx={{ 
-              order: { xs: -1, md: 0 } // Show sidebar first on mobile
+              order: { xs: -1, md: 0 },
+              position: { md: 'relative' },
+              mt: { md: '-325px' },
             }}
           >
             <CourseSidebar courseData={transformedCourseData} />

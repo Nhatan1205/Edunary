@@ -15,9 +15,10 @@ import { usePopover } from "../../../../context/PopoverContext";
 import { getPopoverOrigin } from "../../../../utils/getPopoverOrigin";
 import DefaultImage from "../../../../assets/images/default.jpg";
 import { Link as RouterLink } from "react-router";
+import MetaChip from '../../../../components/MetaChip';
 
 function CourseCard({ course }) {
-  const { id, imageUrl, title, price, level, ratings } = course;
+  const { id, imageUrl, title, price, level, ratings, instructorName, totalStudents } = course;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -86,7 +87,7 @@ function CourseCard({ course }) {
           sx={{
             objectFit: "cover",
             filter: "brightness(0.8)",
-            borderRadius: 2,
+            borderRadius: 1,
             flexShrink: 0,
             transition: "filter 0.3s ease, transform 0.3s ease",
           }}
@@ -109,7 +110,8 @@ function CourseCard({ course }) {
 
         <CardContent
           sx={{
-            p: 2,
+            py: 2,
+            px: 0,
             flex: 1,
             display: "flex",
             flexDirection: "column",
@@ -123,7 +125,7 @@ function CourseCard({ course }) {
               fontSize: "0.95rem",
               fontWeight: 600,
               lineHeight: 1.3,
-              mb: 1,
+              mb: 0.5,
               color: "#333",
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -134,33 +136,33 @@ function CourseCard({ course }) {
           >
             {title}
           </Typography>
-          {/* {instructor && (
+          {instructorName && (
             <Typography
               variant="body2"
               sx={{
-                color: "#666",
+                color: "#595C73",
                 fontSize: "0.8rem",
-                mb: 1,
+                mb: 0.5,
               }}
             >
-              {instructor}
+              {instructorName}
             </Typography>
-          )} */}
+          )}
           {/* Rating */}
-          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <Typography variant="body2" sx={{ color: "#FFA726", mr: 0.5 }}>
-              {"★".repeat(Math.floor(ratings || 0))}{"☆".repeat(5 - Math.floor(ratings || 0))}
-            </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
             <Typography
               variant="body2"
-              sx={{ color: "#666", fontSize: "0.8rem" }}
+              sx={{ fontWeight: 600,color: "#FAAF00", fontSize: "0.8rem",mr: 0.5 }}
             >
               {ratings?.toFixed(1) || "0.0"}
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#FAAF00" }}>
+              {"★".repeat(Math.floor(ratings || 0))}{"☆".repeat(5 - Math.floor(ratings || 0))}
             </Typography>
           </Box>
 
           {/* Price */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1,mb: 0.5 }}>
             <Typography
               variant="h6"
               sx={{
@@ -171,6 +173,17 @@ function CourseCard({ course }) {
             >
               {price === 0 ? "Free" : `$${price}`}
             </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {totalStudents > 1 && (
+              <MetaChip
+                  label={"Bestseller"}
+                  backgroundColor={"#eceb98"}
+                  color={"#3d3c0a"}
+                  borderColor={"#eceb98"}
+              />
+            )}
           </Box>
         </CardContent>
       </Card>

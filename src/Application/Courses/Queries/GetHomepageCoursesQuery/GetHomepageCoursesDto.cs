@@ -16,6 +16,8 @@ public class GetHomepageCoursesDto
     public string Topic { get; set; }
     public float Ratings { get; set; }
     public int TotalStudents { get; set; }
+    public string CreatedBy { get; set; }
+    public string InstructorName { get; set; }
 
     private class Mapping : Profile
     {
@@ -28,8 +30,8 @@ public class GetHomepageCoursesDto
                     )
                     .ForMember(
                         dest => dest.CategoryName,
-                        opt => opt.MapFrom(src => src.Category.Title)
-            );
+                        opt => opt.MapFrom(src => src.Category.Title))
+                    .ForMember(d => d.InstructorName, opt => opt.Ignore());
 
         }
     }

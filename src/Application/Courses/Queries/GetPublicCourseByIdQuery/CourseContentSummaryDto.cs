@@ -2,6 +2,8 @@
 public class CourseContentSummaryDto
 {
     public string TotalVideoDuration { get; set; }
+    public int TotalSection { get; set; }
+    public int TotalLecturer { get; set; }
     public List<SectionSummaryDto> Sections { get; set; }
 }
 

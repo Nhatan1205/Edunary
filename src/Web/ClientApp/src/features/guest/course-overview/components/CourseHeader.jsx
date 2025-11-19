@@ -13,7 +13,8 @@ const CourseHeader = ({ courseData }) => {
           mb: 1.5,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
-          fontWeight: 500
+          fontWeight: 500,
+          color: 'text.inverse'
         }}
       >
         {courseData.category} • {courseData.topic}
@@ -25,9 +26,8 @@ const CourseHeader = ({ courseData }) => {
         sx={{ 
           fontWeight: 700, 
           mb: 2,
-          color: 'text.primary',
           lineHeight: 1.3,
-          maxWidth: '1000px' // Limit width for better readability
+          color: 'text.inverse'
         }}
       >
         {courseData.title}
@@ -38,7 +38,7 @@ const CourseHeader = ({ courseData }) => {
           variant="h6" 
           sx={{ 
             mb: 3,
-            color: 'text.secondary',
+            color: '#F3F3F3',
             fontWeight: 400,
             lineHeight: 1.4,
             maxWidth: '850px'
@@ -54,28 +54,37 @@ const CourseHeader = ({ courseData }) => {
           sx={{
             fontWeight: 600,
             color: '#FAAF00',
-            lineHeight: 1,          // giảm line-height
-            fontSize: '0.875rem'    // đảm bảo tương đương size="small" của Rating
+            lineHeight: 1,
+            fontSize: '0.875rem'
           }}
         >
           {courseData.ratings}
         </Typography>
 
-        <Rating 
-          value={3}
+        <Rating
+          value={courseData.ratings}
           precision={0.5} 
           size="small"
           readOnly
-          sx={{ display: 'flex', alignItems: 'center' }} // thêm dòng này
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            '& .MuiRating-iconFilled': {
+              color: '#FAAF00',
+            },
+            '& .MuiRating-iconEmpty': {
+              color: '#FAAF00',
+            },
+          }}
         />
 
         <Typography 
           variant="body2" 
           sx={{ 
+            color: 'text.inverse',
             fontWeight: 600,
-            color: 'text.primary',
             display: 'flex',
-            alignItems: 'center' // thêm dòng này
+            alignItems: 'center'
           }}
         >
           • {courseData.totalStudents} students
@@ -87,10 +96,19 @@ const CourseHeader = ({ courseData }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3, flexWrap: 'wrap' }}>
         <Typography
           variant="body1"
-          color="text.primary"
-          sx={{ fontWeight: 600 }}
+          color="text.inverse"
         >
-          Created by {courseData.instructorName}
+          Created by{" "}
+          <Typography
+            component="span"
+            sx={{
+              fontWeight: 600,
+              textDecoration: 'underline',
+              color: 'brand.light',
+            }}
+          >
+            {courseData.instructorName}
+          </Typography>
         </Typography>
         </Box>
 
@@ -109,8 +127,8 @@ const CourseHeader = ({ courseData }) => {
           variant="outlined"
           size="small"
           sx={{
-            borderColor: 'text.tertiary',
-            color: 'text.secondary'
+            borderColor: 'text.inverse',
+            color: 'text.inverse'
           }}
         />
 
@@ -120,8 +138,8 @@ const CourseHeader = ({ courseData }) => {
           variant="outlined"
           size="small"
           sx={{
-            borderColor: 'text.tertiary',
-            color: 'text.secondary'
+            borderColor: 'text.inverse',
+            color: 'text.inverse'
           }}
         />
         <Chip
@@ -130,8 +148,8 @@ const CourseHeader = ({ courseData }) => {
           variant="outlined"
           size="small"
           sx={{
-            borderColor: 'text.tertiary',
-            color: 'text.secondary'
+            borderColor: 'text.inverse',
+            color: 'text.inverse'
           }}
         />
         

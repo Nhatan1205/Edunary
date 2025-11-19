@@ -27,6 +27,7 @@ import DOMPurify from "dompurify";
 import { Container } from 'reactstrap';
 
 const CourseTabs = ({ courseData, reviews }) => {
+  console.log(courseData);
   const [activeTab, setActiveTab] = useState(0)
 
   const handleTabChange = (event, newValue) => {
@@ -139,11 +140,6 @@ const CourseTabs = ({ courseData, reviews }) => {
       })) || [],
     })) || [];
 
-
-    const totalLectures = courseData.content?.Sections?.reduce(
-      (sum, section) => sum + section.Items.length, 0
-      ) || 0;
-
     return (
       <Box sx={{ py: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -158,11 +154,11 @@ const CourseTabs = ({ courseData, reviews }) => {
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <Typography variant="body2" color="text.secondary">
-              {courseData?.content?.Sections?.length} sections
+              {courseData?.content?.TotalSection} sections
             </Typography>
             <Typography variant="body2" color="text.secondary">•</Typography>
             <Typography variant="body2" color="text.secondary">
-              {totalLectures} lectures
+              {courseData?.content?.TotalLecturer} lectures
             </Typography>
             <Typography variant="body2" color="text.secondary">•</Typography>
             <Typography variant="body2" color="text.secondary">
@@ -206,7 +202,7 @@ const CourseTabs = ({ courseData, reviews }) => {
                     variant="subtitle1"
                     sx={{ fontWeight: 600, color: 'text.primary' }}
                   >
-                    Section {sectionIndex + 1}: {section.title}
+                     {section.title}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                     <Chip
@@ -252,7 +248,7 @@ const CourseTabs = ({ courseData, reviews }) => {
                       />
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {lesson.duration && (
-                          <Typography variant="caption" color="text.disabled">
+                          <Typography variant="body2" color="text.secondary">
                             {lesson.duration}
                           </Typography>
                         )}

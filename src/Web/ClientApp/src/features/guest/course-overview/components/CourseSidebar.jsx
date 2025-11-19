@@ -19,6 +19,7 @@ import {
   ClosedCaption,
   RecordVoiceOver,
   EmojiEvents,
+  PlayArrow,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
@@ -119,18 +120,39 @@ const CourseSidebar = ({ courseData }) => {
           {/* Action Buttons */}
           <Box sx={{ mb: 2 }}>
             {isAuthenticated && isEnrolled ? (
-              <>
+              <Button
+              variant="contained"
+              fullWidth
+              onClick={handleGoToCourse}
+              startIcon={<PlayArrow />}
+              sx={{
+                py: 1.5,
+                mb: 2,
+                fontWeight: 600,
+                backgroundColor: 'brand.main',
+                color: 'text.inverse',
+                '&:hover': {
+                  backgroundColor: 'brand.dark',
+                },
+                borderRadius: 1.5,
+                textTransform: 'none'
+              }}
+            >
+              Go to Course
+            </Button>
+            ) : (
+               <>
               <Button
                 variant="contained"
                 fullWidth
-                onClick={handleGoToCourse}
+                onClick={handleBuyNow}
                 disabled={loading}
                 sx={{
                   py: 1.5,
-                  mb: 1.5,
+                  mb: 2,
                   fontWeight: 600,
                   backgroundColor: 'brand.main',
-                  color: 'white',
+                  color: 'text.inverse',
                   '&:hover': {
                     backgroundColor: 'brand.dark',
                   },
@@ -153,57 +175,15 @@ const CourseSidebar = ({ courseData }) => {
                   fontWeight: 500,
                   borderRadius: 1.5,
                   textTransform: 'none',
-                  fontSize: '1rem'
+                  '&:hover': {
+                    backgroundColor: 'brand.lighter',
+                    borderColor: 'brand.main',
+                  }
                 }}
               >
                 {addingToCart ? 'Adding...' : 'Add to Cart'}
               </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={handleBuyNow}
-                  disabled={loading}
-                  sx={{
-                    py: 1.5,
-                    mb: 1.5,
-                    fontWeight: 600,
-                    backgroundColor: 'brand.main',
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: 'brand.dark',
-                    },
-                    borderRadius: 0,
-                    textTransform: 'none',
-                    fontSize: '1rem'
-                  }}
-                >
-                  {loading ? 'Checking...' : 'Buy Now'}
-                </Button>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  disabled={loading}
-                  sx={{
-                    py: 1.5,
-                    mb: 2,
-                    borderColor: 'brand.main',
-                    color: 'brand.main',
-                    fontWeight: 600,
-                    borderRadius: 0,
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    '&:hover': {
-                      backgroundColor: 'brand.lighter',
-                      borderColor: 'brand.main',
-                    }
-                  }}
-                >
-                  Wishlist
-                </Button>
-              </>
+            </>
             )}
           </Box>
 

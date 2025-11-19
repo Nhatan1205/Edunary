@@ -1,17 +1,37 @@
 import React from "react"
 import {
   Box,
+  Button,
   Typography,
   Card,
   CardContent,
   CardMedia,
-  Chip,
   Rating,
-  Link,
   Stack,
 } from "@mui/material"
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import LoadingSpinner from "../../../components/LoadingSpinner"
+import { useNavigate } from "react-router"
 
-const CartItem = ({ item, onRemove }) => {
+const CartItem = ({ item, onRemove, onSaveForLater, onMoveToCart, loading, isSavedForLater = false }) => {
+  const handleRemove = async () => {
+    await onRemove(item.id)
+  }
+  const imageUrl = item.imageUrl || "https://via.placeholder.com/200x120?text=No+Image"
+  const handleSaveOrMove = async () => {
+    if (isSavedForLater) {
+      await onMoveToCart(item.id)
+    } else {
+      await onSaveForLater(item.id)
+    }
+  }
+  const navigate = useNavigate()
+  const handleCardClick = () => {
+    const courseId = item.courseId ?? item.id
+    navigate(`/course/${courseId}`)
+  }
+
   return (
     <Card
       sx={{
@@ -38,11 +58,12 @@ const CartItem = ({ item, onRemove }) => {
               height: { xs: 200, sm: 120 },
               borderRadius: 1,
               flexShrink: 0,
+              cursor: "pointer"
             }}
-            image={item.image}
+            image={imageUrl}
             alt={item.title}
+            onClick={handleCardClick}
           />
-
           {/* Content and Actions Container */}
           <Box
             sx={{
@@ -50,7 +71,9 @@ const CartItem = ({ item, onRemove }) => {
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
               gap: { xs: 2, md: 0 },
+              cursor: "pointer",
             }}
+            onClick={handleCardClick}
           >
             {/* Course Info */}
             <Box sx={{ flex: 1, pr: { md: 3 } }}>
@@ -66,6 +89,19 @@ const CartItem = ({ item, onRemove }) => {
                 {item.title}
               </Typography>
 
+              {item.subtitle && (
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{
+                    mb: 1,
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  }}
+                >
+                  {item.subtitle}
+                </Typography>
+              )}
+
               <Typography
                 variant="body1"
                 color="text.secondary"
@@ -74,7 +110,7 @@ const CartItem = ({ item, onRemove }) => {
                   fontSize: { xs: "0.75rem", sm: "0.875rem" },
                 }}
               >
-                {item.instructor}
+                By {item.instructorName}
               </Typography>
 
               <Box
@@ -86,36 +122,30 @@ const CartItem = ({ item, onRemove }) => {
                   flexWrap: "wrap",
                 }}
               >
-                {item.bestseller && (
-                  <Chip
-                    label="Bestseller"
-                    size="small"
-                    sx={{
-                      backgroundColor: "background.muted",
-                      color: "text.primary",
-                      fontWeight: "bold",
-                      fontSize: { xs: "0.625rem", sm: "0.75rem" },
-                    }}
-                  />
+                {item.rating != null && (
+                  <>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "text.primary",
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                      }}
+                    >
+                      {item.rating.toFixed(1)}
+                    </Typography>
+                    <Rating value={item.rating} readOnly size="small" precision={0.1} />
+                    {item.reviewCount > 0 && (
+                      <Typography
+                        variant="body1"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      >
+                        ({item.reviewCount.toLocaleString()} ratings)
+                      </Typography>
+                    )}
+                  </>
                 )}
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "text.primary",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                >
-                  {item.rating}
-                </Typography>
-                <Rating value={item.rating} readOnly size="small" precision={0.1} />
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                >
-                  ({item.reviews.toLocaleString()} ratings)
-                </Typography>
               </Box>
 
               <Typography
@@ -123,93 +153,88 @@ const CartItem = ({ item, onRemove }) => {
                 color="text.secondary"
                 sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
               >
-                {item.totalHours} • {item.lectures} • {item.level}
+                {item.totalHours > 0 && `${item.totalHours} hours`}
+                {item.totalLectures > 0 && ` • ${item.totalLectures} lectures`}
+                {item.level && ` • ${item.level}`}
               </Typography>
             </Box>
+          </Box>
 
-            {/* Actions and Price */}
-            <Box
+          {/* Actions and Price */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "row", md: "column" },
+              alignItems: { xs: "center", md: "flex-end" },
+              justifyContent: { xs: "space-between", md: "flex-start" },
+              gap: 2,
+              minWidth: { md: 200 },
+              pr: { md: 2 },
+            }}
+          >
+            {/* Action Links */}
+            <Stack
+              direction={{ xs: "column", md: "column" }}
+              spacing={1}
               sx={{
-                display: "flex",
-                flexDirection: { xs: "row", md: "column" },
-                alignItems: { xs: "center", md: "flex-end" },
-                justifyContent: { xs: "space-between", md: "flex-start" },
-                gap: 2,
-                minWidth: { md: 200 },
-                pr: { md: 2 },
+                flexWrap: "wrap",
+                justifyContent: { xs: "flex-end", md: "flex-end" },
+                alignItems: "flex-end",
               }}
             >
-              {/* Action Links */}
-              <Stack
-                direction={{ xs: "row", md: "row" }}
-                spacing={1}
+              <Button
+                variant="text"
                 sx={{
-                  flexWrap: "wrap",
-                  justifyContent: { xs: "flex-start", md: "flex-end" },
+                  color: "brand.main",
+                  textDecoration: "none",
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  minWidth: 0,
+                  padding: 0,
+                }}
+                onClick={handleRemove}
+                disabled={loading}
+                disableRipple
+                endIcon={<RemoveCircleIcon fontSize="small" />}
+              >
+                {loading ? <LoadingSpinner size={14} /> : 'Remove'}
+              </Button>
+
+              <Button
+                variant="text"
+                sx={{
+                  color: "brand.main",
+                  textDecoration: "none",
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  minWidth: 0,
+                  padding: 0,
+                }}
+                onClick={handleSaveOrMove}
+                disabled={loading}
+                disableRipple
+                endIcon={<AddShoppingCartIcon fontSize="small" />}
+              >
+                {loading ? <LoadingSpinner size={14} /> : (isSavedForLater ? 'Move to Cart' : 'Save for Later')}
+              </Button>
+            </Stack>
+
+            {/* Price */}
+            <Box sx={{ textAlign: { xs: "right", md: "right" } }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: "bold",
+                  color: "brand.main",
+                  fontSize: { xs: "1rem", sm: "1.25rem" },
                 }}
               >
-                <Link
-                  component="button"
-                  variant="body1"
-                  sx={{
-                    color: "brand.main",
-                    textDecoration: "none",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                  underline="hover"
-                  onClick={() => onRemove(item.id)}
-                >
-                  Remove
-                </Link>
-                <Link
-                  component="button"
-                  variant="body1"
-                  sx={{
-                    color: "brand.main",
-                    textDecoration: "none",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                  underline="hover"
-                >
-                  Save for Later
-                </Link>
-                <Link
-                  component="button"
-                  variant="body1"
-                  sx={{
-                    color: "brand.main",
-                    textDecoration: "none",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                  underline="hover"
-                >
-                  Move to Wishlist
-                </Link>
-              </Stack>
-
-              {/* Price */}
-              <Box sx={{ textAlign: { xs: "right", md: "right" } }}>
-                <Typography
-                  variant="h3"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "brand.main",
-                    fontSize: { xs: "1rem", sm: "1.25rem" },
-                  }}
-                >
-                  {item.currentPrice}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    textDecoration: "line-through",
-                    color: "text.secondary",
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                >
-                  {item.originalPrice}
-                </Typography>
-              </Box>
+                ${item.price.toFixed(2)}
+              </Typography>
             </Box>
           </Box>
         </Box>

@@ -17,6 +17,8 @@ public interface IApplicationDbContext
     public DbSet<Category> Categories { get; }
     public DbSet<Enrollment> Enrollments { get; }
 
+    public DbSet<Cart> Carts { get; }
+
     public DbSet<Notification> Notifications { get; }
 
     public DbSet<NotificationUser> NotificationUsers { get; }

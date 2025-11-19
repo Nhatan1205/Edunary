@@ -14,7 +14,9 @@ import CoursePopover from "../../../../components/course-popover/CoursePopover";
 import { usePopover } from "../../../../context/PopoverContext";
 import { getPopoverOrigin } from "../../../../utils/getPopoverOrigin";
 import DefaultImage from "../../../../assets/images/default.jpg";
-import { Link as RouterLink } from "react-router";
+import { Link as RouterLink, useNavigate } from "react-router";
+import { useAuth } from "../../../../context/AuthContext";
+import { useAddToCart } from "../../../../hooks/useAddToCart";
 
 function CourseCard({ course }) {
   const { id, imageUrl, title, price, level } = course;
@@ -22,6 +24,9 @@ function CourseCard({ course }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const cardRef = useRef(null);
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { addToCart, loading: addingToCart } = useAddToCart();
 
   const {
     anchorEl,
@@ -42,9 +47,12 @@ function CourseCard({ course }) {
 
   const popoverOrigins = getPopoverOrigin(isMobile, cardRef);
 
-  const handleAddToCart = (course) => {
-    // console.log("Adding to cart:", course.title);
-    // Implement your add to cart logic here
+  const handleAddToCart = async (course) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    await addToCart(course.id);
   };
 
   const handleToggleFavorite = (course) => {
@@ -199,6 +207,7 @@ function CourseCard({ course }) {
         onToggleFavorite={handleToggleFavorite}
         anchorOrigin={popoverOrigins.anchorOrigin}
         transformOrigin={popoverOrigins.transformOrigin}
+        addingToCart={addingToCart}
       />
     </Col>
   );

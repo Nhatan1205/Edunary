@@ -123,6 +123,18 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             }
         }
 
+        // Remove purchased courses from cart
+        var courseIds = order.OrderItems.Select(oi => oi.CourseId).ToList();
+        var cartItemsToRemove = await _context.Carts
+            .Where(c => c.CustomerId == order.UserId && courseIds.Contains(c.CourseId))
+            .ToListAsync(cancellationToken);
+
+        if (cartItemsToRemove.Any())
+        {
+            _context.Carts.RemoveRange(cartItemsToRemove);
+            _logger.LogInformation("Removed {Count} items from cart for UserId: {UserId}", cartItemsToRemove.Count, order.UserId);
+        }
+
         var result = await _context.SaveChangesAsync(cancellationToken);
         
         if (result <= 0)

@@ -36,8 +36,6 @@ const CourseOverview = () => {
   const navigate = useNavigate()
   const { data: courseData, isLoading, isError, error } = useGetPublicCourseById(id)
 
-  console.log("course",courseData);
-
   useEffect(() => {
     if (!isLoading && (isError || !courseData?.id)) {
       const errorMessage = isError && error?.message === "Course not found"
@@ -69,17 +67,14 @@ const CourseOverview = () => {
     currentPrice: courseData.price,
     discount: 20,
     sections: 12,
-    lectures: 45, 
-    duration: "8h 30m",
+    lectures: 45,
     language: "English",
     image: courseData.imageUrl || "https://blocks.astratic.com/img/general-img-landscape.png",
-    level: courseData.level || "Beginner",
     requirements: courseData.requirements || "No prior experience required",
     learningObjectives: courseData.learningObjectives || "Master the fundamentals and build practical skills",
     welcomeMessage: courseData.welcomeMessage || "",
     topic: courseData.topic || courseData.categoryTitle || "Development",
     subtitle: courseData.subtitle || "",
-    lastUpdated: "October 2024",
     certificateOfCompletion: true,
     lifetimeAccess: true,
     mobileAccess: true,

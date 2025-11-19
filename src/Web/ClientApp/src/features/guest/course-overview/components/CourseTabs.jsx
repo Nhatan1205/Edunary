@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { 
-  Box, 
-  Tabs, 
-  Tab, 
-  Divider, 
-  Typography, 
-  Avatar, 
-  Button, 
+  Box,
+  Tabs,
+  Tab,
+  Divider,
+  Typography,
+  Avatar,
+  Button,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -16,14 +16,15 @@ import {
   ListItemText,
   Chip
 } from '@mui/material'
-import { 
-  ExpandMore, 
-  PlayCircleOutline, 
-  Assignment, 
+import {
+  ExpandMore,
+  PlayCircleOutline,
+  Assignment,
   Quiz,
-  Schedule
+  Check,
 } from '@mui/icons-material'
 import DOMPurify from "dompurify";
+import { Container } from 'reactstrap';
 
 const CourseTabs = ({ courseData, reviews }) => {
   const [activeTab, setActiveTab] = useState(0)
@@ -126,46 +127,22 @@ const CourseTabs = ({ courseData, reviews }) => {
   )
 
   const renderCourses = () => {
-    // Mock curriculum data - in real app this would come from courseData
-    const curriculum = [
-      {
-        title: "Getting Started",
-        duration: "45 min",
-        lectures: 6,
-        lessons: [
-          { title: "Course Introduction", duration: "5 min", type: "video" },
-          { title: "Setting Up Your Development Environment", duration: "12 min", type: "video" },
-          { title: "Understanding the Basics", duration: "18 min", type: "video" },
-          { title: "Your First Project", duration: "8 min", type: "video" },
-          { title: "Knowledge Check", duration: "2 min", type: "quiz" }
-        ]
-      },
-      {
-        title: "Core Concepts",
-        duration: "2h 15m",
-        lectures: 12,
-        lessons: [
-          { title: "Introduction to Core Principles", duration: "15 min", type: "video" },
-          { title: "Working with Data", duration: "25 min", type: "video" },
-          { title: "Building Your First Feature", duration: "30 min", type: "video" },
-          { title: "Practice Exercise 1", duration: "45 min", type: "assignment" },
-          { title: "Advanced Techniques", duration: "20 min", type: "video" },
-          { title: "Section Quiz", duration: "5 min", type: "quiz" }
-        ]
-      },
-      {
-        title: "Advanced Topics",
-        duration: "3h 20m",
-        lectures: 15,
-        lessons: [
-          { title: "Advanced Concepts Overview", duration: "10 min", type: "video" },
-          { title: "Performance Optimization", duration: "35 min", type: "video" },
-          { title: "Best Practices", duration: "25 min", type: "video" },
-          { title: "Real-world Project", duration: "90 min", type: "assignment" },
-          { title: "Final Assessment", duration: "40 min", type: "quiz" }
-        ]
-      }
-    ];
+    if (!courseData.content) return null;
+    let curriculum = courseData.content?.Sections?.map((section) => ({
+      title: section.Title,
+      duration: section.TotalVideoDuration || undefined,
+      lectures: section.Items?.length || 0,
+      lessons: section.Items?.map((item) => ({
+        title: item.Title,
+        duration: item.VideoDuration || undefined,
+        type: item.ContentType
+      })) || [],
+    })) || [];
+
+
+    const totalLectures = courseData.content?.Sections?.reduce(
+      (sum, section) => sum + section.Items.length, 0
+      ) || 0;
 
     return (
       <Box sx={{ py: 3 }}>
@@ -181,22 +158,22 @@ const CourseTabs = ({ courseData, reviews }) => {
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <Typography variant="body2" color="text.secondary">
-              {courseData.sections} sections
+              {courseData?.content?.Sections?.length} sections
             </Typography>
             <Typography variant="body2" color="text.secondary">•</Typography>
             <Typography variant="body2" color="text.secondary">
-              {courseData.lectures} lectures
+              {totalLectures} lectures
             </Typography>
             <Typography variant="body2" color="text.secondary">•</Typography>
             <Typography variant="body2" color="text.secondary">
-              {courseData.duration} total
+              {courseData?.content?.TotalVideoDuration} total
             </Typography>
           </Box>
         </Box>
 
         <Box sx={{ mb: 3 }}>
           {curriculum.map((section, sectionIndex) => (
-            <Accordion 
+            <Accordion
               key={sectionIndex}
               sx={{
                 mb: 1,
@@ -225,18 +202,18 @@ const CourseTabs = ({ courseData, reviews }) => {
                 }}
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', mr: 2 }}>
-                  <Typography 
-                    variant="subtitle1" 
+                  <Typography
+                    variant="subtitle1"
                     sx={{ fontWeight: 600, color: 'text.primary' }}
                   >
                     Section {sectionIndex + 1}: {section.title}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <Chip 
+                    <Chip
                       label={`${section.lectures} lectures`}
                       size="small"
                       variant="outlined"
-                      sx={{ 
+                      sx={{
                         borderColor: 'text.disabled',
                         color: 'text.secondary',
                         fontSize: '0.75rem'
@@ -262,7 +239,7 @@ const CourseTabs = ({ courseData, reviews }) => {
                     >
                       <ListItemIcon sx={{ minWidth: 36 }}>
                         {lesson.type === 'video' && <PlayCircleOutline sx={{ color: 'brand.main', fontSize: 20 }} />}
-                        {lesson.type === 'assignment' && <Assignment sx={{ color: 'text.tertiary', fontSize: 20 }} />}
+                        {lesson.type === 'article' && <Assignment sx={{ color: 'text.tertiary', fontSize: 20 }} />}
                         {lesson.type === 'quiz' && <Quiz sx={{ color: 'text.tertiary', fontSize: 20 }} />}
                       </ListItemIcon>
                       <ListItemText 
@@ -274,10 +251,11 @@ const CourseTabs = ({ courseData, reviews }) => {
                         }}
                       />
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Schedule sx={{ fontSize: 16, color: 'text.disabled' }} />
-                        <Typography variant="caption" color="text.disabled">
-                          {lesson.duration}
-                        </Typography>
+                        {lesson.duration && (
+                          <Typography variant="caption" color="text.disabled">
+                            {lesson.duration}
+                          </Typography>
+                        )}
                       </Box>
                     </ListItem>
                   ))}
@@ -376,6 +354,99 @@ const CourseTabs = ({ courseData, reviews }) => {
   )
 
   return (
+    <>
+      <Container className="py-4 px-0 bord">
+        <Box
+          sx={{
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1,
+            padding: "32px",
+            backgroundColor: "white",
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 700,
+              marginBottom: 3,
+              fontSize: '24px',
+              color: '#1c1d1f'
+            }}
+          >
+            What you'll learn
+          </Typography>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {Array.from({ 
+                length: Math.ceil(courseData?.learningObjectives.length / 2) 
+              }).map((_, rowIndex) => {
+                const leftItem = courseData?.learningObjectives[rowIndex];
+                const rightItem = courseData?.learningObjectives[rowIndex + Math.ceil(courseData?.learningObjectives.length / 2)];
+                
+                return (
+                  <tr key={rowIndex}>
+                    <td style={{ 
+                      width: '50%', 
+                      padding: '6px 16px 6px 0',
+                      verticalAlign: 'top'
+                    }}>
+                      {leftItem && (
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                          <Check
+                            sx={{
+                              fontSize: '16px',
+                              mr: 1.5,
+                              mt: '2px',
+                              flexShrink: 0,
+                              color: '#1c1d1f'
+                            }}
+                          />
+                          <span 
+                            dangerouslySetInnerHTML={{ __html: leftItem }}
+                            style={{
+                              fontSize: '14px',
+                              lineHeight: '1.4',
+                              color: '#1c1d1f'
+                            }}
+                          />
+                        </Box>
+                      )}
+                    </td>
+                    <td style={{ 
+                      width: '50%', 
+                      padding: '6px 0 6px 16px',
+                      verticalAlign: 'top'
+                    }}>
+                      {rightItem && (
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                          <Check
+                            sx={{
+                              fontSize: '16px',
+                              mr: 1.5,
+                              mt: '2px',
+                              flexShrink: 0,
+                              color: '#1c1d1f'
+                            }}
+                          />
+                          <span 
+                            dangerouslySetInnerHTML={{ __html: rightItem }}
+                            style={{
+                              fontSize: '14px',
+                              lineHeight: '1.4',
+                              color: '#1c1d1f'
+                            }}
+                          />
+                        </Box>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </Box>
+      </Container>
     <Box 
       sx={{ 
         bgcolor: 'background.paper',
@@ -423,6 +494,7 @@ const CourseTabs = ({ courseData, reviews }) => {
         {activeTab === 2 && renderReviews()}
       </Box>
     </Box>
+    </>
   )
 }
 

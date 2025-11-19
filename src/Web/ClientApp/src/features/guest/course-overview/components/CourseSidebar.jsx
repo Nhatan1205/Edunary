@@ -12,7 +12,6 @@ import {
 } from '@mui/material'
 import { 
   PlayCircleOutline,
-  Schedule,
   Description,
   PhoneAndroid,
   AllInclusive,
@@ -23,6 +22,7 @@ import {
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
 import { useEnrollmentStatus } from '../../../../hooks/useEnrollmentStatus'
+import { formatMonthYear, getLevelLabel } from '../../../../utils/helpers'
 
 const CourseSidebar = ({ courseData }) => {
   const navigate = useNavigate()
@@ -48,6 +48,11 @@ const CourseSidebar = ({ courseData }) => {
   const handleGoToCourse = () => {
     navigate(`/course/${courseData.id}/learn`)
   }
+
+   const totalArticles = courseData.content?.Sections?.reduce(
+      (sum, section) => 
+        sum + section.Items.filter(item => item.ContentType === "article").length, 0
+    )|| 0;
 
   return (
     <Box sx={{ width: '100%', maxWidth: 380 }}>
@@ -206,7 +211,7 @@ const CourseSidebar = ({ courseData }) => {
                 <PlayCircleOutline sx={{ color: 'text.secondary', fontSize: 18 }} />
               </ListItemIcon>
               <ListItemText
-                primary={`${courseData.duration || '32 hours'} on-demand video`}
+                primary={`${courseData?.content?.TotalVideoDuration || '0 hours'} on-demand video`}
                 slotProps={{
                   typography: {
                     variant: 'body2',
@@ -217,7 +222,7 @@ const CourseSidebar = ({ courseData }) => {
               />
             </ListItem>
 
-            <ListItem sx={{ px: 0, py: 0.75 }}>
+            {/* <ListItem sx={{ px: 0, py: 0.75 }}>
               <ListItemIcon sx={{ minWidth: 32 }}>
                 <Schedule sx={{ color: 'text.secondary', fontSize: 18 }} />
               </ListItemIcon>
@@ -231,14 +236,14 @@ const CourseSidebar = ({ courseData }) => {
                   },
                 }}
               />
-            </ListItem>
+            </ListItem> */}
 
             <ListItem sx={{ px: 0, py: 0.75 }}>
               <ListItemIcon sx={{ minWidth: 32 }}>
                 <Description sx={{ color: 'text.secondary', fontSize: 18 }} />
               </ListItemIcon>
               <ListItemText
-                primary={`${courseData.downloadableResources || '9'} articles`}
+                primary={`${totalArticles || '0'} articles`}
                 slotProps={{
                   typography: {
                     variant: 'body2',
@@ -345,12 +350,12 @@ const CourseSidebar = ({ courseData }) => {
           </Typography>
         
         <Stack spacing={1}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          {/* <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="body2" color="text.tertiary">Duration:</Typography>
             <Typography variant="body2" color="text.secondary" fontWeight={500}>
               {courseData.duration}
             </Typography>
-          </Box>
+          </Box> */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="body2" color="text.tertiary">Language:</Typography>
             <Typography variant="body2" color="text.secondary" fontWeight={500}>
@@ -360,13 +365,13 @@ const CourseSidebar = ({ courseData }) => {
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="body2" color="text.tertiary">Level:</Typography>
             <Typography variant="body2" color="text.secondary" fontWeight={500}>
-              {courseData.level}
+              {getLevelLabel(courseData.level)}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="body2" color="text.tertiary">Last updated:</Typography>
             <Typography variant="body2" color="text.secondary" fontWeight={500}>
-              {courseData.lastUpdated}
+              {formatMonthYear(courseData.lastModified)}
             </Typography>
           </Box>
         </Stack>

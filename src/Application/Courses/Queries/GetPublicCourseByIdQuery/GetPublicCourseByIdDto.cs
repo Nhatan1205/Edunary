@@ -22,7 +22,11 @@ public class GetPublicCourseByIdDto
     public string CreatedBy { get; set; }
     public int CategoryId { get; set; }
     public string CategoryTitle { get; set; } = null!;
+    public float Ratings { get; set; }
+    public int TotalStudents { get; set; }
     public string InstructorName { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public DateTimeOffset LastModified { get; set; }
 
     private class Mapping : Profile
     {

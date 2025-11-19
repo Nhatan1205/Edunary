@@ -17,9 +17,11 @@ const useGetPublicCourseById = (id) => {
         let learningObjectives = JSON.parse(result.learningObjectives || "[]");
         let requirements = JSON.parse(result.requirements || "[]");
         let targetAudience = JSON.parse(result.targetAudience || "[]");
+        let content = JSON.parse(result.content);
 
         return {
         ...result,
+        content,
         learningObjectives,
         requirements,
         targetAudience,

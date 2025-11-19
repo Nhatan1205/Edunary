@@ -3180,7 +3180,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     createdBy?: string | undefined;
     categoryId?: number;
     categoryTitle?: string | undefined;
+    ratings?: number;
+    totalStudents?: number;
     instructorName?: string | undefined;
+    content?: string | undefined;
+    lastModified?: Date;
 
     constructor(data?: IGetPublicCourseByIdDto) {
         if (data) {
@@ -3210,7 +3214,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.createdBy = _data["createdBy"];
             this.categoryId = _data["categoryId"];
             this.categoryTitle = _data["categoryTitle"];
+            this.ratings = _data["ratings"];
+            this.totalStudents = _data["totalStudents"];
             this.instructorName = _data["instructorName"];
+            this.content = _data["content"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
         }
     }
 
@@ -3240,7 +3248,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["createdBy"] = this.createdBy;
         data["categoryId"] = this.categoryId;
         data["categoryTitle"] = this.categoryTitle;
+        data["ratings"] = this.ratings;
+        data["totalStudents"] = this.totalStudents;
         data["instructorName"] = this.instructorName;
+        data["content"] = this.content;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
         return data;
     }
 }
@@ -3263,7 +3275,11 @@ export interface IGetPublicCourseByIdDto {
     createdBy?: string | undefined;
     categoryId?: number;
     categoryTitle?: string | undefined;
+    ratings?: number;
+    totalStudents?: number;
     instructorName?: string | undefined;
+    content?: string | undefined;
+    lastModified?: Date;
 }
 
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {

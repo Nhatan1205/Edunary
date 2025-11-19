@@ -2265,9 +2265,25 @@
             "type": "string",
             "nullable": true
           },
+          "ratings": {
+            "type": "number",
+            "format": "float"
+          },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
           "instructorName": {
             "type": "string",
             "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

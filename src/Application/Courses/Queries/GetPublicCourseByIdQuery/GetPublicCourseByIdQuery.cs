@@ -1,4 +1,7 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Courses.Queries.GetPublicCourseByIdQuery;
 
 namespace Edunary.Application.Courses.Queries.GetPublicCourseById;
 
@@ -29,6 +32,31 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
             .FirstOrDefaultAsync(cancellationToken);
         if (course == null) return null!;
         course.InstructorName = await _identityService.GetFullNameAsync(course.CreatedBy);
+
+        if (!string.IsNullOrWhiteSpace(course.Content))
+        {
+            //deserialize content JSON
+            var contentObj = JsonSerializer.Deserialize<CourseContentDto>(course.Content);
+            var summary = new CourseContentSummaryDto
+            {
+                TotalVideoDuration = contentObj.TotalVideoDuration,
+                Sections = contentObj.Contents.Select(section => new SectionSummaryDto
+                {
+                    Title = section.Title,
+                    Items = section.Items.Select(item => new ItemSummaryDto
+                    {
+                        Title = item.Title,
+                        ContentType = item.ContentType,
+                        VideoDuration = item.VideoDuration ?? "0 seconds"
+                    }).ToList()
+                }).ToList()
+            };
+            //serialize content JSON
+            course.Content = JsonSerializer.Serialize(summary, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+        }
         return course;
     }
 }

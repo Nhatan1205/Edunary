@@ -42,6 +42,13 @@ export function formatTimeAgo(date) {
   }
 }
 
+export function formatMonthYear(dateString) {
+  const date = new Date(dateString);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // getMonth() trả về 0-11
+  const year = date.getFullYear();
+  return `${month}/${year}`;
+}
+
 export function getLevelLabel(value) {
   return LEVEL_MAP[value] || "Unknown";
 }

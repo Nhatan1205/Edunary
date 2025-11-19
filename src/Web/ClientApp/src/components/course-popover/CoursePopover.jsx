@@ -2,11 +2,15 @@ import {
   Check,
   FavoriteBorder,
   ShoppingCart,
+  PlayArrow,
 } from "@mui/icons-material";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import { useEnrollmentStatus } from "../../hooks/useEnrollmentStatus";
+import { useAuth } from '../../context/AuthContext'
+import { useNavigate } from 'react-router'
 
 import {
   Box,
@@ -113,11 +117,19 @@ function CoursePopover({
   onToggleFavorite,
   anchorOrigin,
   transformOrigin,
+  addingToCart = false,
 }) {
   const { title, level, subtitle, topic, learningObjectives } = course;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { isAuthenticated } = useAuth()
+  const { isEnrolled } = useEnrollmentStatus(course.id)
+  const navigate = useNavigate()
+
+  const handleGoToCourse = () => {
+    navigate(`/course/${course.id}/learn`)
+  }
 
   return (
     <Popover
@@ -238,25 +250,48 @@ function CoursePopover({
 
           {/* Action Buttons */}
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <Button
-              variant="contained"
-              fullWidth
-              startIcon={<ShoppingCart />}
-              onClick={() => onAddToCart && onAddToCart(course)}
-              sx={{
-                backgroundColor: "brand.main",
-                color: "white",
-                fontWeight: 600,
-                textTransform: "none",
-                py: 1.2,
-                borderRadius: 1,
-                "&:hover": {
-                  backgroundColor: "brand.dark",
-                },
-              }}
-            >
-              Add to cart
-            </Button>
+          {isAuthenticated && isEnrolled ? (
+              <Button
+                variant="contained"
+                fullWidth
+                startIcon={<PlayArrow />}
+                onClick={handleGoToCourse}
+                sx={{
+                  backgroundColor: "brand.main",
+                  color: "white",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  py: 1.2,
+                  borderRadius: 1,
+                  "&:hover": {
+                    backgroundColor: "brand.dark",
+                  },
+                }}
+              >
+                Go to Course
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                fullWidth
+                startIcon={<ShoppingCart />}
+                onClick={() => onAddToCart && onAddToCart(course)}
+                disabled={addingToCart}
+                sx={{
+                  backgroundColor: "brand.main",
+                  color: "white",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  py: 1.2,
+                  borderRadius: 1,
+                  "&:hover": {
+                    backgroundColor: "brand.dark",
+                  },
+                }}
+              >
+                {addingToCart ? 'Adding...' : 'Add to cart'}
+              </Button>
+            )}
 
             <IconButton
               onClick={() => onToggleFavorite && onToggleFavorite(course)}

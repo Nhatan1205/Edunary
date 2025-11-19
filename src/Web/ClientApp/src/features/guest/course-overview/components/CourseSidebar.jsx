@@ -14,6 +14,7 @@ import {
   PlayCircleOutline,
   Description,
   PhoneAndroid,
+  ShoppingCart,
   AllInclusive,
   ClosedCaption,
   RecordVoiceOver,
@@ -23,11 +24,13 @@ import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
 import { useEnrollmentStatus } from '../../../../hooks/useEnrollmentStatus'
 import { formatMonthYear, getLevelLabel } from '../../../../utils/helpers'
+import { useAddToCart } from '../../../../hooks/useAddToCart'
 
 const CourseSidebar = ({ courseData }) => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const { isEnrolled, loading } = useEnrollmentStatus(courseData.id)
+  const { addToCart, loading: addingToCart } = useAddToCart()
 
   const handleBuyNow = () => {
     navigate('/payment/checkout', {
@@ -53,6 +56,13 @@ const CourseSidebar = ({ courseData }) => {
       (sum, section) => 
         sum + section.Items.filter(item => item.ContentType === "article").length, 0
     )|| 0;
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+    await addToCart(courseData.id)
+  }
 
   return (
     <Box sx={{ width: '100%', maxWidth: 380 }}>
@@ -109,6 +119,7 @@ const CourseSidebar = ({ courseData }) => {
           {/* Action Buttons */}
           <Box sx={{ mb: 2 }}>
             {isAuthenticated && isEnrolled ? (
+              <>
               <Button
                 variant="contained"
                 fullWidth
@@ -123,13 +134,31 @@ const CourseSidebar = ({ courseData }) => {
                   '&:hover': {
                     backgroundColor: 'brand.dark',
                   },
-                  borderRadius: 0,
+                  borderRadius: 1.5,
+                  textTransform: 'none'
+                }}
+              >
+                {loading ? 'Checking...' : 'Buy Now'}
+              </Button>
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={handleAddToCart}
+                startIcon={<ShoppingCart />}
+                disabled={loading || addingToCart}
+                sx={{
+                  py: 1.5,
+                  borderColor: 'brand.main',
+                  color: 'brand.main',
+                  fontWeight: 500,
+                  borderRadius: 1.5,
                   textTransform: 'none',
                   fontSize: '1rem'
                 }}
               >
-                Go to Course
+                {addingToCart ? 'Adding...' : 'Add to Cart'}
               </Button>
+              </>
             ) : (
               <>
                 <Button

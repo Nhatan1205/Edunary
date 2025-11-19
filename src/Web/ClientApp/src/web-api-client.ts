@@ -169,6 +169,128 @@ export class AuthClient {
     }
 }
 
+export class CartClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getCartItems(): Promise<CartItemDto[]> {
+        let url_ = this.baseUrl + "/api/Cart";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCartItems(_response);
+        });
+    }
+
+    protected processGetCartItems(response: Response): Promise<CartItemDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CartItemDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CartItemDto[]>(null as any);
+    }
+
+    addToCart(command: AddToCartCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Cart";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAddToCart(_response);
+        });
+    }
+
+    protected processAddToCart(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    removeFromCart(cartItemId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/Cart/{cartItemId}";
+        if (cartItemId === undefined || cartItemId === null)
+            throw new Error("The parameter 'cartItemId' must be defined.");
+        url_ = url_.replace("{cartItemId}", encodeURIComponent("" + cartItemId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRemoveFromCart(_response);
+        });
+    }
+
+    protected processRemoveFromCart(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class CategoriesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1740,6 +1862,122 @@ export interface IAuthenticateModel {
     phoneNumber?: string | undefined;
     email?: string | undefined;
     password?: string | undefined;
+}
+
+export class CartItemDto implements ICartItemDto {
+    id?: number;
+    courseId?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    imageUrl?: string | undefined;
+    instructorName?: string | undefined;
+    price?: number;
+    rating?: number;
+    reviewCount?: number;
+    level?: string | undefined;
+    totalLectures?: number;
+    totalHours?: number;
+
+    constructor(data?: ICartItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.imageUrl = _data["imageUrl"];
+            this.instructorName = _data["instructorName"];
+            this.price = _data["price"];
+            this.rating = _data["rating"];
+            this.reviewCount = _data["reviewCount"];
+            this.level = _data["level"];
+            this.totalLectures = _data["totalLectures"];
+            this.totalHours = _data["totalHours"];
+        }
+    }
+
+    static fromJS(data: any): CartItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CartItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["imageUrl"] = this.imageUrl;
+        data["instructorName"] = this.instructorName;
+        data["price"] = this.price;
+        data["rating"] = this.rating;
+        data["reviewCount"] = this.reviewCount;
+        data["level"] = this.level;
+        data["totalLectures"] = this.totalLectures;
+        data["totalHours"] = this.totalHours;
+        return data;
+    }
+}
+
+export interface ICartItemDto {
+    id?: number;
+    courseId?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    imageUrl?: string | undefined;
+    instructorName?: string | undefined;
+    price?: number;
+    rating?: number;
+    reviewCount?: number;
+    level?: string | undefined;
+    totalLectures?: number;
+    totalHours?: number;
+}
+
+export class AddToCartCommand implements IAddToCartCommand {
+    courseId?: string | undefined;
+
+    constructor(data?: IAddToCartCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): AddToCartCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddToCartCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IAddToCartCommand {
+    courseId?: string | undefined;
 }
 
 export class PaginatedListOfCategoryDto implements IPaginatedListOfCategoryDto {

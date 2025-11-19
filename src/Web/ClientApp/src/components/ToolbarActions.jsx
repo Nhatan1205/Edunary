@@ -17,11 +17,14 @@ import {
 import useGetBasicUserInfo from "../hooks/useGetBasicUserInfor";
 import NotificationPopup from "./notification-popup/NotificationPopup";
 import useGetNotificationsByUserId from "../hooks/useGetNotificationByUserId";
+import { useNavigate } from "react-router";
+import { useCart } from "../hooks/useCart";
 function ToolbarActions() {
   const { user } = useAuth();
   const { data: userInfo } = useGetBasicUserInfo();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const navigate = useNavigate();
 
   const [anchorElProfile, setAnchorElProfile] = useState(null);
   const isOpenProfile = Boolean(anchorElProfile);
@@ -36,6 +39,8 @@ function ToolbarActions() {
     setAnchorElNotification(event.currentTarget);
   const handleCloseNotification = () => setAnchorElNotification(null);
   const { data: dataNofications } = useGetNotificationsByUserId();
+
+  const { cartItems } = useCart();
   return (
     <Toolbar>
       <Button
@@ -68,8 +73,9 @@ function ToolbarActions() {
             backgroundColor: "background.muted",
           },
         }}
+        onClick={() => navigate("/cart")}
       >
-        <Badge badgeContent={3} color="error" showZero>
+        <Badge badgeContent={cartItems.length} color="error" showZero>
           <ShoppingCartOutlinedIcon fontSize={isMobile ? "small" : "medium"} />
         </Badge>
       </IconButton>

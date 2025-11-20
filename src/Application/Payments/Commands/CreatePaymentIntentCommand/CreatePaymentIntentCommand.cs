@@ -66,6 +66,15 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
                 return Result.Failure("No valid courses found for the provided course IDs");
             }
 
+            // Check if user is the creator of any courses
+            var ownedCourses = courses.Where(c => c.CreatedBy == userId).ToList();
+            if (ownedCourses.Any())
+            {
+                var ownedCourseNames = ownedCourses.Select(c => c.Title);
+                _logger.LogWarning("User {UserId} is the creator of courses: {CourseNames}", userId, string.Join(", ", ownedCourseNames));
+                return Result.Failure($"You cannot purchase your own courses: {string.Join(", ", ownedCourseNames)}");
+            }
+
             // Check if user already owns some of these courses
             var existingEnrollments = await _context.Enrollments
                 .Where(e => e.StudentId == userId && courses.Select(c => c.Id).Contains(e.CourseId))

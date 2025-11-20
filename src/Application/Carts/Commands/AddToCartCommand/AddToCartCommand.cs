@@ -39,13 +39,17 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
                 return Result.Failure("Invalid course ID");
             }
 
-            // Check if course exists
-            var courseExists = await _context.Courses
-                .AnyAsync(c => c.Id == courseIdInt, cancellationToken);
+            // Check if course exists and if the user is the creator
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == courseIdInt, cancellationToken);
 
-            if (!courseExists)
+            if (course == null)
             {
                 return Result.Failure("Course not found");
+            }
+            if (userId == course.CreatedBy)
+            {
+                return Result.Failure("You cannot add your own course to the cart");
             }
 
             // Check if already in cart
@@ -55,7 +59,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
 
             if (existingCartItem != null)
             {
-                return Result.Success("This course is already in your cart");
+                return Result.Failure("This course is already in your cart");
             }
 
             // Check if already enrolled
@@ -65,7 +69,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
 
             if (existingEnrollment != null)
             {
-                return Result.Success("This course has already been paid for by you");
+                return Result.Failure("This course has already been paid for by you");
             }
 
             // Add to cart

@@ -26,6 +26,7 @@ import { useAuth } from '../../../../context/AuthContext'
 import { useEnrollmentStatus } from '../../../../hooks/useEnrollmentStatus'
 import { formatMonthYear, getLevelLabel } from '../../../../utils/helpers'
 import { useAddToCart } from '../../../../hooks/useAddToCart'
+import DefaultImage from "../../../../assets/images/default.jpg";
 
 const CourseSidebar = ({ courseData }) => {
   const navigate = useNavigate()
@@ -89,7 +90,7 @@ const CourseSidebar = ({ courseData }) => {
         >
           <Box
             component="img"
-            src={courseData.imageUrl}
+            src={courseData.imageUrl || DefaultImage}
             alt={courseData.title}
             sx={{
               position: 'absolute',

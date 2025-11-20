@@ -13,8 +13,19 @@ const useGetPublicCourseById = (id) => {
         if (result === null) {
           throw new Error("Course not found");
         }
-        
-        return result;
+
+        let learningObjectives = JSON.parse(result.learningObjectives || "[]");
+        let requirements = JSON.parse(result.requirements || "[]");
+        let targetAudience = JSON.parse(result.targetAudience || "[]");
+        let content = JSON.parse(result.content);
+
+        return {
+        ...result,
+        content,
+        learningObjectives,
+        requirements,
+        targetAudience,
+      };
       } catch (error) {
         if (error.status === 404) {
           throw new Error("Course not found");

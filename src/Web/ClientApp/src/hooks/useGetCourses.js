@@ -1,22 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
 import { CoursesClient } from "../web-api-client.ts";
 
-const useGetCourses = (pageNumber = 1, pageSize = 10) => {
+const useGetCourses = (searchText = "", filterData = [],sortBy = 0,pageNumber = 1, pageSize = 10) => {
   return useQuery({
-    queryKey: ["courses", pageNumber, pageSize],
+    queryKey: ["courses", searchText, filterData,sortBy, pageNumber, pageSize],
     queryFn: async () => {
       const coursesClient = new CoursesClient();
-      const result = await coursesClient.getCoursesWithPagination(
-        pageNumber,
-        pageSize,
-      );
+      
+      const query = { searchText, filterData,sortBy,pageNumber,pageSize};
+      
+      const result = await coursesClient.getCoursesWithPagination(query);
 
       if (!result) {
         throw new Error("Failed to fetch courses");
       }
 
+      const newItems = result.items.map((course) => {
+        let learningObjectives = JSON.parse(course.learningObjectives || "[]");
+        let requirements = JSON.parse(course.requirements || "[]");
+        let targetAudience = JSON.parse(course.targetAudience || "[]");
+
+        return {
+          ...course,
+          learningObjectives,
+          requirements,
+          targetAudience,
+        };
+      });
+
       return {
-        items: result.items,
+        items: newItems,
         pageNumber: result.pageNumber,
         totalPages: result.totalPages,
         totalCount: result.totalCount,

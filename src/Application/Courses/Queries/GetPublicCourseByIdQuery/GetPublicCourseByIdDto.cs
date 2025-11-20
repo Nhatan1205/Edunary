@@ -19,15 +19,22 @@ public class GetPublicCourseByIdDto
     public string WelcomeMessage { get; set; } = null!;
     public string CongratulationsMessage { get; set; } = null!;
     public float Price { get; set; }
+    public string CreatedBy { get; set; }
     public int CategoryId { get; set; }
     public string CategoryTitle { get; set; } = null!;
-    
+    public float Ratings { get; set; }
+    public int TotalStudents { get; set; }
+    public string InstructorName { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public DateTimeOffset LastModified { get; set; }
+
     private class Mapping : Profile
     {
         public Mapping()
         {
             CreateMap<Course, GetPublicCourseByIdDto>()
-                .ForMember(dest => dest.CategoryTitle, opt => opt.MapFrom(src => src.Category.Title));
+                .ForMember(dest => dest.CategoryTitle, opt => opt.MapFrom(src => src.Category.Title))
+                .ForMember(d => d.InstructorName, opt => opt.Ignore());
         }
     }
 }

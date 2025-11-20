@@ -1,44 +1,6 @@
+import useGetCategories from "../../../hooks/useGetCategories";
 import DesktopDropDownMenu from "./Desktop/DesktopDropDownMenu";
 import MobileDropDownMenu from "./Mobile/MobileDropDownMenu";
-
-const categories_data = [
-  {
-    title: "AI & Innovation",
-    path: "/categories/ai-innovation",
-  },
-  {
-    title: "Animation & 3D",
-    path: "/categories/animation-3d",
-  },
-  {
-    title: "Art & Illustration",
-    path: "/categories/art-illustration",
-  },
-  {
-    title: "Crafts & DIY",
-    path: "/categories/crafts-diy",
-  },
-  {
-    title: "Creative Career",
-    path: "/categories/creative-career",
-  },
-  {
-    title: "Creativity & Inspiration",
-    path: "/theme-demo",
-  },
-  {
-    title: "Design",
-    path: "/categories/design",
-  },
-  {
-    title: "Development",
-    path: "/categories/development",
-  },
-  {
-    title: "Film & Video",
-    path: "/categories/film-video",
-  },
-];
 
 const MENU_DATA = {
   business: [
@@ -68,11 +30,13 @@ const MENU_DATA = {
 };
 
 function DropDownMenu({ open, anchorEl, handleCloseDropDown, isMobile }) {
+
+  const { data: categoryData } = useGetCategories(1,10);
   return isMobile ? (
     <MobileDropDownMenu
       open={open}
       onClose={handleCloseDropDown}
-      categories_data={categories_data}
+      categories_data={categoryData?.items}
       MENU_DATA={MENU_DATA}
     />
   ) : (
@@ -80,7 +44,7 @@ function DropDownMenu({ open, anchorEl, handleCloseDropDown, isMobile }) {
       open={open}
       anchorEl={anchorEl}
       onClose={handleCloseDropDown}
-      categories_data={categories_data}
+      categories_data={categoryData?.items}
       MENU_DATA={MENU_DATA}
     />
   );

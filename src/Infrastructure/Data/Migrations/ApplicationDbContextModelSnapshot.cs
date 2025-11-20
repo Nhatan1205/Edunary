@@ -132,6 +132,9 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
+                    b.Property<float>("Ratings")
+                        .HasColumnType("real");
+
                     b.Property<string>("Requirements")
                         .HasColumnType("nvarchar(max)");
 
@@ -149,6 +152,9 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.Property<string>("Topic")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalStudents")
+                        .HasColumnType("int");
 
                     b.Property<string>("WelcomeMessage")
                         .HasColumnType("nvarchar(max)");

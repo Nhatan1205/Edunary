@@ -9,6 +9,7 @@ function NotificationPopup({
 }) {
   return (
     <Menu
+      disableScrollLock={true}
       anchorEl={anchorEl}
       open={open}
       onClose={handleClosePopup}

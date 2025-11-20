@@ -106,6 +106,11 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
                     };
 
                     _context.Enrollments.Add(enrollment);
+
+                    //update total student in course
+                    var course = await _context.Courses.FindAsync(courseId);
+                    course.UpdateTotalStudents();
+
                     enrollmentsCreated++;
                     _logger.LogInformation("Created enrollment for CourseId: {CourseId}, UserId: {UserId}", courseId, order.UserId);
 

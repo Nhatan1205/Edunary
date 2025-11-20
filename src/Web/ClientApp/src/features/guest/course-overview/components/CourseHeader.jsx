@@ -1,5 +1,7 @@
-import { Box, Typography, Rating, Chip, Stack } from '@mui/material'
-import { Schedule, TrendingUp, Update, Language } from '@mui/icons-material'
+import { Box, Typography, Rating, Chip, Stack} from '@mui/material'
+import { Schedule, Update, Language } from '@mui/icons-material'
+import { formatMonthYear} from '../../../../utils/helpers'
+import MetaChip from '../../../../components/MetaChip';
 
 const CourseHeader = ({ courseData }) => {
   return (
@@ -11,7 +13,8 @@ const CourseHeader = ({ courseData }) => {
           mb: 1.5,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
-          fontWeight: 500
+          fontWeight: 500,
+          color: 'text.inverse'
         }}
       >
         {courseData.category} • {courseData.topic}
@@ -23,9 +26,8 @@ const CourseHeader = ({ courseData }) => {
         sx={{ 
           fontWeight: 700, 
           mb: 2,
-          color: 'text.primary',
           lineHeight: 1.3,
-          maxWidth: '1000px' // Limit width for better readability
+          color: 'text.inverse'
         }}
       >
         {courseData.title}
@@ -36,7 +38,7 @@ const CourseHeader = ({ courseData }) => {
           variant="h6" 
           sx={{ 
             mb: 3,
-            color: 'text.secondary',
+            color: '#F3F3F3',
             fontWeight: 400,
             lineHeight: 1.4,
             maxWidth: '850px'
@@ -46,65 +48,87 @@ const CourseHeader = ({ courseData }) => {
         </Typography>
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, flexWrap: 'wrap' }}>
         <Typography 
-          variant="body1" 
-          color="brand.main" 
-          sx={{ fontWeight: 600 }}
-        >
-          Created by {courseData.instructor}
-        </Typography>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Rating 
-            value={courseData.rating} 
-            precision={0.1} 
-            size="small" 
-            readOnly 
-            sx={{
-              '& .MuiRating-iconFilled': {
-                color: 'brand.main',
-              }
-            }}
-          />
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              fontWeight: 600,
-              color: 'text.primary' 
-            }}
-          >
-            {courseData.rating}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            ({courseData.totalRatings.toLocaleString()} ratings)
-          </Typography>
-        </Box>
-      </Box>
-
-      <Stack direction="row" spacing={2} sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
-        <Chip
-          icon={<TrendingUp sx={{ fontSize: '16px !important' }} />}
-          label={courseData.level}
-          variant="outlined"
-          size="small"
+          variant="body2"
           sx={{
-            borderColor: 'brand.main',
-            color: 'brand.main',
-            '& .MuiChip-icon': {
-              color: 'brand.main'
-            }
+            fontWeight: 600,
+            color: '#FAAF00',
+            lineHeight: 1,
+            fontSize: '0.875rem'
+          }}
+        >
+          {courseData.ratings}
+        </Typography>
+
+        <Rating
+          value={courseData.ratings}
+          precision={0.5} 
+          size="small"
+          readOnly
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            '& .MuiRating-iconFilled': {
+              color: '#FAAF00',
+            },
+            '& .MuiRating-iconEmpty': {
+              color: '#FAAF00',
+            },
           }}
         />
-        
+
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: 'text.inverse',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          • {courseData.totalStudents} students
+        </Typography>
+      </Box>
+
+
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+        <Typography
+          variant="body1"
+          color="text.inverse"
+        >
+          Created by{" "}
+          <Typography
+            component="span"
+            sx={{
+              fontWeight: 600,
+              textDecoration: 'underline',
+              color: 'brand.light',
+            }}
+          >
+            {courseData.instructorName}
+          </Typography>
+        </Typography>
+        </Box>
+
+      <Stack direction="row" spacing={0.5} sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
+        {courseData.totalStudents > -1 && (
+            <MetaChip
+                label={"Bestseller"}
+                backgroundColor={"#eceb98"}
+                color={"#3d3c0a"}
+                borderColor={"#eceb98"}
+            />
+          )}
         <Chip
           icon={<Schedule sx={{ fontSize: '16px !important' }} />}
-          label={courseData.duration}
+          label={courseData?.content?.TotalVideoDuration}
           variant="outlined"
           size="small"
           sx={{
-            borderColor: 'text.tertiary',
-            color: 'text.secondary'
+            borderColor: 'text.inverse',
+            color: 'text.inverse'
           }}
         />
 
@@ -114,36 +138,22 @@ const CourseHeader = ({ courseData }) => {
           variant="outlined"
           size="small"
           sx={{
-            borderColor: 'text.tertiary',
-            color: 'text.secondary'
+            borderColor: 'text.inverse',
+            color: 'text.inverse'
           }}
         />
-
         <Chip
           icon={<Update sx={{ fontSize: '16px !important' }} />}
-          label={`Updated ${courseData.lastUpdated}`}
+          label={`Updated ${formatMonthYear(courseData.lastModified)}`}
           variant="outlined"
           size="small"
           sx={{
-            borderColor: 'text.tertiary',
-            color: 'text.secondary'
+            borderColor: 'text.inverse',
+            color: 'text.inverse'
           }}
         />
+        
       </Stack>
-
-      {courseData.learningObjectives && (
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            color: 'text.secondary',
-            fontStyle: 'italic',
-            lineHeight: 1.6,
-            maxWidth: '600px'
-          }}
-        >
-          {courseData.learningObjectives}
-        </Typography>
-      )}
     </Box>
   )
 }

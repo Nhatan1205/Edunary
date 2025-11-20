@@ -1,6 +1,6 @@
 import { Avatar, Box, MenuItem, Typography } from "@mui/material";
 import DefaultImage from "../../assets/images/default.jpg";
-import formatTimeAgo from "../../utils/helpers";
+import {formatTimeAgo} from "../../utils/helpers";
 import useUpdateNotificationStatus from "../../hooks/useUpdateNoificationStatus";
 function MessageCard({ notification }) {
   const { id, message, created, isRead } = notification;

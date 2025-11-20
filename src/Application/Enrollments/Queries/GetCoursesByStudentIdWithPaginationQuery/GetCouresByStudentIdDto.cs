@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
-using Edunary.Domain.Entities;
+﻿using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Enrollments.Queries.GetCoursesByStudentIdQuery;
-public class GetCouresByStudentIdDto
+public class GetCoursesByStudentIdDto
 {
     public int Id { get; set; }
     public string Title { get; set; }
@@ -23,7 +17,7 @@ public class GetCouresByStudentIdDto
     {
         public Mapping()
         {
-            CreateMap<Course, GetCouresByStudentIdDto>();
+            CreateMap<Course, GetCoursesByStudentIdDto>();
         }
     }
 }

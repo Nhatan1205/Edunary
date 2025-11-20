@@ -26,7 +26,7 @@ function DesktopSection({
       {items.map((item, index) =>
         bordered ? (
           <MenuItem
-            key={item.path || index}
+            key={item.id || index}
             onClick={onItemClick}
             component={RouterLink}
             to={item.path}
@@ -54,10 +54,10 @@ function DesktopSection({
           </MenuItem>
         ) : (
           <MenuItem
-            key={item.path || index}
+            key={item.id || index}
             onClick={onItemClick}
             component={RouterLink}
-            to={item.path}
+            to={`/course/search?category=${encodeURIComponent(item.id)}`}
             sx={{
               borderRadius: "6px",
               fontWeight: 500,

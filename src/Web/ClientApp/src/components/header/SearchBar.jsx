@@ -1,8 +1,11 @@
-import { InputBase, IconButton } from "@mui/material";
+import { InputBase, IconButton, Popover } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
-
+import {useRef, useState } from "react";
+import DropDownSearch from "./drop-down-search/DropDownSearch";
+import { useNavigate } from "react-router";
+import useDebounce from "../../hooks/useDebounce";
 const Search = styled("div", {
   shouldForwardProp: (prop) => prop !== "isMobileExpanded",
 })(({ theme, isMobileExpanded }) => ({
@@ -81,34 +84,80 @@ const StyledInputBase = styled(InputBase, {
 }));
 
 function SearchBar({ isMobileExpanded = false, onClose }) {
+  const [searchValue, setSearchValue] = useState("");
+  const debouncedSearch = useDebounce(searchValue, 1000); //delay 1s
+  const [open, setOpen] = useState(false);
+  const inputRef = useRef(null);
+  const navigate = useNavigate();
+
+  function handleInputChange(e){
+    const value = e.target.value;
+    setSearchValue(value);
+    setOpen(value.length > 2);
+  };
+
+  function handleEnter(e) {
+    if (e.key === "Enter" && searchValue.trim()) {
+      navigate(`/course/search?query=${encodeURIComponent(searchValue)}`);
+      setOpen(false);
+    }
+  }
+
+  function handleClosePopover() {
+    setOpen(false);
+  };
+
+  function handleClear() {
+      setSearchValue("");
+      setOpen(false)
+      if (onClose) onClose();
+  };
+
   return (
+  <>
     <Search isMobileExpanded={isMobileExpanded}>
-      <SearchIconWrapper>
-        <SearchIcon />
-      </SearchIconWrapper>
-      {isMobileExpanded && (
+      <SearchIconWrapper><SearchIcon /></SearchIconWrapper>
+      {isMobileExpanded && searchValue && (
         <CloseButtonWrapper>
-          <IconButton
-            size="small"
-            onClick={onClose}
-            sx={{
-              color: "text.secondary",
-              "&:hover": {
-                backgroundColor: "brand.main",
-              },
-            }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
+          <IconButton size="small" onClick={handleClear}> <CloseIcon fontSize="small"/> </IconButton>
         </CloseButtonWrapper>
       )}
       <StyledInputBase
         placeholder="Search for any courses ..."
-        inputProps={{ "aria-label": "search" }}
-        isMobileExpanded={isMobileExpanded}
+        value={searchValue}
+        onChange={handleInputChange}
+        inputRef={inputRef}
+        onKeyDown={handleEnter}
       />
     </Search>
+
+    <Popover
+      open={open}
+      anchorEl={inputRef.current}
+      onClose={handleClosePopover}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      transformOrigin={{ vertical: "top", horizontal: "left" }}
+      disableAutoFocus
+      disableEnforceFocus
+      disableRestoreFocus
+      disableScrollLock
+      sx={{
+        "& .MuiPopover-paper": {
+          pointerEvents: "auto",
+          width: inputRef.current?.offsetWidth || "100%",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+          border: "1px solid rgba(0,0,0,0.08)",
+          borderRadius: 2,
+          mt: 1,
+        },
+      }}
+    >
+      <DropDownSearch searchValue={searchValue} debouncedValue={debouncedSearch} handleClose={handleClear} />
+    </Popover>
+  </>
+
   );
+
 }
 
 export default SearchBar;

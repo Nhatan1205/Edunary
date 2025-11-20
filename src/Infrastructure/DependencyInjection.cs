@@ -53,6 +53,7 @@ public static class DependencyInjection
                 });
         });
 
+
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<ApplicationDbContextInitialiser>();
@@ -66,6 +67,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<IUploadFileService, UploadFileService>();
         services.AddScoped<INotifyService, NotifyService>();
+        services.AddScoped<IFilterService, FilterService>();
         services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
 
         services.AddAuthorization(options =>

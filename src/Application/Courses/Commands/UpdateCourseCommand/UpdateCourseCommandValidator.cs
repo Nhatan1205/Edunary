@@ -22,15 +22,12 @@ public class UpdateCourseCommandValidator : AbstractValidator<UpdateCourseComman
         RuleFor(x => x.Description)
             .MinimumLength(200).WithMessage("Description must be at least 200 characters.");
         RuleFor(x => x.Topic)
-            .MinimumLength(5).WithMessage("Description must be at least 5 characters.")
             .MaximumLength(100).WithMessage("Topic must not exceed 100 characters.");
         RuleFor(x => x.ImageUrl)
-            .MinimumLength(5).WithMessage("Title must be at least 5 characters.");
+            .MinimumLength(5).WithMessage("ImageUrl must be at least 5 characters.");
         RuleFor(x => x.WelcomeMessage)
-            .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
             .MaximumLength(500).WithMessage("Welcome message must not exceed 500 characters.");
         RuleFor(x => x.CongratulationsMessage)
-            .MinimumLength(5).WithMessage("Title must be at least 5 characters.")
             .MaximumLength(500).WithMessage("Congratulations message must not exceed 500 characters.");
         RuleFor(c => c.CategoryId)
            .GreaterThan(0).WithMessage("CategoryId must be greater than 0.");

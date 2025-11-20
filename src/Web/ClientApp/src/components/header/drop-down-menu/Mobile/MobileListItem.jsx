@@ -7,7 +7,7 @@ function MobileListItem({ item, onClick, bordered = false }) {
       button
       onClick={onClick}
       component={RouterLink}
-      to={item.path}
+      to={item.id ? `/course/search?category=${encodeURIComponent(item.id)}` : item.path}
       sx={{
         borderRadius: "6px",
         fontSize: "14px",

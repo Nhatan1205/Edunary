@@ -1,6 +1,5 @@
 import {
   Check,
-  Favorite,
   FavoriteBorder,
   ShoppingCart,
   PlayArrow,
@@ -16,7 +15,6 @@ import { useNavigate } from 'react-router'
 import {
   Box,
   Button,
-  Chip,
   IconButton,
   Popover,
   Typography,
@@ -170,11 +168,13 @@ function CoursePopover({
             sx={{
               fontWeight: 600,
               mb: 1,
-              fontSize: "1.1rem",
+              fontSize: "1rem",
               lineHeight: 1.3,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
             }}
           >
             {title}
@@ -213,9 +213,9 @@ function CoursePopover({
             </Typography>
           )}
           {/* Features List */}
-          {/* {learningObjectives && learningObjectives.length > 0 && (
+          {learningObjectives && learningObjectives.length > 0 && (
             <Box sx={{ mb: 3 }}>
-              {learningObjectives.map((feature, index) => (
+              {learningObjectives.slice(0, 4).map((item, index) => (
                 <Box
                   key={index}
                   sx={{
@@ -241,41 +241,12 @@ function CoursePopover({
                       lineHeight: 1.4,
                     }}
                   >
-                    {feature}
+                    {item}
                   </Typography>
                 </Box>
               ))}
             </Box>
-          )} */}
-          <Box sx={{ mb: 3 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "flex-start",
-                mb: 1,
-              }}
-            >
-              <Check
-                sx={{
-                  color: "secondaryBrand.main",
-                  fontSize: "1rem",
-                  mr: 1,
-                  mt: 0.1,
-                  flexShrink: 0,
-                }}
-              />
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "text.primary",
-                  fontSize: "0.85rem",
-                  lineHeight: 1.4,
-                }}
-              >
-                {learningObjectives}
-              </Typography>
-            </Box>
-          </Box>
+          )}
 
           {/* Action Buttons */}
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>

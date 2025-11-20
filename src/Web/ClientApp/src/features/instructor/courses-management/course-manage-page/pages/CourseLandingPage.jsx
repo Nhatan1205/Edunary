@@ -22,6 +22,7 @@ import TextEditor from "../../../../../components/TextEditor";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import AlertBox from "../../../../../components/AlertBox";
+import { getLevelLabel } from "../../../../../utils/helpers";
 function CourseLandingPage() {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const { courseId } = useParams();
@@ -272,10 +273,10 @@ function CourseLandingPage() {
                     <InputLabel>Level</InputLabel>
                     <Select {...field} label="Level">
                       <MenuItem value="">-- Select Level --</MenuItem>
-                      <MenuItem value={0}>Beginner</MenuItem>
-                      <MenuItem value={1}>Intermediate</MenuItem>
-                      <MenuItem value={2}>Advanced</MenuItem>
-                      <MenuItem value={3}>All Levels</MenuItem>
+                      <MenuItem value={0}>{getLevelLabel(0)}</MenuItem>
+                      <MenuItem value={1}>{getLevelLabel(1)}</MenuItem>
+                      <MenuItem value={2}>{getLevelLabel(2)}</MenuItem>
+                      <MenuItem value={3}>{getLevelLabel(3)}</MenuItem>
                     </Select>
                   </FormControl>
                 )}

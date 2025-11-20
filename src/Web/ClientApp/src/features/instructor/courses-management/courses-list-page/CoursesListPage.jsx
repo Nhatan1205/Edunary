@@ -1,85 +1,41 @@
-import { useState, useMemo } from "react";
+import { useState} from "react";
 import { Col, Container, Row } from "reactstrap";
 import ToolbarCourse from "./ToolbarCourse";
 import PageTitle from "../../../../components/PageTitle";
 import useGetCoursesAuthor from "../../../../hooks/useGetCoursesAuthor";
-import { Pagination, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
 import CourseCard from "./CourseCard";
+import { useSearchParams } from "react-router";
+import { getCourseManagementSortBy } from "../../../../utils/helpers";
+import CustomPagination from "../../../../components/pagination/CustomPagination";
 
 function CoursesListPage() {
   const [pageNumber, setPageNumber] = useState(1);
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query") || "";
+  const sortParam = searchParams.get("ordering") || "";
+  const sortBy = getCourseManagementSortBy(sortParam);
+
   const { data: coursesData, isLoading: isCourseDataLoading } =
-    useGetCoursesAuthor(pageNumber, 5);
+    useGetCoursesAuthor(decodeURIComponent(query),sortBy,pageNumber, 5);
 
-  const [searchInput, setSearchInput] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("newest");
 
-  const handleSearchInputChange = (e) => {
-    setSearchInput(e.target.value);
-  };
-
-  const handleSearchClick = () => {
-    setSearchTerm(searchInput);
-  };
-
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
-  };
-
-  const handlePageChange = (event, value) => {
+  function handlePageChange(event,value){
     setPageNumber(value);
   };
-
-  // Filter and sort courses
-  const filteredCourses = useMemo(() => {
-    const items = coursesData?.items || [];
-    let filtered = items.filter((course) =>
-      course.title.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-
-    // Sort based on filter
-    switch (filter) {
-      case "oldest":
-        filtered = [...filtered].sort((a, b) => a.id - b.id);
-        break;
-      case "title":
-        filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "status":
-        filtered = [...filtered].sort((a, b) => a.status - b.status);
-        break;
-      case "newest":
-      default:
-        filtered = [...filtered].sort((a, b) => b.id - a.id);
-        break;
-    }
-
-    return filtered;
-  }, [searchTerm, filter, coursesData]);
-
-  if (isCourseDataLoading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <LoadingSpinner />
-      </div>
-    );
-  }
 
   return (
     <Container fluid>
       <PageTitle title="Courses Management" />
-      <ToolbarCourse
-        searchInput={searchInput}
-        filter={filter}
-        onSearchInputChange={handleSearchInputChange}
-        onSearchClick={handleSearchClick}
-        onFilterChange={handleFilterChange}
-      />
-      {filteredCourses.length > 0 ? (
-          <Row className="g-3">
-          {filteredCourses.map((course) => (
+      <ToolbarCourse />
+      {isCourseDataLoading ? (
+        <div className="d-flex justify-content-center align-items-center my-5">
+          <LoadingSpinner />
+        </div>
+      ) : coursesData?.items?.length > 0 ? (
+        <Row className="g-3">
+          {coursesData?.items?.map((course) => (
             <Col key={course.id} xs={12}>
               <CourseCard course={course} />
             </Col>
@@ -92,19 +48,15 @@ function CoursesListPage() {
           color="text.secondary"
           sx={{ mt: 4 }}
         >
-          You don’t have any courses
+          {query
+            ? `No results found for "${decodeURIComponent(query)}"`
+            : "You don’t have any courses"}
         </Typography>
       )}
 
       {coursesData && coursesData.totalPages > 1 && (
         <div className="d-flex justify-content-center mt-4">
-          <Pagination
-            count={coursesData.totalPages}
-            page={pageNumber}
-            onChange={handlePageChange}
-            color="primary"
-            shape="rounded"
-          />
+          <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange}/>
         </div>
       )}
     </Container>

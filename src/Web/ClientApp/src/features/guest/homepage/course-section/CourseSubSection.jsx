@@ -1,11 +1,15 @@
-import { Container, Row } from "reactstrap";
-import { Typography, Box } from "@mui/material";
+import { Col, Container, Row } from "reactstrap";
+import { Typography, Box, Button } from "@mui/material";
 import CourseCard from "./CourseCard";
 import UserCourseCard from "./UserCourseCard";
+import { PopoverProvider } from "../../../../context/PopoverContext";
+import { Link as RouterLink } from "react-router";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CourseSkeleton from "../../../../components/skeleton/CourseSkeleton";
 
-function CourseSubSection({ title, subtitle, courses, type = "course" }) {
+function CourseSubSection({ title, subtitle, courses,isLoading, type = "course", buttonText, buttonPath = ""}) {
   return (
-    <Box sx={{ mb: 6 }}>
+    <PopoverProvider>
       <Container>
         <Box sx={{ mb: 3 }}>
           <Typography
@@ -20,30 +24,67 @@ function CourseSubSection({ title, subtitle, courses, type = "course" }) {
           >
             {title}
           </Typography>
-          {subtitle && (
-            <Typography
-              variant="body1"
-              sx={{
-                color: "#666",
-                fontSize: "1rem",
-              }}
-            >
-              {subtitle}
-            </Typography>
-          )}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 1
+            }}
+          >
+            {subtitle && (
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#666",
+                  fontSize: "1rem",
+                  flex: 1,
+                  minWidth: { xs: '100%', sm: 'auto' }
+                }}
+              >
+                {subtitle}
+              </Typography>
+            )}
+            {buttonText && (
+              <Button
+                variant="text"
+                component={RouterLink}
+                to={buttonPath}
+                endIcon={<ArrowForwardIcon />}
+                sx={{
+                  color: 'brand.dark',
+                  fontSize: '1.2rem',
+                  fontWeight: 700,
+                  lineHeight: 1.2,
+                  '&:hover': {
+                    color: 'brand.darker',
+                  },
+                }}
+              >
+                {buttonText}
+              </Button>
+            )}
+          </Box>
         </Box>
 
         <Row>
-          {courses.map((course, index) =>
-            type === "user" ? (
-              <UserCourseCard key={index} course={course} />
-            ) : (
-              <CourseCard key={course.id} course={course} />
-            )
-          )}
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <Col xs={6} md={4} lg={3} className="mb-4" key={i}>
+                  <CourseSkeleton height={320}/>
+                </Col>
+              ))
+            : courses.map((course, index) =>
+                type === "user" ? (
+                  <UserCourseCard key={index} course={course} />
+                ) : (
+                  <CourseCard key={course.id} course={course} />
+                )
+              )}
         </Row>
       </Container>
-    </Box>
+    </PopoverProvider>
   );
 }
 

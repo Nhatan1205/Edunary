@@ -34,7 +34,6 @@ const CourseHeader = ({ courseData }) => {
         {courseData.title}
       </Typography>
 
-      {courseData.subtitle && (
         <Typography 
           variant="h6" 
           sx={{ 
@@ -44,11 +43,15 @@ const CourseHeader = ({ courseData }) => {
             lineHeight: 1.4,
             maxWidth: '850px',
             wordBreak: "break-word",
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            height: "2.6em",
           }}
         >
           {courseData.subtitle}
         </Typography>
-      )}
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, flexWrap: 'wrap' }}>
         <Typography 
@@ -125,24 +128,30 @@ const CourseHeader = ({ courseData }) => {
             />
           )}
         <Chip
-          icon={<Schedule sx={{ fontSize: '16px !important' }} />}
-          label={courseData?.content?.TotalVideoDuration}
+          icon={<Schedule sx={{ fontSize: '16px !important'}} />}
+          label={courseData?.content?.TotalVideoDuration || "8 hours"}
           variant="outlined"
           size="small"
           sx={{
             borderColor: 'text.inverse',
-            color: 'text.inverse'
+            color: 'text.inverse',
+            '& .MuiChip-icon': {
+              color: 'text.inverse'
+            }
           }}
         />
 
         <Chip
-          icon={<Language sx={{ fontSize: '16px !important' }} />}
+          icon={<Language sx={{ fontSize: '16px !important'}} />}
           label={courseData.language}
           variant="outlined"
           size="small"
           sx={{
             borderColor: 'text.inverse',
-            color: 'text.inverse'
+            color: 'text.inverse',
+            '& .MuiChip-icon': {
+              color: 'text.inverse'
+            }
           }}
         />
         <Chip
@@ -152,7 +161,10 @@ const CourseHeader = ({ courseData }) => {
           size="small"
           sx={{
             borderColor: 'text.inverse',
-            color: 'text.inverse'
+            color: 'text.inverse',
+            '& .MuiChip-icon': {
+              color: 'text.inverse'
+            }
           }}
         />
         

@@ -30,6 +30,9 @@ import MyLearning from "./features/user/my-learning/MyLearning";
 import CourseLearnLayout from "./layouts/CourseLearnLayout";
 import VideoPlayerPage from "./features/user/course-learn/video-player/VideoPlayer";
 import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer";
+import FAQPage from "./features/guest/faq-page/FAQPage";
+import AboutPage from "./features/guest/about-page/AboutPage";
+import PolicyPage from "./features/guest/policy-page/PolicyPage";
 
 const router = createBrowserRouter([
   {
@@ -86,6 +89,30 @@ const router = createBrowserRouter([
       {
         path: "/course/search",
         element: <SearchPage />,
+      },
+            {
+        path: "/faq",
+        element: <FAQPage />,
+      },
+      {
+        path: "/about",
+        element: <AboutPage />,
+      },
+      {
+        path: "/policy",
+        element: <PolicyPage />,
+      },
+            {
+        path: "/faq",
+        element: <FAQPage />,
+      },
+      {
+        path: "/about",
+        element: <AboutPage />,
+      },
+      {
+        path: "/policy",
+        element: <PolicyPage />,
       },
       {
         path: "/payment/checkout",

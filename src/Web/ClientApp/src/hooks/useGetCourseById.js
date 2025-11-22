@@ -11,7 +11,7 @@ const useGetCourseById = (id) => {
       const result = await coursesClient.getCourseById(id);
 
       if (!result || !result.id) {
-        navigate("/");
+        navigate("/instructor/courses");
         throw new Error("Failed to fetch course information");
       }
 

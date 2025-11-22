@@ -1,10 +1,11 @@
-import { Container, Box } from '@mui/material'
+import { Box } from '@mui/material'
 import { useParams } from 'react-router'
 import CourseHeader from './components/CourseHeader'
 import CourseSidebar from './components/CourseSidebar'
 import CourseTabs from './components/CourseTabs'
 import useGetPublicCourseById from '../../../hooks/useGetPublicCourseById'
 import LoadingSpinner from '../../../components/LoadingSpinner'
+import { Container } from 'reactstrap'
 
 const reviews = [
   {
@@ -71,22 +72,22 @@ const CourseOverview = () => {
   }
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', mb: 4 }}>
       <Box sx={{ bgcolor: '#1c1d1f', color: 'white' }}>
-        <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Container className='pb-4 pt-5'>
           <Box sx={{ minWidth: 0, maxWidth: { md: 'calc(100% - 380px - 32px)' } }}>
             <CourseHeader courseData={transformedCourseData} />
           </Box>
         </Container>
       </Box>
 
-      <Container maxWidth="xl" sx={{ position: 'relative' }}>
+      <Container>
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { 
-              xs: '1fr', 
-              md: '1fr 380px' 
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: '1fr 380px'
             },
             gap: 4,
             mt: { xs: 3, md: 0 }
@@ -95,12 +96,11 @@ const CourseOverview = () => {
           <Box sx={{ minWidth: 0, py: 4 }}>
             <CourseTabs courseData={transformedCourseData} reviews={reviews} />
           </Box>
-          
-          <Box 
-            sx={{ 
+          <Box
+            sx={{
               order: { xs: -1, md: 0 },
               position: { md: 'relative' },
-              mt: { md: '-325px' },
+              mt: { md: '-340px' },
             }}
           >
             <CourseSidebar courseData={transformedCourseData} />

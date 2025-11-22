@@ -27,6 +27,7 @@ import CourseAccessiblity from "./features/instructor/courses-management/course-
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
 import FAQPage from "./features/guest/faq-page/FAQPage";
+import AboutPage from "./features/guest/about-page/AboutPage";
 
 const router = createBrowserRouter([
   {
@@ -87,6 +88,10 @@ const router = createBrowserRouter([
             {
         path: "/faq",
         element: <FAQPage />,
+      },
+      {
+        path: "/about",
+        element: <AboutPage />,
       },
       {
         path: "/payment/checkout",

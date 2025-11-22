@@ -21,6 +21,7 @@ public class GetCourseByIdDto
     public float Price { get; set; }
     public int CategoryId { get; set; }
     public string Content { get; set; } = null!;
+    public int TotalStudents { get; set; }
 
     private class Mapping : Profile
     {

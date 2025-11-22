@@ -39,9 +39,15 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
             var userId = _currentUserService?.UserId;
             var imgLink = entity.ImageUrl;
             var courseTitle = entity.Title;
+            var totalStudents = entity.TotalStudents;
             if (entity.CreatedBy != userId)
             {
                 return Result.Failure("You are not authorized to delete this course.");
+            }
+
+            if (totalStudents > 0)
+            {
+                return Result.Failure("Cannot delete course with enrolled students.");
             }
 
             // Release all videos associated with this course

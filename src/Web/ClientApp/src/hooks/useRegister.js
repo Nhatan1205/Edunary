@@ -24,7 +24,8 @@
        }, 2000);
      },
      onError: (error) => {
-      const msg = error?.message || 'Registration failed. Please try again.'
+      const data = JSON.parse(error.response); 
+      const msg = data?.message || 'Registration failed. Please try again.'
       toast.error(msg);
      }
    });

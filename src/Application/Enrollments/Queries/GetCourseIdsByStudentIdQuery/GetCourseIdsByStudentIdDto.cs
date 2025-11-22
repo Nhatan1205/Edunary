@@ -1,5 +1,4 @@
-﻿using Edunary.Application.Enrollments.Queries.GetCoursesByStudentIdQuery;
-using Edunary.Domain.Entities;
+﻿using Edunary.Domain.Entities;
 
 namespace Edunary.Application.Enrollments.Queries.GetCourseIdsByStudentIdQuery;
 public class GetCourseIdsByStudentIdDto

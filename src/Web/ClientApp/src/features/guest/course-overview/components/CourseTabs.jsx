@@ -27,7 +27,6 @@ import DOMPurify from "dompurify";
 import { Container } from 'reactstrap';
 
 const CourseTabs = ({ courseData, reviews }) => {
-  console.log(courseData);
   const [activeTab, setActiveTab] = useState(0)
 
   const handleTabChange = (event, newValue) => {

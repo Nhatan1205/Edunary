@@ -205,6 +205,7 @@ function Header() {
                           backgroundColor: "background.muted",
                         },
                       }}
+                      onClick={() => navigate("/my-learning")}
                     >
                       My Learning
                     </Button>

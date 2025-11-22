@@ -794,7 +794,7 @@ export class CoursesClient {
         return Promise.resolve<PaginatedListOfGetCoursesAuthorDto>(null as any);
     }
 
-    getCoursesStudentWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCoursesByStudentIdDto> {
+    getEnrolledCoursesWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfEnrolledCoursesDto> {
         let url_ = this.baseUrl + "/api/Courses/student?";
         if (pageNumber === undefined || pageNumber === null)
             throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
@@ -814,11 +814,11 @@ export class CoursesClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCoursesStudentWithPagination(_response);
+            return this.processGetEnrolledCoursesWithPagination(_response);
         });
     }
 
-    protected processGetCoursesStudentWithPagination(response: Response): Promise<PaginatedListOfGetCoursesByStudentIdDto> {
+    protected processGetEnrolledCoursesWithPagination(response: Response): Promise<PaginatedListOfEnrolledCoursesDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -826,7 +826,7 @@ export class CoursesClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfGetCoursesByStudentIdDto.fromJS(resultData200);
+            result200 = PaginatedListOfEnrolledCoursesDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -834,7 +834,7 @@ export class CoursesClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<PaginatedListOfGetCoursesByStudentIdDto>(null as any);
+        return Promise.resolve<PaginatedListOfEnrolledCoursesDto>(null as any);
     }
 
     getCourseById(id: number): Promise<GetCourseByIdDto> {
@@ -2594,15 +2594,15 @@ export enum CourseManagementSortBy {
     UnpublishedFirst = 5,
 }
 
-export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOfGetCoursesByStudentIdDto {
-    items?: GetCoursesByStudentIdDto[] | undefined;
+export class PaginatedListOfEnrolledCoursesDto implements IPaginatedListOfEnrolledCoursesDto {
+    items?: EnrolledCoursesDto[] | undefined;
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
 
-    constructor(data?: IPaginatedListOfGetCoursesByStudentIdDto) {
+    constructor(data?: IPaginatedListOfEnrolledCoursesDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2616,7 +2616,7 @@ export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOf
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(GetCoursesByStudentIdDto.fromJS(item));
+                    this.items!.push(EnrolledCoursesDto.fromJS(item));
             }
             this.pageNumber = _data["pageNumber"];
             this.totalPages = _data["totalPages"];
@@ -2626,9 +2626,9 @@ export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOf
         }
     }
 
-    static fromJS(data: any): PaginatedListOfGetCoursesByStudentIdDto {
+    static fromJS(data: any): PaginatedListOfEnrolledCoursesDto {
         data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfGetCoursesByStudentIdDto();
+        let result = new PaginatedListOfEnrolledCoursesDto();
         result.init(data);
         return result;
     }
@@ -2649,8 +2649,8 @@ export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOf
     }
 }
 
-export interface IPaginatedListOfGetCoursesByStudentIdDto {
-    items?: GetCoursesByStudentIdDto[] | undefined;
+export interface IPaginatedListOfEnrolledCoursesDto {
+    items?: EnrolledCoursesDto[] | undefined;
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
@@ -2658,7 +2658,7 @@ export interface IPaginatedListOfGetCoursesByStudentIdDto {
     hasNextPage?: boolean;
 }
 
-export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
+export class EnrolledCoursesDto implements IEnrolledCoursesDto {
     id?: number;
     title?: string | undefined;
     subtitle?: string | undefined;
@@ -2667,8 +2667,11 @@ export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
     imageUrl?: string | undefined;
     status?: CourseStatus;
     created?: Date;
+    createdBy?: string | undefined;
+    instructorName?: string | undefined;
+    ratings?: number;
 
-    constructor(data?: IGetCoursesByStudentIdDto) {
+    constructor(data?: IEnrolledCoursesDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2687,12 +2690,15 @@ export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
             this.imageUrl = _data["imageUrl"];
             this.status = _data["status"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.instructorName = _data["instructorName"];
+            this.ratings = _data["ratings"];
         }
     }
 
-    static fromJS(data: any): GetCoursesByStudentIdDto {
+    static fromJS(data: any): EnrolledCoursesDto {
         data = typeof data === 'object' ? data : {};
-        let result = new GetCoursesByStudentIdDto();
+        let result = new EnrolledCoursesDto();
         result.init(data);
         return result;
     }
@@ -2707,11 +2713,14 @@ export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
         data["imageUrl"] = this.imageUrl;
         data["status"] = this.status;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["instructorName"] = this.instructorName;
+        data["ratings"] = this.ratings;
         return data;
     }
 }
 
-export interface IGetCoursesByStudentIdDto {
+export interface IEnrolledCoursesDto {
     id?: number;
     title?: string | undefined;
     subtitle?: string | undefined;
@@ -2720,6 +2729,9 @@ export interface IGetCoursesByStudentIdDto {
     imageUrl?: string | undefined;
     status?: CourseStatus;
     created?: Date;
+    createdBy?: string | undefined;
+    instructorName?: string | undefined;
+    ratings?: number;
 }
 
 export class GetCourseByIdDto implements IGetCourseByIdDto {
@@ -2739,6 +2751,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     price?: number;
     categoryId?: number;
     content?: string | undefined;
+    totalStudents?: number;
 
     constructor(data?: IGetCourseByIdDto) {
         if (data) {
@@ -2767,6 +2780,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             this.price = _data["price"];
             this.categoryId = _data["categoryId"];
             this.content = _data["content"];
+            this.totalStudents = _data["totalStudents"];
         }
     }
 
@@ -2795,6 +2809,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
         data["content"] = this.content;
+        data["totalStudents"] = this.totalStudents;
         return data;
     }
 }
@@ -2816,6 +2831,7 @@ export interface IGetCourseByIdDto {
     price?: number;
     categoryId?: number;
     content?: string | undefined;
+    totalStudents?: number;
 }
 
 export enum CourseLevel {

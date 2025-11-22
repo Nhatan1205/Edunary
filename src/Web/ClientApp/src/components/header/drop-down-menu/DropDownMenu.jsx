@@ -15,12 +15,12 @@ const MENU_DATA = {
   ],
   resources: [
     {
-      title: "Our Blog",
-      path: "/blog",
-    },
-    {
       title: "About us",
       path: "/about",
+    },
+    {
+      title: "Our policy",
+      path: "/policy",
     },
     {
       title: "FAQ",

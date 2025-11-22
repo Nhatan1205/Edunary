@@ -49,7 +49,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
             }
             if (userId == course.CreatedBy)
             {
-                return Result.Failure("You cannot add your own course to the cart");
+                return Result.Success("You cannot add your own course to the cart");
             }
 
             // Check if already in cart
@@ -59,7 +59,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
 
             if (existingCartItem != null)
             {
-                return Result.Failure("This course is already in your cart");
+                return Result.Success("This course is already in your cart");
             }
 
             // Check if already enrolled
@@ -69,7 +69,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
 
             if (existingEnrollment != null)
             {
-                return Result.Failure("This course has already been paid for by you");
+                return Result.Success("This course has already been paid for by you");
             }
 
             // Add to cart

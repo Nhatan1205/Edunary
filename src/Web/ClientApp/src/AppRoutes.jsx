@@ -26,6 +26,7 @@ import CourseCaptions from "./features/instructor/courses-management/course-mana
 import CourseAccessiblity from "./features/instructor/courses-management/course-manage-page/pages/CourseAccessiblity";
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
+import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
 import PolicyPage from "./features/guest/policy-page/PolicyPage";
 
@@ -84,6 +85,10 @@ const router = createBrowserRouter([
       {
         path: "/course/search",
         element: <SearchPage />,
+      },
+            {
+        path: "/faq",
+        element: <FAQPage />,
       },
       {
         path: "/about",

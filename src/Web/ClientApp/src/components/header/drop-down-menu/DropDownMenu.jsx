@@ -24,7 +24,7 @@ const MENU_DATA = {
     },
     {
       title: "FAQ",
-      path: "/fetch-data",
+      path: "/faq",
     },
   ],
 };

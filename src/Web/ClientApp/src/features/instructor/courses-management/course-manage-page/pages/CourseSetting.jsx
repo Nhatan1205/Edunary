@@ -133,7 +133,7 @@ function CourseSetting() {
               <Button
                 variant="outlined"
                 onClick={handleDeleteClick}
-                disabled={isDeleting || isUpdating}
+                disabled={courseData.totalStudents > 0 || isDeleting || isUpdating}
                 sx={{
                   width: "160px",
                   textTransform: "none",

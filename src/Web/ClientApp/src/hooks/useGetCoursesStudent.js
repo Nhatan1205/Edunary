@@ -6,7 +6,7 @@ const useGetCoursesStudent = (pageNumber = 1, pageSize = 10,enabled = true) => {
     queryKey: ["courses", pageNumber, pageSize],
     queryFn: async () => {
       const coursesClient = new CoursesClient();
-      const result = await coursesClient.getCoursesStudentWithPagination(
+      const result = await coursesClient.getEnrolledCoursesWithPagination(
         pageNumber,
         pageSize,
       );

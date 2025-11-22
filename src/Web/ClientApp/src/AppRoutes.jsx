@@ -26,6 +26,10 @@ import CourseCaptions from "./features/instructor/courses-management/course-mana
 import CourseAccessiblity from "./features/instructor/courses-management/course-manage-page/pages/CourseAccessiblity";
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
+import MyLearning from "./features/user/my-learning/MyLearning";
+import CourseLearnLayout from "./layouts/CourseLearnLayout";
+import VideoPlayerPage from "./features/user/course-learn/video-player/VideoPlayer";
+import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer";
 
 const router = createBrowserRouter([
   {
@@ -98,7 +102,15 @@ const router = createBrowserRouter([
             <PaymentSuccess />
           </ProtectedRoute>
         ),
-      }
+      },
+      {
+        path: "/my-learning",
+        element: (
+          <ProtectedRoute>
+            <MyLearning />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
   {
@@ -171,6 +183,28 @@ const router = createBrowserRouter([
       {
         path: "accessibility",
         element: <CourseAccessiblity />,
+      },
+    ],
+  },
+  {
+    path: "/course/:courseId/learn",
+    element: (
+      <ProtectedRoute>
+        <CourseLearnLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="lecture/123" replace />, 
+      },
+      {
+        path: "lecture/:contentId",
+        element: <VideoPlayerPage />,
+      },
+      {
+        path: "quiz/:contentId",
+        element: <QuizPlayerPage />,
       },
     ],
   },

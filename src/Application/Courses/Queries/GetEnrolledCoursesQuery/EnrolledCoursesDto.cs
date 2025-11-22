@@ -1,8 +1,8 @@
-﻿using Edunary.Domain.Entities;
+using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 
-namespace Edunary.Application.Enrollments.Queries.GetCoursesByStudentIdQuery;
-public class GetCoursesByStudentIdDto
+namespace Edunary.Application.Courses.Queries.GetEnrolledCoursesQuery;
+public class EnrolledCoursesDto
 {
     public int Id { get; set; }
     public string Title { get; set; }
@@ -12,12 +12,15 @@ public class GetCoursesByStudentIdDto
     public string ImageUrl { get; set; }
     public CourseStatus Status { get; set; }
     public DateTimeOffset Created { get; set; }
+    public string CreatedBy { get; set; }
+    public string InstructorName { get; set; }
+    public float Ratings { get; set; }
 
     private class Mapping : Profile
     {
         public Mapping()
         {
-            CreateMap<Course, GetCoursesByStudentIdDto>();
+            CreateMap<Course, EnrolledCoursesDto>();
         }
     }
 }

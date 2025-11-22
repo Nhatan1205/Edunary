@@ -25,6 +25,7 @@ function CourseSection() {
             isLoading={isCourseStudentLoading}
             type="user"
             buttonText="My Learning"
+            buttonPath="/my-learning"
           />
         )}
         <CourseSubSection

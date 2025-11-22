@@ -35,8 +35,9 @@ const useLogin = () => {
       }
     },
     onError: (error) => {
+      const data = JSON.parse(error.response);
       const msg =
-        error?.response ||
+        data?.errorMessage ||
         error?.message ||
         "Login failed. Please check your credentials.";
       toast.error(msg);

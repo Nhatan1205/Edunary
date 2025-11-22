@@ -654,7 +654,7 @@
         "tags": [
           "Courses"
         ],
-        "operationId": "GetCoursesStudentWithPagination",
+        "operationId": "GetEnrolledCoursesWithPagination",
         "parameters": [
           {
             "name": "PageNumber",
@@ -683,7 +683,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfGetCoursesByStudentIdDto"
+                  "$ref": "#/components/schemas/PaginatedListOfEnrolledCoursesDto"
                 }
               }
             }
@@ -1860,7 +1860,7 @@
           5
         ]
       },
-      "PaginatedListOfGetCoursesByStudentIdDto": {
+      "PaginatedListOfEnrolledCoursesDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1868,7 +1868,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/GetCoursesByStudentIdDto"
+              "$ref": "#/components/schemas/EnrolledCoursesDto"
             }
           },
           "pageNumber": {
@@ -1891,7 +1891,7 @@
           }
         }
       },
-      "GetCoursesByStudentIdDto": {
+      "EnrolledCoursesDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1925,6 +1925,18 @@
           "created": {
             "type": "string",
             "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "ratings": {
+            "type": "number",
+            "format": "float"
           }
         }
       },
@@ -1993,6 +2005,10 @@
           "content": {
             "type": "string",
             "nullable": true
+          },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

@@ -27,7 +27,8 @@ const CourseHeader = ({ courseData }) => {
           fontWeight: 700, 
           mb: 2,
           lineHeight: 1.3,
-          color: 'text.inverse'
+          color: 'text.inverse',
+          wordBreak: "break-word",
         }}
       >
         {courseData.title}
@@ -41,7 +42,8 @@ const CourseHeader = ({ courseData }) => {
             color: '#F3F3F3',
             fontWeight: 400,
             lineHeight: 1.4,
-            maxWidth: '850px'
+            maxWidth: '850px',
+            wordBreak: "break-word",
           }}
         >
           {courseData.subtitle}
@@ -105,6 +107,7 @@ const CourseHeader = ({ courseData }) => {
               fontWeight: 600,
               textDecoration: 'underline',
               color: 'brand.light',
+              wordBreak: "break-word",
             }}
           >
             {courseData.instructorName}

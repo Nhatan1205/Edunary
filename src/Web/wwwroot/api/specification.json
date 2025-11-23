@@ -733,6 +733,61 @@
         ]
       }
     },
+    "/api/Courses/stats": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "operationId": "GetCourseStats",
+        "parameters": [
+          {
+            "name": "CourseId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "DateRange",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Metric",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseStatsVM"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Courses/search": {
       "post": {
         "tags": [
@@ -2011,6 +2066,106 @@
           2,
           3
         ]
+      },
+      "CourseStatsVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "stats": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetCourseStatsDto"
+              }
+            ]
+          },
+          "summary": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetCourseStatsSummaryDto"
+              }
+            ]
+          }
+        }
+      },
+      "GetCourseStatsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dateRange": {
+            "type": "string",
+            "nullable": true
+          },
+          "aggregationLevel": {
+            "type": "string",
+            "nullable": true
+          },
+          "metric": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/DataPointDto"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DataPointDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetCourseStatsSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalEnrollments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalEnrollmentsThisMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRevenue": {
+            "type": "number",
+            "format": "float"
+          },
+          "totalRevenueThisMonth": {
+            "type": "number",
+            "format": "float"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "float"
+          },
+          "averageRatingThisMonth": {
+            "type": "number",
+            "format": "float"
+          }
+        }
       },
       "UpdateCourseCommand": {
         "type": "object",

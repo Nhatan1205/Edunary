@@ -27,6 +27,7 @@ import CourseAccessiblity from "./features/instructor/courses-management/course-
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
+import OverviewPage from "./features/instructor/performance-section/overview-page/CourseOverviewPage";
 
 const router = createBrowserRouter([
   {
@@ -123,6 +124,23 @@ const router = createBrowserRouter([
         path: "courses",
         element: <CoursesListPage />,
       },
+      {
+        path: "performance",
+        children: [
+          {
+            index: true,
+            element: <Navigate to="overview/revenue" replace />,
+          },
+          {
+            path: "overview",
+            element: <Navigate to="revenue" replace />,
+          },
+          {
+            path: "overview/:tab",
+            element: <OverviewPage />,
+          }
+        ],
+      }
     ],
   },
   {

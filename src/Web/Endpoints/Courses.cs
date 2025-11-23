@@ -6,6 +6,8 @@ using Edunary.Application.Courses.Commands.UpdateCourse;
 using Edunary.Application.Courses.Queries.GetCourseById;
 using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Application.Courses.Queries.GetCoursesHomepageQuery;
+using Edunary.Application.Courses.Queries.GetCoursesStatsQuery;
+using Edunary.Application.Courses.Queries.GetCourseStatsQuery;
 using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
 using Edunary.Application.Courses.Queries.GetHomepageCoursesQuery;
 using Edunary.Application.Courses.Queries.GetPublicCourseById;
@@ -27,6 +29,7 @@ public class Courses : EndpointGroupBase
             .MapGet(GetCoursesAuthorWithPagination, "author")
             .MapGet(GetCoursesStudentWithPagination, "student")
             .MapGet(GetCourseById, "{id}")
+            .MapGet(GetCourseStats,"stats")
             .MapPut(UpdateCourse)
             .MapDelete(DeleteCourse);
 
@@ -85,6 +88,11 @@ public class Courses : EndpointGroupBase
     }
 
     public async Task<PaginatedList<GetCoursesByStudentIdDto>> GetCoursesStudentWithPagination(ISender sender, [AsParameters] GetCoursesByStudentIdWithPaginationQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<CourseStatsVM> GetCourseStats(ISender sender, [AsParameters] GetCourseStatsQuery query)
     {
         return await sender.Send(query);
     }

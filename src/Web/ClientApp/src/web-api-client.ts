@@ -875,6 +875,47 @@ export class CoursesClient {
         return Promise.resolve<GetCourseByIdDto>(null as any);
     }
 
+    getCourseStats(courseId: number | null | undefined, dateRange: string | null | undefined, metric: string | null | undefined): Promise<CourseStatsVM> {
+        let url_ = this.baseUrl + "/api/Courses/stats?";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (dateRange !== undefined && dateRange !== null)
+            url_ += "DateRange=" + encodeURIComponent("" + dateRange) + "&";
+        if (metric !== undefined && metric !== null)
+            url_ += "Metric=" + encodeURIComponent("" + metric) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseStats(_response);
+        });
+    }
+
+    protected processGetCourseStats(response: Response): Promise<CourseStatsVM> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CourseStatsVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseStatsVM>(null as any);
+    }
+
     getCoursesWithPagination(query: GetCoursesWithPaginationQuery | undefined): Promise<PaginatedListOfGetCourseDto> {
         let url_ = this.baseUrl + "/api/Courses/search";
         url_ = url_.replace(/[?&]$/, "");
@@ -2823,6 +2864,206 @@ export enum CourseLevel {
     Intermediate = 1,
     Advanced = 2,
     All = 3,
+}
+
+export class CourseStatsVM implements ICourseStatsVM {
+    stats?: GetCourseStatsDto | undefined;
+    summary?: GetCourseStatsSummaryDto | undefined;
+
+    constructor(data?: ICourseStatsVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.stats = _data["stats"] ? GetCourseStatsDto.fromJS(_data["stats"]) : <any>undefined;
+            this.summary = _data["summary"] ? GetCourseStatsSummaryDto.fromJS(_data["summary"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CourseStatsVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseStatsVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["stats"] = this.stats ? this.stats.toJSON() : <any>undefined;
+        data["summary"] = this.summary ? this.summary.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICourseStatsVM {
+    stats?: GetCourseStatsDto | undefined;
+    summary?: GetCourseStatsSummaryDto | undefined;
+}
+
+export class GetCourseStatsDto implements IGetCourseStatsDto {
+    courseId?: number | undefined;
+    dateRange?: string | undefined;
+    aggregationLevel?: string | undefined;
+    metric?: string | undefined;
+    data?: DataPointDto[] | undefined;
+    total?: number;
+
+    constructor(data?: IGetCourseStatsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.dateRange = _data["dateRange"];
+            this.aggregationLevel = _data["aggregationLevel"];
+            this.metric = _data["metric"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(DataPointDto.fromJS(item));
+            }
+            this.total = _data["total"];
+        }
+    }
+
+    static fromJS(data: any): GetCourseStatsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCourseStatsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["dateRange"] = this.dateRange;
+        data["aggregationLevel"] = this.aggregationLevel;
+        data["metric"] = this.metric;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        data["total"] = this.total;
+        return data;
+    }
+}
+
+export interface IGetCourseStatsDto {
+    courseId?: number | undefined;
+    dateRange?: string | undefined;
+    aggregationLevel?: string | undefined;
+    metric?: string | undefined;
+    data?: DataPointDto[] | undefined;
+    total?: number;
+}
+
+export class DataPointDto implements IDataPointDto {
+    date?: Date;
+    value?: number;
+
+    constructor(data?: IDataPointDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): DataPointDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DataPointDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IDataPointDto {
+    date?: Date;
+    value?: number;
+}
+
+export class GetCourseStatsSummaryDto implements IGetCourseStatsSummaryDto {
+    totalEnrollments?: number;
+    totalEnrollmentsThisMonth?: number;
+    totalRevenue?: number;
+    totalRevenueThisMonth?: number;
+    averageRating?: number;
+    averageRatingThisMonth?: number;
+
+    constructor(data?: IGetCourseStatsSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalEnrollments = _data["totalEnrollments"];
+            this.totalEnrollmentsThisMonth = _data["totalEnrollmentsThisMonth"];
+            this.totalRevenue = _data["totalRevenue"];
+            this.totalRevenueThisMonth = _data["totalRevenueThisMonth"];
+            this.averageRating = _data["averageRating"];
+            this.averageRatingThisMonth = _data["averageRatingThisMonth"];
+        }
+    }
+
+    static fromJS(data: any): GetCourseStatsSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCourseStatsSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalEnrollments"] = this.totalEnrollments;
+        data["totalEnrollmentsThisMonth"] = this.totalEnrollmentsThisMonth;
+        data["totalRevenue"] = this.totalRevenue;
+        data["totalRevenueThisMonth"] = this.totalRevenueThisMonth;
+        data["averageRating"] = this.averageRating;
+        data["averageRatingThisMonth"] = this.averageRatingThisMonth;
+        return data;
+    }
+}
+
+export interface IGetCourseStatsSummaryDto {
+    totalEnrollments?: number;
+    totalEnrollmentsThisMonth?: number;
+    totalRevenue?: number;
+    totalRevenueThisMonth?: number;
+    averageRating?: number;
+    averageRatingThisMonth?: number;
 }
 
 export class UpdateCourseCommand implements IUpdateCourseCommand {

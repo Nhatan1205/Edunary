@@ -221,7 +221,7 @@ export class CartClient {
         return Promise.resolve<CartItemDto[]>(null as any);
     }
 
-    addToCart(command: AddToCartCommand | undefined): Promise<void> {
+    addToCart(command: AddToCartCommand | undefined): Promise<CartResponse> {
         let url_ = this.baseUrl + "/api/Cart";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -232,6 +232,7 @@ export class CartClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
@@ -240,20 +241,23 @@ export class CartClient {
         });
     }
 
-    protected processAddToCart(response: Response): Promise<void> {
+    protected processAddToCart(response: Response): Promise<CartResponse> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CartResponse.fromJS(resultData200);
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<CartResponse>(null as any);
     }
 
     removeFromCart(cartItemId: number): Promise<void> {
@@ -1942,6 +1946,42 @@ export interface ICartItemDto {
     level?: string | undefined;
     totalLectures?: number;
     totalHours?: number;
+}
+
+export class CartResponse implements ICartResponse {
+    message?: string | undefined;
+
+    constructor(data?: ICartResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): CartResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CartResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface ICartResponse {
+    message?: string | undefined;
 }
 
 export class AddToCartCommand implements IAddToCartCommand {

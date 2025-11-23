@@ -4,10 +4,7 @@ import {
   Box,
   Typography,
   Divider,
-  Button,
 } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PageTitle from '../../../../components/PageTitle';
 import MetricTab from './MetricTab';
 import DefaultSelect from '../../../../components/drop-down/DefaultSelect';
@@ -112,7 +109,7 @@ function CourseOverviewPage() {
       </Box>
       <Row>
         <Col md={12}>
-          <Paper variant="outlined" sx={{ borderRadius: 0, borderColor: '#d1d7dc',boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+          <Paper variant="outlined" sx={{ borderRadius: 0,mb:4, borderColor: '#d1d7dc',boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
             
             <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} sx={{px:2, gap:1}}>
               <MetricTab
@@ -148,6 +145,7 @@ function CourseOverviewPage() {
               justifyContent="flex-end" 
               alignItems="center" 
               gap={2}
+              mr={2}
             >
               <Typography variant="body2" color="text.secondary">
                 Date range:
@@ -158,7 +156,7 @@ function CourseOverviewPage() {
                 onChange={selected => updateQueryParam('date_filter', selected)}
                 defaultLabel="All time"
               />
-              <Button 
+              {/* <Button 
                 variant="contained" 
                 endIcon={<KeyboardArrowDownIcon />}
                 sx={{ 
@@ -170,17 +168,18 @@ function CourseOverviewPage() {
                 }}
               >
                 Export
-              </Button>
+              </Button> */}
             </Box>
 
             {/* Chart / Empty State Area */}
-            <Box 
-              sx={{ 
-                height: 300, 
-                display: 'flex', 
-                alignItems: 'center', 
+            <Box
+              sx={{
+                height: 440,
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
-                bgcolor: '#fff'
+                bgcolor: '#fff',
+                mr: 2,
               }}
             >
               {isStatsLoading ? (
@@ -192,7 +191,7 @@ function CourseOverviewPage() {
                   data={courseStats?.stats?.data || []}
                   metric={getMetricLabel(courseStats?.stats?.metric)}
                   aggregationLevel={courseStats?.stats?.aggregationLevel}
-                  height={300}
+                  height={440}
                 />
               )}
             </Box>
@@ -201,16 +200,9 @@ function CourseOverviewPage() {
 
             {/* Footer Link */}
             <Box p={2} display="flex" justifyContent="center">
-              <Button 
-                endIcon={<ChevronRightIcon />}
-                sx={{ 
-                  textTransform: 'none', 
-                  color: 'brand.main',
-                  fontSize: '0.95rem'
-                }}
-              >
-                Revenue Report
-              </Button>
+              <Typography variant="body2" color="text.secondary">
+                All data is updated daily. For detailed insights, check individual course reports.
+              </Typography>
             </Box>
 
           </Paper>

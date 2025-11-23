@@ -2,30 +2,25 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import { Box, Typography } from '@mui/material';
 
 function LineChartWidget({ data, metric,aggregationLevel, height = 300 }) {
-  // Transform data for MUI LineChart
   const chartData = data.map(item => ({
     date: item.date,
     value: item.value
   }));
 
-  // Format date labels based on aggregation level
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     switch (aggregationLevel) {
       case 'daily':
-        // Format: "Jan 15"
         return date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric'
         });
       case 'monthly':
-        // Format: "Jan 2025"
         return date.toLocaleDateString('en-US', {
           month: 'short',
           year: 'numeric'
         });
       default:
-        // Default format
         return date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -38,6 +33,7 @@ function LineChartWidget({ data, metric,aggregationLevel, height = 300 }) {
     return (
       <Box 
         sx={{ 
+          width: '100%',
           height, 
           display: 'flex', 
           alignItems: 'center', 

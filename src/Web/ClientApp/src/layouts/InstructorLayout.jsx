@@ -10,6 +10,7 @@ import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import MessageIcon from "@mui/icons-material/Message";
 import MonetizationOnRoundedIcon from "@mui/icons-material/MonetizationOnRounded";
 import RateReviewRoundedIcon from "@mui/icons-material/RateReviewRounded";
+import AnnouncementRoundedIcon from '@mui/icons-material/AnnouncementRounded';
 import { Outlet } from "react-router";
 import { ReactRouterAppProvider } from "@toolpad/core/react-router";
 import { Lightbulb } from "@mui/icons-material";
@@ -37,7 +38,7 @@ const NAVIGATION = [
   },
 
   {
-    segment: "communication",
+    segment: "instructor/communication",
     title: "Communication",
     icon: <ChatIcon />,
     children: [
@@ -55,6 +56,11 @@ const NAVIGATION = [
         segment: "assignments",
         title: "Assignments",
         icon: <AssignmentIcon />,
+      },
+      {
+        segment: "announcements",
+        title: "Announcements",
+        icon: <AnnouncementRoundedIcon />,
       },
     ],
   },

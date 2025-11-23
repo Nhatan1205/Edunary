@@ -166,7 +166,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1536,6 +1543,16 @@
           "totalHours": {
             "type": "number",
             "format": "float"
+          }
+        }
+      },
+      "CartResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

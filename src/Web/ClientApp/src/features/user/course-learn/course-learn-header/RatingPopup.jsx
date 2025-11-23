@@ -7,26 +7,34 @@ import {
   IconButton,
   Rating,
   TextField,
-  Button,
-  styled
+  Button
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-// Custom styled button to match the specific purple in the image
-const PurpleButton = styled(Button)({
-  backgroundColor: '#6200EA', // Deep purple color
-  color: '#fff',
-  textTransform: 'none',
-  fontWeight: 600,
-  padding: '10px 24px',
-  '&:hover': {
-    backgroundColor: '#4500b5',
-  },
-});
+const MAX_FEEDBACK = 500;
 
 const RatingPopup = ({ open, onClose }) => {
   const [ratingValue, setRatingValue] = useState(5);
   const [feedback, setFeedback] = useState('');
+
+  // Label mapping for each star value
+  const ratingLabels = {
+    1: "Awful, not what I expected at all",
+    2: "Poor, pretty disappointed",
+    3: "Average, could be better",
+    4: "Good, what I expected",
+    5: "Amazing, above expectations!"
+  };
+
+  const currentLabel = ratingLabels[ratingValue] || '';
+
+  const handleFeedbackChange = (e) => {
+    const val = e.target.value.slice(0, MAX_FEEDBACK);
+    setFeedback(val);
+  };
+
+  const remaining = MAX_FEEDBACK - feedback.length;
+  const nearLimit = remaining <= 20;
 
   return (
     <Dialog 
@@ -49,7 +57,7 @@ const RatingPopup = ({ open, onClose }) => {
             onClick={onClose}
             sx={{ 
               textTransform: 'none', 
-              color: '#6200EA', 
+              color: 'brand.main', 
               fontWeight: 'bold',
               fontSize: '0.8rem',
               minWidth: 0,
@@ -58,7 +66,7 @@ const RatingPopup = ({ open, onClose }) => {
           >
             Back
           </Button>
-          <IconButton size="small" onClick={onClose}>
+          <IconButton size="small" onClick={onClose} aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -69,8 +77,9 @@ const RatingPopup = ({ open, onClose }) => {
             Why did you leave this rating?
           </Typography>
           
-          <Typography variant="body2" color="textSecondary" gutterBottom>
-            Amazing, above expectations!
+          {/* dynamic label based on rating */}
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {currentLabel}
           </Typography>
 
           {/* Star Rating */}
@@ -79,12 +88,11 @@ const RatingPopup = ({ open, onClose }) => {
               name="course-rating" 
               value={ratingValue}
               onChange={(event, newValue) => {
-                setRatingValue(newValue);
+                setRatingValue(newValue ?? 0);
               }}
               size="large"
               sx={{
-                fontSize: '3rem', // Make stars large like image
-                color: '#FFA000'  // Gold color
+                fontSize: '3rem'
               }}
             />
           </Box>
@@ -97,28 +105,50 @@ const RatingPopup = ({ open, onClose }) => {
             placeholder="Tell us about your own personal experience taking this course. Was it a good match for you?"
             variant="outlined"
             value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
+            onChange={handleFeedbackChange}
+            inputProps={{
+              maxLength: MAX_FEEDBACK,
+              'aria-label': 'course-feedback'
+            }}
             InputProps={{
               sx: {
-                fontSize: '0.9rem',
-                color: '#555'
+                fontSize: '0.9rem'
               }
             }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: '#e0e0e0', // Light gray border
-                },
-              },
-            }}
           />
+
+          {/* Character counter / remaining */}
+          <Box sx={{ width: '100%', mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: nearLimit ? 'error.main' : 'text.secondary',
+                fontSize: '0.8rem'
+              }}
+            >
+              {feedback.length}/{MAX_FEEDBACK}
+            </Typography>
+          </Box>
         </Box>
 
         {/* Footer Action Button */}
         <Box display="flex" justifyContent="flex-end" mt={1}>
-          <PurpleButton onClick={() => console.log("Saved:", { ratingValue, feedback })}>
+          <Button 
+            variant="contained"
+            onClick={() => console.log("Saved:", { ratingValue, feedback })}
+            sx={{
+              backgroundColor: 'brand.main',
+              color: '#fff',
+              textTransform: 'none',
+              fontWeight: 600,
+              padding: '10px 24px',
+              '&:hover': {
+                backgroundColor: 'brand.dark',
+              },
+            }}
+          >
             Save and Continue
-          </PurpleButton>
+          </Button>
         </Box>
 
       </DialogContent>

@@ -17,7 +17,7 @@ import RatingPopup from "./RatingPopup";
 function CourseLearnHeader() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Đổi thành md để ẩn title sớm hơn trên tablet nhỏ
-  const [isPopupOpen, setIsPopupOpen] = useState(true);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   // Sample data
   const courseTitle = "The Ultimate React Course 2025: React, Next.js, Redux & More";
 

@@ -9,12 +9,13 @@ import {
 import {
   Star,
 } from "@mui/icons-material";
-import { Link as RouterLink } from "react-router-dom"; 
+import { Link as RouterLink, useParams } from "react-router-dom"; 
 import { Lightbulb, EmojiEvents, KeyboardArrowDown } from "@mui/icons-material";
 import { useState } from "react";
 import RatingPopup from "./RatingPopup";
 
 function CourseLearnHeader() {
+  const { courseId } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Đổi thành md để ẩn title sớm hơn trên tablet nhỏ
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -120,7 +121,8 @@ function CourseLearnHeader() {
 
         <RatingPopup 
           open={isPopupOpen} 
-          onClose={() => setIsPopupOpen(false)} 
+          onClose={() => setIsPopupOpen(false)}
+          courseId={courseId}
         />
 
         <Button

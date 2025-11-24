@@ -1,0 +1,37 @@
+using Edunary.Application.RatingCourses.Commands.UpsertRatingCourseCommand;
+using Edunary.Application.RatingCourses.Queries.GetRatingCourseByUserQuery;
+using Edunary.Application.Common.Models;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Edunary.Web.Endpoints;
+
+public class RatingCourse : EndpointGroupBase
+{
+    public override void Map(WebApplication app)
+    {
+        app.MapGroup(this)
+            .RequireAuthorization()
+            .MapPost(UpsertRatingCourse)
+            .MapGet(GetRatingCourseByUser);
+    }
+
+    // Add new or update RatingCourse by user
+    public async Task<IResult> UpsertRatingCourse(ISender sender, [FromBody] UpsertRatingCourseCommand command)
+    {
+        var result = await sender.Send(command);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
+
+    // Get RatingCourse by user_id and course_id
+    public async Task<RatingCourseDto> GetRatingCourseByUser(ISender sender, int courseId, string userId)
+    {
+        var query = new GetRatingCourseByUserQuery { CourseId = courseId, UserId = userId };
+        var result = await sender.Send(query);
+        return result.Data as RatingCourseDto;
+    }
+}

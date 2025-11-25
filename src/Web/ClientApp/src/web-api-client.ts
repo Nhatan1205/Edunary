@@ -2013,11 +2013,11 @@ export class CartItemDto implements ICartItemDto {
     imageUrl?: string | undefined;
     instructorName?: string | undefined;
     price?: number;
-    rating?: number;
-    reviewCount?: number;
     level?: string | undefined;
     totalLectures?: number;
     totalHours?: number;
+    totalRatingStudent?: number;
+    ratings?: number;
 
     constructor(data?: ICartItemDto) {
         if (data) {
@@ -2037,11 +2037,11 @@ export class CartItemDto implements ICartItemDto {
             this.imageUrl = _data["imageUrl"];
             this.instructorName = _data["instructorName"];
             this.price = _data["price"];
-            this.rating = _data["rating"];
-            this.reviewCount = _data["reviewCount"];
             this.level = _data["level"];
             this.totalLectures = _data["totalLectures"];
             this.totalHours = _data["totalHours"];
+            this.totalRatingStudent = _data["totalRatingStudent"];
+            this.ratings = _data["ratings"];
         }
     }
 
@@ -2061,11 +2061,11 @@ export class CartItemDto implements ICartItemDto {
         data["imageUrl"] = this.imageUrl;
         data["instructorName"] = this.instructorName;
         data["price"] = this.price;
-        data["rating"] = this.rating;
-        data["reviewCount"] = this.reviewCount;
         data["level"] = this.level;
         data["totalLectures"] = this.totalLectures;
         data["totalHours"] = this.totalHours;
+        data["totalRatingStudent"] = this.totalRatingStudent;
+        data["ratings"] = this.ratings;
         return data;
     }
 }
@@ -2078,11 +2078,11 @@ export interface ICartItemDto {
     imageUrl?: string | undefined;
     instructorName?: string | undefined;
     price?: number;
-    rating?: number;
-    reviewCount?: number;
     level?: string | undefined;
     totalLectures?: number;
     totalHours?: number;
+    totalRatingStudent?: number;
+    ratings?: number;
 }
 
 export class CartResponse implements ICartResponse {

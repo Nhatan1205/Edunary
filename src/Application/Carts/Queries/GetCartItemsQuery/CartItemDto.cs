@@ -9,9 +9,9 @@ public class CartItemDto
     public string ImageUrl { get; set; }
     public string InstructorName { get; set; }
     public float Price { get; set; }
-    public float Rating { get; set; }
-    public int ReviewCount { get; set; }
     public string Level { get; set; }
     public int TotalLectures { get; set; }
     public float TotalHours { get; set; }
+    public int TotalRatingStudent { get; set; }
+    public float Ratings { get; set; }
 }

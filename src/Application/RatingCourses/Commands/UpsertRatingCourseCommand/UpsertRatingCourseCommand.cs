@@ -29,10 +29,10 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
         try
         {
             // Verify course exists
-            var courseExists = await _context.Courses
-                .AnyAsync(c => c.Id == request.CourseId, cancellationToken);
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == request.CourseId, cancellationToken);
 
-            if (!courseExists)
+            if (course == null)
             {
                 return Result.Failure("Course not found");
             }
@@ -51,7 +51,13 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
             var existingRating = await _context.RatingCourses
                 .FirstOrDefaultAsync(r => r.CourseId == request.CourseId && r.UserId == request.UserId, 
                     cancellationToken);
+            
+            // Update course ratings
+            int oldUserRating = existingRating != null ? existingRating.Rating : 0;
+            int newUserRating = request.Rating;
+            course.UpdateRatings(oldUserRating, newUserRating);
 
+            // Save changes to course ratings
             if (existingRating != null)
             {
                 // Update existing rating

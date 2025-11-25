@@ -6,4 +6,5 @@ public class RatingCourse : BaseAuditableEntity
     public string UserId { get; set; }
     public int Rating { get; set; }
     public string Review { get; set; }
+    public Course Course { get; set; }
 }

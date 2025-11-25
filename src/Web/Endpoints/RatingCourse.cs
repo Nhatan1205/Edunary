@@ -32,9 +32,9 @@ public class RatingCourse : EndpointGroupBase
     }
 
     // Get RatingCourse by user_id and course_id
-    public async Task<RatingCourseDto> GetRatingCourseByUser(ISender sender, int courseId, string userId)
+    public async Task<RatingCourseDto> GetRatingCourseByUser(ISender sender, int courseId)
     {
-        var query = new GetRatingCourseByUserQuery { CourseId = courseId, UserId = userId };
+        var query = new GetRatingCourseByUserQuery { CourseId = courseId };
         var result = await sender.Send(query);
         return result.Data as RatingCourseDto;
     }

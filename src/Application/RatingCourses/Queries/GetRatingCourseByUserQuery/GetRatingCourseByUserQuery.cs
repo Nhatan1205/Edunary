@@ -4,32 +4,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.RatingCourses.Queries.GetRatingCourseByUserQuery;
 
-public record GetRatingCourseByUserQuery : IRequest<Result>
+public class GetRatingCourseByUserQuery : IRequest<Result>
 {
     public int CourseId { get; init; }
-    public string UserId { get; init; } = null!;
 }
 
 public class GetRatingCourseByUserQueryHandler : IRequestHandler<GetRatingCourseByUserQuery, Result>
 {
     private readonly IApplicationDbContext _context;
 
-    public GetRatingCourseByUserQueryHandler(IApplicationDbContext context)
+    private readonly ICurrentUserService _currentUserService;
+
+    public GetRatingCourseByUserQueryHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result> Handle(GetRatingCourseByUserQuery request, CancellationToken cancellationToken)
     {
         try
         {
+            var userId = _currentUserService.UserId;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Result.Failure("User not authenticated");
+            }
+
+            // Verify course exists
             var rating = await _context.RatingCourses
-                .Where(r => r.CourseId == request.CourseId && r.UserId == request.UserId)
+                .Where(r => r.CourseId == request.CourseId && r.UserId == userId)
                 .Select(r => new RatingCourseDto
                 {
                     Id = r.Id,
                     CourseId = r.CourseId,
-                    UserId = r.UserId,
                     Rating = r.Rating,
                     Review = r.Review,
                     LastModified = r.LastModified

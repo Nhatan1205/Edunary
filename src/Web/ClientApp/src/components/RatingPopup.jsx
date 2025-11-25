@@ -11,20 +11,17 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useUpsertRatingCourse, useGetRatingCourseByUser } from '../hooks/useRatingCourse';
-import useGetBasicUserInfo from '../hooks/useGetBasicUserInfor';
 import { formatTimeAgo } from '../utils/helpers';
 
 const MAX_FEEDBACK = 500;
 
 const RatingPopup = ({ open, onClose, courseId }) => {
-  const { data: userInfo } = useGetBasicUserInfo();
-  const userId = userInfo?.userId;
   const [ratingValue, setRatingValue] = useState(5);
   const [feedback, setFeedback] = useState('');
   const [isEditing, setIsEditing] = useState();
   
   // Get existing rating if any
-  const { data: existingRating } = useGetRatingCourseByUser(courseId, userId);
+  const { data: existingRating } = useGetRatingCourseByUser(courseId);
   const { upsertRating, loading } = useUpsertRatingCourse();
 
   // Load existing rating when available

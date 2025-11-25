@@ -8,10 +8,6 @@ public class UpsertRatingCourseCommandValidator : AbstractValidator<UpsertRating
             .GreaterThan(0)
             .WithMessage("CourseId must be greater than 0");
 
-        RuleFor(v => v.UserId)
-            .NotEmpty()
-            .WithMessage("UserId is required");
-
         RuleFor(v => v.Rating)
             .InclusiveBetween(1, 5)
             .WithMessage("Rating must be between 1 and 5");

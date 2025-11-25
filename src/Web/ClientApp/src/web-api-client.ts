@@ -4175,7 +4175,6 @@ export interface IOrderItemDto {
 
 export class UpsertRatingCourseCommand implements IUpsertRatingCourseCommand {
     courseId?: number;
-    userId?: string | undefined;
     rating?: number;
     review?: string | undefined;
 
@@ -4191,7 +4190,6 @@ export class UpsertRatingCourseCommand implements IUpsertRatingCourseCommand {
     init(_data?: any) {
         if (_data) {
             this.courseId = _data["courseId"];
-            this.userId = _data["userId"];
             this.rating = _data["rating"];
             this.review = _data["review"];
         }
@@ -4207,7 +4205,6 @@ export class UpsertRatingCourseCommand implements IUpsertRatingCourseCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["courseId"] = this.courseId;
-        data["userId"] = this.userId;
         data["rating"] = this.rating;
         data["review"] = this.review;
         return data;
@@ -4216,7 +4213,6 @@ export class UpsertRatingCourseCommand implements IUpsertRatingCourseCommand {
 
 export interface IUpsertRatingCourseCommand {
     courseId?: number;
-    userId?: string | undefined;
     rating?: number;
     review?: string | undefined;
 }
@@ -4224,7 +4220,6 @@ export interface IUpsertRatingCourseCommand {
 export class RatingCourseDto implements IRatingCourseDto {
     id?: number;
     courseId?: number | undefined;
-    userId?: string | undefined;
     rating?: number;
     review?: string | undefined;
     lastModified?: Date;
@@ -4242,7 +4237,6 @@ export class RatingCourseDto implements IRatingCourseDto {
         if (_data) {
             this.id = _data["id"];
             this.courseId = _data["courseId"];
-            this.userId = _data["userId"];
             this.rating = _data["rating"];
             this.review = _data["review"];
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
@@ -4260,7 +4254,6 @@ export class RatingCourseDto implements IRatingCourseDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["courseId"] = this.courseId;
-        data["userId"] = this.userId;
         data["rating"] = this.rating;
         data["review"] = this.review;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
@@ -4271,7 +4264,6 @@ export class RatingCourseDto implements IRatingCourseDto {
 export interface IRatingCourseDto {
     id?: number;
     courseId?: number | undefined;
-    userId?: string | undefined;
     rating?: number;
     review?: string | undefined;
     lastModified?: Date;

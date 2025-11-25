@@ -3,15 +3,15 @@ import { toast } from 'react-toastify';
 import { RatingCourseClient, UpsertRatingCourseCommand } from '../web-api-client.ts';
 
 // Get RatingCourse by user_id and course_id
-export const useGetRatingCourseByUser = (courseId, userId) => {
+export const useGetRatingCourseByUser = (courseId) => {
   return useQuery({
-    queryKey: ['ratingCourse', courseId, userId],
+    queryKey: ['ratingCourse', courseId],
     queryFn: async () => {
       const client = new RatingCourseClient();
-      const result = await client.getRatingCourseByUser(courseId, userId);
+      const result = await client.getRatingCourseByUser(courseId);
       return result;
     },
-    enabled: !!courseId && !!userId,
+    enabled: !!courseId,
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
@@ -37,11 +37,10 @@ export const useUpsertRatingCourse = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async ({ courseId, userId, rating, review }) => {
+    mutationFn: async ({ courseId, rating, review }) => {
       const client = new RatingCourseClient();
       const command = new UpsertRatingCourseCommand({
         courseId,
-        userId,
         rating,
         review
       });

@@ -5,10 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.RatingCourses.Commands.UpsertRatingCourseCommand;
 
-public record UpsertRatingCourseCommand : IRequest<Result>
+public class UpsertRatingCourseCommand : IRequest<Result>
 {
     public int CourseId { get; init; }
-    public string UserId { get; init; } = null!;
     public int Rating { get; init; }
     public string Review { get; init; } = string.Empty;
 }
@@ -17,17 +16,26 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _currentUser;
+    private readonly ICurrentUserService _currentUserService;
 
-    public UpsertRatingCourseCommandHandler(IApplicationDbContext context, IUser currentUser)
+    public UpsertRatingCourseCommandHandler(IApplicationDbContext context, IUser currentUser, ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUser = currentUser;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result> Handle(UpsertRatingCourseCommand request, CancellationToken cancellationToken)
     {
         try
         {
+            var userId = _currentUserService.UserId;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Result.Failure("User not authenticated");
+            }
+
             // Verify course exists
             var course = await _context.Courses
                 .FirstOrDefaultAsync(c => c.Id == request.CourseId, cancellationToken);
@@ -39,7 +47,7 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
 
             // Check if user is enrolled in the course
             var hasEnrollment = await _context.Enrollments
-                .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == request.UserId, 
+                .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == userId, 
                     cancellationToken);
 
             if (!hasEnrollment)
@@ -49,7 +57,7 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
 
             // Check if rating already exists for this user and course
             var existingRating = await _context.RatingCourses
-                .FirstOrDefaultAsync(r => r.CourseId == request.CourseId && r.UserId == request.UserId, 
+                .FirstOrDefaultAsync(r => r.CourseId == request.CourseId && r.UserId == userId, 
                     cancellationToken);
             
             // Update course ratings
@@ -73,7 +81,7 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
                 var newRating = new RatingCourse
                 {
                     CourseId = request.CourseId,
-                    UserId = request.UserId,
+                    UserId = userId,
                     Rating = request.Rating,
                     Review = request.Review
                 };

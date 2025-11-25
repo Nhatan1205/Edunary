@@ -27,7 +27,14 @@ function ReviewsFilter({ searchQuery, onSearchChange, starFilter, onStarFilterCh
             </InputAdornment>
           ),
         }}
-        sx={{ flex: 1 }}
+        sx={{ 
+          flex: 1,
+          '& .MuiOutlinedInput-root': {
+            '&.Mui-focused fieldset': {
+              borderColor: 'brand.main',
+            },
+          },
+        }}
       />
 
       <FormControl size="small" sx={{ minWidth: 160 }}>

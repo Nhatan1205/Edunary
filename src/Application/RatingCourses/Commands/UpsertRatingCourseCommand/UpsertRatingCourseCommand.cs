@@ -37,6 +37,16 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
                 return Result.Failure("Course not found");
             }
 
+            // Check if user is enrolled in the course
+            var hasEnrollment = await _context.Enrollments
+                .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == request.UserId, 
+                    cancellationToken);
+
+            if (!hasEnrollment)
+            {
+                return Result.Failure("You must be enrolled in this course to rate it");
+            }
+
             // Check if rating already exists for this user and course
             var existingRating = await _context.RatingCourses
                 .FirstOrDefaultAsync(r => r.CourseId == request.CourseId && r.UserId == request.UserId, 

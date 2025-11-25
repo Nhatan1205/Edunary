@@ -12,7 +12,7 @@ import {
 import { Link as RouterLink, useParams } from "react-router-dom"; 
 import { Lightbulb, EmojiEvents, KeyboardArrowDown } from "@mui/icons-material";
 import { useState } from "react";
-import RatingPopup from "./RatingPopup";
+import RatingPopup from "../../../../components/RatingPopup";
 
 function CourseLearnHeader() {
   const { courseId } = useParams();

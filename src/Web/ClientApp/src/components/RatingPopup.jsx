@@ -10,9 +10,9 @@ import {
   Button
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useUpsertRatingCourse, useGetRatingCourseByUser } from '../../../../hooks/useRatingCourse';
-import useGetBasicUserInfo from '../../../../hooks/useGetBasicUserInfor';
-import { formatTimeAgo } from '../../../../utils/helpers';
+import { useUpsertRatingCourse, useGetRatingCourseByUser } from '../hooks/useRatingCourse';
+import useGetBasicUserInfo from '../hooks/useGetBasicUserInfor';
+import { formatTimeAgo } from '../utils/helpers';
 
 const MAX_FEEDBACK = 500;
 

@@ -1,5 +1,6 @@
 using Edunary.Application.RatingCourses.Commands.UpsertRatingCourseCommand;
 using Edunary.Application.RatingCourses.Queries.GetRatingCourseByUserQuery;
+using Edunary.Application.RatingCourses.Queries.GetRatingsByCourseQuery;
 using Edunary.Application.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,9 @@ public class RatingCourse : EndpointGroupBase
             .RequireAuthorization()
             .MapPost(UpsertRatingCourse)
             .MapGet(GetRatingCourseByUser);
+
+        app.MapGroup(this)
+            .MapGet(GetRatingsByCourse, "course/{courseId}");
     }
 
     // Add new or update RatingCourse by user
@@ -33,5 +37,25 @@ public class RatingCourse : EndpointGroupBase
         var query = new GetRatingCourseByUserQuery { CourseId = courseId, UserId = userId };
         var result = await sender.Send(query);
         return result.Data as RatingCourseDto;
+    }
+
+    // Get all ratings for a course with pagination and filters
+    public async Task<PaginatedList<RatingCourseWithUserDto>> GetRatingsByCourse(
+        ISender sender, 
+        int courseId,
+        int pageNumber = 1,
+        int pageSize = 10,
+        int? filterRating = null,
+        string sortBy = "newest")
+    {
+        var query = new GetRatingsByCourseQuery 
+        { 
+            CourseId = courseId,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            FilterRating = filterRating,
+            SortBy = sortBy
+        };
+        return await sender.Send(query);
     }
 }

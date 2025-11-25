@@ -17,6 +17,21 @@ export const useGetRatingCourseByUser = (courseId, userId) => {
   });
 };
 
+// Get all ratings for a course with pagination and filters
+export const useGetRatingsByCourse = (courseId, pageNumber = 1, pageSize = 10, filterRating = null, sortBy = 'newest') => {
+  return useQuery({
+    queryKey: ['ratingCourses', courseId, pageNumber, pageSize, filterRating, sortBy],
+    queryFn: async () => {
+      const client = new RatingCourseClient();
+      const result = await client.getRatingsByCourse(courseId, pageNumber, pageSize, filterRating, sortBy);
+      return result;
+    },
+    enabled: !!courseId,
+    retry: 1,
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+  });
+};
+
 // Add new or update RatingCourse by user
 export const useUpsertRatingCourse = () => {
   const queryClient = useQueryClient();

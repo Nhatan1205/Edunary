@@ -1,18 +1,16 @@
-import React from "react";
 import { Box, Typography, Stack, Rating, LinearProgress } from "@mui/material";
 
 function RatingStatistics({ reviews = [] }) {
   const total = reviews.length;
-  console.log('reviews', reviews);
   
-  // Tính số lượng và phần trăm cho mỗi mức rating
+  // Calculate the count and percentage for each rating level
   const getRatingData = (starValue) => {
     const count = reviews.filter((r) => Math.round(r.rating) === starValue).length;
     const percentage = total === 0 ? 0 : (count / total) * 100;
-    return { count, percentage };
+    return { percentage };
   };
 
-  // Tính rating trung bình
+  // Calculate average rating
   const avg = total === 0 ? 0 : reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / total;
 
   return (
@@ -50,7 +48,7 @@ function RatingStatistics({ reviews = [] }) {
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Stack spacing={1.5} sx={{ width: '100%' }}>
             {[5, 4, 3, 2, 1].map((star) => {
-              const { count, percentage } = getRatingData(star);
+              const { percentage } = getRatingData(star);
               
               return (
                 <Stack key={star} direction="row" alignItems="center" spacing={1} sx={{ width: '100%' }}>

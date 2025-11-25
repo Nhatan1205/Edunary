@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import RatingTab from "./rating-tab/RatingTab";
 

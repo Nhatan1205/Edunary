@@ -29,7 +29,7 @@ const RatingPopup = ({ open, onClose, courseId }) => {
 
   // Load existing rating when available
   useEffect(() => {
-    if (existingRating) {
+    if (existingRating?.id) {
       setRatingValue(existingRating.rating || 5);
       setFeedback(existingRating.review || '');
       setIsEditing(false);
@@ -81,7 +81,7 @@ const RatingPopup = ({ open, onClose, courseId }) => {
       onClose={onClose} 
       maxWidth="sm" 
       fullWidth
-      PaperProps={{
+      paper={{
         sx: {
           borderRadius: 3,
           padding: 2,

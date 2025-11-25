@@ -19,5 +19,9 @@ public class RatingCourseConfiguration : IEntityTypeConfiguration<RatingCourse>
 
         builder.Property(e => e.Review)
             .HasMaxLength(500);
+
+        builder.HasIndex(e => new { e.CourseId, e.UserId })
+            .IsUnique()
+            .HasDatabaseName("IX_RatingCourses_CourseId_UserId");
     }
 }

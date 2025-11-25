@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import RatingStatistics from "./RatingStatistics";
 import ReviewsFilter from "./ReviewsFilter";

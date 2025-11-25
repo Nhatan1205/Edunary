@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
-import RatingTab from "./rating-tab/RatingTab";
+import RatingTab from "../../../../components/rating-tab/RatingTab";
+import { useParams } from "react-router-dom";
 
 function CourseLearnTab() {
   const [active, setActive] = useState("overview");
+  const { courseId } = useParams();
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", minHeight: "500px" }}>
@@ -30,7 +32,7 @@ function CourseLearnTab() {
 
       {active === "reviews" && (
         <Box>
-          <RatingTab />
+          <RatingTab courseId={courseId} />
         </Box>
       )}
 

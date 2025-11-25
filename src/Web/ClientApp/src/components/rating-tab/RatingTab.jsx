@@ -3,11 +3,9 @@ import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import RatingStatistics from "./RatingStatistics";
 import ReviewsFilter from "./ReviewsFilter";
 import ReviewsList from "./ReviewsList";
-import { useGetRatingsByCourse } from "../../../../../hooks/useRatingCourse";
-import { useParams } from "react-router-dom";
+import { useGetRatingsByCourse } from "../../hooks/useRatingCourse";
 
-function RatingTab() {
-  const { courseId } = useParams();
+function RatingTab({ courseId }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [starFilter, setStarFilter] = useState(0);
   const [sortBy, setSortBy] = useState("newest");
@@ -30,7 +28,7 @@ function RatingTab() {
       rating: item.rating,
       modifiedAt: item.lastModified || item.created,
       content: item.review || "",
-      avatar: item.userAvatar,
+      avatar: item.avatar,
     }));
   }, [ratingsData]);
 

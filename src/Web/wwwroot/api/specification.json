@@ -6,6 +6,160 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Announcement": {
+      "post": {
+        "tags": [
+          "Announcement"
+        ],
+        "operationId": "CreateAnnouncement",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnnouncementCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfCreateAnnouncementCommandDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Announcement"
+        ],
+        "operationId": "UpdateAnnouncement",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAnnouncementCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Announcement"
+        ],
+        "operationId": "GetAnnouncements",
+        "parameters": [
+          {
+            "name": "Status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AnnouncementStatus"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfGetAnnouncementDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Announcement/{id}": {
+      "get": {
+        "tags": [
+          "Announcement"
+        ],
+        "operationId": "GetAnnouncementById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAnnouncementByIdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Auth/login": {
       "post": {
         "tags": [
@@ -1461,6 +1615,175 @@
   },
   "components": {
     "schemas": {
+      "ReturnResultOfCreateAnnouncementCommandDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CreateAnnouncementCommandDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateAnnouncementCommandDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateAnnouncementCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnnouncementStatus"
+          }
+        }
+      },
+      "AnnouncementStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Draft",
+          "Sent"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "UpdateAnnouncementCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnnouncementStatus"
+          }
+        }
+      },
+      "PaginatedListOfGetAnnouncementDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/GetAnnouncementDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetAnnouncementDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnnouncementStatus"
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "GetAnnouncementByIdDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnnouncementStatus"
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
       "LoginResponse": {
         "type": "object",
         "additionalProperties": false,

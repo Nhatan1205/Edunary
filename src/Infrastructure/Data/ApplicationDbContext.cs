@@ -34,6 +34,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<Cart> Carts => Set<Cart>();
 
+    public DbSet<Announcement> Announcements => Set<Announcement>();
+
+    public DbSet<AnnouncementRecipient> AnnouncementRecipients => Set<AnnouncementRecipient>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

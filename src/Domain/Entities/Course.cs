@@ -43,6 +43,8 @@ public class Course : BaseAuditableEntity
 
     public ICollection<CourseProgress> Progresses { get; set; } = new List<CourseProgress>();
 
+    public ICollection<Announcement> Announcements { get; set; } = new List<Announcement>();
+
     public void UpdateTotalStudents()
     {
         TotalStudents++;

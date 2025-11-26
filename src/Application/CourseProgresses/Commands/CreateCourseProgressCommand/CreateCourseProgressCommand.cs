@@ -1,5 +1,7 @@
+using System.Text.Json;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Application.CourseProgresses.Commands.UpdateCourseProgressCommand;
 using Edunary.Domain.Entities;
 
 namespace Edunary.Application.CourseProgresses.Commands.CreateCourseProgressCommand;
@@ -23,11 +25,13 @@ public class CreateCourseProgressCommandHandler : IRequestHandler<CreateCoursePr
     public async Task<Result> Handle(CreateCourseProgressCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
+        var progressObj  = JsonSerializer.Deserialize<CourseContentSchema>(request.Progress);
+        var normalizedJson  = JsonSerializer.Serialize(progressObj);
         var courseProgress = new CourseProgress
         {
             CourseId = request.CourseId,
             StudentId = userId,
-            Progress = request.Progress
+            Progress = normalizedJson
         };
 
         _context.CourseProgress.Add(courseProgress);

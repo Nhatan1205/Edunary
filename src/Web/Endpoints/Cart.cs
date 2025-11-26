@@ -1,6 +1,8 @@
 using Edunary.Application.Carts.Commands.AddToCartCommand;
 using Edunary.Application.Carts.Commands.RemoveFromCartCommand;
 using Edunary.Application.Carts.Queries.GetCartItemsQuery;
+using Edunary.Application.Common.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Edunary.Web.Endpoints;
 
@@ -20,6 +22,7 @@ public class Cart : EndpointGroupBase
         return await sender.Send(new GetCartItemsQuery());
     }
 
+    [ProducesResponseType(typeof(CartResponse), StatusCodes.Status200OK)]
     public async Task<IResult> AddToCart(ISender sender, AddToCartCommand command)
     {
         var result = await sender.Send(command);
@@ -27,7 +30,8 @@ public class Cart : EndpointGroupBase
         {
             return Results.BadRequest(result);
         }
-        return Results.Ok(result);
+        var response = new CartResponse { Message = result.Data.ToString() };
+        return Results.Ok(response);
     }
 
     public async Task<IResult> RemoveFromCart(ISender sender, int cartItemId)

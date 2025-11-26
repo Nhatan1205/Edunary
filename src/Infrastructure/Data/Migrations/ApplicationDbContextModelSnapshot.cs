@@ -153,6 +153,12 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Property<string>("Topic")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TotalRating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalRatingStudent")
+                        .HasColumnType("int");
+
                     b.Property<int>("TotalStudents")
                         .HasColumnType("int");
 
@@ -501,6 +507,49 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Review")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_RatingCourses_CourseId_UserId");
+
+                    b.ToTable("RatingCourses");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
@@ -861,6 +910,17 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
+                        .WithMany("RatingCourses")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.TodoList", "List")
@@ -956,6 +1016,8 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Enrollments");
 
                     b.Navigation("Progresses");
+
+                    b.Navigation("RatingCourses");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Order", b =>

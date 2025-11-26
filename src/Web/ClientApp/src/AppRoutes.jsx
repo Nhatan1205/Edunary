@@ -33,6 +33,7 @@ import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer"
 import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
 import PolicyPage from "./features/guest/policy-page/PolicyPage";
+import CourseInitialRedirect from "./features/user/my-learning/CourseInitialRedirect";
 
 const router = createBrowserRouter([
   {
@@ -223,7 +224,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="lecture/123" replace />, 
+        element: <CourseInitialRedirect />, 
       },
       {
         path: "lecture/:contentId",

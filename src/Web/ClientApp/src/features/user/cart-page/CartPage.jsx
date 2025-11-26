@@ -141,6 +141,8 @@ const CartPage = () => {
     )
   }
 
+  console.log('Rendering CartPage with items:', items)
+
   return (
     <Box sx={{ 
       width: '100%',

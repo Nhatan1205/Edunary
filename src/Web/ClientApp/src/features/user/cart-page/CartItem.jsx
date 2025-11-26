@@ -122,28 +122,26 @@ const CartItem = ({ item, onRemove, onSaveForLater, onMoveToCart, loading, isSav
                   flexWrap: "wrap",
                 }}
               >
-                {item.rating != null && (
+                {item.ratings != null && (
                   <>
                     <Typography
                       variant="body1"
                       sx={{
                         fontWeight: "bold",
-                        color: "text.primary",
+                        color: "#FAAF00",
                         fontSize: { xs: "0.75rem", sm: "0.875rem" },
                       }}
                     >
-                      {item.rating.toFixed(1)}
+                      {item.ratings}
                     </Typography>
-                    <Rating value={item.rating} readOnly size="small" precision={0.1} />
-                    {item.reviewCount > 0 && (
-                      <Typography
-                        variant="body1"
-                        color="text.secondary"
-                        sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                      >
-                        ({item.reviewCount.toLocaleString()} ratings)
-                      </Typography>
-                    )}
+                    <Rating value={item.ratings} readOnly size="small" precision={0.1} />
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                        ({item.totalRatingStudent} ratings)
+                    </Typography>
                   </>
                 )}
               </Box>

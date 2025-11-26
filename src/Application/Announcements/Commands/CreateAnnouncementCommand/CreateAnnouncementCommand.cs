@@ -2,6 +2,7 @@
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
+using Edunary.Domain.Events.Announcements;
 
 namespace Edunary.Application.Announcements.Commands.CreateDraftAnnouncementCommand;
 public class CreateAnnouncementCommand : IRequest<ReturnResult<CreateAnnouncementCommandDto>>
@@ -15,13 +16,11 @@ public class CreateAnnouncementCommand : IRequest<ReturnResult<CreateAnnouncemen
 public class CreateAnnouncementCommandHandler : IRequestHandler<CreateAnnouncementCommand, ReturnResult<CreateAnnouncementCommandDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public CreateAnnouncementCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService, IMapper mapper)
+    public CreateAnnouncementCommandHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
-        _currentUserService = currentUserService;
         _mapper = mapper;
     }
     public async Task<ReturnResult<CreateAnnouncementCommandDto>> Handle(CreateAnnouncementCommand request, CancellationToken cancellationToken)
@@ -34,9 +33,11 @@ public class CreateAnnouncementCommandHandler : IRequestHandler<CreateAnnounceme
                 Content = request.Content,
                 Status = request.Status
             };
+            
             if (request.Status == AnnouncementStatus.Sent)
             {
                 announcement.SentAt = DateTime.UtcNow;
+                announcement.AddDomainEvent(new AnnouncementSentEvent(announcement));
             }
             if (request.CourseIds.Any())
             {
@@ -52,15 +53,11 @@ public class CreateAnnouncementCommandHandler : IRequestHandler<CreateAnnounceme
             }
             _context.Announcements.Add(announcement);
             await _context.SaveChangesAsync(cancellationToken);
-            if(request.Status == AnnouncementStatus.Sent)
-            {
-                // TODO: implement send email to students in the selected courses
-            }
             var result = _mapper.Map<CreateAnnouncementCommandDto>(announcement);
             return new ReturnResult<CreateAnnouncementCommandDto>
             {
                 Result = result,
-                Message = "Draft announcement created successfully."
+                Message = "announcement created successfully."
             };
         }
         catch (Exception ex)

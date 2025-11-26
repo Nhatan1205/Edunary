@@ -37,7 +37,8 @@ public static class DependencyInjection
         });
 
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
-        
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+
         services.Configure<DigitalOceanSettings>(configuration.GetSection("DigitalOceanSettings"));
         services.AddSingleton<IAmazonS3>(sp =>
         {
@@ -64,6 +65,7 @@ public static class DependencyInjection
 
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
+        services.AddTransient<IEmailService, EmailService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<IUploadFileService, UploadFileService>();
         services.AddScoped<INotifyService, NotifyService>();

@@ -4,6 +4,7 @@ using Edunary.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Edunary.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251123093550_AddRatingCourseEntity")]
+    partial class AddRatingCourseEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,12 +155,6 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.Property<string>("Topic")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TotalRating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalRatingStudent")
-                        .HasColumnType("int");
 
                     b.Property<int>("TotalStudents")
                         .HasColumnType("int");
@@ -541,13 +538,9 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CourseId", "UserId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_RatingCourses_CourseId_UserId");
 
                     b.ToTable("RatingCourses");
                 });
@@ -910,17 +903,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
-                        .WithMany("RatingCourses")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.TodoList", "List")
@@ -1016,8 +998,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Enrollments");
 
                     b.Navigation("Progresses");
-
-                    b.Navigation("RatingCourses");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Order", b =>

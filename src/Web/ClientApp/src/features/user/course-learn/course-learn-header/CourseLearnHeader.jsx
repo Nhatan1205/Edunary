@@ -6,13 +6,19 @@ import {
   Divider,
   Button
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom"; 
+import {
+  Star,
+} from "@mui/icons-material";
+import { Link as RouterLink, useParams } from "react-router-dom"; 
 import { Lightbulb, EmojiEvents, KeyboardArrowDown } from "@mui/icons-material";
+import { useState } from "react";
+import RatingPopup from "../../../../components/RatingPopup";
 
 function CourseLearnHeader() {
+  const { courseId } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Đổi thành md để ẩn title sớm hơn trên tablet nhỏ
-
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   // Sample data
   const courseTitle = "The Ultimate React Course 2025: React, Next.js, Redux & More";
 
@@ -91,7 +97,34 @@ function CourseLearnHeader() {
         </Typography>
       </Box>
 
-      <Box sx={{ flexShrink: 0 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+        <Button
+          sx={{
+            textTransform: "none",
+            color: "#d1d7dc", 
+            "&:hover": {
+              color: "white",
+              bgcolor: "rgba(255,255,255,0.1)"
+            }
+          }}
+          startIcon={<Star />}
+          onClick={() => setIsPopupOpen(true)}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {!isMobile && (
+              <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
+                Leave a rating
+              </Typography>
+            )}
+          </Box>
+        </Button>
+
+        <RatingPopup 
+          open={isPopupOpen} 
+          onClose={() => setIsPopupOpen(false)}
+          courseId={courseId}
+        />
+
         <Button
           sx={{
             textTransform: "none",
@@ -116,12 +149,12 @@ function CourseLearnHeader() {
           >
             <EmojiEvents sx={{ fontSize: 18 }} />
           </Box>
-          
+
           <Box sx={{ display: "flex", alignItems: "center" }}>
             {!isMobile && (
-                <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
+              <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
                 Your progress
-                </Typography>
+              </Typography>
             )}
             <KeyboardArrowDown sx={{ ml: 0.5 }} />
           </Box>

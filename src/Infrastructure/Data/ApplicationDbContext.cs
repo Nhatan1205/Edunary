@@ -34,6 +34,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<Cart> Carts => Set<Cart>();
 
+    public DbSet<RatingCourse> RatingCourses => Set<RatingCourse>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

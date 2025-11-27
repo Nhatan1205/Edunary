@@ -33,7 +33,7 @@ const RatingPopup = ({ open, onClose, courseId }) => {
     } else {
       setIsEditing(true);
     }
-  }, [existingRating, courseId, userId]);
+  }, [existingRating, courseId]);
 
   // Label mapping for each star value
   const ratingLabels = {
@@ -55,14 +55,13 @@ const RatingPopup = ({ open, onClose, courseId }) => {
   const nearLimit = remaining <= 20;
 
   const handleSaveButton = async (rating, review) => {
-    if (!userId || !courseId) {
+    if (!courseId) {
       console.error('Missing userId or courseId');
       return;
     }
 
     const result = await upsertRating({
       courseId: parseInt(courseId),
-      userId,
       rating,
       review
     });

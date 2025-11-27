@@ -44,7 +44,6 @@ const CartPage = () => {
           item.id === itemId ? { ...item, isSaved: true } : item
         )
       )
-      console.log('Save for later:', itemId)
     } catch (err) {
       console.error('Failed to save for later:', err)
       setItems(prevItems =>
@@ -65,7 +64,6 @@ const CartPage = () => {
           item.id === itemId ? { ...item, isSaved: false } : item
         )
       )
-      console.log('Move to cart:', itemId)
     } catch (err) {
       console.error('Failed to move to cart:', err)
       setItems(prevItems =>
@@ -140,8 +138,6 @@ const CartPage = () => {
       </Box>
     )
   }
-
-  console.log('Rendering CartPage with items:', items)
 
   return (
     <Box sx={{ 

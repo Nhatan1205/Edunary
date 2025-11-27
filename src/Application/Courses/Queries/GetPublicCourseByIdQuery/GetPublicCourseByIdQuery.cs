@@ -32,6 +32,7 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
             .FirstOrDefaultAsync(cancellationToken);
         if (course == null) return null!;
         course.InstructorName = await _identityService.GetFullNameAsync(course.CreatedBy);
+        course.InstructorAvatar = await _identityService.GetUserAvatarAsync(course.CreatedBy);
 
         if (!string.IsNullOrWhiteSpace(course.Content))
         {

@@ -17,6 +17,7 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useParams, useNavigate } from "react-router-dom";
 import useGetLearningSidebar from "../../../../hooks/useGetLearningSidebar";
+import useUpdateCompleteCP from "../../../../hooks/useUpdateCompleteCP";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
 import { useState, useEffect } from "react";
 
@@ -24,6 +25,7 @@ function CourseLearnSidebar({ onClose }) {
   const { courseId, contentId } = useParams();
   const navigate = useNavigate();
   const { data: courseProgressData, isLoading } = useGetLearningSidebar(courseId);
+  const updateProgressMutation = useUpdateCompleteCP();
   const [courseContents, setCourseContents] = useState([]);
   const [expandedSections, setExpandedSections] = useState({});
   const [resourceMenuAnchor, setResourceMenuAnchor] = useState(null);
@@ -55,9 +57,9 @@ function CourseLearnSidebar({ onClose }) {
   }, [courseProgressData, contentId]);
 
 
-  const handleCheckboxChange = (sectionId, itemId) => {
-    // TODO: Call API to update course progress on backend
-    // For now, just update local state
+  const handleCheckboxChange = async (event, sectionId, itemId, currentStatus) => {
+    event.stopPropagation();
+    const newStatus = !currentStatus;
     setCourseContents(prevContents => 
       prevContents.map(section => {
         if (section.sectionId === sectionId) {
@@ -65,7 +67,7 @@ function CourseLearnSidebar({ onClose }) {
             ...section,
             items: section.items.map(item => {
               if (item.itemId === itemId) {
-                return { ...item, isCompleted: !(item.isCompleted ?? false) };
+                return { ...item, isCompleted: newStatus };
               }
               return item;
             })
@@ -74,6 +76,15 @@ function CourseLearnSidebar({ onClose }) {
         return section;
       })
     );
+    try {
+      await updateProgressMutation.mutateAsync({
+          courseId: Number(courseId), 
+          itemId: itemId,
+          isCompleted: newStatus,
+      });
+    } catch (error) {
+      console.error("Failed to update status", error);
+    }
   };
 
   const handleSectionToggle = (sectionId) => {
@@ -84,6 +95,7 @@ function CourseLearnSidebar({ onClose }) {
   };
 
   const handleResourceClick = (event, resources) => {
+    event.stopPropagation();
     if (resources && resources.length > 0) {
       setCurrentResources(resources);
       setResourceMenuAnchor(event.currentTarget);
@@ -238,7 +250,7 @@ function CourseLearnSidebar({ onClose }) {
                       >
                         <Checkbox
                           checked={item.isCompleted || false}
-                          onChange={() => handleCheckboxChange(section.sectionId, item.itemId)}
+                          onClick={(e) => handleCheckboxChange(e, section.sectionId, item.itemId, item.isCompleted)}
                           sx={{
                             color: "text.disabled",
                             p: 0,

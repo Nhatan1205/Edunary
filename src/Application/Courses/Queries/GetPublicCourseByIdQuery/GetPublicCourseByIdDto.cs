@@ -27,6 +27,7 @@ public class GetPublicCourseByIdDto
     public string InstructorName { get; set; } = null!;
     public string Content { get; set; } = null!;
     public DateTimeOffset LastModified { get; set; }
+    public string InstructorAvatar { get; set; } = null!;
 
     private class Mapping : Profile
     {

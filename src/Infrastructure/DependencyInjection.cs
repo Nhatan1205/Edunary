@@ -9,6 +9,7 @@ using Edunary.Infrastructure.Data.Interceptors;
 using Edunary.Infrastructure.Helpers;
 using Edunary.Infrastructure.Identity;
 using Edunary.Infrastructure.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -113,6 +114,12 @@ public static class DependencyInjection
             };
         });
 
+        //Hangfire configuration
+        services.AddHangfire(configuration => configuration
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(connectionString));
+        services.AddHangfireServer();
         return services;
     }
 }

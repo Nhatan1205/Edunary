@@ -1,6 +1,7 @@
 ﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
+using Edunary.Domain.Events.Announcements;
 
 namespace Edunary.Application.Announcements.Commands.UpdateAnnouncementCommand;
 public class UpdateAnnouncementCommand : IRequest<Result>
@@ -16,16 +17,11 @@ public class UpdateAnnouncementCommandHandler : IRequestHandler<UpdateAnnounceme
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IMapper _mapper;
 
-    public UpdateAnnouncementCommandHandler(
-        IApplicationDbContext context,
-        ICurrentUserService currentUserService,
-        IMapper mapper)
+    public UpdateAnnouncementCommandHandler(IApplicationDbContext context,ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;
-        _mapper = mapper;
     }
 
     public async Task<Result> Handle(
@@ -33,7 +29,7 @@ public class UpdateAnnouncementCommandHandler : IRequestHandler<UpdateAnnounceme
     {
         var announcement = await _context.Announcements
             .Include(x => x.Courses)
-            .FirstOrDefaultAsync(x => x.Id == request.Id,cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
         Guard.Against.NotFound(request.Id, announcement);
         var userId = _currentUserService?.UserId;
         if (announcement.CreatedBy != userId)
@@ -46,10 +42,10 @@ public class UpdateAnnouncementCommandHandler : IRequestHandler<UpdateAnnounceme
             return Result.Failure("Announcement not found.");
         }
 
-        // ❗ Chỉ cho phép update khi đang draft
         if (announcement.Status == AnnouncementStatus.Sent)
         {
-            return Result.Failure("Cannot update an announcement that has already been sent.");
+            announcement.SentAt = DateTime.UtcNow;
+            announcement.AddDomainEvent(new AnnouncementSentEvent(announcement));
         }
 
 
@@ -57,7 +53,6 @@ public class UpdateAnnouncementCommandHandler : IRequestHandler<UpdateAnnounceme
         announcement.Subject = request.Subject;
         announcement.Content = request.Content;
         announcement.Status = request.Status;
-        announcement.SentAt = DateTime.UtcNow;
 
         // Update course list
         announcement.Courses.Clear();

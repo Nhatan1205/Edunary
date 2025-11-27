@@ -35,19 +35,19 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
             .Distinct()
             .ToListAsync(cancellationToken);
 
-        // 3. Get user info for these students
-        var users = await Task.WhenAll(
-            studentIds.Select(id => _identityService.GetUserById(id))
-        );
+        // 3. Get emails of these students
+        var emails = new List<string>();
 
-        // 4. Extract emails
-        var emails = users
-            .Where(u => u != null && !string.IsNullOrWhiteSpace(u.Email))
-            .Select(u => u.Email!)
-            .Distinct()
-            .ToList();
+        foreach (var id in studentIds)
+        {
+            var email = (await _identityService.GetUserById(id))?.Email;
+            if (!string.IsNullOrWhiteSpace(email))
+                emails.Add(email);
+        }
 
-        // 5. Send emails
+        emails = emails.Distinct().ToList();
+
+        // 4. Send emails
         if (emails.Any())
         {
             var html = EmailTemplates.BuildAnnouncementTemplate(announcement.Subject, announcement.Content);

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Helpers;
+using Hangfire;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
@@ -19,14 +20,16 @@ public class EmailService : IEmailService
         var message = CreateMimeMessage(toEmail, subject, content);
         await SendMimeMessageAsync(message);
     }
-    public async Task SendBulkEmailsAsync(IEnumerable<string> toEmails, string subject, string content)
+    public Task SendBulkEmailsAsync(IEnumerable<string> toEmails, string subject, string content)
     {
-        var tasks = toEmails.Select(email =>
+        foreach (var email in toEmails)
         {
-            var msg = CreateMimeMessage(email, subject, content);
-            return SendMimeMessageAsync(msg);
-        });
-        await Task.WhenAll(tasks);
+            BackgroundJob.Enqueue<EmailService>(service =>
+                service.SendEmailAsync(email, subject, content)
+            );
+        }
+
+        return Task.CompletedTask;
     }
 
     private MimeMessage CreateMimeMessage(string toEmail, string subject, string htmlContent)

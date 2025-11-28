@@ -4226,6 +4226,7 @@ export interface INotificationsVm {
 export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
     id?: number;
     title?: string | undefined;
+    imageUrl?: string | undefined;
     message?: string | undefined;
     type?: string | undefined;
     created?: Date;
@@ -4244,6 +4245,7 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
         if (_data) {
             this.id = _data["id"];
             this.title = _data["title"];
+            this.imageUrl = _data["imageUrl"];
             this.message = _data["message"];
             this.type = _data["type"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
@@ -4262,6 +4264,7 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["title"] = this.title;
+        data["imageUrl"] = this.imageUrl;
         data["message"] = this.message;
         data["type"] = this.type;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
@@ -4273,6 +4276,7 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
 export interface IGetNotificationByUserIdDto {
     id?: number;
     title?: string | undefined;
+    imageUrl?: string | undefined;
     message?: string | undefined;
     type?: string | undefined;
     created?: Date;

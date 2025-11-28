@@ -28,7 +28,5 @@ public interface IApplicationDbContext
 
     public DbSet<Announcement> Announcements { get; }
 
-    public DbSet<AnnouncementRecipient> AnnouncementRecipients { get; }
-
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

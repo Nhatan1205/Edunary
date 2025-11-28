@@ -9,7 +9,7 @@ public class GetAnnouncementByIdDto
     public string Subject { get; set; }
     public string Content { get; set; }
     public AnnouncementStatus Status { get; set; }
-    public DateTime? SentAt { get; set; }
+    public DateTimeOffset? SentAt { get; set; }
 
     public List<int> CourseIds { get; set; }
 

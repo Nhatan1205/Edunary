@@ -61,16 +61,21 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
         }
 
         // 5. Notify courses about the update
-        var userName = _currentUserService?.UserName;
+        var userName = _currentUserService?.FullName;
+        var avatarUrl = _currentUserService?.Avatar;
         foreach (var courseId in courseIds)
         {
-            await _notifyService.NotifyCourseUpdated(
-                courseId,
-                $"{userName} has made an announcement",
-                announcement.Content,
-                "announcement",
-                cancellationToken
-            );
+            var notificationRequest = new NotificationRequest
+            {
+                ImageUrl = avatarUrl,
+                CourseId = courseId,
+                Title = $"{userName} has made an announcement: {announcement.Subject}",
+                Subject = announcement.Subject,
+                Message = announcement.Content,
+                Type = "announcement",
+                Url = ""
+            };
+            await _notifyService.NotifyCourseUpdated(notificationRequest, cancellationToken);
         }
     }
 }

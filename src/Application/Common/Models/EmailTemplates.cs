@@ -1,7 +1,7 @@
 ﻿namespace Edunary.Application.Common.Models;
 public static class EmailTemplates
 {
-    public static string BuildAnnouncementTemplate(string subject, string content, string siteUrl = "https://edunary.runasp.net/", string logoUrl = "https://your-site.com/logo.png")
+    public static string BuildAnnouncementTemplate(string subject, string content, string siteUrl = "https://edunary.runasp.net/", string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1764309386/logo_white_o2fonq.png")
     {
         // content assumed to be safe HTML or sanitized earlier
         return $@"
@@ -25,7 +25,7 @@ public static class EmailTemplates
                                 <td style=""vertical-align:middle;"">
                                 <img src=""{logoUrl}"" alt=""Logo"" width=""32"" height=""32"" style=""display:inline-block;vertical-align:middle;"" />
                                 </td>
-                                <td style=""vertical-align:middle;padding-left:10px;"">
+                                <td style=""vertical-align:middle;padding-left:4px;"">
                                 <span style=""color:#ffffff;font-size:20px;font-weight:600;"">Edunary</span>
                                 </td>
                             </tr>

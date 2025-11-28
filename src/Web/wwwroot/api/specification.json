@@ -2863,6 +2863,10 @@
             "type": "string",
             "nullable": true
           },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "message": {
             "type": "string",
             "nullable": true

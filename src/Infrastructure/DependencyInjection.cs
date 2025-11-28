@@ -9,6 +9,7 @@ using Edunary.Infrastructure.Data.Interceptors;
 using Edunary.Infrastructure.Helpers;
 using Edunary.Infrastructure.Identity;
 using Edunary.Infrastructure.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +38,8 @@ public static class DependencyInjection
         });
 
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
-        
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+
         services.Configure<DigitalOceanSettings>(configuration.GetSection("DigitalOceanSettings"));
         services.AddSingleton<IAmazonS3>(sp =>
         {
@@ -64,6 +66,7 @@ public static class DependencyInjection
 
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
+        services.AddTransient<IEmailService, EmailService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<IUploadFileService, UploadFileService>();
         services.AddScoped<INotifyService, NotifyService>();
@@ -111,6 +114,12 @@ public static class DependencyInjection
             };
         });
 
+        //Hangfire configuration
+        services.AddHangfire(configuration => configuration
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(connectionString));
+        services.AddHangfireServer();
         return services;
     }
 }

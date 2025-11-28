@@ -1,4 +1,5 @@
 ﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Models;
 using Edunary.Application.Enrollments.Queries.GetStudentsByCourseIdQuery;
 using Edunary.Application.Notifications.Commands.CreateNotificationCommand;
 using Edunary.Application.NotificationUsers.Commands.CreateNotificationUserCommand;
@@ -21,19 +22,21 @@ public class NotifyService : INotifyService
         _currentUserService = currentUserService;
         _connectionManager = connectionManager;
     }
-    public async Task NotifyCourseUpdated(int courseId, string title, string message, CancellationToken cancellationToken)
+    public async Task NotifyCourseUpdated(NotificationRequest request, CancellationToken cancellationToken)
     {
         // get all studnet in the course
-        var students = await _sender.Send(new GetStudentsByCourseIdQuery { CourseId = courseId }, cancellationToken);
+        var students = await _sender.Send(new GetStudentsByCourseIdQuery { CourseId = request.CourseId }, cancellationToken);
         if (students.Any())
         {
             var createCommand = new CreateNotificationCommand
             {
-                CourseId = courseId,
-                Title = title,
-                Message = message,
-                Type = "course_update",
-                Url = $"/courses/{courseId}"
+                ImageUrl = request.ImageUrl,
+                CourseId = request.CourseId,
+                Title = request.Title,
+                Subject = request.Subject,
+                Message = request.Message,
+                Type = request.Type,
+                Url = request.Url
             };
 
             var resultNotification = await _sender.Send(createCommand, cancellationToken);
@@ -51,13 +54,15 @@ public class NotifyService : INotifyService
 
             var payload = new
             {
-                Title = title,
-                Message = message,
-                CourseId = courseId,
-                Created = DateTime.UtcNow
+                CourseId = request.CourseId,
+                Title = request.Title,
+                Subject = request.Subject,
+                Message = request.Message,
+                Type = request.Type,
+                Url = request.Url
             };
 
-            await _hub.Clients.Group(courseId.ToString()).SendAsync("ReceiveMessage", payload);
+            await _hub.Clients.Group(request.CourseId.ToString()).SendAsync("ReceiveMessage", payload);
         }
     }
 

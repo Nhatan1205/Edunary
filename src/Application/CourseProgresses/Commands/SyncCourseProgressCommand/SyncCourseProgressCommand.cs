@@ -33,12 +33,7 @@ public class SyncCourseProgressCommandHandler : IRequestHandler<SyncCourseProgre
             var syncedJson = MergeProgress(request.NewContentJson, student.Progress);
             student.Progress = syncedJson;
         }
-        var rs =  await _context.SaveChangesAsync(cancellationToken);
-        if (rs > 0)
-        {
-            return Result.Success();
-        }
-        return Result.Failure("Failed to sync course progress.");
+        return Result.Success();
     }
 
     private string MergeProgress(string newContentJson, string oldProgressJson)

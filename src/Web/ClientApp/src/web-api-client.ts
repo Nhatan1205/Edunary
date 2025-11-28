@@ -10,6 +10,176 @@
 
 import followIfLoginRedirect from './components/api-authorization/followIfLoginRedirect';
 
+export class AnnouncementClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    createAnnouncement(command: CreateAnnouncementCommand | undefined): Promise<ReturnResultOfCreateAnnouncementCommandDto> {
+        let url_ = this.baseUrl + "/api/Announcement";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateAnnouncement(_response);
+        });
+    }
+
+    protected processCreateAnnouncement(response: Response): Promise<ReturnResultOfCreateAnnouncementCommandDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCreateAnnouncementCommandDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCreateAnnouncementCommandDto>(null as any);
+    }
+
+    updateAnnouncement(command: UpdateAnnouncementCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Announcement";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateAnnouncement(_response);
+        });
+    }
+
+    protected processUpdateAnnouncement(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getAnnouncements(status: AnnouncementStatus, pageNumber: number, pageSize: number): Promise<PaginatedListOfGetAnnouncementDto> {
+        let url_ = this.baseUrl + "/api/Announcement?";
+        if (status === undefined || status === null)
+            throw new Error("The parameter 'status' must be defined and cannot be null.");
+        else
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAnnouncements(_response);
+        });
+    }
+
+    protected processGetAnnouncements(response: Response): Promise<PaginatedListOfGetAnnouncementDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfGetAnnouncementDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfGetAnnouncementDto>(null as any);
+    }
+
+    getAnnouncementById(id: number): Promise<GetAnnouncementByIdDto> {
+        let url_ = this.baseUrl + "/api/Announcement/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAnnouncementById(_response);
+        });
+    }
+
+    protected processGetAnnouncementById(response: Response): Promise<GetAnnouncementByIdDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetAnnouncementByIdDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GetAnnouncementByIdDto>(null as any);
+    }
+}
+
 export class AuthClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -2233,6 +2403,387 @@ export class WeatherForecastsClient {
     }
 }
 
+export class ReturnResultOfCreateAnnouncementCommandDto implements IReturnResultOfCreateAnnouncementCommandDto {
+    result?: CreateAnnouncementCommandDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCreateAnnouncementCommandDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CreateAnnouncementCommandDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCreateAnnouncementCommandDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCreateAnnouncementCommandDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCreateAnnouncementCommandDto {
+    result?: CreateAnnouncementCommandDto | undefined;
+    message?: string | undefined;
+}
+
+export class CreateAnnouncementCommandDto implements ICreateAnnouncementCommandDto {
+    id?: number;
+
+    constructor(data?: ICreateAnnouncementCommandDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): CreateAnnouncementCommandDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateAnnouncementCommandDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface ICreateAnnouncementCommandDto {
+    id?: number;
+}
+
+export class CreateAnnouncementCommand implements ICreateAnnouncementCommand {
+    subject?: string | undefined;
+    content?: string | undefined;
+    courseIds?: number[] | undefined;
+    status?: AnnouncementStatus;
+
+    constructor(data?: ICreateAnnouncementCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.subject = _data["subject"];
+            this.content = _data["content"];
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): CreateAnnouncementCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateAnnouncementCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["subject"] = this.subject;
+        data["content"] = this.content;
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface ICreateAnnouncementCommand {
+    subject?: string | undefined;
+    content?: string | undefined;
+    courseIds?: number[] | undefined;
+    status?: AnnouncementStatus;
+}
+
+export enum AnnouncementStatus {
+    Draft = 0,
+    Sent = 1,
+}
+
+export class UpdateAnnouncementCommand implements IUpdateAnnouncementCommand {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    courseIds?: number[] | undefined;
+    status?: AnnouncementStatus;
+
+    constructor(data?: IUpdateAnnouncementCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subject = _data["subject"];
+            this.content = _data["content"];
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpdateAnnouncementCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateAnnouncementCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subject"] = this.subject;
+        data["content"] = this.content;
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpdateAnnouncementCommand {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    courseIds?: number[] | undefined;
+    status?: AnnouncementStatus;
+}
+
+export class PaginatedListOfGetAnnouncementDto implements IPaginatedListOfGetAnnouncementDto {
+    items?: GetAnnouncementDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetAnnouncementDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetAnnouncementDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetAnnouncementDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetAnnouncementDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetAnnouncementDto {
+    items?: GetAnnouncementDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class GetAnnouncementDto implements IGetAnnouncementDto {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    status?: AnnouncementStatus;
+    sentAt?: Date | undefined;
+    created?: Date;
+
+    constructor(data?: IGetAnnouncementDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subject = _data["subject"];
+            this.content = _data["content"];
+            this.status = _data["status"];
+            this.sentAt = _data["sentAt"] ? new Date(_data["sentAt"].toString()) : <any>undefined;
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetAnnouncementDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetAnnouncementDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subject"] = this.subject;
+        data["content"] = this.content;
+        data["status"] = this.status;
+        data["sentAt"] = this.sentAt ? this.sentAt.toISOString() : <any>undefined;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetAnnouncementDto {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    status?: AnnouncementStatus;
+    sentAt?: Date | undefined;
+    created?: Date;
+}
+
+export class GetAnnouncementByIdDto implements IGetAnnouncementByIdDto {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    status?: AnnouncementStatus;
+    sentAt?: Date | undefined;
+    courseIds?: number[] | undefined;
+
+    constructor(data?: IGetAnnouncementByIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subject = _data["subject"];
+            this.content = _data["content"];
+            this.status = _data["status"];
+            this.sentAt = _data["sentAt"] ? new Date(_data["sentAt"].toString()) : <any>undefined;
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetAnnouncementByIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetAnnouncementByIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subject"] = this.subject;
+        data["content"] = this.content;
+        data["status"] = this.status;
+        data["sentAt"] = this.sentAt ? this.sentAt.toISOString() : <any>undefined;
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IGetAnnouncementByIdDto {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    status?: AnnouncementStatus;
+    sentAt?: Date | undefined;
+    courseIds?: number[] | undefined;
+}
+
 export class LoginResponse implements ILoginResponse {
     token?: any | undefined;
 
@@ -3347,138 +3898,6 @@ export class LastAccessedItemDto implements ILastAccessedItemDto {
 export interface ILastAccessedItemDto {
     itemId?: string | undefined;
     routeType?: string | undefined;
-}
-
-export class CourseProgressDto implements ICourseProgressDto {
-    id?: number;
-    courseId?: number;
-    studentId?: string | undefined;
-    progress?: string | undefined;
-
-    constructor(data?: ICourseProgressDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.courseId = _data["courseId"];
-            this.studentId = _data["studentId"];
-            this.progress = _data["progress"];
-        }
-    }
-
-    static fromJS(data: any): CourseProgressDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CourseProgressDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["courseId"] = this.courseId;
-        data["studentId"] = this.studentId;
-        data["progress"] = this.progress;
-        return data;
-    }
-}
-
-export interface ICourseProgressDto {
-    id?: number;
-    courseId?: number;
-    studentId?: string | undefined;
-    progress?: string | undefined;
-}
-
-export class LearningHeaderDto implements ILearningHeaderDto {
-    title?: string | undefined;
-    totalLectures?: number;
-    completedLectures?: number;
-
-    constructor(data?: ILearningHeaderDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.title = _data["title"];
-            this.totalLectures = _data["totalLectures"];
-            this.completedLectures = _data["completedLectures"];
-        }
-    }
-
-    static fromJS(data: any): LearningHeaderDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LearningHeaderDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["title"] = this.title;
-        data["totalLectures"] = this.totalLectures;
-        data["completedLectures"] = this.completedLectures;
-        return data;
-    }
-}
-
-export interface ILearningHeaderDto {
-    title?: string | undefined;
-    totalLectures?: number;
-    completedLectures?: number;
-}
-
-export class UpdateCourseProgressCommand implements IUpdateCourseProgressCommand {
-    courseId?: number;
-    progress?: string | undefined;
-
-    constructor(data?: IUpdateCourseProgressCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.courseId = _data["courseId"];
-            this.progress = _data["progress"];
-        }
-    }
-
-    static fromJS(data: any): UpdateCourseProgressCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateCourseProgressCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["courseId"] = this.courseId;
-        data["progress"] = this.progress;
-        return data;
-    }
-}
-
-export interface IUpdateCourseProgressCommand {
-    courseId?: number;
-    progress?: string | undefined;
 }
 
 export class CreateCourseCommand implements ICreateCourseCommand {
@@ -4712,7 +5131,9 @@ export interface INotificationsVm {
 export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
     id?: number;
     title?: string | undefined;
+    imageUrl?: string | undefined;
     message?: string | undefined;
+    type?: string | undefined;
     created?: Date;
     isRead?: boolean;
 
@@ -4729,7 +5150,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
         if (_data) {
             this.id = _data["id"];
             this.title = _data["title"];
+            this.imageUrl = _data["imageUrl"];
             this.message = _data["message"];
+            this.type = _data["type"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.isRead = _data["isRead"];
         }
@@ -4746,7 +5169,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["title"] = this.title;
+        data["imageUrl"] = this.imageUrl;
         data["message"] = this.message;
+        data["type"] = this.type;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["isRead"] = this.isRead;
         return data;
@@ -4756,7 +5181,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
 export interface IGetNotificationByUserIdDto {
     id?: number;
     title?: string | undefined;
+    imageUrl?: string | undefined;
     message?: string | undefined;
+    type?: string | undefined;
     created?: Date;
     isRead?: boolean;
 }

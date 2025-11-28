@@ -13,10 +13,15 @@ public class CurrentUserService : ICurrentUserService
         UserId = httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         UserName = httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Name);
         Email = httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
+        FullName = httpContextAccessor.HttpContext?.User?.FindFirstValue("fullName");
+        Avatar = httpContextAccessor.HttpContext?.User?.FindFirstValue("picture");
         Token = httpContextAccessor.HttpContext?.Request?.Headers["Authorization"];
     }
     public string UserId { get; set; }
     public string UserName { get; set; }
     public string Email { get; set; }
+    public string FullName { get; set; }
+    public string Avatar { get; set; }
+
     public string Token { get; }
 }

@@ -165,7 +165,7 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/communication/announcements" replace />,
+            element: <Navigate to="/instructor/communication/announcements" replace />,
 
           },
           {

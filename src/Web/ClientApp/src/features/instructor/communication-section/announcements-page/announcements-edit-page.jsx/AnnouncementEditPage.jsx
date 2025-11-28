@@ -12,6 +12,8 @@ import useGetAnnouncementById from "../../../../../hooks/useGetAnnouncementById"
 import { useParams } from "react-router";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateAnnouncement from "../../../../../hooks/useUpdateAnnouncement";
+import { toast } from "react-toastify";
+import AlertBox from "../../../../../components/AlertBox";
 
 const columnsSetting = [
     {
@@ -81,9 +83,8 @@ const columnsSetting = [
 
 function AnnouncementEditPage() {
     const { announcementId } = useParams();
-    console.log("Announcement ID:", announcementId);
     const { data: announcementData, isLoading: isAnnouncementDataLoading } = useGetAnnouncementById(announcementId);
-    
+    const isSent = announcementData?.status === 1;
     const [searchValue, setSearchValue] = useState("");
     const debouncedSearch = useDebounce(searchValue, 1000);
     const [pageNumber, setPageNumber] = useState(1);
@@ -99,7 +100,7 @@ function AnnouncementEditPage() {
 
     const [selectedCourses, setSelectedCourses] = useState({ type: "include", ids: {} });
 
-    const { control, handleSubmit, formState: { errors }, reset } = useForm({
+    const { control,register, handleSubmit, formState: { errors }, reset } = useForm({
         values: announcementData || {
             subject: '',
             content: ''
@@ -122,6 +123,11 @@ function AnnouncementEditPage() {
         let courseIds = [];
         if (selectedCourses.type === "include") {
             courseIds = Array.from(selectedCourses.ids).map(id => parseInt(id));
+        }
+
+        if (status === 1 && courseIds.length === 0) {
+            toast.error("You must select at least one course before sending.")
+            return;
         }
 
         const updateData = {
@@ -158,7 +164,7 @@ function AnnouncementEditPage() {
                 <Col xs="12">
                     <PageTitle title="Edit Educational Announcement" />
 
-                    <Box sx={{ mb: 4 }}>
+                    <Box sx={{ my: 3 }}>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                             Audience
                         </Typography>
@@ -168,7 +174,8 @@ function AnnouncementEditPage() {
                     </Box>
 
                     {/* Course Section */}
-                    <Box sx={{ mb: 4 }}>
+                    {!isSent && (
+                        <Box sx={{ mb: 4 }}>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                             Courses
                         </Typography>
@@ -193,7 +200,8 @@ function AnnouncementEditPage() {
                                 <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange}/>
                             </div>
                         )}
-                    </Box>
+                        </Box>
+                    )}
 
                     {/* Divider */}
                     <Box sx={{ borderTop: '1px solid #e0e0e0', my: 4 }} />
@@ -225,26 +233,30 @@ function AnnouncementEditPage() {
                             <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
                                 Subject
                             </Typography>
-                            <Controller
-                                name="subject"
-                                control={control}
-                                rules={{ 
+
+                            <TextField
+                                {...register("subject", {
                                     required: "Subject is required",
-                                    maxLength: { value: 55, message: "Subject must be 55 characters or less" }
+                                    maxLength: { value: 55, message: "Subject must be 55 characters or less" },
+                                    minLength: { value: 5, message: "Subject must be at least 5 characters" },
+                                })}
+                                fullWidth
+                                variant="outlined"
+                                placeholder="Announcement and email title (55 character max)"
+                                error={!!errors.subject}
+                                disabled={isSent}
+                                slotProps={{
+                                    htmlInput: { maxLength: 55 }
                                 }}
-                                render={({ field }) => (
-                                    <TextField
-                                        {...field}
-                                        fullWidth
-                                        placeholder="Announcement and email title (55 character max)"
-                                        variant="outlined"
-                                        error={!!errors.subject}
-                                        helperText={errors.subject?.message}
-                                        inputProps={{ maxLength: 55 }}
-                                    />
-                                )}
                             />
-                            <Typography variant="caption" sx={{ color: '#666', mt: 0.5, display: 'block' }}>
+
+                            {errors.subject && (
+                                <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
+                                    {errors.subject.message}
+                                </AlertBox>
+                            )}
+
+                            <Typography variant="caption" sx={{ color: '#666', mt: 1, display: 'block' }}>
                                 This will be the subject of your email
                             </Typography>
                         </Box>
@@ -257,18 +269,25 @@ function AnnouncementEditPage() {
                             <Controller
                                 name="content"
                                 control={control}
-                                rules={{ required: "Content is required" }}
+                                rules={{ 
+                                    required: "Content is required",
+                                    minLength: {
+                                        value: 20,
+                                        message: "Minimum 20 characters required",
+                                    },
+                                 }}
                                 render={({ field }) => (
                                     <>
-                                        <TextEditor 
-                                            value={field.value} 
+                                        <TextEditor
+                                            value={field.value}
                                             onChange={field.onChange}
+                                            readOnly={isSent}
                                             buttons={['bold','italic','underline','|','ul','ol']}
                                         />
                                         {errors.content && (
-                                            <Typography variant="caption" sx={{ color: 'error.main', mt: 1, display: 'block' }}>
+                                            <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
                                                 {errors.content.message}
-                                            </Typography>
+                                            </AlertBox>
                                         )}
                                     </>
                                 )}
@@ -284,7 +303,7 @@ function AnnouncementEditPage() {
                         <Button 
                             variant="outlined"
                             onClick={handleDiscard}
-                            disabled={isPending}
+                            disabled={isPending|| isSent}
                             sx={{ 
                                 textTransform: 'none',
                                 color: 'brand.main',
@@ -302,7 +321,7 @@ function AnnouncementEditPage() {
                             <Button 
                                 variant="outlined"
                                 onClick={handleSaveDraft}
-                                disabled={isPending}
+                                disabled={isPending|| isSent}
                                 sx={{ 
                                     textTransform: 'none',
                                     color: 'brand.main',
@@ -318,7 +337,7 @@ function AnnouncementEditPage() {
                             <Button 
                                 variant="contained"
                                 onClick={handleSend}
-                                disabled={isPending}
+                                disabled={isPending|| isSent}
                                 sx={{ 
                                     textTransform: 'none',
                                     backgroundColor: 'brand.main',

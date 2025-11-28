@@ -18,6 +18,7 @@ import { Container } from "reactstrap";
 import { createTheme } from "@mui/material";
 import theme from "../theme/theme";
 import ToolbarActions from "../components/ToolbarActions";
+import CustomBreadcrumbs from "../components/breadcrumb/CustomBreadcrumbs";
 
 const NAVIGATION = [
   {
@@ -122,11 +123,15 @@ function InstructorLayout() {
       theme={dashboardTheme}
     >
       <DashboardLayout
+        defaultExpanded={true}
         slots={{
           toolbarActions: ToolbarActions,
         }}
       >
         <Container className="pt-3 pb-2 pt-5 px-sm-4 px-md-5 mx-auto mw-100 ">
+          <Container fluid>
+            <CustomBreadcrumbs />
+          </Container>
           <Outlet />
         </Container>
       </DashboardLayout>

@@ -9,6 +9,8 @@ import CustomDataGrid from "../../../../../components/datagrid/CustomDataGrid";
 import useDebounce from "../../../../../hooks/useDebounce";
 import useCreateAnnouncement from "../../../../../hooks/useCreateAnnouncement";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
+import { toast } from "react-toastify";
+import AlertBox from "../../../../../components/AlertBox";
 
 const columnsSetting = [
     {
@@ -91,7 +93,7 @@ function AnnouncementComposePage() {
 
     const { mutate: createAnnouncement, isPending } = useCreateAnnouncement();
 
-    const { control, handleSubmit, formState: { errors }, reset } = useForm({
+    const { control,register, handleSubmit, formState: { errors }, reset } = useForm({
         defaultValues: {
             subject: '',
             content: ''
@@ -114,6 +116,11 @@ function AnnouncementComposePage() {
         let courseIds = [];
         if (selectedCourses.type === "include") {
             courseIds = Array.from(selectedCourses.ids).map(id => parseInt(id));
+        }
+
+        if (status === 1 && courseIds.length === 0) {
+            toast.error("You must select at least one course before sending.")
+            return;
         }
 
         const announcementData = {
@@ -141,7 +148,7 @@ function AnnouncementComposePage() {
                 <Col xs="12">
                     <PageTitle title="New Educational Announcement" />
 
-                    <Box sx={{ mb: 4 }}>
+                    <Box sx={{ my: 3 }}>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                             Audience
                         </Typography>
@@ -208,30 +215,32 @@ function AnnouncementComposePage() {
                             <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
                                 Subject
                             </Typography>
-                            <Controller
-                                name="subject"
-                                control={control}
-                                rules={{ 
+
+                            <TextField
+                                {...register("subject", {
                                     required: "Subject is required",
-                                    maxLength: { value: 55, message: "Subject must be 55 characters or less" }
+                                    maxLength: { value: 55, message: "Subject must be 55 characters or less" },
+                                    minLength: { value: 5, message: "Subject must be at least 5 characters" },
+                                })}
+                                fullWidth
+                                variant="outlined"
+                                placeholder="Announcement and email title (55 character max)"
+                                error={!!errors.subject}
+                                slotProps={{
+                                    htmlInput: { maxLength: 55 }
                                 }}
-                                render={({ field }) => (
-                                    <TextField
-                                        {...field}
-                                        fullWidth
-                                        placeholder="Announcement and email title (55 character max)"
-                                        variant="outlined"
-                                        error={!!errors.subject}
-                                        helperText={errors.subject?.message}
-                                        inputProps={{ maxLength: 55 }}
-                                    />
-                                )}
                             />
-                            <Typography variant="caption" sx={{ color: '#666', mt: 0.5, display: 'block' }}>
+
+                            {errors.subject && (
+                                <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
+                                    {errors.subject.message}
+                                </AlertBox>
+                            )}
+
+                            <Typography variant="caption" sx={{ color: '#666', mt: 1, display: 'block' }}>
                                 This will be the subject of your email
                             </Typography>
                         </Box>
-
                         {/* Body Field */}
                         <Box sx={{ mb: 3 }}>
                             <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
@@ -240,7 +249,13 @@ function AnnouncementComposePage() {
                             <Controller
                                 name="content"
                                 control={control}
-                                rules={{ required: "Content is required" }}
+                                rules={{ 
+                                    required: "Content is required",
+                                    minLength: {
+                                        value: 20,
+                                        message: "Minimum 20 characters required",
+                                    },
+                                 }}
                                 render={({ field }) => (
                                     <>
                                         <TextEditor 
@@ -249,9 +264,9 @@ function AnnouncementComposePage() {
                                             buttons={['bold','italic','underline','|','ul','ol']}
                                         />
                                         {errors.content && (
-                                            <Typography variant="caption" sx={{ color: 'error.main', mt: 1, display: 'block' }}>
+                                            <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
                                                 {errors.content.message}
-                                            </Typography>
+                                            </AlertBox>
                                         )}
                                     </>
                                 )}

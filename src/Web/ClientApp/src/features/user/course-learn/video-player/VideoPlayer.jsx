@@ -1,20 +1,19 @@
 import { Box, Typography, CircularProgress, Button } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { 
   ArrowBackIosNew as ArrowBackIcon, 
   ArrowForwardIos as ArrowForwardIcon,
 } from "@mui/icons-material";
 import CourseLearnTab from "../course-learn-tabs/CourseLearnTab";
-import useGetCourseProgress from "../../../../hooks/useGetCourseProgress";
-import useUpdateCourseProgress from "../../../../hooks/useUpdateCourseProgress";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
+import useGetCPByItemId from "../../../../hooks/useGetCPByItemId";
+import useUpdateCPByItemId from "../../../../hooks/useUpdateCPByItemId";
 
 function VideoPlayer() {
   const { courseId, contentId } = useParams();
   const navigate = useNavigate();
-  const { data: courseProgressData, isLoading } = useGetCourseProgress(courseId);
-  const [courseContents, setCourseContents] = useState([]);
+  const { data: itemData, isLoading } = useGetCPByItemId(contentId, courseId);
   const [showOverlay, setShowOverlay] = useState(false);
   const [countdown, setCountdown] = useState(5);
   
@@ -22,38 +21,21 @@ function VideoPlayer() {
   const videoRef = useRef(null);
   const lastSaveTimeRef = useRef(0);
   const hasProcessedEndRef = useRef(false);
-  const updateProgressMutation = useUpdateCourseProgress();
-
-  useEffect(() => {
-    if (courseProgressData) { 
-      try {
-        const parsedData = JSON.parse(courseProgressData.progress);
-        setCourseContents(parsedData.contents || []);
-      } catch (error) {
-        setCourseContents([]);
-      }
-    }
-  }, [courseProgressData]);
+  const overlayTriggerItemRef = useRef(null);
+  const updateProgressMutation = useUpdateCPByItemId();
 
   useEffect(() => {
     setShowOverlay(false);
     setCountdown(5);
     hasProcessedEndRef.current = false;
+    overlayTriggerItemRef.current = null;
     if (timerRef.current) clearInterval(timerRef.current);
   }, [contentId]);
 
-  const currentItem = useMemo(() => {
-    if (!courseContents || courseContents.length === 0) return null;
-    for (const section of courseContents) {
-      const found = section.items?.find(item => item.itemId === contentId);
-      if (found) return found;
-    }
-    return null;
-  }, [courseContents, contentId]);
+  const currentItem = itemData?.currentItem;
 
   useEffect(() => {
     if (currentItem && videoRef.current && currentItem.lastPosition > 0) {
-      
       const restoreTime = () => {
         if (videoRef.current) {
           if (videoRef.current.currentTime < 2) { 
@@ -70,40 +52,16 @@ function VideoPlayer() {
     }
   }, [contentId, currentItem]);
 
-  const getNextItem = useCallback(() => {
-    if (!courseContents) return null;
-    let foundCurrent = false;
-    for (const section of courseContents) {
-      for (const item of section.items) {
-        if (foundCurrent) return item; 
-        if (item.itemId === contentId) foundCurrent = true;
-      }
-    }
-    return null; 
-  }, [courseContents, contentId]);
-
-  const getPrevItem = useCallback(() => {
-    if (!courseContents) return null;
-    let prevItem = null;
-    for (const section of courseContents) {
-      for (const item of section.items) {
-        if (item.itemId === contentId) return prevItem;
-        prevItem = item;
-      }
-    }
-    return null;
-  }, [courseContents, contentId]);
-
-  const handleNavigateNext = () => {
-    const nextItem = getNextItem();
+  const handleNavigateNext = useCallback(() => {
+    const nextItem = itemData?.navigation?.next;
     if (nextItem) {
       const routeType = nextItem.type === 'quiz' ? 'quiz' : 'lecture';
       navigate(`/course/${courseId}/learn/${routeType}/${nextItem.itemId}`);
     }
-  };
+  }, [itemData, courseId, navigate]);
 
   const handleNavigatePrev = () => {
-    const prevItem = getPrevItem();
+    const prevItem = itemData?.navigation?.prev;
     if (prevItem) {
       const routeType = prevItem.type === 'quiz' ? 'quiz' : 'lecture';
       navigate(`/course/${courseId}/learn/${routeType}/${prevItem.itemId}`);
@@ -112,53 +70,41 @@ function VideoPlayer() {
 
   const startCountdown = () => {
     setCountdown(5);
+    if (timerRef.current) clearInterval(timerRef.current);
+
     timerRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          handleNavigateNext();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
   };
+
+  useEffect(() => {
+    if (countdown === 0 && showOverlay && overlayTriggerItemRef.current === contentId) {
+       if (timerRef.current) clearInterval(timerRef.current);
+       handleNavigateNext();
+    }
+  }, [countdown, showOverlay, handleNavigateNext, contentId]);
 
   const handleVideoEnded = async () => {
     if (hasProcessedEndRef.current) {
       return;
     }
-    
     hasProcessedEndRef.current = true;
-    if (!currentItem?.isCompleted) {
-      const updatedContents = courseContents.map(section => ({
-        ...section,
-        items: section.items.map(item => {
-          if (item.itemId === contentId) return { ...item, isCompleted: true, lastPosition: 0 };
-          return item;
-        })
-      }));
-      
-      setCourseContents(updatedContents);
-      
+    const wasAlreadyCompleted = currentItem?.isCompleted;
+    if (!wasAlreadyCompleted) {
       try {
-        const fullPayload = JSON.parse(courseProgressData.progress);
-        const payload = {
-          ...fullPayload,
-          lastAccessedItemId: contentId,
-          contents: updatedContents
-        };
         await updateProgressMutation.mutateAsync({
           courseId,
-          progress: JSON.stringify(payload)
+          itemId: contentId,
+          lastPosition: 0,
+          isCompleted: true 
         });
       } catch (error) {
         hasProcessedEndRef.current = false;
         return;
       }
     }
-    const nextItem = getNextItem();
-    if (nextItem) {
+    if (itemData?.navigation?.next && !wasAlreadyCompleted) {
+      overlayTriggerItemRef.current = contentId;
       setShowOverlay(true);
       startCountdown();
     }
@@ -185,30 +131,27 @@ function VideoPlayer() {
   };
 
   const saveProgress = async (currentTime) => {
-    const updatedContents = courseContents.map(section => ({
-      ...section,
-      items: section.items.map(item => {
-        if (item.itemId === contentId) {
-          return { ...item, lastPosition: currentTime };
-        }
-        return item;
-      })
-    }));
-
-    setCourseContents(updatedContents);
     try {
-      const currentProgressData = JSON.parse(courseProgressData.progress);
-      const payload = {
-        ...currentProgressData,
-        lastAccessedItemId: contentId,
-        contents: updatedContents
-      };
       await updateProgressMutation.mutateAsync({
         courseId,
-        progress: JSON.stringify(payload) 
+        itemId: contentId,
+        lastPosition: currentTime,
+        isCompleted: currentItem?.isCompleted || false
       });
     } catch(e) { 
       console.error("Error saving progress:", e); 
+    }
+  };
+
+  const handleArticleInteraction = async () => {
+    if (currentItem?.contentType === 'article' && !currentItem?.isCompleted) {
+      
+      await updateProgressMutation.mutateAsync({
+        courseId,
+        itemId: contentId,
+        isCompleted: true,
+        lastPosition: 0
+      });
     }
   };
 
@@ -222,14 +165,14 @@ function VideoPlayer() {
 
   if (!currentItem) {
     return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
+      <Box sx={{ textAlign: 'center' }} className="d-flex justify-content-center align-items-center vh-100">
         <Typography>Select a lecture to start learning</Typography>
       </Box>
     );
   }
 
-  const nextItemInfo = getNextItem();
-  const prevItemInfo = getPrevItem();
+  const nextItemInfo = itemData?.navigation?.next;
+  const prevItemInfo = itemData?.navigation?.prev;
 
   return (
     <Box>
@@ -249,7 +192,7 @@ function VideoPlayer() {
         {currentItem.contentType === 'video' ? (
            <video 
              ref={videoRef}
-             key={currentItem.content} 
+             key={currentItem.itemId} 
              controls={!showOverlay} 
              width="100%" 
              height="100%"
@@ -263,7 +206,7 @@ function VideoPlayer() {
              Your browser does not support the video tag.
            </video>
         ) : (
-          <Box sx={{ p: 4, bgcolor: '#fff', color: '#000', width: '100%', height: '100%', overflow: 'auto' }}>
+          <Box sx={{ p: 4, bgcolor: '#fff', color: '#000', width: '100%', height: '100%', overflow: 'auto' }} onClick={handleArticleInteraction}>
              <Typography variant="h4" gutterBottom>{currentItem.title}</Typography>
              <div dangerouslySetInnerHTML={{ __html: currentItem.content }} />
           </Box>

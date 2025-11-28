@@ -34,4 +34,5 @@ public interface IIdentityService
     Task<bool> CheckPassword(string userId, string password);
 
     Task<Result> ChangePassword(string userId, string newPassword);
+    Task<string> GetUserAvatarAsync(string userId);
 }

@@ -3,7 +3,7 @@ import { CourseProgressClient } from "../web-api-client.ts";
 
 const useGetLearningHeader = (courseId) => {
   return useQuery({
-    queryKey: ["learningHeader"],
+    queryKey: ["learningHeader", courseId],
     queryFn: async () => {
         const client = new CourseProgressClient();
         return await client.getLearningHeaderByCourseId(courseId);

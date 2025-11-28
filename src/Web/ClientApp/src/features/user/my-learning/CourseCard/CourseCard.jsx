@@ -169,6 +169,7 @@ function CourseCard({ course }) {
                     fontSize: "0.75rem", 
                     color: "#666", 
                     mt: 0.2, 
+                    padding: 0,
                     cursor: "pointer",
                     "&:hover": { color: "#333", textDecoration: "underline" } 
                 }}

@@ -13,11 +13,7 @@ import {
 } from "@mui/icons-material";
 import { Link as RouterLink, useParams } from "react-router-dom"; 
 import { Lightbulb, EmojiEvents, KeyboardArrowDown } from "@mui/icons-material";
-import { useState } from "react";
 import RatingPopup from "../../../../components/RatingPopup";
-import { Link as RouterLink } from "react-router-dom";
-import { useParams } from "react-router-dom";
-import { Lightbulb, EmojiEvents, KeyboardArrowDown } from "@mui/icons-material";
 import useGetLearningHeader from "../../../../hooks/useGetLearningHeader";
 import { useEffect, useState } from "react";
 

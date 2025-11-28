@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import RatingTab from "../../../../components/rating-tab/RatingTab";
+import OverviewTab from "./OverviewTab";
 import { useParams } from "react-router-dom";
 
 function CourseLearnTab() {
@@ -22,11 +23,12 @@ function CourseLearnTab() {
       </Box>
 
       {active === "overview" && (
-        <Box sx={{ p: 4, bgcolor: "#f0f2f5", borderRadius: 2 }}>
-          <Typography>
+        <Box sx={{ p: 4}}>
+          {/* <Typography>
             <strong>Overview:</strong>
             <br /> Đây là nơi hiển thị thông tin tổng quan của khóa học.
-          </Typography>
+          </Typography> */}
+          <OverviewTab courseId={courseId} />
         </Box>
       )}
 

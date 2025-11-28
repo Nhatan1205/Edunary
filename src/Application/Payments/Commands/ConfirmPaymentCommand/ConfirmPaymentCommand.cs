@@ -152,11 +152,11 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
 
         var result = await _context.SaveChangesAsync(cancellationToken);
         
-        if (result <= 0)
-        {
-            _logger.LogError("Failed to save payment confirmation changes for Order: {OrderId}", order.Id);
-            throw new InvalidOperationException("Failed to save payment confirmation");
-        }
+        // if (result <= 0)
+        // {
+        //     _logger.LogError("Failed to save payment confirmation changes for Order: {OrderId}", order.Id);
+        //     throw new InvalidOperationException("Failed to save payment confirmation");
+        // }
 
         _logger.LogInformation("Payment confirmed successfully for Order: {OrderId}, Enrollments created: {EnrollmentsCount}", 
             order.Id, enrollmentsCreated);

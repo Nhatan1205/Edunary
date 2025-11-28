@@ -83,11 +83,11 @@ public class GetCartItemsQueryHandler : IRequestHandler<GetCartItemsQuery, List<
                     ImageUrl = course.ImageUrl ?? string.Empty,
                     InstructorName = creators.GetValueOrDefault(course.CreatedBy, "Unknown"),
                     Price = course.Price,
-                    Rating = 0, // TODO: Calculate from reviews
-                    ReviewCount = 0, // TODO: Get from reviews
                     Level = course.Level.ToString(),
                     TotalLectures = 0, // TODO: Calculate from sections/lectures
-                    TotalHours = 0 // TODO: Calculate from sections/lectures
+                    TotalHours = 0, // TODO: Calculate from sections/lectures
+                    TotalRatingStudent = course.TotalRatingStudent,
+                    Ratings = course.Ratings
                 })
             .ToList();
 

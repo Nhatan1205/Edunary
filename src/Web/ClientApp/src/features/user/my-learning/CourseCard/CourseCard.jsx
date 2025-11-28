@@ -5,10 +5,14 @@ import {
   CardContent, 
   CardMedia, 
   LinearProgress, 
-  Rating } from '@mui/material'
+  Rating,
+  Button,
+} from '@mui/material'
 import { Col } from 'reactstrap'
 import DefaultImage from '../../../../assets/images/default.jpg'
 import { Link as RouterLink } from "react-router";
+import { useState } from 'react';
+import RatingPopup from '../../../../components/RatingPopup';
 
 const getRandomColor = (id) => {
   const colors = ['#ff6b81', '#74b9ff', '#6c5ce7', '#fd79a8', '#00cec9', '#fdcb6e', '#e17055', '#a29bfe'];
@@ -18,30 +22,32 @@ const getRandomColor = (id) => {
 function CourseCard({ course }) {
   const { id, title, instructorName, imageUrl, price, ratings } = course;
   const progress = Math.floor(Math.random() * 100);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   return (
-    <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
-      <Card
-        component={RouterLink}
-        to={`/course/${id}/learn`}
-        sx={{
-          width: "100%",
-          height: "350px",
-          position: "relative",
-          borderRadius: 2,
-          overflow: "hidden",
-          cursor: "pointer",
-          transition: "transform 0.2s ease-in-out",
-          bgcolor: "background.default",
-          boxShadow: "none",
-          textDecoration: "none",
-          "&:hover": {
-            "& .MuiCardMedia-root": {
-              filter: "brightness(0.5)",
+    <>
+      <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+        <Card
+          component={RouterLink}
+          to={`/course/${id}/learn`}
+          sx={{
+            width: "100%",
+            height: "350px",
+            position: "relative",
+            borderRadius: 2,
+            overflow: "hidden",
+            cursor: "pointer",
+            transition: "transform 0.2s ease-in-out",
+            bgcolor: "background.default",
+            boxShadow: "none",
+            textDecoration: "none",
+            "&:hover": {
+              "& .MuiCardMedia-root": {
+                filter: "brightness(0.5)",
+              },
             },
-          },
-        }}
-      >
+          }}
+        >
         <CardMedia
           component="img"
           height="160"
@@ -145,7 +151,11 @@ function CourseCard({ course }) {
                 alignItems: "flex-end",
                 borderTop: "1px solid #f0f0f0",
                 pt: 1 
-            }}>
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}>
               <Rating 
                 name="read-only" 
                 value={ratings || 0} 
@@ -153,24 +163,35 @@ function CourseCard({ course }) {
                 readOnly
                 sx={{ fontSize: "1.1rem", color: "#faaf00" }} 
               />
-              <Typography 
+              <Button 
                 variant="caption" 
                 sx={{ 
                     fontSize: "0.75rem", 
                     color: "#666", 
                     mt: 0.2, 
+                    padding: 0,
                     cursor: "pointer",
                     "&:hover": { color: "#333", textDecoration: "underline" } 
                 }}
+                onClick={() => {
+                  setIsPopupOpen(true);
+                }}
               >
                 Leave a rating
-              </Typography>
+              </Button>
             </Box>
 
           </Box>
         </CardContent>
       </Card>
+      
+      <RatingPopup 
+        open={isPopupOpen} 
+        onClose={() => setIsPopupOpen(false)}
+        courseId={id}
+      />
     </Col>
+    </>
   );
 };
 

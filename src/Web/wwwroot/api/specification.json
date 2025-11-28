@@ -662,6 +662,286 @@
         ]
       }
     },
+    "/api/CourseProgress": {
+      "get": {
+        "tags": [
+          "CourseProgress"
+        ],
+        "operationId": "GetCourseProgressByCourseId",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseProgressDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "CourseProgress"
+        ],
+        "operationId": "UpdateCourseProgress",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseProgressCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseProgress/learning-header": {
+      "get": {
+        "tags": [
+          "CourseProgress"
+        ],
+        "operationId": "GetLearningHeaderByCourseId",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningHeaderDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseProgress/learning-sidebar": {
+      "get": {
+        "tags": [
+          "CourseProgress"
+        ],
+        "operationId": "GetLearningSidebarByCourseId",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseProgressDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseProgress/item/{itemId}": {
+      "get": {
+        "tags": [
+          "CourseProgress"
+        ],
+        "operationId": "GetCPByItemId",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "courseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseProgress/item": {
+      "put": {
+        "tags": [
+          "CourseProgress"
+        ],
+        "operationId": "UpdateCPByItemId",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCPByItemIdCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseProgress/item/complete": {
+      "put": {
+        "tags": [
+          "CourseProgress"
+        ],
+        "operationId": "UpdateCompleteCP",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompleteCPCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseProgress/last-accessed-item": {
+      "get": {
+        "tags": [
+          "CourseProgress"
+        ],
+        "operationId": "GetLastAccessedItem",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastAccessedItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Courses": {
       "post": {
         "tags": [
@@ -1163,6 +1443,142 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaymentStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RatingCourse": {
+      "post": {
+        "tags": [
+          "RatingCourse"
+        ],
+        "operationId": "UpsertRatingCourse",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertRatingCourseCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "RatingCourse"
+        ],
+        "operationId": "GetRatingCourseByUser",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RatingCourseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/RatingCourse/course/{courseId}": {
+      "get": {
+        "tags": [
+          "RatingCourse"
+        ],
+        "operationId": "GetRatingsByCourse",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 2
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "x-position": 3
+          },
+          {
+            "name": "filterRating",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "newest",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfRatingCourseWithUserDto"
                 }
               }
             }
@@ -1867,14 +2283,6 @@
             "type": "number",
             "format": "float"
           },
-          "rating": {
-            "type": "number",
-            "format": "float"
-          },
-          "reviewCount": {
-            "type": "integer",
-            "format": "int32"
-          },
           "level": {
             "type": "string",
             "nullable": true
@@ -1886,6 +2294,24 @@
           "totalHours": {
             "type": "number",
             "format": "float"
+          },
+          "totalRatingStudent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ratings": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "CartResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -2097,6 +2523,266 @@
             "nullable": true
           },
           "contentType": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CourseProgressDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "progress": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LearningHeaderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalLectures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completedLectures": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateCourseProgressCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "progress": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CourseItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentItem": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ItemDetailDto"
+              }
+            ]
+          },
+          "navigation": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/NavigationDto"
+              }
+            ]
+          }
+        }
+      },
+      "ItemDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "contentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastPosition": {
+            "type": "number",
+            "format": "double"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NavigationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "prev": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/NavItemDto"
+              }
+            ]
+          },
+          "next": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/NavItemDto"
+              }
+            ]
+          }
+        }
+      },
+      "NavItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateCPByItemIdCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "lastPosition": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateCompleteCPCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCompleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LastAccessedItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "routeType": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CourseProgressDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "progress": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LearningHeaderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalLectures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completedLectures": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateCourseProgressCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "progress": {
             "type": "string",
             "nullable": true
           }
@@ -2817,6 +3503,10 @@
           "lastModified": {
             "type": "string",
             "format": "date-time"
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -3001,6 +3691,125 @@
           "price": {
             "type": "number",
             "format": "decimal"
+          }
+        }
+      },
+      "UpsertRatingCourseCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "review": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RatingCourseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "review": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaginatedListOfRatingCourseWithUserDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/RatingCourseWithUserDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RatingCourseWithUserDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userFullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "review": {
+            "type": "string",
+            "nullable": true
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

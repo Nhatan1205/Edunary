@@ -26,15 +26,11 @@ public class UpdateCourseProgressCommandHandler : IRequestHandler<UpdateCoursePr
         var courseProgress = await _context.CourseProgress
             .FirstOrDefaultAsync(cp => cp.CourseId == request.CourseId && cp.StudentId == userId, cancellationToken);
 
-        if (courseProgress == null)
+        if (courseProgress != null && request.Progress != null)
         {
-            return Result.Failure("Course progress not found.");
+            courseProgress.Progress = request.Progress;
+            await _context.SaveChangesAsync(cancellationToken);
         }
-        // var currentProgress
-        // var newProgress 
-        courseProgress.Progress = request.Progress;
-        await _context.SaveChangesAsync(cancellationToken);
-
         return Result.Success();
     }
 }

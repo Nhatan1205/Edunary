@@ -34,6 +34,10 @@ public class Course : BaseAuditableEntity
 
     public int TotalStudents { get; set; }
 
+    public int TotalRating { get; set; }
+
+    public int TotalRatingStudent { get; set; }
+
     // Navigation properties
     public Category Category { get; set; } = null!;
 
@@ -44,9 +48,19 @@ public class Course : BaseAuditableEntity
     public ICollection<CourseProgress> Progresses { get; set; } = new List<CourseProgress>();
 
     public ICollection<Announcement> Announcements { get; set; } = new List<Announcement>();
+    public ICollection<RatingCourse> RatingCourses { get; set; } = new List<RatingCourse>();
 
     public void UpdateTotalStudents()
     {
         TotalStudents++;
+    }
+    public void UpdateRatings(int oldUserRating, int newUserRating)
+    {
+        TotalRating = TotalRating + newUserRating - oldUserRating;
+        if (oldUserRating == 0) // The student has not rated before
+        {
+            TotalRatingStudent++;
+        }
+        Ratings = TotalRatingStudent > 0 ? (float)TotalRating / TotalRatingStudent : 0;
     }
 }

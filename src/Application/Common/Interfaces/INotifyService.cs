@@ -1,7 +1,7 @@
 ﻿namespace Edunary.Application.Common.Interfaces;
 public interface INotifyService
 {
-    Task NotifyCourseUpdated(int courseId, string title, string message, CancellationToken cancellationToken);
+    Task NotifyCourseUpdated(int courseId, string title, string message,string type, CancellationToken cancellationToken);
     
     Task JoinGroupCourse(int courseId);
     Task SendMessage(string sender, string message, string method = "ReceiveMessage");

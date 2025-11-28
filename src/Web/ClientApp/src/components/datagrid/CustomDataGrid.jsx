@@ -5,57 +5,50 @@ function CustomDataGrid({
   rows = [],
   columns = [],
   loading = false,
-  pageSize = 6,
-  pageNumber = 1,
-  totalCount = 0,
   checkboxSelection = false,
   onSelectionChange = null,
-  onPaginationChange = null,
+  onRowClick = null,
   height = 400,
 }) {
-
-  const handlePaginationModelChange = (newModel) => {
-    if (onPaginationChange) {
-      // DataGrid uses 0-based page index, but your API uses 1-based
-      onPaginationChange({
-        pageNumber: newModel.page + 1,
-        pageSize: newModel.pageSize
-      });
-    }
-  };
 
   return (
     <Paper sx={{ height, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
-        // Server-side pagination
-        paginationMode="server"
-        rowCount={totalCount}
-        paginationModel={{
-          page: pageNumber - 1,
-          pageSize: pageSize,
-        }}
-        onPaginationModelChange={handlePaginationModelChange}
         checkboxSelection={checkboxSelection}
         onRowSelectionModelChange={onSelectionChange}
+        onRowClick={onRowClick}
         disableRowSelectionOnClick
         loading={loading}
-        sx={{ 
+        hideFooter
+        sx={{
           border: 0,
-          '& .MuiDataGrid-footerContainer': {
-            justifyContent: 'space-between',
-            minHeight: 52,
+          // Căn giữa nội dung cells
+          '& .MuiDataGrid-cell': {
+            display: 'flex',
+            alignItems: 'center',
+            paddingLeft: 2,
+            paddingRight: 2,
           },
-          '& .MuiDataGrid-selectedRowCount': {
-            visibility: 'visible',
+          // Đảm bảo chiều cao đồng nhất
+          '& .MuiDataGrid-row': {
+            minHeight: '52px !important',
+            maxHeight: '52px !important',
           },
-          '& .MuiTablePagination-root': {
-            overflow: 'visible',
+          // Padding cho cell đầu tiên
+          '& .MuiDataGrid-cell:first-of-type': {
+            paddingLeft: 3,
           },
-          "& .MuiTablePagination-displayedRows": {
-            marginBottom: 0,
+          '& .MuiDataGrid-columnHeader:first-of-type': {
+            paddingLeft: 3,
           },
+          "& .MuiDataGrid-cell:focus": {
+            outline: "none",
+          },
+          "& .MuiDataGrid-columnHeader:focus": {
+            outline: "none",
+          }
         }}
       />
     </Paper>

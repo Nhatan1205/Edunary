@@ -42,7 +42,7 @@ public class UpdateAnnouncementCommandHandler : IRequestHandler<UpdateAnnounceme
             return Result.Failure("Announcement not found.");
         }
 
-        if (announcement.Status == AnnouncementStatus.Sent)
+        if (request.Status == AnnouncementStatus.Sent)
         {
             announcement.SentAt = DateTime.UtcNow;
             announcement.AddDomainEvent(new AnnouncementSentEvent(announcement));

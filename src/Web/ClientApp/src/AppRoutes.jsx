@@ -35,6 +35,7 @@ import AboutPage from "./features/guest/about-page/AboutPage";
 import PolicyPage from "./features/guest/policy-page/PolicyPage";
 import AnnouncementsPage from "./features/instructor/communication-section/announcements-page/AnnouncementsPage";
 import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
+import AnnouncementEditPage from "./features/instructor/communication-section/announcements-page/announcements-edit-page.jsx/AnnouncementEditPage";
 
 const router = createBrowserRouter([
   {
@@ -174,6 +175,10 @@ const router = createBrowserRouter([
           {
             path: "announcements/new",
             element: <AnnouncementComposePage />,
+          },
+          {
+            path: "announcements/:announcementId/edit",
+            element: <AnnouncementEditPage />,
           }
         ]
       }

@@ -2216,10 +2216,12 @@ export interface IPaginatedListOfGetAnnouncementDto {
 }
 
 export class GetAnnouncementDto implements IGetAnnouncementDto {
+    id?: number;
     subject?: string | undefined;
     content?: string | undefined;
     status?: AnnouncementStatus;
     sentAt?: Date | undefined;
+    created?: Date;
 
     constructor(data?: IGetAnnouncementDto) {
         if (data) {
@@ -2232,10 +2234,12 @@ export class GetAnnouncementDto implements IGetAnnouncementDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.subject = _data["subject"];
             this.content = _data["content"];
             this.status = _data["status"];
             this.sentAt = _data["sentAt"] ? new Date(_data["sentAt"].toString()) : <any>undefined;
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
         }
     }
 
@@ -2248,26 +2252,32 @@ export class GetAnnouncementDto implements IGetAnnouncementDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["subject"] = this.subject;
         data["content"] = this.content;
         data["status"] = this.status;
         data["sentAt"] = this.sentAt ? this.sentAt.toISOString() : <any>undefined;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         return data;
     }
 }
 
 export interface IGetAnnouncementDto {
+    id?: number;
     subject?: string | undefined;
     content?: string | undefined;
     status?: AnnouncementStatus;
     sentAt?: Date | undefined;
+    created?: Date;
 }
 
 export class GetAnnouncementByIdDto implements IGetAnnouncementByIdDto {
+    id?: number;
     subject?: string | undefined;
     content?: string | undefined;
     status?: AnnouncementStatus;
     sentAt?: Date | undefined;
+    courseIds?: number[] | undefined;
 
     constructor(data?: IGetAnnouncementByIdDto) {
         if (data) {
@@ -2280,10 +2290,16 @@ export class GetAnnouncementByIdDto implements IGetAnnouncementByIdDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.subject = _data["subject"];
             this.content = _data["content"];
             this.status = _data["status"];
             this.sentAt = _data["sentAt"] ? new Date(_data["sentAt"].toString()) : <any>undefined;
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
         }
     }
 
@@ -2296,19 +2312,27 @@ export class GetAnnouncementByIdDto implements IGetAnnouncementByIdDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["subject"] = this.subject;
         data["content"] = this.content;
         data["status"] = this.status;
         data["sentAt"] = this.sentAt ? this.sentAt.toISOString() : <any>undefined;
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
         return data;
     }
 }
 
 export interface IGetAnnouncementByIdDto {
+    id?: number;
     subject?: string | undefined;
     content?: string | undefined;
     status?: AnnouncementStatus;
     sentAt?: Date | undefined;
+    courseIds?: number[] | undefined;
 }
 
 export class LoginResponse implements ILoginResponse {
@@ -4203,6 +4227,7 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
     id?: number;
     title?: string | undefined;
     message?: string | undefined;
+    type?: string | undefined;
     created?: Date;
     isRead?: boolean;
 
@@ -4220,6 +4245,7 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
             this.id = _data["id"];
             this.title = _data["title"];
             this.message = _data["message"];
+            this.type = _data["type"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.isRead = _data["isRead"];
         }
@@ -4237,6 +4263,7 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
         data["id"] = this.id;
         data["title"] = this.title;
         data["message"] = this.message;
+        data["type"] = this.type;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["isRead"] = this.isRead;
         return data;
@@ -4247,6 +4274,7 @@ export interface IGetNotificationByUserIdDto {
     id?: number;
     title?: string | undefined;
     message?: string | undefined;
+    type?: string | undefined;
     created?: Date;
     isRead?: boolean;
 }

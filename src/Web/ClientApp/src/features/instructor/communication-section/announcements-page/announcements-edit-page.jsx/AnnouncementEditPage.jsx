@@ -7,8 +7,11 @@ import TextEditor from "../../../../../components/TextEditor";
 import useGetCoursesAuthor from "../../../../../hooks/useGetCoursesAuthor";
 import CustomDataGrid from "../../../../../components/datagrid/CustomDataGrid";
 import useDebounce from "../../../../../hooks/useDebounce";
-import useCreateAnnouncement from "../../../../../hooks/useCreateAnnouncement";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
+import useGetAnnouncementById from "../../../../../hooks/useGetAnnouncementById";
+import { useParams } from "react-router";
+import LoadingSpinner from "../../../../../components/LoadingSpinner";
+import useUpdateAnnouncement from "../../../../../hooks/useUpdateAnnouncement";
 
 const columnsSetting = [
     {
@@ -76,8 +79,11 @@ const columnsSetting = [
     }
 ];
 
-function AnnouncementComposePage() {
-    const [selectedCourses, setSelectedCourses] = useState({ type: "include", ids: {} });
+function AnnouncementEditPage() {
+    const { announcementId } = useParams();
+    console.log("Announcement ID:", announcementId);
+    const { data: announcementData, isLoading: isAnnouncementDataLoading } = useGetAnnouncementById(announcementId);
+    
     const [searchValue, setSearchValue] = useState("");
     const debouncedSearch = useDebounce(searchValue, 1000);
     const [pageNumber, setPageNumber] = useState(1);
@@ -89,10 +95,12 @@ function AnnouncementComposePage() {
         6
     );
 
-    const { mutate: createAnnouncement, isPending } = useCreateAnnouncement();
+     const { mutate: updateAnnouncement, isPending } = useUpdateAnnouncement();
+
+    const [selectedCourses, setSelectedCourses] = useState({ type: "include", ids: {} });
 
     const { control, handleSubmit, formState: { errors }, reset } = useForm({
-        defaultValues: {
+        values: announcementData || {
             subject: '',
             content: ''
         }
@@ -116,14 +124,15 @@ function AnnouncementComposePage() {
             courseIds = Array.from(selectedCourses.ids).map(id => parseInt(id));
         }
 
-        const announcementData = {
+        const updateData = {
+            id: parseInt(announcementId),
             subject: data.subject,
             content: data.content,
             courseIds: courseIds,
             status: status
         };
 
-        createAnnouncement(announcementData);
+        updateAnnouncement(updateData);
     };
 
     const handleSaveDraft = handleSubmit((data) => onSubmit(data, 0));
@@ -133,13 +142,21 @@ function AnnouncementComposePage() {
         reset();
         setSelectedCourses({ type: "include", ids: {} });
         setSearchValue("");
-    };
+    }
+
+    if (isAnnouncementDataLoading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center vh-100">
+                <LoadingSpinner />
+            </div>
+        );
+    }
 
     return (
         <Container fluid className="py-4" style={{ paddingLeft: "240px", paddingRight: "240px" }}>
             <Row className="mb-4">
                 <Col xs="12">
-                    <PageTitle title="New Educational Announcement" />
+                    <PageTitle title="Edit Educational Announcement" />
 
                     <Box sx={{ mb: 4 }}>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
@@ -173,7 +190,7 @@ function AnnouncementComposePage() {
                         />
                         {coursesData && coursesData.totalPages > 1 && (
                             <div className="d-flex justify-content-center mt-4">
-                            <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange}/>
+                                <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange}/>
                             </div>
                         )}
                     </Box>
@@ -320,4 +337,4 @@ function AnnouncementComposePage() {
     );
 }
 
-export default AnnouncementComposePage;
+export default AnnouncementEditPage;

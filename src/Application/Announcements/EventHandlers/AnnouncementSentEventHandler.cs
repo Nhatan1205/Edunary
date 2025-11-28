@@ -10,15 +10,21 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
     private readonly IApplicationDbContext _context;
     private readonly IEmailService _emailService;
     private readonly IIdentityService _identityService;
+    private readonly INotifyService _notifyService;
+    private readonly ICurrentUserService _currentUserService;
 
     public AnnouncementSentEventHandler(
         IApplicationDbContext context,
         IEmailService emailService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        INotifyService notifyService,
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _emailService = emailService;
         _identityService = identityService;
+        _notifyService = notifyService;
+        _currentUserService = currentUserService;
     }
 
     public async Task Handle(AnnouncementSentEvent notification, CancellationToken cancellationToken)
@@ -52,6 +58,19 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
         {
             var html = EmailTemplates.BuildAnnouncementTemplate(announcement.Subject, announcement.Content);
             await _emailService.SendBulkEmailsAsync(emails, announcement.Subject, html);
+        }
+
+        // 5. Notify courses about the update
+        var userName = _currentUserService?.UserName;
+        foreach (var courseId in courseIds)
+        {
+            await _notifyService.NotifyCourseUpdated(
+                courseId,
+                $"{userName} has made an announcement",
+                announcement.Content,
+                "announcement",
+                cancellationToken
+            );
         }
     }
 }

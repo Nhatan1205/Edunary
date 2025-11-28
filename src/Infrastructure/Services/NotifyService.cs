@@ -21,7 +21,7 @@ public class NotifyService : INotifyService
         _currentUserService = currentUserService;
         _connectionManager = connectionManager;
     }
-    public async Task NotifyCourseUpdated(int courseId, string title, string message, CancellationToken cancellationToken)
+    public async Task NotifyCourseUpdated(int courseId, string title, string message,string type, CancellationToken cancellationToken)
     {
         // get all studnet in the course
         var students = await _sender.Send(new GetStudentsByCourseIdQuery { CourseId = courseId }, cancellationToken);
@@ -32,7 +32,7 @@ public class NotifyService : INotifyService
                 CourseId = courseId,
                 Title = title,
                 Message = message,
-                Type = "course_update",
+                Type = type,
                 Url = $"/courses/{courseId}"
             };
 

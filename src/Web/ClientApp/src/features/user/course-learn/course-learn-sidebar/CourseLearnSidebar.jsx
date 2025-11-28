@@ -32,7 +32,7 @@ function CourseLearnSidebar({ onClose }) {
   const [currentResources, setCurrentResources] = useState([]);
 
   useEffect(() => {
-    if (courseProgressData) { 
+    if (courseProgressData && courseProgressData.progress) { 
       const courseContent = JSON.parse(courseProgressData?.progress)?.contents || [];
       setCourseContents(courseContent);
       let activeSectionId = null;

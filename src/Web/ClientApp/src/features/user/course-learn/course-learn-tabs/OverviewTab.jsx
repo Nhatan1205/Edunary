@@ -104,7 +104,7 @@ function OverviewTab({ courseId }) {
           </Typography>
           <Grid container spacing={1}>
             {courseData.learningObjectives.map((item, index) => (
-              <Grid item xs={12} md={6} key={index}>
+              <Grid size={{ xs: 12, md: 6 }} key={index}>
                 <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, ml: 0.5 }}>
                   <CheckCircleOutlineIcon
                     sx={{

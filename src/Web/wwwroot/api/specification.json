@@ -2724,60 +2724,6 @@
           }
         }
       },
-      "CourseProgressDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "studentId": {
-            "type": "string",
-            "nullable": true
-          },
-          "progress": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "LearningHeaderDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "totalLectures": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "completedLectures": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "UpdateCourseProgressCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "progress": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "CreateCourseCommand": {
         "type": "object",
         "additionalProperties": false,

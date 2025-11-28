@@ -136,51 +136,46 @@ export default function AnnouncementsPage() {
             </Row>
             <Row>
                 <Col xs="12">
-                    {/* Chỉ hiển thị Tabs khi có data */}
-                    {!isAnnouncementsLoading && hasData && (
-                        <>
-                            <Typography
-                                variant="body2"
-                                sx={{ 
-                                    color: '#666',
-                                    lineHeight: 1.6,
-                                    mb: 2
-                                }}
-                            >
-                                Share updates and important information about your course. These will be sent via email and appear in the course dashboard. Only external links are allowed. Edunary links are not permitted.
-                            </Typography>
-                            <Box sx={{  pt: 2 }}>
-                                <Tabs
-                                    value={activeTab}
-                                    onChange={handleTabChange}
-                                    sx={{
-                                        '& .MuiTab-root': {
-                                            textTransform: 'none',
-                                            fontWeight: 500,
-                                            fontSize: '1rem',
-                                            color: 'text.tertiary',
-                                            px: 3,
-                                            py: 2,
-                                            '&.Mui-selected': {
-                                                color: 'brand.main',
-                                                fontWeight: 600,
-                                            }
-                                        },
-                                        '& .MuiTabs-indicator': {
-                                            backgroundColor: 'brand.main',
-                                            height: 3,
-                                            borderRadius: '3px 3px 0 0'
-                                        },
-                                        borderBottom: '1px solid',
-                                        borderColor: 'divider'
-                                    }}
-                                >
-                                    <Tab label="Your Draft" />
-                                    <Tab label="History" />
-                                </Tabs>
-                            </Box>
-                        </>
-                    )}
+                    <Typography
+                        variant="body2"
+                        sx={{ 
+                            color: '#666',
+                            lineHeight: 1.6,
+                            mb: 2
+                        }}
+                    >
+                        Share updates and important information about your course. These will be sent via email and appear in the course dashboard. Only external links are allowed. Edunary links are not permitted.
+                    </Typography>
+                    <Box sx={{  pt: 2 }}>
+                        <Tabs
+                            value={activeTab}
+                            onChange={handleTabChange}
+                            sx={{
+                                '& .MuiTab-root': {
+                                    textTransform: 'none',
+                                    fontWeight: 500,
+                                    fontSize: '1rem',
+                                    color: 'text.tertiary',
+                                    px: 3,
+                                    py: 2,
+                                    '&.Mui-selected': {
+                                        color: 'brand.main',
+                                        fontWeight: 600,
+                                    }
+                                },
+                                '& .MuiTabs-indicator': {
+                                    backgroundColor: 'brand.main',
+                                    height: 3,
+                                    borderRadius: '3px 3px 0 0'
+                                },
+                                borderBottom: '1px solid',
+                                borderColor: 'divider'
+                            }}
+                        >
+                            <Tab label="Your Draft" />
+                            <Tab label="History" />
+                        </Tabs>
+                    </Box>
 
                     {/* Hiển thị empty state khi không có data */}
                     {!isAnnouncementsLoading && !hasData ? (

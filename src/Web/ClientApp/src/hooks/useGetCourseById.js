@@ -12,7 +12,6 @@ const useGetCourseById = (id) => {
 
       if (!result || !result.id) {
         navigate("/instructor/courses");
-        throw new Error("Failed to fetch course information");
       }
 
       let learningObjectives = JSON.parse(result.learningObjectives || "[]");

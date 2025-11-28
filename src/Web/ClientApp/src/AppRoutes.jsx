@@ -33,6 +33,9 @@ import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer"
 import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
 import PolicyPage from "./features/guest/policy-page/PolicyPage";
+import AnnouncementsPage from "./features/instructor/communication-section/announcements-page/AnnouncementsPage";
+import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
+import AnnouncementEditPage from "./features/instructor/communication-section/announcements-page/announcements-edit-page.jsx/AnnouncementEditPage";
 import CourseInitialRedirect from "./features/user/my-learning/CourseInitialRedirect";
 
 const router = createBrowserRouter([
@@ -158,6 +161,28 @@ const router = createBrowserRouter([
         path: "courses",
         element: <CoursesListPage />,
       },
+      {
+        path: "communication",
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/instructor/communication/announcements" replace />,
+
+          },
+          {
+            path: "announcements",
+            element: <AnnouncementsPage />,
+          },
+          {
+            path: "announcements/new",
+            element: <AnnouncementComposePage />,
+          },
+          {
+            path: "announcements/:announcementId/edit",
+            element: <AnnouncementEditPage />,
+          }
+        ]
+      }
     ],
   },
   {

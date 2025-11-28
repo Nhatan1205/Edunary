@@ -5,7 +5,11 @@ public class GetNotificationByUserIdDto
 {
     public int Id { get; set; }
     public string Title { get; set; } = null!;
+
+    public string ImageUrl { get; set; } = null!;
+
     public string Message { get; set; } = null!;
+    public string Type { get; set; }
     public DateTimeOffset Created { get; set; }
     public bool IsRead { get; set; }
 

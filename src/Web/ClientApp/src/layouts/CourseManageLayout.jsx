@@ -96,7 +96,7 @@ function CourseManageLayout() {
                   {(activeLabel !== "Curriculum" ) && (
                     <>
                       <PageTitle title={activeLabel} />
-                      <Divider sx={{ mb: 3 }} />
+                      <Divider sx={{ my: 3 }} />
                     </>
                   )}
                   <Outlet />

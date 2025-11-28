@@ -3,7 +3,7 @@ import DefaultImage from "../../assets/images/default.jpg";
 import {formatTimeAgo} from "../../utils/helpers";
 import useUpdateNotificationStatus from "../../hooks/useUpdateNoificationStatus";
 function MessageCard({ notification }) {
-  const { id, message, created, isRead } = notification;
+  const { id, title, created, isRead, imageUrl } = notification;
   const updateNotificationStatusMutation = useUpdateNotificationStatus();
 
   function handleUpdateStatus() {
@@ -24,7 +24,7 @@ function MessageCard({ notification }) {
       }}
     >
       <Avatar
-        src={DefaultImage}
+        src={imageUrl || DefaultImage}
         sx={{
           width: 64,
           height: 64,
@@ -57,7 +57,7 @@ function MessageCard({ notification }) {
             whiteSpace: "normal",
           }}
         >
-          {message}
+          {title}
         </Typography>
         <Typography
           variant="caption"

@@ -26,8 +26,18 @@ import CourseCaptions from "./features/instructor/courses-management/course-mana
 import CourseAccessiblity from "./features/instructor/courses-management/course-manage-page/pages/CourseAccessiblity";
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
+import MyLearning from "./features/user/my-learning/MyLearning";
+import CourseLearnLayout from "./layouts/CourseLearnLayout";
+import VideoPlayerPage from "./features/user/course-learn/video-player/VideoPlayer";
+import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer";
+import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
 import OverviewPage from "./features/instructor/performance-section/overview-page/CourseOverviewPage";
+import PolicyPage from "./features/guest/policy-page/PolicyPage";
+import AnnouncementsPage from "./features/instructor/communication-section/announcements-page/AnnouncementsPage";
+import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
+import AnnouncementEditPage from "./features/instructor/communication-section/announcements-page/announcements-edit-page.jsx/AnnouncementEditPage";
+import CourseInitialRedirect from "./features/user/my-learning/CourseInitialRedirect";
 
 const router = createBrowserRouter([
   {
@@ -85,9 +95,29 @@ const router = createBrowserRouter([
         path: "/course/search",
         element: <SearchPage />,
       },
+            {
+        path: "/faq",
+        element: <FAQPage />,
+      },
       {
         path: "/about",
         element: <AboutPage />,
+      },
+      {
+        path: "/policy",
+        element: <PolicyPage />,
+      },
+            {
+        path: "/faq",
+        element: <FAQPage />,
+      },
+      {
+        path: "/about",
+        element: <AboutPage />,
+      },
+      {
+        path: "/policy",
+        element: <PolicyPage />,
       },
       {
         path: "/payment/checkout",
@@ -104,7 +134,15 @@ const router = createBrowserRouter([
             <PaymentSuccess />
           </ProtectedRoute>
         ),
-      }
+      },
+      {
+        path: "/my-learning",
+        element: (
+          <ProtectedRoute>
+            <MyLearning />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
   {
@@ -138,6 +176,27 @@ const router = createBrowserRouter([
           {
             path: "overview/:tab",
             element: <OverviewPage />,
+          }
+        ],
+      },
+      {
+        path: "communication",
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/instructor/communication/announcements" replace />,
+          },
+          {
+            path: "announcements",
+            element: <AnnouncementsPage />,
+          },
+          {
+            path: "announcements/new",
+            element: <AnnouncementComposePage />,
+          },
+          {
+            path: "announcements/:announcementId/edit",
+            element: <AnnouncementEditPage />,
           }
         ],
       }
@@ -194,6 +253,28 @@ const router = createBrowserRouter([
       {
         path: "accessibility",
         element: <CourseAccessiblity />,
+      },
+    ],
+  },
+  {
+    path: "/course/:courseId/learn",
+    element: (
+      <ProtectedRoute>
+        <CourseLearnLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <CourseInitialRedirect />, 
+      },
+      {
+        path: "lecture/:contentId",
+        element: <VideoPlayerPage />,
+      },
+      {
+        path: "quiz/:contentId",
+        element: <QuizPlayerPage />,
       },
     ],
   },

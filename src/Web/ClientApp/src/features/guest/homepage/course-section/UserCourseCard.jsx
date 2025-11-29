@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { Col } from "reactstrap";
 import DefaultImage from "../../../../assets/images/default.jpg";
+import { Link as RouterLink } from "react-router";
 
 function UserCourseCard({ course }) {
   const {
@@ -19,6 +20,8 @@ function UserCourseCard({ course }) {
   return (
     <Col xs={6} md={4} lg={3} className="mb-4">
       <Card
+        component={RouterLink}
+        to={`/course/${course.id}/learn`}
         sx={{
           height: "320px",
           position: "relative",
@@ -44,7 +47,7 @@ function UserCourseCard({ course }) {
           sx={{
             objectFit: "cover",
             filter: "brightness(0.8)",
-            borderRadius: 2,
+            borderRadius: 1,
             flexShrink: 0,
             transition: "filter 0.3s ease, transform 0.3s ease",
           }}
@@ -69,11 +72,12 @@ function UserCourseCard({ course }) {
                 lineHeight: 1.3,
                 mb: 1,
                 color: "#333",
+                wordBreak: "break-word",
                 display: "-webkit-box",
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
-                height: "2.6em",
+                textOverflow: "ellipsis",
               }}
             >
               {title}

@@ -3,6 +3,7 @@ using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Hubs;
 using Edunary.Infrastructure.Identity;
 using Edunary.Web.Infrastructure;
+using Hangfire;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
@@ -21,7 +22,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-     await app.InitialiseDatabaseAsync();
+    await app.InitialiseDatabaseAsync();
 }
 else
 {
@@ -52,6 +53,10 @@ app.MapFallbackToFile("index.html");
 
 
 app.MapEndpoints();
+
+app.UseHangfireDashboard();
+app.MapHangfireDashboard("/HangfireDashboard");
+
 app.Run();
 
 public partial class Program { }

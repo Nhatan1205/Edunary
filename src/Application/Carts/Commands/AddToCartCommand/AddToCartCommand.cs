@@ -39,13 +39,17 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
                 return Result.Failure("Invalid course ID");
             }
 
-            // Check if course exists
-            var courseExists = await _context.Courses
-                .AnyAsync(c => c.Id == courseIdInt, cancellationToken);
+            // Check if course exists and if the user is the creator
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == courseIdInt, cancellationToken);
 
-            if (!courseExists)
+            if (course == null)
             {
                 return Result.Failure("Course not found");
+            }
+            if (userId == course.CreatedBy)
+            {
+                return Result.Success("You cannot add your own course to the cart");
             }
 
             // Check if already in cart

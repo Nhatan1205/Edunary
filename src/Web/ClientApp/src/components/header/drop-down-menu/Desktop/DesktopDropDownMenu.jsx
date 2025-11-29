@@ -31,7 +31,6 @@ function DesktopDropDownMenu({
         <Grid container spacing={4}>
           {/* Left Column - Categories */}
           <Grid
-            item
             size={7}
             sx={{ paddingRight: "32px", borderRight: "1px solid grey" }}
           >
@@ -44,7 +43,7 @@ function DesktopDropDownMenu({
           </Grid>
 
           {/* Right Column - Business & Resources */}
-          <Grid item size={5}>
+          <Grid size={5}>
             <DesktopSection
               title="Partnership"
               items={MENU_DATA.business}

@@ -1,11 +1,11 @@
 import { useMemo, useRef } from "react";
 import JoditEditor from "jodit-react";
 
-export default function TextEditor({ value, onChange, buttons = ['bold','italic','underline','|','ul','ol','brush','|','link','image','|','source']}) {
+export default function TextEditor({ value, onChange,readOnly = false, buttons = ['bold','italic','underline','|','ul','ol','brush','|','link','image','|','source']}) {
   const editor = useRef(null);
 
   const config =  useMemo(() => ({
-    readonly: false,
+    readonly: readOnly,
     height: "auto",
     minHeight: 200,
     maxHeight: -1,
@@ -20,7 +20,13 @@ export default function TextEditor({ value, onChange, buttons = ['bold','italic'
     processPaste: true,
     defaultActionOnPaste: "insert_as_html",
     buttons: buttons,
-  }),[buttons]);
+    style: readOnly
+        ? {
+            color: "#9e9e9e",
+            background: "#f7f7f7",
+          }
+        : {},
+  }),[readOnly,buttons]);
 
   return (
     <JoditEditor

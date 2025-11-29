@@ -3,10 +3,7 @@ import {
   Box,
   Tabs,
   Tab,
-  Divider,
   Typography,
-  Avatar,
-  Button,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -25,10 +22,13 @@ import {
 } from '@mui/icons-material'
 import DOMPurify from "dompurify";
 import { Container } from 'reactstrap';
+import { useParams } from "react-router-dom";
+import RatingTab from '../../../../components/rating-tab/RatingTab';
 
 const CourseTabs = ({ courseData, reviews }) => {
-  console.log(courseData);
   const [activeTab, setActiveTab] = useState(0)
+  const { id } = useParams();
+  const courseId = id;
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue)
@@ -264,88 +264,9 @@ const CourseTabs = ({ courseData, reviews }) => {
     );
   }
 
-  const renderReviews = () => (
-    <Box sx={{ py: 3 }}>
-      <Typography 
-        variant="h3" 
-        sx={{ 
-          fontWeight: 700, 
-          mb: 4,
-          color: 'text.primary'
-        }}
-      >
-        Reviews
-      </Typography>
-      <Box sx={{ mb: 4 }}>
-        {reviews.map((review, index) => (
-          <Box key={index} sx={{ mb: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
-              <Avatar 
-                src={review.avatar} 
-                sx={{ 
-                  width: 48, 
-                  height: 48, 
-                  backgroundColor: 'brand.main',
-                  color: 'text.inverse',
-                  fontWeight: 600
-                }}
-              >
-                {review.name.charAt(0)}
-              </Avatar>
-              <Box sx={{ flex: 1 }}>
-                <Typography 
-                  variant="subtitle1" 
-                  sx={{ 
-                    fontWeight: 600, 
-                    mb: 1,
-                    color: 'text.primary'
-                  }}
-                >
-                  {review.name}
-                </Typography>
-                <Typography 
-                  variant="body1" 
-                  color="text.secondary" 
-                  sx={{ 
-                    lineHeight: 1.7,
-                    fontSize: '1rem'
-                  }}
-                >
-                  {review.review}
-                </Typography>
-              </Box>
-            </Box>
-            {index < reviews.length - 1 && (
-              <Divider 
-                sx={{ 
-                  mt: 3,
-                  borderColor: 'divider'
-                }} 
-              />
-            )}
-          </Box>
-        ))}
-      </Box>
-      <Box sx={{ textAlign: 'center' }}>
-        <Button 
-          variant="outlined"
-          sx={{
-            borderColor: 'brand.main',
-            color: 'brand.main',
-            fontWeight: 500,
-            px: 3,
-            py: 1.5,
-            borderRadius: 1.5,
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: 'brand.lighter',
-              borderColor: 'brand.main',
-            }
-          }}
-        >
-          Load more reviews
-        </Button>
-      </Box>
+  const renderReviews = (courseId) => (
+    <Box>
+      <RatingTab courseId={courseId} />
     </Box>
   )
 
@@ -487,7 +408,7 @@ const CourseTabs = ({ courseData, reviews }) => {
       <Box sx={{ px: 3, pb: 3 }}>
         {activeTab === 0 && renderDescription()}
         {activeTab === 1 && renderCourses()}
-        {activeTab === 2 && renderReviews()}
+        {activeTab === 2 && renderReviews(courseId)}
       </Box>
     </Box>
     </>

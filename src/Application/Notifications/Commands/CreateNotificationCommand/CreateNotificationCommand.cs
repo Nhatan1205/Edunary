@@ -5,8 +5,11 @@ using Edunary.Domain.Entities;
 namespace Edunary.Application.Notifications.Commands.CreateNotificationCommand;
 public class CreateNotificationCommand : IRequest<Result>
 {
+    public string ImageUrl { get; init; }
     public int CourseId { get; init; }
     public string Title { get; init; }
+
+    public string Subject { get; init; }
     public string Message { get; init; }
     public string Type { get; init; }
 
@@ -28,8 +31,10 @@ public class CreateNotificationCommandHandler : IRequestHandler<CreateNotificati
         {
             var entity = new Notification
             {
+                ImageUrl = request.ImageUrl,
                 CourseId = request.CourseId,
                 Title = request.Title,
+                Subject = request.Subject,
                 Message = request.Message,
                 Type = request.Type,
                 Url = request.Url,

@@ -7,6 +7,7 @@ import {
   Box,
   useTheme,
   useMediaQuery,
+  Rating,
 } from "@mui/material";
 import { useRef } from "react";
 import { Col } from "reactstrap";
@@ -135,11 +136,12 @@ function CourseCard({ course }) {
               lineHeight: 1.3,
               mb: 0.5,
               color: "#333",
+              wordBreak: "break-word",
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
-              height: "2.6em",
+              textOverflow: "ellipsis",
             }}
           >
             {title}
@@ -151,6 +153,10 @@ function CourseCard({ course }) {
                 color: "#595C73",
                 fontSize: "0.8rem",
                 mb: 0.5,
+                whiteSpace: "nowrap",     
+                overflow: "hidden",        
+                textOverflow: "ellipsis",  
+                display: "block",
               }}
             >
               {instructorName}
@@ -160,13 +166,32 @@ function CourseCard({ course }) {
           <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
             <Typography
               variant="body2"
-              sx={{ fontWeight: 600,color: "#FAAF00", fontSize: "0.8rem",mr: 0.5 }}
+              sx={{ 
+                fontWeight: 600,
+                color: "#FAAF00",
+                fontSize: "0.8rem",
+                mr: 0.5,
+                mt: 0.2 
+              }}
             >
               {ratings?.toFixed(1) || "0.0"}
             </Typography>
-            <Typography variant="body2" sx={{ color: "#FAAF00" }}>
-              {"★".repeat(Math.floor(ratings || 0))}{"☆".repeat(5 - Math.floor(ratings || 0))}
-            </Typography>
+            
+            <Rating 
+              name="read-only" 
+              value={ratings || 0} 
+              precision={0.5}
+              readOnly 
+              size="small"
+              sx={{
+                fontSize: "1rem", 
+                color: "#FAAF00",
+                "& .MuiRating-iconEmpty": {
+                  color: "#faaf00",
+                  opacity: 0.4, 
+                }
+              }}
+            />
           </Box>
 
           {/* Price */}

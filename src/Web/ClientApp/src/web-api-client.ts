@@ -10,6 +10,176 @@
 
 import followIfLoginRedirect from './components/api-authorization/followIfLoginRedirect';
 
+export class AnnouncementClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    createAnnouncement(command: CreateAnnouncementCommand | undefined): Promise<ReturnResultOfCreateAnnouncementCommandDto> {
+        let url_ = this.baseUrl + "/api/Announcement";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateAnnouncement(_response);
+        });
+    }
+
+    protected processCreateAnnouncement(response: Response): Promise<ReturnResultOfCreateAnnouncementCommandDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCreateAnnouncementCommandDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCreateAnnouncementCommandDto>(null as any);
+    }
+
+    updateAnnouncement(command: UpdateAnnouncementCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Announcement";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateAnnouncement(_response);
+        });
+    }
+
+    protected processUpdateAnnouncement(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getAnnouncements(status: AnnouncementStatus, pageNumber: number, pageSize: number): Promise<PaginatedListOfGetAnnouncementDto> {
+        let url_ = this.baseUrl + "/api/Announcement?";
+        if (status === undefined || status === null)
+            throw new Error("The parameter 'status' must be defined and cannot be null.");
+        else
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAnnouncements(_response);
+        });
+    }
+
+    protected processGetAnnouncements(response: Response): Promise<PaginatedListOfGetAnnouncementDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfGetAnnouncementDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfGetAnnouncementDto>(null as any);
+    }
+
+    getAnnouncementById(id: number): Promise<GetAnnouncementByIdDto> {
+        let url_ = this.baseUrl + "/api/Announcement/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAnnouncementById(_response);
+        });
+    }
+
+    protected processGetAnnouncementById(response: Response): Promise<GetAnnouncementByIdDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetAnnouncementByIdDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GetAnnouncementByIdDto>(null as any);
+    }
+}
+
 export class AuthClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -221,7 +391,7 @@ export class CartClient {
         return Promise.resolve<CartItemDto[]>(null as any);
     }
 
-    addToCart(command: AddToCartCommand | undefined): Promise<void> {
+    addToCart(command: AddToCartCommand | undefined): Promise<CartResponse> {
         let url_ = this.baseUrl + "/api/Cart";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -232,6 +402,7 @@ export class CartClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
@@ -240,20 +411,23 @@ export class CartClient {
         });
     }
 
-    protected processAddToCart(response: Response): Promise<void> {
+    protected processAddToCart(response: Response): Promise<CartResponse> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CartResponse.fromJS(resultData200);
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<CartResponse>(null as any);
     }
 
     removeFromCart(cartItemId: number): Promise<void> {
@@ -630,6 +804,320 @@ export class CourseContentClient {
     }
 }
 
+export class CourseProgressClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getCourseProgressByCourseId(courseId: number): Promise<CourseProgressDto> {
+        let url_ = this.baseUrl + "/api/CourseProgress?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseProgressByCourseId(_response);
+        });
+    }
+
+    protected processGetCourseProgressByCourseId(response: Response): Promise<CourseProgressDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CourseProgressDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseProgressDto>(null as any);
+    }
+
+    updateCourseProgress(command: UpdateCourseProgressCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseProgress";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCourseProgress(_response);
+        });
+    }
+
+    protected processUpdateCourseProgress(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getLearningHeaderByCourseId(courseId: number): Promise<LearningHeaderDto> {
+        let url_ = this.baseUrl + "/api/CourseProgress/learning-header?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLearningHeaderByCourseId(_response);
+        });
+    }
+
+    protected processGetLearningHeaderByCourseId(response: Response): Promise<LearningHeaderDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LearningHeaderDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LearningHeaderDto>(null as any);
+    }
+
+    getLearningSidebarByCourseId(courseId: number): Promise<CourseProgressDto> {
+        let url_ = this.baseUrl + "/api/CourseProgress/learning-sidebar?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLearningSidebarByCourseId(_response);
+        });
+    }
+
+    protected processGetLearningSidebarByCourseId(response: Response): Promise<CourseProgressDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CourseProgressDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseProgressDto>(null as any);
+    }
+
+    getCPByItemId(itemId: string | null, courseId: number): Promise<CourseItemDto> {
+        let url_ = this.baseUrl + "/api/CourseProgress/item/{itemId}?";
+        if (itemId === undefined || itemId === null)
+            throw new Error("The parameter 'itemId' must be defined.");
+        url_ = url_.replace("{itemId}", encodeURIComponent("" + itemId));
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCPByItemId(_response);
+        });
+    }
+
+    protected processGetCPByItemId(response: Response): Promise<CourseItemDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CourseItemDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseItemDto>(null as any);
+    }
+
+    updateCPByItemId(command: UpdateCPByItemIdCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseProgress/item";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCPByItemId(_response);
+        });
+    }
+
+    protected processUpdateCPByItemId(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    updateCompleteCP(command: UpdateCompleteCPCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseProgress/item/complete";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCompleteCP(_response);
+        });
+    }
+
+    protected processUpdateCompleteCP(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getLastAccessedItem(courseId: number): Promise<LastAccessedItemDto> {
+        let url_ = this.baseUrl + "/api/CourseProgress/last-accessed-item?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLastAccessedItem(_response);
+        });
+    }
+
+    protected processGetLastAccessedItem(response: Response): Promise<LastAccessedItemDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LastAccessedItemDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LastAccessedItemDto>(null as any);
+    }
+}
+
 export class CoursesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -794,7 +1282,7 @@ export class CoursesClient {
         return Promise.resolve<PaginatedListOfGetCoursesAuthorDto>(null as any);
     }
 
-    getCoursesStudentWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCoursesByStudentIdDto> {
+    getEnrolledCoursesWithPagination(pageNumber: number, pageSize: number): Promise<PaginatedListOfEnrolledCoursesDto> {
         let url_ = this.baseUrl + "/api/Courses/student?";
         if (pageNumber === undefined || pageNumber === null)
             throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
@@ -814,11 +1302,11 @@ export class CoursesClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCoursesStudentWithPagination(_response);
+            return this.processGetEnrolledCoursesWithPagination(_response);
         });
     }
 
-    protected processGetCoursesStudentWithPagination(response: Response): Promise<PaginatedListOfGetCoursesByStudentIdDto> {
+    protected processGetEnrolledCoursesWithPagination(response: Response): Promise<PaginatedListOfEnrolledCoursesDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -826,7 +1314,7 @@ export class CoursesClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfGetCoursesByStudentIdDto.fromJS(resultData200);
+            result200 = PaginatedListOfEnrolledCoursesDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -834,7 +1322,7 @@ export class CoursesClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<PaginatedListOfGetCoursesByStudentIdDto>(null as any);
+        return Promise.resolve<PaginatedListOfEnrolledCoursesDto>(null as any);
     }
 
     getCourseById(id: number): Promise<GetCourseByIdDto> {
@@ -1283,6 +1771,141 @@ export class PaymentClient {
             });
         }
         return Promise.resolve<PaymentStatusDto>(null as any);
+    }
+}
+
+export class RatingCourseClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    upsertRatingCourse(command: UpsertRatingCourseCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/RatingCourse";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpsertRatingCourse(_response);
+        });
+    }
+
+    protected processUpsertRatingCourse(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getRatingCourseByUser(courseId: number): Promise<RatingCourseDto> {
+        let url_ = this.baseUrl + "/api/RatingCourse?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRatingCourseByUser(_response);
+        });
+    }
+
+    protected processGetRatingCourseByUser(response: Response): Promise<RatingCourseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RatingCourseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RatingCourseDto>(null as any);
+    }
+
+    getRatingsByCourse(courseId: number, pageNumber: number | undefined, pageSize: number | undefined, filterRating: number | null | undefined, sortBy: string | null | undefined): Promise<PaginatedListOfRatingCourseWithUserDto> {
+        let url_ = this.baseUrl + "/api/RatingCourse/course/{courseId}?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (filterRating !== undefined && filterRating !== null)
+            url_ += "filterRating=" + encodeURIComponent("" + filterRating) + "&";
+        if (sortBy !== undefined && sortBy !== null)
+            url_ += "sortBy=" + encodeURIComponent("" + sortBy) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRatingsByCourse(_response);
+        });
+    }
+
+    protected processGetRatingsByCourse(response: Response): Promise<PaginatedListOfRatingCourseWithUserDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfRatingCourseWithUserDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfRatingCourseWithUserDto>(null as any);
     }
 }
 
@@ -1821,6 +2444,387 @@ export class WeatherForecastsClient {
     }
 }
 
+export class ReturnResultOfCreateAnnouncementCommandDto implements IReturnResultOfCreateAnnouncementCommandDto {
+    result?: CreateAnnouncementCommandDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCreateAnnouncementCommandDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CreateAnnouncementCommandDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCreateAnnouncementCommandDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCreateAnnouncementCommandDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCreateAnnouncementCommandDto {
+    result?: CreateAnnouncementCommandDto | undefined;
+    message?: string | undefined;
+}
+
+export class CreateAnnouncementCommandDto implements ICreateAnnouncementCommandDto {
+    id?: number;
+
+    constructor(data?: ICreateAnnouncementCommandDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): CreateAnnouncementCommandDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateAnnouncementCommandDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface ICreateAnnouncementCommandDto {
+    id?: number;
+}
+
+export class CreateAnnouncementCommand implements ICreateAnnouncementCommand {
+    subject?: string | undefined;
+    content?: string | undefined;
+    courseIds?: number[] | undefined;
+    status?: AnnouncementStatus;
+
+    constructor(data?: ICreateAnnouncementCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.subject = _data["subject"];
+            this.content = _data["content"];
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): CreateAnnouncementCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateAnnouncementCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["subject"] = this.subject;
+        data["content"] = this.content;
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface ICreateAnnouncementCommand {
+    subject?: string | undefined;
+    content?: string | undefined;
+    courseIds?: number[] | undefined;
+    status?: AnnouncementStatus;
+}
+
+export enum AnnouncementStatus {
+    Draft = 0,
+    Sent = 1,
+}
+
+export class UpdateAnnouncementCommand implements IUpdateAnnouncementCommand {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    courseIds?: number[] | undefined;
+    status?: AnnouncementStatus;
+
+    constructor(data?: IUpdateAnnouncementCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subject = _data["subject"];
+            this.content = _data["content"];
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpdateAnnouncementCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateAnnouncementCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subject"] = this.subject;
+        data["content"] = this.content;
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpdateAnnouncementCommand {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    courseIds?: number[] | undefined;
+    status?: AnnouncementStatus;
+}
+
+export class PaginatedListOfGetAnnouncementDto implements IPaginatedListOfGetAnnouncementDto {
+    items?: GetAnnouncementDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetAnnouncementDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetAnnouncementDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetAnnouncementDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetAnnouncementDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetAnnouncementDto {
+    items?: GetAnnouncementDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class GetAnnouncementDto implements IGetAnnouncementDto {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    status?: AnnouncementStatus;
+    sentAt?: Date | undefined;
+    created?: Date;
+
+    constructor(data?: IGetAnnouncementDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subject = _data["subject"];
+            this.content = _data["content"];
+            this.status = _data["status"];
+            this.sentAt = _data["sentAt"] ? new Date(_data["sentAt"].toString()) : <any>undefined;
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetAnnouncementDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetAnnouncementDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subject"] = this.subject;
+        data["content"] = this.content;
+        data["status"] = this.status;
+        data["sentAt"] = this.sentAt ? this.sentAt.toISOString() : <any>undefined;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetAnnouncementDto {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    status?: AnnouncementStatus;
+    sentAt?: Date | undefined;
+    created?: Date;
+}
+
+export class GetAnnouncementByIdDto implements IGetAnnouncementByIdDto {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    status?: AnnouncementStatus;
+    sentAt?: Date | undefined;
+    courseIds?: number[] | undefined;
+
+    constructor(data?: IGetAnnouncementByIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.subject = _data["subject"];
+            this.content = _data["content"];
+            this.status = _data["status"];
+            this.sentAt = _data["sentAt"] ? new Date(_data["sentAt"].toString()) : <any>undefined;
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetAnnouncementByIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetAnnouncementByIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["subject"] = this.subject;
+        data["content"] = this.content;
+        data["status"] = this.status;
+        data["sentAt"] = this.sentAt ? this.sentAt.toISOString() : <any>undefined;
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IGetAnnouncementByIdDto {
+    id?: number;
+    subject?: string | undefined;
+    content?: string | undefined;
+    status?: AnnouncementStatus;
+    sentAt?: Date | undefined;
+    courseIds?: number[] | undefined;
+}
+
 export class LoginResponse implements ILoginResponse {
     token?: any | undefined;
 
@@ -1913,11 +2917,11 @@ export class CartItemDto implements ICartItemDto {
     imageUrl?: string | undefined;
     instructorName?: string | undefined;
     price?: number;
-    rating?: number;
-    reviewCount?: number;
     level?: string | undefined;
     totalLectures?: number;
     totalHours?: number;
+    totalRatingStudent?: number;
+    ratings?: number;
 
     constructor(data?: ICartItemDto) {
         if (data) {
@@ -1937,11 +2941,11 @@ export class CartItemDto implements ICartItemDto {
             this.imageUrl = _data["imageUrl"];
             this.instructorName = _data["instructorName"];
             this.price = _data["price"];
-            this.rating = _data["rating"];
-            this.reviewCount = _data["reviewCount"];
             this.level = _data["level"];
             this.totalLectures = _data["totalLectures"];
             this.totalHours = _data["totalHours"];
+            this.totalRatingStudent = _data["totalRatingStudent"];
+            this.ratings = _data["ratings"];
         }
     }
 
@@ -1961,11 +2965,11 @@ export class CartItemDto implements ICartItemDto {
         data["imageUrl"] = this.imageUrl;
         data["instructorName"] = this.instructorName;
         data["price"] = this.price;
-        data["rating"] = this.rating;
-        data["reviewCount"] = this.reviewCount;
         data["level"] = this.level;
         data["totalLectures"] = this.totalLectures;
         data["totalHours"] = this.totalHours;
+        data["totalRatingStudent"] = this.totalRatingStudent;
+        data["ratings"] = this.ratings;
         return data;
     }
 }
@@ -1978,11 +2982,47 @@ export interface ICartItemDto {
     imageUrl?: string | undefined;
     instructorName?: string | undefined;
     price?: number;
-    rating?: number;
-    reviewCount?: number;
     level?: string | undefined;
     totalLectures?: number;
     totalHours?: number;
+    totalRatingStudent?: number;
+    ratings?: number;
+}
+
+export class CartResponse implements ICartResponse {
+    message?: string | undefined;
+
+    constructor(data?: ICartResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): CartResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CartResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface ICartResponse {
+    message?: string | undefined;
 }
 
 export class AddToCartCommand implements IAddToCartCommand {
@@ -2449,6 +3489,458 @@ export interface IGenerateUploadUrlCommand {
     contentType?: string | undefined;
 }
 
+export class CourseProgressDto implements ICourseProgressDto {
+    id?: number;
+    courseId?: number;
+    studentId?: string | undefined;
+    progress?: string | undefined;
+
+    constructor(data?: ICourseProgressDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.studentId = _data["studentId"];
+            this.progress = _data["progress"];
+        }
+    }
+
+    static fromJS(data: any): CourseProgressDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseProgressDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["studentId"] = this.studentId;
+        data["progress"] = this.progress;
+        return data;
+    }
+}
+
+export interface ICourseProgressDto {
+    id?: number;
+    courseId?: number;
+    studentId?: string | undefined;
+    progress?: string | undefined;
+}
+
+export class LearningHeaderDto implements ILearningHeaderDto {
+    title?: string | undefined;
+    totalLectures?: number;
+    completedLectures?: number;
+
+    constructor(data?: ILearningHeaderDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+            this.totalLectures = _data["totalLectures"];
+            this.completedLectures = _data["completedLectures"];
+        }
+    }
+
+    static fromJS(data: any): LearningHeaderDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LearningHeaderDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        data["totalLectures"] = this.totalLectures;
+        data["completedLectures"] = this.completedLectures;
+        return data;
+    }
+}
+
+export interface ILearningHeaderDto {
+    title?: string | undefined;
+    totalLectures?: number;
+    completedLectures?: number;
+}
+
+export class UpdateCourseProgressCommand implements IUpdateCourseProgressCommand {
+    courseId?: number;
+    progress?: string | undefined;
+
+    constructor(data?: IUpdateCourseProgressCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.progress = _data["progress"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCourseProgressCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCourseProgressCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["progress"] = this.progress;
+        return data;
+    }
+}
+
+export interface IUpdateCourseProgressCommand {
+    courseId?: number;
+    progress?: string | undefined;
+}
+
+export class CourseItemDto implements ICourseItemDto {
+    currentItem?: ItemDetailDto | undefined;
+    navigation?: NavigationDto | undefined;
+
+    constructor(data?: ICourseItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.currentItem = _data["currentItem"] ? ItemDetailDto.fromJS(_data["currentItem"]) : <any>undefined;
+            this.navigation = _data["navigation"] ? NavigationDto.fromJS(_data["navigation"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CourseItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["currentItem"] = this.currentItem ? this.currentItem.toJSON() : <any>undefined;
+        data["navigation"] = this.navigation ? this.navigation.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICourseItemDto {
+    currentItem?: ItemDetailDto | undefined;
+    navigation?: NavigationDto | undefined;
+}
+
+export class ItemDetailDto implements IItemDetailDto {
+    itemId?: string | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    content?: string | undefined;
+    contentType?: string | undefined;
+    type?: string | undefined;
+    lastPosition?: number;
+    isCompleted?: boolean;
+
+    constructor(data?: IItemDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.itemId = _data["itemId"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.content = _data["content"];
+            this.contentType = _data["contentType"];
+            this.type = _data["type"];
+            this.lastPosition = _data["lastPosition"];
+            this.isCompleted = _data["isCompleted"];
+        }
+    }
+
+    static fromJS(data: any): ItemDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ItemDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["itemId"] = this.itemId;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["content"] = this.content;
+        data["contentType"] = this.contentType;
+        data["type"] = this.type;
+        data["lastPosition"] = this.lastPosition;
+        data["isCompleted"] = this.isCompleted;
+        return data;
+    }
+}
+
+export interface IItemDetailDto {
+    itemId?: string | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    content?: string | undefined;
+    contentType?: string | undefined;
+    type?: string | undefined;
+    lastPosition?: number;
+    isCompleted?: boolean;
+}
+
+export class NavigationDto implements INavigationDto {
+    prev?: NavItemDto | undefined;
+    next?: NavItemDto | undefined;
+
+    constructor(data?: INavigationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.prev = _data["prev"] ? NavItemDto.fromJS(_data["prev"]) : <any>undefined;
+            this.next = _data["next"] ? NavItemDto.fromJS(_data["next"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): NavigationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new NavigationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["prev"] = this.prev ? this.prev.toJSON() : <any>undefined;
+        data["next"] = this.next ? this.next.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface INavigationDto {
+    prev?: NavItemDto | undefined;
+    next?: NavItemDto | undefined;
+}
+
+export class NavItemDto implements INavItemDto {
+    itemId?: string | undefined;
+    title?: string | undefined;
+    type?: string | undefined;
+
+    constructor(data?: INavItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.itemId = _data["itemId"];
+            this.title = _data["title"];
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): NavItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new NavItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["itemId"] = this.itemId;
+        data["title"] = this.title;
+        data["type"] = this.type;
+        return data;
+    }
+}
+
+export interface INavItemDto {
+    itemId?: string | undefined;
+    title?: string | undefined;
+    type?: string | undefined;
+}
+
+export class UpdateCPByItemIdCommand implements IUpdateCPByItemIdCommand {
+    courseId?: number;
+    itemId?: string | undefined;
+    isCompleted?: boolean;
+    lastPosition?: number | undefined;
+
+    constructor(data?: IUpdateCPByItemIdCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.itemId = _data["itemId"];
+            this.isCompleted = _data["isCompleted"];
+            this.lastPosition = _data["lastPosition"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCPByItemIdCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCPByItemIdCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["itemId"] = this.itemId;
+        data["isCompleted"] = this.isCompleted;
+        data["lastPosition"] = this.lastPosition;
+        return data;
+    }
+}
+
+export interface IUpdateCPByItemIdCommand {
+    courseId?: number;
+    itemId?: string | undefined;
+    isCompleted?: boolean;
+    lastPosition?: number | undefined;
+}
+
+export class UpdateCompleteCPCommand implements IUpdateCompleteCPCommand {
+    courseId?: number;
+    itemId?: string | undefined;
+    isCompleted?: boolean;
+
+    constructor(data?: IUpdateCompleteCPCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.itemId = _data["itemId"];
+            this.isCompleted = _data["isCompleted"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCompleteCPCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCompleteCPCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["itemId"] = this.itemId;
+        data["isCompleted"] = this.isCompleted;
+        return data;
+    }
+}
+
+export interface IUpdateCompleteCPCommand {
+    courseId?: number;
+    itemId?: string | undefined;
+    isCompleted?: boolean;
+}
+
+export class LastAccessedItemDto implements ILastAccessedItemDto {
+    itemId?: string | undefined;
+    routeType?: string | undefined;
+
+    constructor(data?: ILastAccessedItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.itemId = _data["itemId"];
+            this.routeType = _data["routeType"];
+        }
+    }
+
+    static fromJS(data: any): LastAccessedItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LastAccessedItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["itemId"] = this.itemId;
+        data["routeType"] = this.routeType;
+        return data;
+    }
+}
+
+export interface ILastAccessedItemDto {
+    itemId?: string | undefined;
+    routeType?: string | undefined;
+}
+
 export class CreateCourseCommand implements ICreateCourseCommand {
     title?: string | undefined;
     categoryId?: number;
@@ -2635,15 +4127,15 @@ export enum CourseManagementSortBy {
     UnpublishedFirst = 5,
 }
 
-export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOfGetCoursesByStudentIdDto {
-    items?: GetCoursesByStudentIdDto[] | undefined;
+export class PaginatedListOfEnrolledCoursesDto implements IPaginatedListOfEnrolledCoursesDto {
+    items?: EnrolledCoursesDto[] | undefined;
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
 
-    constructor(data?: IPaginatedListOfGetCoursesByStudentIdDto) {
+    constructor(data?: IPaginatedListOfEnrolledCoursesDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2657,7 +4149,7 @@ export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOf
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(GetCoursesByStudentIdDto.fromJS(item));
+                    this.items!.push(EnrolledCoursesDto.fromJS(item));
             }
             this.pageNumber = _data["pageNumber"];
             this.totalPages = _data["totalPages"];
@@ -2667,9 +4159,9 @@ export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOf
         }
     }
 
-    static fromJS(data: any): PaginatedListOfGetCoursesByStudentIdDto {
+    static fromJS(data: any): PaginatedListOfEnrolledCoursesDto {
         data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfGetCoursesByStudentIdDto();
+        let result = new PaginatedListOfEnrolledCoursesDto();
         result.init(data);
         return result;
     }
@@ -2690,8 +4182,8 @@ export class PaginatedListOfGetCoursesByStudentIdDto implements IPaginatedListOf
     }
 }
 
-export interface IPaginatedListOfGetCoursesByStudentIdDto {
-    items?: GetCoursesByStudentIdDto[] | undefined;
+export interface IPaginatedListOfEnrolledCoursesDto {
+    items?: EnrolledCoursesDto[] | undefined;
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
@@ -2699,7 +4191,7 @@ export interface IPaginatedListOfGetCoursesByStudentIdDto {
     hasNextPage?: boolean;
 }
 
-export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
+export class EnrolledCoursesDto implements IEnrolledCoursesDto {
     id?: number;
     title?: string | undefined;
     subtitle?: string | undefined;
@@ -2708,8 +4200,11 @@ export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
     imageUrl?: string | undefined;
     status?: CourseStatus;
     created?: Date;
+    createdBy?: string | undefined;
+    instructorName?: string | undefined;
+    ratings?: number;
 
-    constructor(data?: IGetCoursesByStudentIdDto) {
+    constructor(data?: IEnrolledCoursesDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2728,12 +4223,15 @@ export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
             this.imageUrl = _data["imageUrl"];
             this.status = _data["status"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.instructorName = _data["instructorName"];
+            this.ratings = _data["ratings"];
         }
     }
 
-    static fromJS(data: any): GetCoursesByStudentIdDto {
+    static fromJS(data: any): EnrolledCoursesDto {
         data = typeof data === 'object' ? data : {};
-        let result = new GetCoursesByStudentIdDto();
+        let result = new EnrolledCoursesDto();
         result.init(data);
         return result;
     }
@@ -2748,11 +4246,14 @@ export class GetCoursesByStudentIdDto implements IGetCoursesByStudentIdDto {
         data["imageUrl"] = this.imageUrl;
         data["status"] = this.status;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["instructorName"] = this.instructorName;
+        data["ratings"] = this.ratings;
         return data;
     }
 }
 
-export interface IGetCoursesByStudentIdDto {
+export interface IEnrolledCoursesDto {
     id?: number;
     title?: string | undefined;
     subtitle?: string | undefined;
@@ -2761,6 +4262,9 @@ export interface IGetCoursesByStudentIdDto {
     imageUrl?: string | undefined;
     status?: CourseStatus;
     created?: Date;
+    createdBy?: string | undefined;
+    instructorName?: string | undefined;
+    ratings?: number;
 }
 
 export class GetCourseByIdDto implements IGetCourseByIdDto {
@@ -2780,6 +4284,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     price?: number;
     categoryId?: number;
     content?: string | undefined;
+    totalStudents?: number;
 
     constructor(data?: IGetCourseByIdDto) {
         if (data) {
@@ -2808,6 +4313,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             this.price = _data["price"];
             this.categoryId = _data["categoryId"];
             this.content = _data["content"];
+            this.totalStudents = _data["totalStudents"];
         }
     }
 
@@ -2836,6 +4342,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
         data["content"] = this.content;
+        data["totalStudents"] = this.totalStudents;
         return data;
     }
 }
@@ -2857,6 +4364,7 @@ export interface IGetCourseByIdDto {
     price?: number;
     categoryId?: number;
     content?: string | undefined;
+    totalStudents?: number;
 }
 
 export enum CourseLevel {
@@ -3672,6 +5180,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     instructorName?: string | undefined;
     content?: string | undefined;
     lastModified?: Date;
+    instructorAvatar?: string | undefined;
 
     constructor(data?: IGetPublicCourseByIdDto) {
         if (data) {
@@ -3706,6 +5215,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.instructorName = _data["instructorName"];
             this.content = _data["content"];
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.instructorAvatar = _data["instructorAvatar"];
         }
     }
 
@@ -3740,6 +5250,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["instructorName"] = this.instructorName;
         data["content"] = this.content;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["instructorAvatar"] = this.instructorAvatar;
         return data;
     }
 }
@@ -3767,6 +5278,7 @@ export interface IGetPublicCourseByIdDto {
     instructorName?: string | undefined;
     content?: string | undefined;
     lastModified?: Date;
+    instructorAvatar?: string | undefined;
 }
 
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {
@@ -3860,7 +5372,9 @@ export interface INotificationsVm {
 export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
     id?: number;
     title?: string | undefined;
+    imageUrl?: string | undefined;
     message?: string | undefined;
+    type?: string | undefined;
     created?: Date;
     isRead?: boolean;
 
@@ -3877,7 +5391,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
         if (_data) {
             this.id = _data["id"];
             this.title = _data["title"];
+            this.imageUrl = _data["imageUrl"];
             this.message = _data["message"];
+            this.type = _data["type"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.isRead = _data["isRead"];
         }
@@ -3894,7 +5410,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["title"] = this.title;
+        data["imageUrl"] = this.imageUrl;
         data["message"] = this.message;
+        data["type"] = this.type;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["isRead"] = this.isRead;
         return data;
@@ -3904,7 +5422,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
 export interface IGetNotificationByUserIdDto {
     id?: number;
     title?: string | undefined;
+    imageUrl?: string | undefined;
     message?: string | undefined;
+    type?: string | undefined;
     created?: Date;
     isRead?: boolean;
 }
@@ -4219,6 +5739,234 @@ export interface IOrderItemDto {
     courseId?: string | undefined;
     courseName?: string | undefined;
     price?: number;
+}
+
+export class UpsertRatingCourseCommand implements IUpsertRatingCourseCommand {
+    courseId?: number;
+    rating?: number;
+    review?: string | undefined;
+
+    constructor(data?: IUpsertRatingCourseCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.rating = _data["rating"];
+            this.review = _data["review"];
+        }
+    }
+
+    static fromJS(data: any): UpsertRatingCourseCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpsertRatingCourseCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["rating"] = this.rating;
+        data["review"] = this.review;
+        return data;
+    }
+}
+
+export interface IUpsertRatingCourseCommand {
+    courseId?: number;
+    rating?: number;
+    review?: string | undefined;
+}
+
+export class RatingCourseDto implements IRatingCourseDto {
+    id?: number;
+    courseId?: number | undefined;
+    rating?: number;
+    review?: string | undefined;
+    lastModified?: Date;
+
+    constructor(data?: IRatingCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.rating = _data["rating"];
+            this.review = _data["review"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RatingCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RatingCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["rating"] = this.rating;
+        data["review"] = this.review;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRatingCourseDto {
+    id?: number;
+    courseId?: number | undefined;
+    rating?: number;
+    review?: string | undefined;
+    lastModified?: Date;
+}
+
+export class PaginatedListOfRatingCourseWithUserDto implements IPaginatedListOfRatingCourseWithUserDto {
+    items?: RatingCourseWithUserDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfRatingCourseWithUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(RatingCourseWithUserDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfRatingCourseWithUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfRatingCourseWithUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfRatingCourseWithUserDto {
+    items?: RatingCourseWithUserDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class RatingCourseWithUserDto implements IRatingCourseWithUserDto {
+    id?: number;
+    courseId?: number | undefined;
+    userId?: string | undefined;
+    userFullName?: string | undefined;
+    userAvatar?: string | undefined;
+    rating?: number;
+    review?: string | undefined;
+    created?: Date;
+    lastModified?: Date;
+
+    constructor(data?: IRatingCourseWithUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.userId = _data["userId"];
+            this.userFullName = _data["userFullName"];
+            this.userAvatar = _data["userAvatar"];
+            this.rating = _data["rating"];
+            this.review = _data["review"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RatingCourseWithUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RatingCourseWithUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["userId"] = this.userId;
+        data["userFullName"] = this.userFullName;
+        data["userAvatar"] = this.userAvatar;
+        data["rating"] = this.rating;
+        data["review"] = this.review;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRatingCourseWithUserDto {
+    id?: number;
+    courseId?: number | undefined;
+    userId?: string | undefined;
+    userFullName?: string | undefined;
+    userAvatar?: string | undefined;
+    rating?: number;
+    review?: string | undefined;
+    created?: Date;
+    lastModified?: Date;
 }
 
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {

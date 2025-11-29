@@ -11,9 +11,16 @@ export const useAddToCart = () => {
       const command = new AddToCartCommand({ courseId: courseId.toString() })
       return await cartClient.addToCart(command)
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries(["cart"])
-      toast.success('Course added to cart successfully!')
+      const message = res?.message || 'Course added to cart successfully'
+      if (
+        message !== "Course added to cart successfully"
+      ) {
+        toast.info(message)
+      } else {
+        toast.success(message)
+      }
     },
     onError: (err) => {
       console.error('Error adding to cart:', err)
@@ -40,15 +47,7 @@ export const useAddToCart = () => {
       } else if (err.message) {
         errorMessage = err.message
       }
-      
-      if (
-        errorMessage === "This course is already in your cart" ||
-        errorMessage === "This course has already been paid for by you"
-      ) {
-        toast.info(errorMessage)
-      } else {
-        toast.error(errorMessage)
-      }
+      toast.error(errorMessage)
     }
   })
 

@@ -10,6 +10,7 @@ import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import MessageIcon from "@mui/icons-material/Message";
 import MonetizationOnRoundedIcon from "@mui/icons-material/MonetizationOnRounded";
 import RateReviewRoundedIcon from "@mui/icons-material/RateReviewRounded";
+import AnnouncementRoundedIcon from '@mui/icons-material/AnnouncementRounded';
 import { Outlet } from "react-router";
 import { ReactRouterAppProvider } from "@toolpad/core/react-router";
 import { Lightbulb } from "@mui/icons-material";
@@ -17,6 +18,7 @@ import { Container } from "reactstrap";
 import { createTheme } from "@mui/material";
 import theme from "../theme/theme";
 import ToolbarActions from "../components/ToolbarActions";
+import CustomBreadcrumbs from "../components/breadcrumb/CustomBreadcrumbs";
 
 const NAVIGATION = [
   {
@@ -38,7 +40,7 @@ const NAVIGATION = [
   },
 
   {
-    segment: "communication",
+    segment: "instructor/communication",
     title: "Communication",
     icon: <ChatIcon />,
     expanded: true,
@@ -57,6 +59,11 @@ const NAVIGATION = [
         segment: "assignments",
         title: "Assignments",
         icon: <AssignmentIcon />,
+      },
+      {
+        segment: "announcements",
+        title: "Announcements",
+        icon: <AnnouncementRoundedIcon />,
       },
     ],
   },
@@ -119,11 +126,15 @@ function InstructorLayout() {
       theme={dashboardTheme}
     >
       <DashboardLayout
+        defaultExpanded={true}
         slots={{
           toolbarActions: ToolbarActions,
         }}
       >
         <Container className="pt-3 pb-2 pt-5 px-sm-4 px-md-5 mx-auto mw-100 ">
+          <Container fluid>
+            <CustomBreadcrumbs />
+          </Container>
           <Outlet />
         </Container>
       </DashboardLayout>

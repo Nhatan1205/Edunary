@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
+using Edunary.Application.CourseProgresses.Commands.CreateCourseProgressCommand;
 
 namespace Edunary.Application.Payments.Commands.ConfirmPaymentCommand;
 
@@ -18,17 +19,20 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
     private readonly IPaymentService _paymentService;
     private readonly ILogger<ConfirmPaymentCommandHandler> _logger;
     private readonly INotifyService _notifyService;
+    private readonly ISender _sender;
 
     public ConfirmPaymentCommandHandler(
         IApplicationDbContext context, 
         IPaymentService paymentService,
         ILogger<ConfirmPaymentCommandHandler> logger,
-        INotifyService notifyService)
+        INotifyService notifyService,
+        ISender sender)
     {
         _context = context;
         _paymentService = paymentService;
         _logger = logger;
         _notifyService = notifyService;
+        _sender = sender;
     }
 
     public async Task<ConfirmPaymentDto> Handle(ConfirmPaymentCommand request, CancellationToken cancellationToken)
@@ -113,6 +117,12 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
 
                     enrollmentsCreated++;
                     _logger.LogInformation("Created enrollment for CourseId: {CourseId}, UserId: {UserId}", courseId, order.UserId);
+                    
+                    await _sender.Send(new CreateCourseProgressCommand
+                    {
+                        CourseId = courseId,
+                        Progress = course.Content
+                    }, cancellationToken);
 
                     // Add connection to notification course group
                     await _notifyService.JoinGroupCourse(courseId);
@@ -142,11 +152,11 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
 
         var result = await _context.SaveChangesAsync(cancellationToken);
         
-        if (result <= 0)
-        {
-            _logger.LogError("Failed to save payment confirmation changes for Order: {OrderId}", order.Id);
-            throw new InvalidOperationException("Failed to save payment confirmation");
-        }
+        // if (result <= 0)
+        // {
+        //     _logger.LogError("Failed to save payment confirmation changes for Order: {OrderId}", order.Id);
+        //     throw new InvalidOperationException("Failed to save payment confirmation");
+        // }
 
         _logger.LogInformation("Payment confirmed successfully for Order: {OrderId}, Enrollments created: {EnrollmentsCount}", 
             order.Id, enrollmentsCreated);

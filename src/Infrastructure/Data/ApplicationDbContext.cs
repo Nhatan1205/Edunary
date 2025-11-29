@@ -30,7 +30,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<CourseContent> CourseContents => Set<CourseContent>();
 
+    public DbSet<CourseProgress> CourseProgress => Set<CourseProgress>();
+
     public DbSet<Cart> Carts => Set<Cart>();
+
+    public DbSet<Announcement> Announcements => Set<Announcement>();
+    public DbSet<RatingCourse> RatingCourses => Set<RatingCourse>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {        

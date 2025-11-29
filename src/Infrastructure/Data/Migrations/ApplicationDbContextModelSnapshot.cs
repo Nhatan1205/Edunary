@@ -22,6 +22,58 @@ namespace Edunary.Infrastructure.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AnnouncementCourse", b =>
+                {
+                    b.Property<int>("AnnouncementsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CoursesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AnnouncementsId", "CoursesId");
+
+                    b.HasIndex("CoursesId");
+
+                    b.ToTable("AnnouncementCourse");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.Announcement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subject")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Announcements");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.Cart", b =>
                 {
                     b.Property<int>("Id")
@@ -153,6 +205,12 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Property<string>("Topic")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TotalRating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalRatingStudent")
+                        .HasColumnType("int");
+
                     b.Property<int>("TotalStudents")
                         .HasColumnType("int");
 
@@ -219,6 +277,42 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("CourseContents");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.CourseProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Progress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("CourseProgress");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.Enrollment", b =>
                 {
                     b.Property<int>("Id")
@@ -273,6 +367,9 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("datetimeoffset");
 
@@ -280,6 +377,9 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -465,6 +565,49 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Review")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_RatingCourses_CourseId_UserId");
+
+                    b.ToTable("RatingCourses");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
@@ -751,6 +894,21 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AnnouncementCourse", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.Announcement", null)
+                        .WithMany()
+                        .HasForeignKey("AnnouncementsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Edunary.Domain.Entities.Course", null)
+                        .WithMany()
+                        .HasForeignKey("CoursesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.Course", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.Category", "Category")
@@ -768,6 +926,17 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .WithMany("Contents")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.CourseProgress", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
+                        .WithMany("Progresses")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Course");
                 });
@@ -812,6 +981,17 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
+                        .WithMany("RatingCourses")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
@@ -907,6 +1087,10 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Contents");
 
                     b.Navigation("Enrollments");
+
+                    b.Navigation("Progresses");
+
+                    b.Navigation("RatingCourses");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Order", b =>

@@ -24,6 +24,10 @@ public interface IApplicationDbContext
     public DbSet<NotificationUser> NotificationUsers { get; }
 
     public DbSet<CourseContent> CourseContents { get; }
+    public DbSet<CourseProgress> CourseProgress { get; }
+
+    public DbSet<Announcement> Announcements { get; }
+    public DbSet<RatingCourse> RatingCourses { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

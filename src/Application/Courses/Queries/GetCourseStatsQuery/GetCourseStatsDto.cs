@@ -6,11 +6,11 @@ public class GetCourseStatsDto
     public string AggregationLevel { get; set; }
     public string Metric { get; set; }
     public List<DataPointDto> Data { get; set; }
-    public int Total { get; set; }
+    public float Total { get; set; }
 }
 
 public class DataPointDto
 {
     public DateTime Date { get; set; }
-    public int Value { get; set; }
+    public float Value { get; set; }
 }

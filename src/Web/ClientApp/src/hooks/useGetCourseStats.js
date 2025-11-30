@@ -14,6 +14,7 @@ const useGetCourseStats = (courseId, dateRange,metric) => {
 
       return result;
     },
+    keepPreviousData: true,
   });
 };
 

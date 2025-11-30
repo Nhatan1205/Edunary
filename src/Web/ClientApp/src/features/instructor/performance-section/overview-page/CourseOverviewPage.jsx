@@ -12,6 +12,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router';
 import LineChartWidget from '../../../../components/charts/LineChartWidget';
 import useGetCoursesAuthor from '../../../../hooks/useGetCoursesAuthor';
 import useGetCourseStats from '../../../../hooks/useGetCourseStats';
+import BarChartWidget from '../../../../components/charts/BarChartWidget';
 
 const dateFilterData = [
   { label: "Last 7 days", value: "week" },
@@ -44,7 +45,7 @@ function CourseOverviewPage() {
   const { data: courseStats, isLoading: isStatsLoading } = useGetCourseStats(
     selectedCourseId,
     selectedDateRange,
-    "enrollment"
+    tab
   );
 
   // ------------------
@@ -130,8 +131,8 @@ function CourseOverviewPage() {
                <MetricTab
                 label="This month so far"
                 tooltip="Ratings are calculated from individual students' ratings and a variety of other signals, like age of rating and reliability, to ensure that they reflect course quality fairly and accurately."
-                value="0.00"
-                subValue="0.00 average rating"
+                value={`${Number(courseStats?.summary?.averageRatingThisMonth || 0).toFixed(2)}`}
+                subValue={`${Number(courseStats?.summary?.averageRating || 0).toFixed(2)} average ratings`}
                 active={tab === 'rating'}
                 onClick={() => handleTabClick('rating')}
               />
@@ -187,12 +188,22 @@ function CourseOverviewPage() {
                   Loading...
                 </Typography>
               ) : (
-                <LineChartWidget
-                  data={courseStats?.stats?.data || []}
-                  metric={getMetricLabel(courseStats?.stats?.metric)}
-                  aggregationLevel={courseStats?.stats?.aggregationLevel}
-                  height={440}
-                />
+              <>
+                {(tab === "enrollment" || tab === "revenue") ? (
+                  <LineChartWidget
+                    data={courseStats?.stats?.data || []}
+                    metric={getMetricLabel(courseStats?.stats?.metric)}
+                    aggregationLevel={courseStats?.stats?.aggregationLevel}
+                    height={440}
+                  />
+                ) : (
+                  <BarChartWidget
+                    data={courseStats?.stats?.data || []}
+                    metric={getMetricLabel(courseStats?.stats?.metric)}
+                    height={440}
+                  />
+                )}
+              </>
               )}
             </Box>
 

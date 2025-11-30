@@ -1128,7 +1128,7 @@ export class CoursesClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    createCourse(command: CreateCourseCommand | undefined): Promise<void> {
+    createCourse(command: CreateCourseCommand | undefined): Promise<ReturnResultOfCreatedCourseDto> {
         let url_ = this.baseUrl + "/api/Courses";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1139,6 +1139,7 @@ export class CoursesClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
@@ -1147,20 +1148,23 @@ export class CoursesClient {
         });
     }
 
-    protected processCreateCourse(response: Response): Promise<void> {
+    protected processCreateCourse(response: Response): Promise<ReturnResultOfCreatedCourseDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCreatedCourseDto.fromJS(resultData200);
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<ReturnResultOfCreatedCourseDto>(null as any);
     }
 
     updateCourse(command: UpdateCourseCommand | undefined): Promise<void> {
@@ -3898,6 +3902,82 @@ export class LastAccessedItemDto implements ILastAccessedItemDto {
 export interface ILastAccessedItemDto {
     itemId?: string | undefined;
     routeType?: string | undefined;
+}
+
+export class ReturnResultOfCreatedCourseDto implements IReturnResultOfCreatedCourseDto {
+    result?: CreatedCourseDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCreatedCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CreatedCourseDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCreatedCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCreatedCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCreatedCourseDto {
+    result?: CreatedCourseDto | undefined;
+    message?: string | undefined;
+}
+
+export class CreatedCourseDto implements ICreatedCourseDto {
+    id?: number;
+
+    constructor(data?: ICreatedCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): CreatedCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatedCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface ICreatedCourseDto {
+    id?: number;
 }
 
 export class CreateCourseCommand implements ICreateCourseCommand {

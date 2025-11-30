@@ -142,6 +142,7 @@ function CourseCard({ course }) {
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
               textOverflow: "ellipsis",
+              height: "2.6em",
             }}
           >
             {title}

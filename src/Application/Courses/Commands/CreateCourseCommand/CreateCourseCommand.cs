@@ -15,7 +15,7 @@ using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Courses;
 
 namespace Edunary.Application.Courses.Commands.CreateCourse;
-public record CreateCourseCommand : IRequest<Result>
+public record CreateCourseCommand : IRequest<ReturnResult<CreatedCourseDto>>
 {
     public string Title { get; init; }
  
@@ -24,7 +24,7 @@ public record CreateCourseCommand : IRequest<Result>
     public float Price { get; init; }
 }
 
-public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, Result>
+public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, ReturnResult<CreatedCourseDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -36,7 +36,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
 
     }
 
-    public async Task<Result> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
+    public async Task<ReturnResult<CreatedCourseDto>> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
     {
 
         try
@@ -74,12 +74,25 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
 
             if(result > 0)
             {
-                return Result.Success(dto, "Course created successfully");
+                return new ReturnResult<CreatedCourseDto>
+                {
+                    Result = dto,
+                    Message = "Course created successfully"
+                };
+
             }
-            return Result.Failure("course create unsuccessfully");
+            return new ReturnResult<CreatedCourseDto>
+            {
+                Result = null,
+                Message = "Course creation failed"
+            };
         }
-        catch (Exception ex) { 
-            return Result.Failure($"An unexpected error occurred while creating course: {ex.Message}");
+        catch (Exception ex) {
+            return new ReturnResult<CreatedCourseDto>
+            {
+                Result = null,
+                Message = $"An unexpected error occurred while creating course: {ex.Message}"
+            };
         }
 
     }

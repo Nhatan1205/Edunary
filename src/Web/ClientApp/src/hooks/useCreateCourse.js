@@ -16,10 +16,17 @@ const useCreateCourse = () => {
 
       return await coursesClient.createCourse(command);
     },
-    onSuccess: () => {
-      toast.success("Course created successfully!");
-      queryClient.invalidateQueries(["courses"]);
-      navigate("/instructor/courses", { replace: true });
+    onSuccess: (response) => {
+      const courseId = response?.result?.id;
+      if (courseId) {
+        toast.success("Course created successfully!");
+        queryClient.invalidateQueries(["courses"]);
+        navigate(`/instructor/course/${courseId}/manage/basics`, { replace: true });
+      }
+      else {
+        navigate(`/instructor/courses`, { replace: true });
+      }
+
     },
     onError: (error) => {
       const msg =

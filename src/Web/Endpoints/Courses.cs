@@ -38,14 +38,9 @@ public class Courses : EndpointGroupBase
         
     }
 
-    public async Task<IResult> CreateCourse(ISender sender, CreateCourseCommand command)
+    public async Task<ReturnResult<CreatedCourseDto>> CreateCourse(ISender sender, CreateCourseCommand command)
     {
-        var result = await sender.Send(command);
-        if(!result.Succeeded)
-        {
-            return Results.BadRequest(result);
-        }
-        return Results.Ok(result);
+        return await sender.Send(command);
     }
 
     public async Task<IResult> UpdateCourse(ISender sender, [FromBody] UpdateCourseCommand command)

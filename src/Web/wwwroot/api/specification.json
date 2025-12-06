@@ -961,7 +961,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfCreatedCourseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2721,6 +2728,34 @@
           "routeType": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "ReturnResultOfCreatedCourseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CreatedCourseDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatedCourseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

@@ -7,13 +7,19 @@ import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import { usePopover } from '../../../../context/PopoverContext';
 import { useRef } from 'react';
 import { getPopoverOrigin } from '../../../../utils/getPopoverOrigin';
-import { Link as RouterLink } from "react-router";
+import { Link as RouterLink, useNavigate } from "react-router";
 import CoursePopoverMin from '../../../../components/course-popover/CoursePopoverMin';
+import { useAddToCart } from '../../../../hooks/useAddToCart';
+import { useAuth } from '../../../../context/AuthContext';
+import LoadingSpinner from '../../../../components/LoadingSpinner';
 
 export default function SearchCourseCard({ course }) {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const cardRef = useRef(null);
+  const { addToCart, loading: addingToCart } = useAddToCart();
+  const { isAuthenticated } = useAuth();
   const {
       anchorEl,
       isPopoverActive,
@@ -22,6 +28,7 @@ export default function SearchCourseCard({ course }) {
       handlePopoverMouseEnter,
       handlePopoverMouseLeave,
     } = usePopover();
+  
 
   const isThisPopoverActive = isPopoverActive(course.id);
   const open = Boolean(anchorEl) && isThisPopoverActive;
@@ -31,6 +38,16 @@ export default function SearchCourseCard({ course }) {
   }
 
   const popoverOrigins = getPopoverOrigin(isMobile, cardRef);
+
+  const handleAddToCart = async (event,course) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    await addToCart(course.id);
+  };
 
   return (
     <>
@@ -156,17 +173,26 @@ export default function SearchCourseCard({ course }) {
           <Box>
             <Button
               variant="outlines"
+              onClick={(e) => handleAddToCart(e, course)}
+              disabled={addingToCart}
               sx={{
+                minWidth: 120,
                 border: "2px solid",
-                borderColor: "brand.main",
+                borderColor: "brand.dark",
                 fontWeight: "600",
-                color: "brand.main",
+                color: "brand.dark",
                 "&:hover": {
-                  backgroundColor: "background.muted",
+                  backgroundColor: "brand.light",
                 },
               }}
             >
-              Add to cart
+              {addingToCart ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <LoadingSpinner size={24} />
+                </Box>
+              ) : (
+                "Add to cart"
+              )}
             </Button>
           </Box>
         </Box>

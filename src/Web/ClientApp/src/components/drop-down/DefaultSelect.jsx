@@ -15,16 +15,21 @@ function DefaultSelect({ data, value = [], onChange, defaultLabel = "All" }) {
         displayEmpty
         renderValue={() => value[0]?.label || defaultLabel}
         MenuProps={{
-          PaperProps: { sx: { mt: 1, borderRadius: "8px" } },
+          // disablePortal: true,
+          PaperProps: { sx: { mt: 1, borderRadius: "8px",maxHeight: 600 } },
           anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
           transformOrigin: { vertical: 'top', horizontal: 'left' },
           MenuListProps: { sx: { "& .MuiMenuItem-root.Mui-selected": { backgroundColor: "transparent !important" } } },
         }}
         sx={{
-          borderRadius: "24px",
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#858585" },
-          "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#858585" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#858585" },
+          borderRadius: "6px",
+          minWidth: 100, 
+          fontSize: '0.9rem',
+          color: 'brand.dark',
+          fontWeight: 600,
+          "& .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
+          "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
         }}
       >
         {data.map(item => (
@@ -33,7 +38,7 @@ function DefaultSelect({ data, value = [], onChange, defaultLabel = "All" }) {
             value={item.value}
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <strong>{item.label}</strong>
+            {item.label}
           </MenuItem>
         ))}
       </Select>

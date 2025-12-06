@@ -24,6 +24,7 @@ const NAVIGATION = [
   {
     title: "Courses",
     icon: <DevicesIcon />,
+    expanded: true,
     children: [
       {
         segment: "instructor/courses",
@@ -42,6 +43,7 @@ const NAVIGATION = [
     segment: "instructor/communication",
     title: "Communication",
     icon: <ChatIcon />,
+    expanded: true,
     children: [
       {
         segment: "qna",
@@ -66,12 +68,13 @@ const NAVIGATION = [
     ],
   },
   {
-    segment: "performance",
+    segment: "instructor/performance",
     title: "Performance",
     icon: <BarChartIcon />,
+    expanded: true,
     children: [
       {
-        segment: "overview",
+        segment: "overview/revenue",
         title: "Overview",
         icon: <BarChartIcon />,
       },

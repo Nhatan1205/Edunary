@@ -32,6 +32,7 @@ import VideoPlayerPage from "./features/user/course-learn/video-player/VideoPlay
 import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer";
 import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
+import OverviewPage from "./features/instructor/performance-section/overview-page/CourseOverviewPage";
 import PolicyPage from "./features/guest/policy-page/PolicyPage";
 import AnnouncementsPage from "./features/instructor/communication-section/announcements-page/AnnouncementsPage";
 import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
@@ -162,12 +163,28 @@ const router = createBrowserRouter([
         element: <CoursesListPage />,
       },
       {
+        path: "performance",
+        children: [
+          {
+            index: true,
+            element: <Navigate to="overview/revenue" replace />,
+          },
+          {
+            path: "overview",
+            element: <Navigate to="revenue" replace />,
+          },
+          {
+            path: "overview/:tab",
+            element: <OverviewPage />,
+          }
+        ],
+      },
+      {
         path: "communication",
         children: [
           {
             index: true,
             element: <Navigate to="/instructor/communication/announcements" replace />,
-
           },
           {
             path: "announcements",
@@ -181,7 +198,7 @@ const router = createBrowserRouter([
             path: "announcements/:announcementId/edit",
             element: <AnnouncementEditPage />,
           }
-        ]
+        ],
       }
     ],
   },

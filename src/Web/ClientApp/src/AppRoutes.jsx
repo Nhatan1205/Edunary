@@ -38,6 +38,7 @@ import AnnouncementsPage from "./features/instructor/communication-section/annou
 import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
 import AnnouncementEditPage from "./features/instructor/communication-section/announcements-page/announcements-edit-page.jsx/AnnouncementEditPage";
 import CourseInitialRedirect from "./features/user/my-learning/CourseInitialRedirect";
+import NotFound from "./components/NotFound";
 
 const router = createBrowserRouter([
   {
@@ -277,6 +278,10 @@ const router = createBrowserRouter([
         element: <QuizPlayerPage />,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 

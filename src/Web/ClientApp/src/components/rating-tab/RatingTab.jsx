@@ -28,7 +28,7 @@ function RatingTab({ courseId }) {
       rating: item.rating,
       modifiedAt: item.lastModified || item.created,
       content: item.review || "",
-      avatar: item.avatar,
+      avatar: item.userAvatar,
     }));
   }, [ratingsData]);
 

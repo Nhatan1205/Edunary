@@ -23,6 +23,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     await app.InitialiseDatabaseAsync();
+    app.UseSwaggerUi(settings =>
+    {
+        settings.Path = "/api";
+        settings.DocumentPath = "/api/specification.json";
+    });
+    app.UseHangfireDashboard();
+    app.MapHangfireDashboard("/HangfireDashboard");
 }
 else
 {
@@ -36,11 +43,7 @@ app.UseStaticFiles();
 
 app.UseExceptionHandler(options => { });
 
-app.UseSwaggerUi(settings =>
-{
-    settings.Path = "/api";
-    settings.DocumentPath = "/api/specification.json";
-});
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(
@@ -54,8 +57,7 @@ app.MapFallbackToFile("index.html");
 
 app.MapEndpoints();
 
-app.UseHangfireDashboard();
-app.MapHangfireDashboard("/HangfireDashboard");
+
 
 app.Run();
 

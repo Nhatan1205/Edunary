@@ -45,7 +45,7 @@ function StepCourseCategory({ control, errors }) {
                   fontSize: "1rem",
                   padding: "12px",
                 }}
-                invalid={!!errors?.category}
+                invalid={!!errors?.categoryId}
               >
                 <option value="">-- Choose a category --</option>
                 {data?.items?.map((cat) => (
@@ -57,7 +57,7 @@ function StepCourseCategory({ control, errors }) {
             )}
           />
         </FormGroup>
-        {errors.category && (
+        {errors.categoryId && (
           <Typography
             sx={{
               color: "#d32f2f",
@@ -66,7 +66,7 @@ function StepCourseCategory({ control, errors }) {
               textAlign: "left",
             }}
           >
-            {errors.category.message}
+            {errors.categoryId.message}
           </Typography>
         )}
       </div>

@@ -10,7 +10,7 @@ public class DigitalOceanSettings
     public string AccessKey { get; set; }
     public string SecretKey { get; set; }
     public string SpaceName { get; set; }
-    public string Region { get; set; }
+    public string SpacesRegion { get; set; }
     public string Endpoint { get; set; }
     public string CDNEndpoint { get; set; }
 }

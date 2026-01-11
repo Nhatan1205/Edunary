@@ -12,7 +12,16 @@ public abstract class BasePage
 
     public async Task GotoAsync()
     {
-        Page = await Browser.NewPageAsync();
-        await Page.GotoAsync(PagePath);
+        //Page = await Browser.NewPageAsync();
+        //await Page.GotoAsync(PagePath);
+        if (Page == null)
+        {
+            Page = await Browser.NewPageAsync();
+        }
+
+        await Page.GotoAsync(PagePath, new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.Load
+        });
     }
 }

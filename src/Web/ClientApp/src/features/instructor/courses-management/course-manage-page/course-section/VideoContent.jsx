@@ -178,6 +178,27 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const handleVideoFileChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      
+      // Validate file type - only allow video formats
+      const validVideoTypes = [
+        'video/mp4',
+        'video/mpeg',
+        'video/quicktime',
+        'video/x-msvideo',
+        'video/x-ms-wmv',
+        'video/webm',
+        'video/ogg',
+        'video/3gpp',
+        'video/x-flv'
+      ];
+      
+      if (!validVideoTypes.includes(file.type) && !file.type.startsWith('video/')) {
+        setInfoMessage("Invalid file format. Please select a valid video file (MP4, AVI, MOV, WMV, WebM, etc.).");
+        setShowInfoDialog(true);
+        e.target.value = '';
+        return;
+      }
+      
       const maxSize = 512 * 1024 * 1024;
       
       if (file.size > maxSize) {
@@ -575,7 +596,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
 
       <InfoDialog
         open={showInfoDialog}
-        title="File Size Error"
+        title="File Size/Extension Error"
         message={infoMessage}
         onClose={() => setShowInfoDialog(false)}
       />

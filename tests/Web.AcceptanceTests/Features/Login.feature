@@ -1,6 +1,6 @@
 ﻿@Login
 Feature: Login
-    User can log in
+    User can log in through the web UI
 
 Scenario: User can log in with valid credentials
 	Given a logged out user

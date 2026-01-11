@@ -26,7 +26,11 @@ function StepCoursePrice({ register, errors }) {
           variant="outlined"
           {...register("price", {
             required: "Please enter a price",
-            validate: (value) => !isNaN(value) || "Price must be a number",
+            valueAsNumber: true,
+            validate: {
+              isNumber: (value) => !isNaN(value) || "Price must be a number",
+              nonNegative: (value) => value >= 0 || "Price cannot be negative",
+            },
           })}
           placeholder="Price of the course"
           slotProps={{
@@ -48,7 +52,7 @@ function StepCoursePrice({ register, errors }) {
           }}
         />
         {errors.price && (
-            <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
+          <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
             {errors.price.message}
           </AlertBox>
         )}

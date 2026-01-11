@@ -1,8 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
         <RootNamespace>Edunary.Web.AcceptanceTests</RootNamespace>
         <AssemblyName>Edunary.Web.AcceptanceTests</AssemblyName>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
     <ItemGroup>

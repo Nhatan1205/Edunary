@@ -10,18 +10,41 @@ public class GetHomepageCoursesQueryHandler : IRequestHandler<GetHomepageCourses
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IIdentityService _identityService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public GetHomepageCoursesQueryHandler(IApplicationDbContext context, IMapper mapper, IIdentityService identityService)
+    public GetHomepageCoursesQueryHandler(
+        IApplicationDbContext context, 
+        IMapper mapper, 
+        IIdentityService identityService,
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _identityService = identityService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<HomepageCoursesVm> Handle(GetHomepageCoursesQuery request, CancellationToken cancellationToken)
     {
+        var userId = _currentUserService?.UserId;
+        var enrolledCourseIds = new List<int>();
+        if (!string.IsNullOrEmpty(userId))
+        {
+            enrolledCourseIds = await _context.Enrollments
+                .Where(e => e.StudentId == userId)
+                .Select(e => e.CourseId)
+                .ToListAsync(cancellationToken);
+        }
+        //base query
+        var query = _context.Courses.AsQueryable();
+        //remove course that user has already bought
+        if (enrolledCourseIds.Any())
+        {
+            query = query.Where(c => !enrolledCourseIds.Contains(c.Id));
+        }
+
         // Popular courses
-        var popularCourses = await _context.Courses
+        var popularCourses = await query
             .OrderByDescending(c => c.TotalStudents)
             .ThenBy(c => c.Title)
             .Take(8)
@@ -29,7 +52,7 @@ public class GetHomepageCoursesQueryHandler : IRequestHandler<GetHomepageCourses
             .ToListAsync(cancellationToken);
 
         // New courses
-        var newCourses = await _context.Courses
+        var newCourses = await query
             .OrderByDescending(c => c.Created)
             .ThenBy(c => c.Title)
             .Take(4)
@@ -37,7 +60,7 @@ public class GetHomepageCoursesQueryHandler : IRequestHandler<GetHomepageCourses
             .ToListAsync(cancellationToken);
 
         // Top rated courses
-        var topRatedCourses = await _context.Courses
+        var topRatedCourses = await query
             .OrderByDescending(c => c.Ratings)
             .ThenBy(c => c.Title)
             .Take(8)

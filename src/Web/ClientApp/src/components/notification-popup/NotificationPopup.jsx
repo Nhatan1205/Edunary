@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Menu, Typography } from "@mui/material";
 import MessageCard from "./MessageCard";
-import useUpdateNotificationStatus from "../../hooks/useUpdateNoificationStatus";
+import useUpdateNotificationStatus from "../../hooks/useUpdateNotificationStatus";
 
 function NotificationPopup({
   open,

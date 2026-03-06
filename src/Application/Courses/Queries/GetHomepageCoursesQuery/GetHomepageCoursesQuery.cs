@@ -27,20 +27,11 @@ public class GetHomepageCoursesQueryHandler : IRequestHandler<GetHomepageCourses
     public async Task<HomepageCoursesVm> Handle(GetHomepageCoursesQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
-        var enrolledCourseIds = new List<int>();
+        var query = _context.Courses.AsQueryable();
+
         if (!string.IsNullOrEmpty(userId))
         {
-            enrolledCourseIds = await _context.Enrollments
-                .Where(e => e.StudentId == userId)
-                .Select(e => e.CourseId)
-                .ToListAsync(cancellationToken);
-        }
-        //base query
-        var query = _context.Courses.AsQueryable();
-        //remove course that user has already bought
-        if (enrolledCourseIds.Any())
-        {
-            query = query.Where(c => !enrolledCourseIds.Contains(c.Id));
+            query = query.Where(c => !_context.Enrollments.Any(e => e.StudentId == userId && e.CourseId == c.Id));
         }
 
         // Popular courses

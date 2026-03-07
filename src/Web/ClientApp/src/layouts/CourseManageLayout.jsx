@@ -1,7 +1,7 @@
 import { Divider, Paper } from "@mui/material";
 import CourseManageHeader from "../features/instructor/courses-management/course-manage-page/CourseManageHeader";
 import CourseManageSidebar from "../features/instructor/courses-management/course-manage-page/CourseManageSidebar";
-import { Outlet, useParams, useLocation } from "react-router";
+import { Outlet, useParams, useLocation, useNavigate } from "react-router";
 import { Col, Container, Row } from "reactstrap";
 import PageTitle from "../components/PageTitle";
 import { useMemo, useState, useEffect } from "react";
@@ -9,6 +9,13 @@ import { useMemo, useState, useEffect } from "react";
 function CourseManageLayout() {
   const [activeLabel, setActiveLabel] = useState("Course landing page");
   const { courseId } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!/^\d+$/.test(courseId)) {
+      navigate("/instructor/courses");
+    }
+  }, [courseId, navigate]);
   const location = useLocation();
   const sections = useMemo(
     () => [

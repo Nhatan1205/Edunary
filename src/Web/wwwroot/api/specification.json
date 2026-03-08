@@ -1431,7 +1431,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreatePaymentIntentDto"
+                  "$ref": "#/components/schemas/ReturnResultOfCreatePaymentIntentDto"
                 }
               }
             }
@@ -3707,6 +3707,24 @@
           "id": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "ReturnResultOfCreatePaymentIntentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CreatePaymentIntentDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

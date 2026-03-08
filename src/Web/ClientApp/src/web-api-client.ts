@@ -1661,7 +1661,7 @@ export class PaymentClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    createPaymentIntent(command: CreatePaymentIntentCommand | undefined): Promise<CreatePaymentIntentDto> {
+    createPaymentIntent(command: CreatePaymentIntentCommand | undefined): Promise<ReturnResultOfCreatePaymentIntentDto> {
         let url_ = this.baseUrl + "/api/Payment/create-payment-intent";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1681,7 +1681,7 @@ export class PaymentClient {
         });
     }
 
-    protected processCreatePaymentIntent(response: Response): Promise<CreatePaymentIntentDto> {
+    protected processCreatePaymentIntent(response: Response): Promise<ReturnResultOfCreatePaymentIntentDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -1689,7 +1689,7 @@ export class PaymentClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CreatePaymentIntentDto.fromJS(resultData200);
+            result200 = ReturnResultOfCreatePaymentIntentDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -1697,7 +1697,7 @@ export class PaymentClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<CreatePaymentIntentDto>(null as any);
+        return Promise.resolve<ReturnResultOfCreatePaymentIntentDto>(null as any);
     }
 
     confirmPayment(command: ConfirmPaymentCommand | undefined): Promise<ConfirmPaymentDto> {
@@ -5543,6 +5543,46 @@ export class UpdateNotificationStatusCommand implements IUpdateNotificationStatu
 
 export interface IUpdateNotificationStatusCommand {
     id?: number;
+}
+
+export class ReturnResultOfCreatePaymentIntentDto implements IReturnResultOfCreatePaymentIntentDto {
+    result?: CreatePaymentIntentDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCreatePaymentIntentDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CreatePaymentIntentDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCreatePaymentIntentDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCreatePaymentIntentDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCreatePaymentIntentDto {
+    result?: CreatePaymentIntentDto | undefined;
+    message?: string | undefined;
 }
 
 export class CreatePaymentIntentDto implements ICreatePaymentIntentDto {

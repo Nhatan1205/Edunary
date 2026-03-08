@@ -10,6 +10,7 @@ function RatingTab({ courseId }) {
   const [starFilter, setStarFilter] = useState(0);
   const [sortBy, setSortBy] = useState("newest");
   const [pageNumber, setPageNumber] = useState(1);
+  const [ratingsWithoutFilter, setRatingsWithoutFilter] = useState(null);
   const pageSize = 10;
 
   const { data: ratingsData, isLoading, error } = useGetRatingsByCourse(
@@ -53,6 +54,10 @@ function RatingTab({ courseId }) {
     setPageNumber(1);
   };
 
+  if (ratingsWithoutFilter === null && allRatings.length > 0) {
+    setRatingsWithoutFilter(allRatings);
+  }
+
   return (
     <Box>
       {isLoading ? (
@@ -65,7 +70,7 @@ function RatingTab({ courseId }) {
         </Box>
       ) : (
         <>
-          <RatingStatistics reviews={allRatings} />
+          <RatingStatistics reviews={ratingsWithoutFilter} />
           <ReviewsFilter
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}

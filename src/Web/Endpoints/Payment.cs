@@ -1,9 +1,10 @@
+using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Models;
+using Edunary.Application.Payments.Commands.ConfirmPaymentCommand;
+using Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
+using Edunary.Application.Payments.Queries.GetPaymentStatusQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
-using Edunary.Application.Payments.Commands.ConfirmPaymentCommand;
-using Edunary.Application.Payments.Queries.GetPaymentStatusQuery;
-using Edunary.Application.Common.Interfaces;
 
 namespace Edunary.Web.Endpoints;
 
@@ -20,16 +21,9 @@ public class Payment : EndpointGroupBase
             .MapGet(GetPaymentStatus, "payment-status/{paymentIntentId}");
     }
 
-    public async Task<CreatePaymentIntentDto> CreatePaymentIntent(ISender sender, CreatePaymentIntentCommand command)
+    public async Task<ReturnResult<CreatePaymentIntentDto>> CreatePaymentIntent(ISender sender, CreatePaymentIntentCommand command)
     {
-        var result = await sender.Send(command);
-        
-        if (!result.Succeeded)
-        {
-            throw new InvalidOperationException(result.Message);
-        }
-        
-        return (CreatePaymentIntentDto)result.Data;
+        return await sender.Send(command);   
     }
 
     public async Task<ConfirmPaymentDto> ConfirmPayment(ISender sender, ConfirmPaymentCommand command)

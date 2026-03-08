@@ -46,6 +46,12 @@ export default function CheckoutPage() {
         courseIds: courseIds
       })
 
+      if (!response?.result) {
+        toast.error(response?.message)
+        navigate("/")
+        return
+      }
+
       setClientSecret(response.clientSecret)
       setPaymentIntentId(response.paymentIntentId)
       

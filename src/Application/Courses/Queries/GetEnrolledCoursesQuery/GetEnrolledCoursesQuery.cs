@@ -1,6 +1,8 @@
+using System.Text.Json;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
+using Edunary.Application.CourseProgresses.Commands.UpdateCourseProgressCommand;
 
 namespace Edunary.Application.Courses.Queries.GetEnrolledCoursesQuery;
 public class GetEnrolledCoursesQuery : IRequest<PaginatedList<EnrolledCoursesDto>>
@@ -35,7 +37,55 @@ public class GetEnrolledCoursesQueryHandler : IRequestHandler<GetEnrolledCourses
             .ProjectTo<EnrolledCoursesDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
 
+        //get courses progress
+        var courseIds = courses.Items.Select(x => x.Id).ToList();
+        var progresses = await _context.CourseProgress
+            .Where(p => p.StudentId == userId && courseIds.Contains(p.CourseId))
+            .ToListAsync(cancellationToken);
+        
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
+        foreach (var course in courses.Items)
+        {
+            var progress = progresses.FirstOrDefault(x => x.CourseId == course.Id);
+
+            if (progress == null)
+            {
+                continue;
+            }
+
+            var content = JsonSerializer.Deserialize<CourseContentSchema>(progress.Progress, options);
+
+            if (content?.Contents == null)
+            {
+                continue;
+            }
+
+            int totalLectures = 0;
+            int completedLectures = 0;
+
+            foreach (var section in content.Contents)
+            {
+                foreach (var item in section.Items)
+                {
+                    if (item.Type == "lecture")
+                    {
+                        totalLectures++;
+
+                        if (item.IsCompleted)
+                            completedLectures++;
+                    }
+                }
+            }
+
+            course.TotalLectures = totalLectures;
+            course.CompletedLectures = completedLectures;
+        }
+
+        //get instructor name
         var instructorIds = courses.Items
             .Select(c => c.CreatedBy)
             .Where(id => !string.IsNullOrEmpty(id))

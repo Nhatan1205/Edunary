@@ -3009,6 +3009,14 @@
           "ratings": {
             "type": "number",
             "format": "float"
+          },
+          "totalLectures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completedLectures": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

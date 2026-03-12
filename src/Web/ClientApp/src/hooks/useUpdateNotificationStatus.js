@@ -10,14 +10,13 @@ const useUpdateNotificationStatus = () => {
   const notificationClient = new NotificationClient();
 
   return useMutation({
-    mutationFn: async (notificationData) => {
-      const command = new UpdateNotificationStatusCommand({
-        ...notificationData, // notificationData chỉ cần { id: number }
-      });
+    mutationFn: async (ids) => {
+
+      const command = new UpdateNotificationStatusCommand({ ids });
 
       return await notificationClient.updateNotificationStatus(command);
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       // toast.success("Notification status updated successfully!");
       queryClient.invalidateQueries(["notifications"]);
     },

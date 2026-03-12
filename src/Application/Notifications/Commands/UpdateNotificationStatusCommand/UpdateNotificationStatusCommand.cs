@@ -3,7 +3,7 @@ using Edunary.Application.Common.Interfaces;
 namespace Edunary.Application.Notifications.Commands.UpdateNotificationIsReadCommand;
 public class UpdateNotificationStatusCommand : IRequest<Result>
 {
-    public int Id { get; init; }
+    public List<int> Ids { get; init; } = new();
 }
 
 public class UpdateNotificationStatusCommandHandler : IRequestHandler<UpdateNotificationStatusCommand, Result>
@@ -18,15 +18,24 @@ public class UpdateNotificationStatusCommandHandler : IRequestHandler<UpdateNoti
     public async Task<Result> Handle(UpdateNotificationStatusCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
-        var entity = await _context.NotificationUsers
-            .Where(n => n.Id == request.Id && n.StudentId == userId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (entity == null)
+
+        var entities = await _context.NotificationUsers
+            .Where(n => request.Ids.Contains(n.Id) && n.StudentId == userId)
+            .ToListAsync(cancellationToken);
+
+        if (!entities.Any())
         {
-            return Result.Failure("Notification not found");
+            return Result.Failure("Notifications not found");
         }
-        entity.IsRead = true;
+
+        foreach (var entity in entities)
+        {
+            entity.IsRead = true;
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
-        return Result.Success("Notification marked as read successfully");
+
+        return Result.Success("Notifications marked as read successfully");
+
     }
 }

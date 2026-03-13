@@ -6,9 +6,9 @@ import {
     CardMedia,
     Typography,
 } from "@mui/material";
-import { getLevelLabel } from "../../../utils/helpers";
 import MetaChip from "../../../components/MetaChip";
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import DefaultImage from "../../../assets/images/default.jpg";
 
 export default function ProfileCourseCard({ course }) {
     return (
@@ -16,7 +16,8 @@ export default function ProfileCourseCard({ course }) {
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                border: "1px solid #d1d7dc",
+                border: "1px solid",
+                borderColor: "divider",
                 borderRadius: "8px",
                 boxShadow: "none",
                 cursor: "pointer",
@@ -24,22 +25,22 @@ export default function ProfileCourseCard({ course }) {
                 padding: 2,
                 height: "100%",
                 "&:hover": {
-                    backgroundColor: "#f7f9fa",
+                    backgroundColor: "background.muted",
                 },
             }}
         >
-            {/* 1. Image Area relative for Absolute Bestseller Badge */}
+            {/* Image */}
             <Box sx={{ position: "relative", mb: 2 }}>
                 <CardMedia
                     component="img"
                     height="160"
-                    image={course.imageUrl}
+                    image={course.imageUrl || DefaultImage}
                     alt={course.title}
                     sx={{ objectFit: "cover", borderRadius: "8px" }}
                 />
             </Box>
 
-            {/* 2. Content */}
+            {/* Content */}
             <CardContent
                 sx={{
                     display: "flex",
@@ -67,53 +68,43 @@ export default function ProfileCourseCard({ course }) {
                     {course.title}
                 </Typography>
 
-                <Typography
-                    variant="body2"
-                    sx={{
-                        color: "#6a6f73",
-                        fontSize: "14px",
-                        mb: 1,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                    }}
-                >
-                    {course.subtitle}
-                </Typography>
+                {course.subtitle && (
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            color: "text.secondary",
+                            fontSize: "14px",
+                            mb: 1.5,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                        }}
+                    >
+                        {course.subtitle}
+                    </Typography>
+                )}
 
-                <Typography
-                    variant="body2"
-                    sx={{
-                        color: "#6a6f73",
-                        fontSize: "12px",
-                        mb: 1.5,
-                    }}
-                >
-                    {course.instructorName}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 1, flexWrap: 'wrap' }}>
-                    <MetaChip
-                        label={"Bestseller"}
-                        backgroundColor={"#eceb98"}
-                        color={"#3d3c0a"}
-                        borderColor={"#eceb98"}
-                    />
-                    <MetaChip
-                        icon={<Star sx={{ color: '#b4690e !important  ' }} />}
-                        label={"4.5"}
-                    />
-                    <MetaChip
-                        icon={<PeopleAltOutlinedIcon />}
-                        label={"45"}
-                    />
-                    <MetaChip
-                        label={getLevelLabel(1)}
-                    />
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1.5, gap: 1, flexWrap: "wrap" }}>
+                    {course.ratings > 0 && (
+                        <MetaChip
+                            icon={<Star sx={{ color: "#b4690e !important" }} />}
+                            label={course.ratings.toFixed(1)}
+                        />
+                    )}
+                    {course.totalStudents > 0 && (
+                        <MetaChip
+                            icon={<PeopleAltOutlinedIcon />}
+                            label={course.totalStudents.toLocaleString()}
+                        />
+                    )}
+                    {course.level && (
+                        <MetaChip label={course.level} />
+                    )}
                 </Box>
 
                 {/* Price */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: "auto" }}>
                     <Typography
                         variant="h6"
                         sx={{
@@ -122,7 +113,7 @@ export default function ProfileCourseCard({ course }) {
                             color: "text.primary",
                         }}
                     >
-                        $ {course.price}
+                        {course.price === 0 ? "Free" : `$${course.price}`}
                     </Typography>
                 </Box>
             </CardContent>

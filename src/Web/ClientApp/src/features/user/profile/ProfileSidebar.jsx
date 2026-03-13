@@ -8,34 +8,21 @@ import {
   Typography,
 } from "@mui/material";
 import { NavLink, useLocation } from "react-router";
+import useGetBasicUserInfo from "../../../hooks/useGetBasicUserInfor";
+import AvatarImage from "../../../assets/images/avatar.jpg";
 
-const NAV_ITEMS = [
-  { label: "View public profile", path: "/" },
+const getNavItems = (userId) => [
+  { label: "View public profile", path: `/profile/${userId}`, external: true },
   { label: "Profile", path: "/user/profile" },
   { label: "Photo", path: "/user/photo" },
   { label: "Account Security", path: "/user/security" },
 ];
 
-// Mock user data
-const mockUser = {
-  name: "Phuc Lam",
-};
-
-function getInitials(name) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
 function ProfileSidebar() {
   const location = useLocation();
-
+  const { data: userInfo } = useGetBasicUserInfo();
   return (
     <Box sx={{ width: 230, flexShrink: 0 }}>
-      {/* Avatar & Name */}
       <Box
         sx={{
           display: "flex",
@@ -55,28 +42,29 @@ function ProfileSidebar() {
             bgcolor: "#1a1a1a",
             color: "#fff",
           }}
-        >
-          {getInitials(mockUser.name)}
-        </Avatar>
+          alt={userInfo?.fullName || "User"}
+          src={userInfo?.avatar || AvatarImage}
+        />
         <Typography
           variant="body1"
           fontWeight={600}
           align="center"
           sx={{ color: "text.primary" }}
         >
-          {mockUser.name}
+          {userInfo?.fullName || "User"}
         </Typography>
       </Box>
 
-      {/* Nav List */}
       <List disablePadding>
-        {NAV_ITEMS.map((item) => {
-          const isActive = location.pathname === item.path;
+        {getNavItems(userInfo?.userId).map((item) => {
+          const isActive = !item.external && location.pathname === item.path;
           return (
             <ListItemButton
               key={item.path}
-              component={NavLink}
-              to={item.path}
+              component={item.external ? "a" : NavLink}
+              {...(item.external
+                ? { href: item.path, target: "_blank", rel: "noopener noreferrer" }
+                : { to: item.path })}
               selected={isActive}
               sx={{
                 py: 0.75,
@@ -104,7 +92,7 @@ function ProfileSidebar() {
           );
         })}
       </List>
-    </Box>
+    </Box >
   );
 }
 

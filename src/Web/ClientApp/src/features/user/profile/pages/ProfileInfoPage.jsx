@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Container } from "reactstrap";
 import TextEditor from "../../../../components/TextEditor";
+import AlertBox from "../../../../components/AlertBox";
 import useGetBasicUserInfo from "../../../../hooks/useGetBasicUserInfor";
 import useUpdateUserInfo from "../../../../hooks/useUpdateUserInfo";
 
@@ -21,7 +22,19 @@ const textFieldSx = {
     "& .MuiOutlinedInput-root": {
         "&:hover fieldset": { borderColor: "brand.main" },
         "&.Mui-focused fieldset": { borderColor: "brand.main", borderWidth: "2px" },
+        pl: 0,
     },
+};
+
+const adornmentSx = {
+    alignSelf: "stretch",
+    maxHeight: "none",
+    height: "auto",
+    bgcolor: "grey.100",
+    borderRight: "1px solid",
+    borderColor: "divider",
+    px: 1.5,
+    mr: 1,
 };
 
 function ProfileInfoPage() {
@@ -42,16 +55,27 @@ function ProfileInfoPage() {
             biography: userInfo?.description ?? "",
             links: {
                 website: userInfo?.links?.website ?? "",
-                facebook: userInfo?.links?.facebook ?? "",
-                linkedin: userInfo?.links?.linkedin ?? "",
-                tiktok: userInfo?.links?.tiktok ?? "",
-                youtube: userInfo?.links?.youtube ?? "",
+                facebook: userInfo?.links?.facebook?.replace(/^facebook\.com\//, "") ?? "",
+                linkedin: userInfo?.links?.linkedin?.replace(/^linkedin\.com\//, "") ?? "",
+                twitter: userInfo?.links?.twitter?.replace(/^x\.com\//, "") ?? "",
+                youtube: userInfo?.links?.youtube?.replace(/^youtube\.com\//, "") ?? "",
             },
         },
     });
 
     const onSubmit = (data) => {
-        updateUserInfo(data);
+        const { links } = data;
+        const transformed = {
+            ...data,
+            links: {
+                website: links.website,
+                facebook: links.facebook ? `facebook.com/${links.facebook}` : "",
+                linkedin: links.linkedin ? `linkedin.com/${links.linkedin}` : "",
+                twitter: links.twitter ? `x.com/${links.twitter}` : "",
+                youtube: links.youtube ? `youtube.com/${links.youtube}` : "",
+            },
+        };
+        updateUserInfo(transformed);
     };
 
     if (isLoading) {
@@ -83,21 +107,41 @@ function ProfileInfoPage() {
                     {/* Full Name */}
                     <Box sx={{ mb: 1.5 }}>
                         <TextField
-                            {...register("fullName")}
+                            {...register("fullName", {
+                                required: "Full name is required",
+                            })}
                             fullWidth
                             placeholder="Full name"
+                            error={!!errors.fullName}
                             sx={textFieldSx}
                         />
+                        {errors.fullName && (
+                            <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
+                                {errors.fullName.message}
+                            </AlertBox>
+                        )}
                     </Box>
 
                     {/* Phone Number */}
                     <Box sx={{ mb: 1.5 }}>
                         <TextField
-                            {...register("phoneNumber")}
+                            {...register("phoneNumber", {
+                                required: "Phone number is required",
+                                pattern: {
+                                    value: /^[0-9]{10}$/,
+                                    message: "Please enter a valid phone number",
+                                },
+                            })}
                             fullWidth
                             placeholder="Phone number"
+                            error={!!errors.phoneNumber}
                             sx={textFieldSx}
                         />
+                        {errors.phoneNumber && (
+                            <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
+                                {errors.phoneNumber.message}
+                            </AlertBox>
+                        )}
                     </Box>
 
                     {/* Headline */}
@@ -156,12 +200,11 @@ function ProfileInfoPage() {
                 <Divider sx={{ my: 3 }} />
 
                 <Box>
-                    <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>
-                        Links:
-                    </Typography>
-
                     {/* Website */}
                     <Box sx={{ mb: 1.5 }}>
+                        <Typography variant="body2" fontWeight={700} sx={{ mb: 0.5 }}>
+                            Website
+                        </Typography>
                         <TextField
                             {...register("links.website")}
                             fullWidth
@@ -171,7 +214,10 @@ function ProfileInfoPage() {
                     </Box>
 
                     {/* Facebook */}
-                    <Box sx={{ mb: 0.5 }}>
+                    <Box sx={{ mb: 1.5 }}>
+                        <Typography variant="body2" fontWeight={700} sx={{ mb: 0.5 }}>
+                            Facebook
+                        </Typography>
                         <TextField
                             {...register("links.facebook")}
                             fullWidth
@@ -179,7 +225,7 @@ function ProfileInfoPage() {
                             slotProps={{
                                 input: {
                                     startAdornment: (
-                                        <InputAdornment position="start">
+                                        <InputAdornment position="start" sx={adornmentSx}>
                                             <Typography variant="body2" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
                                                 facebook.com/
                                             </Typography>
@@ -190,12 +236,12 @@ function ProfileInfoPage() {
                             sx={textFieldSx}
                         />
                     </Box>
-                    <Typography variant="caption" sx={{ color: "brand.dark", mb: 1.5, display: "block" }}>
-                        Input your Facebook username (e.g. johnsmith).
-                    </Typography>
 
                     {/* LinkedIn */}
-                    <Box sx={{ mb: 0.5 }}>
+                    <Box sx={{ mb: 1.5 }}>
+                        <Typography variant="body2" fontWeight={700} sx={{ mb: 0.5 }}>
+                            LinkedIn
+                        </Typography>
                         <TextField
                             {...register("links.linkedin")}
                             fullWidth
@@ -203,7 +249,7 @@ function ProfileInfoPage() {
                             slotProps={{
                                 input: {
                                     startAdornment: (
-                                        <InputAdornment position="start">
+                                        <InputAdornment position="start" sx={adornmentSx}>
                                             <Typography variant="body2" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
                                                 linkedin.com/
                                             </Typography>
@@ -214,22 +260,22 @@ function ProfileInfoPage() {
                             sx={textFieldSx}
                         />
                     </Box>
-                    <Typography variant="caption" sx={{ color: "brand.dark", mb: 1.5, display: "block" }}>
-                        Input your LinkedIn public profile URL (e.g. in/johnsmith, company/Edunary).
-                    </Typography>
 
-                    {/* TikTok */}
-                    <Box sx={{ mb: 0.5 }}>
+                    {/* Twitter */}
+                    <Box sx={{ mb: 1.5 }}>
+                        <Typography variant="body2" fontWeight={700} sx={{ mb: 0.5 }}>
+                            X (Twitter)
+                        </Typography>
                         <TextField
-                            {...register("links.tiktok")}
+                            {...register("links.twitter")}
                             fullWidth
-                            placeholder="@Username"
+                            placeholder="Username"
                             slotProps={{
                                 input: {
                                     startAdornment: (
-                                        <InputAdornment position="start">
+                                        <InputAdornment position="start" sx={adornmentSx}>
                                             <Typography variant="body2" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
-                                                tiktok.com/
+                                                x.com/
                                             </Typography>
                                         </InputAdornment>
                                     ),
@@ -238,12 +284,12 @@ function ProfileInfoPage() {
                             sx={textFieldSx}
                         />
                     </Box>
-                    <Typography variant="caption" sx={{ color: "brand.dark", mb: 1.5, display: "block" }}>
-                        Input your TikTok username (e.g. @johnsmith).
-                    </Typography>
 
                     {/* YouTube */}
-                    <Box sx={{ mb: 0.5 }}>
+                    <Box sx={{ mb: 1.5 }}>
+                        <Typography variant="body2" fontWeight={700} sx={{ mb: 0.5 }}>
+                            YouTube
+                        </Typography>
                         <TextField
                             {...register("links.youtube")}
                             fullWidth
@@ -251,7 +297,7 @@ function ProfileInfoPage() {
                             slotProps={{
                                 input: {
                                     startAdornment: (
-                                        <InputAdornment position="start">
+                                        <InputAdornment position="start" sx={adornmentSx}>
                                             <Typography variant="body2" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
                                                 youtube.com/
                                             </Typography>
@@ -262,9 +308,6 @@ function ProfileInfoPage() {
                             sx={textFieldSx}
                         />
                     </Box>
-                    <Typography variant="caption" sx={{ color: "brand.dark", mb: 1.5, display: "block" }}>
-                        Input your Youtube username (e.g. johnsmith).
-                    </Typography>
                 </Box>
 
                 <Box sx={{ mt: 3 }}>

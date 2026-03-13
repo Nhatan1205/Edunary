@@ -2,6 +2,7 @@
 using Edunary.Application.Users.Commands.CreateUserCommand;
 using Edunary.Application.Users.Commands.UpdateUserInfoCommand;
 using Edunary.Application.Users.Queries.GetBasicUserInfoQuery;
+using Edunary.Application.Users.Queries.GetPublicUserInfoQuery;
 using Microsoft.AspNetCore.Http.HttpResults;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -17,6 +18,9 @@ public class User : EndpointGroupBase
             .MapPut(UpdateUserInfo)
             .MapGet(GetBasicInfo, "basic-info")
             .MapPost(ChangePassword, "change-password");
+        //public endpoint
+        app.MapGroup(this)
+            .MapGet(GetPublicUserInfo);
 
     }
     public async Task<IResult> Create(ISender sender, CreateUserCommand command)
@@ -56,5 +60,10 @@ public class User : EndpointGroupBase
             return Results.BadRequest(result);
         }
         return Results.Ok(result);
+    }
+
+    public async Task<PublicProfileDto> GetPublicUserInfo(ISender sender, [AsParameters] GetPublicUserInfoQuery query)
+    {
+        return await sender.Send(query);
     }
 }

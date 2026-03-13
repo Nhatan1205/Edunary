@@ -1519,6 +1519,52 @@ export class CoursesClient {
         }
         return Promise.resolve<GetPublicCourseByIdDto>(null as any);
     }
+
+    getPublicCoursesByUserId(userId: string | null, pageNumber: number, pageSize: number): Promise<PaginatedListOfPublicCoursesByUserIdDto> {
+        let url_ = this.baseUrl + "/api/Courses/public/user/{userId}?";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPublicCoursesByUserId(_response);
+        });
+    }
+
+    protected processGetPublicCoursesByUserId(response: Response): Promise<PaginatedListOfPublicCoursesByUserIdDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfPublicCoursesByUserIdDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfPublicCoursesByUserIdDto>(null as any);
+    }
 }
 
 export class EnrollmentClient {
@@ -2357,6 +2403,43 @@ export class UserClient {
             });
         }
         return Promise.resolve<void>(null as any);
+    }
+
+    getPublicUserInfo(id: string | null | undefined): Promise<PublicProfileDto> {
+        let url_ = this.baseUrl + "/api/User?";
+        if (id !== undefined && id !== null)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPublicUserInfo(_response);
+        });
+    }
+
+    protected processGetPublicUserInfo(response: Response): Promise<PublicProfileDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PublicProfileDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PublicProfileDto>(null as any);
     }
 
     getBasicInfo(): Promise<UserVm> {
@@ -5396,6 +5479,142 @@ export interface IGetPublicCourseByIdDto {
     instructorAvatar?: string | undefined;
 }
 
+export class PaginatedListOfPublicCoursesByUserIdDto implements IPaginatedListOfPublicCoursesByUserIdDto {
+    items?: PublicCoursesByUserIdDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfPublicCoursesByUserIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(PublicCoursesByUserIdDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfPublicCoursesByUserIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfPublicCoursesByUserIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfPublicCoursesByUserIdDto {
+    items?: PublicCoursesByUserIdDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    price?: number;
+    imageUrl?: string | undefined;
+    level?: string | undefined;
+    topic?: string | undefined;
+    ratings?: number;
+    totalStudents?: number;
+    createdBy?: string | undefined;
+
+    constructor(data?: IPublicCoursesByUserIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.price = _data["price"];
+            this.imageUrl = _data["imageUrl"];
+            this.level = _data["level"];
+            this.topic = _data["topic"];
+            this.ratings = _data["ratings"];
+            this.totalStudents = _data["totalStudents"];
+            this.createdBy = _data["createdBy"];
+        }
+    }
+
+    static fromJS(data: any): PublicCoursesByUserIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PublicCoursesByUserIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["price"] = this.price;
+        data["imageUrl"] = this.imageUrl;
+        data["level"] = this.level;
+        data["topic"] = this.topic;
+        data["ratings"] = this.ratings;
+        data["totalStudents"] = this.totalStudents;
+        data["createdBy"] = this.createdBy;
+        return data;
+    }
+}
+
+export interface IPublicCoursesByUserIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    price?: number;
+    imageUrl?: string | undefined;
+    level?: string | undefined;
+    topic?: string | undefined;
+    ratings?: number;
+    totalStudents?: number;
+    createdBy?: string | undefined;
+}
+
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {
     isEnrolled?: boolean;
     enrollmentDate?: Date | undefined;
@@ -6767,7 +6986,7 @@ export class UserLinksDto implements IUserLinksDto {
     website?: string | undefined;
     facebook?: string | undefined;
     linkedin?: string | undefined;
-    tiktok?: string | undefined;
+    twitter?: string | undefined;
     youtube?: string | undefined;
 
     constructor(data?: IUserLinksDto) {
@@ -6784,7 +7003,7 @@ export class UserLinksDto implements IUserLinksDto {
             this.website = _data["website"];
             this.facebook = _data["facebook"];
             this.linkedin = _data["linkedin"];
-            this.tiktok = _data["tiktok"];
+            this.twitter = _data["twitter"];
             this.youtube = _data["youtube"];
         }
     }
@@ -6801,7 +7020,7 @@ export class UserLinksDto implements IUserLinksDto {
         data["website"] = this.website;
         data["facebook"] = this.facebook;
         data["linkedin"] = this.linkedin;
-        data["tiktok"] = this.tiktok;
+        data["twitter"] = this.twitter;
         data["youtube"] = this.youtube;
         return data;
     }
@@ -6811,7 +7030,7 @@ export interface IUserLinksDto {
     website?: string | undefined;
     facebook?: string | undefined;
     linkedin?: string | undefined;
-    tiktok?: string | undefined;
+    twitter?: string | undefined;
     youtube?: string | undefined;
 }
 
@@ -6917,6 +7136,78 @@ export class ChangePasswordCommand implements IChangePasswordCommand {
 export interface IChangePasswordCommand {
     oldPassword?: string | undefined;
     newPassword?: string | undefined;
+}
+
+export class PublicProfileDto implements IPublicProfileDto {
+    id?: string | undefined;
+    email?: string | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: UserLinksDto | undefined;
+    totalLearners?: number;
+    totalReviews?: number;
+
+    constructor(data?: IPublicProfileDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.email = _data["email"];
+            this.fullName = _data["fullName"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.avatar = _data["avatar"];
+            this.headline = _data["headline"];
+            this.description = _data["description"];
+            this.links = _data["links"] ? UserLinksDto.fromJS(_data["links"]) : <any>undefined;
+            this.totalLearners = _data["totalLearners"];
+            this.totalReviews = _data["totalReviews"];
+        }
+    }
+
+    static fromJS(data: any): PublicProfileDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PublicProfileDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["email"] = this.email;
+        data["fullName"] = this.fullName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["avatar"] = this.avatar;
+        data["headline"] = this.headline;
+        data["description"] = this.description;
+        data["links"] = this.links ? this.links.toJSON() : <any>undefined;
+        data["totalLearners"] = this.totalLearners;
+        data["totalReviews"] = this.totalReviews;
+        return data;
+    }
+}
+
+export interface IPublicProfileDto {
+    id?: string | undefined;
+    email?: string | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: UserLinksDto | undefined;
+    totalLearners?: number;
+    totalReviews?: number;
 }
 
 export class WeatherForecast implements IWeatherForecast {

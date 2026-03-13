@@ -1,26 +1,18 @@
+
 import { Controller, useForm } from "react-hook-form";
 import {
     Box,
     Button,
+    CircularProgress,
     Divider,
-    FormControl,
     InputAdornment,
-    InputLabel,
-    MenuItem,
-    Select,
     TextField,
     Typography,
 } from "@mui/material";
 import { Container } from "reactstrap";
 import TextEditor from "../../../../components/TextEditor";
-
-const LANGUAGE_OPTIONS = [
-    { value: "en", label: "English (US)" },
-    { value: "vi", label: "Tiếng Việt" },
-    { value: "ja", label: "Japanese" },
-    { value: "ko", label: "Korean" },
-    { value: "zh", label: "Chinese" },
-];
+import useGetBasicUserInfo from "../../../../hooks/useGetBasicUserInfor";
+import useUpdateUserInfo from "../../../../hooks/useUpdateUserInfo";
 
 const HEADLINE_MAX = 60;
 
@@ -33,6 +25,9 @@ const textFieldSx = {
 };
 
 function ProfileInfoPage() {
+    const { data: userInfo, isLoading } = useGetBasicUserInfo();
+    const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
+
     const {
         register,
         control,
@@ -40,25 +35,32 @@ function ProfileInfoPage() {
         watch,
         formState: { errors },
     } = useForm({
-        defaultValues: {
-            firstName: "",
-            lastName: "",
-            headline: "",
-            biography: "",
-            language: "en",
-            website: "",
-            facebook: "",
-            instagram: "",
-            linkedin: "",
-            tiktok: "",
-            x: "",
-            youtube: "",
+        values: {
+            fullName: userInfo?.fullName ?? "",
+            phoneNumber: userInfo?.phoneNumber ?? "",
+            headline: userInfo?.headline ?? "",
+            biography: userInfo?.description ?? "",
+            links: {
+                website: userInfo?.links?.website ?? "",
+                facebook: userInfo?.links?.facebook ?? "",
+                linkedin: userInfo?.links?.linkedin ?? "",
+                tiktok: userInfo?.links?.tiktok ?? "",
+                youtube: userInfo?.links?.youtube ?? "",
+            },
         },
     });
 
     const onSubmit = (data) => {
-        console.log(data);
+        updateUserInfo(data);
     };
+
+    if (isLoading) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                <CircularProgress sx={{ color: "brand.main" }} />
+            </Box>
+        );
+    }
 
     return (
         <Container className="py-2 px-0">
@@ -78,22 +80,22 @@ function ProfileInfoPage() {
                         Basics:
                     </Typography>
 
-                    {/* First Name */}
+                    {/* Full Name */}
                     <Box sx={{ mb: 1.5 }}>
                         <TextField
-                            {...register("firstName")}
+                            {...register("fullName")}
                             fullWidth
-                            placeholder="First name"
+                            placeholder="Full name"
                             sx={textFieldSx}
                         />
                     </Box>
 
-                    {/* Last Name */}
+                    {/* Phone Number */}
                     <Box sx={{ mb: 1.5 }}>
                         <TextField
-                            {...register("lastName")}
+                            {...register("phoneNumber")}
                             fullWidth
-                            placeholder="Last name"
+                            placeholder="Phone number"
                             sx={textFieldSx}
                         />
                     </Box>
@@ -126,7 +128,7 @@ function ProfileInfoPage() {
                         />
                     </Box>
                     <Typography variant="caption" sx={{ color: "text.secondary", mb: 2, display: "block" }}>
-                        Add a professional headline like, "Instructor at Udemy" or "Architect."
+                        Add a professional headline like, "Instructor at Edunary" or "Architect."
                     </Typography>
 
                     {/* Biography */}
@@ -149,25 +151,6 @@ function ProfileInfoPage() {
                     <Typography variant="caption" sx={{ color: "text.secondary", mb: 2, display: "block" }}>
                         Links and coupon codes are not permitted in this section.
                     </Typography>
-
-                    {/* Language */}
-                    <Box sx={{ mb: 1 }}>
-                        <Controller
-                            name="language"
-                            control={control}
-                            render={({ field }) => (
-                                <FormControl fullWidth sx={textFieldSx}>
-                                    <Select {...field}>
-                                        {LANGUAGE_OPTIONS.map((opt) => (
-                                            <MenuItem key={opt.value} value={opt.value}>
-                                                {opt.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            )}
-                        />
-                    </Box>
                 </Box>
 
                 <Divider sx={{ my: 3 }} />
@@ -180,7 +163,7 @@ function ProfileInfoPage() {
                     {/* Website */}
                     <Box sx={{ mb: 1.5 }}>
                         <TextField
-                            {...register("website")}
+                            {...register("links.website")}
                             fullWidth
                             placeholder="Website (http(s)://..)"
                             sx={textFieldSx}
@@ -190,7 +173,7 @@ function ProfileInfoPage() {
                     {/* Facebook */}
                     <Box sx={{ mb: 0.5 }}>
                         <TextField
-                            {...register("facebook")}
+                            {...register("links.facebook")}
                             fullWidth
                             placeholder="Username"
                             slotProps={{
@@ -211,34 +194,10 @@ function ProfileInfoPage() {
                         Input your Facebook username (e.g. johnsmith).
                     </Typography>
 
-                    {/* Instagram */}
-                    <Box sx={{ mb: 0.5 }}>
-                        <TextField
-                            {...register("instagram")}
-                            fullWidth
-                            placeholder="Username"
-                            slotProps={{
-                                input: {
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Typography variant="body2" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
-                                                instagram.com/
-                                            </Typography>
-                                        </InputAdornment>
-                                    ),
-                                },
-                            }}
-                            sx={textFieldSx}
-                        />
-                    </Box>
-                    <Typography variant="caption" sx={{ color: "brand.dark", mb: 1.5, display: "block" }}>
-                        Input your Instagram username (e.g. johnsmith).
-                    </Typography>
-
                     {/* LinkedIn */}
                     <Box sx={{ mb: 0.5 }}>
                         <TextField
-                            {...register("linkedin")}
+                            {...register("links.linkedin")}
                             fullWidth
                             placeholder="Public Profile URL"
                             slotProps={{
@@ -256,13 +215,13 @@ function ProfileInfoPage() {
                         />
                     </Box>
                     <Typography variant="caption" sx={{ color: "brand.dark", mb: 1.5, display: "block" }}>
-                        Input your LinkedIn public profile URL (e.g. in/johnsmith, company/udemy).
+                        Input your LinkedIn public profile URL (e.g. in/johnsmith, company/Edunary).
                     </Typography>
 
                     {/* TikTok */}
                     <Box sx={{ mb: 0.5 }}>
                         <TextField
-                            {...register("tiktok")}
+                            {...register("links.tiktok")}
                             fullWidth
                             placeholder="@Username"
                             slotProps={{
@@ -283,34 +242,10 @@ function ProfileInfoPage() {
                         Input your TikTok username (e.g. @johnsmith).
                     </Typography>
 
-                    {/* X (Twitter) */}
-                    <Box sx={{ mb: 0.5 }}>
-                        <TextField
-                            {...register("x")}
-                            fullWidth
-                            placeholder="Username"
-                            slotProps={{
-                                input: {
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Typography variant="body2" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
-                                                x.com/
-                                            </Typography>
-                                        </InputAdornment>
-                                    ),
-                                },
-                            }}
-                            sx={textFieldSx}
-                        />
-                    </Box>
-                    <Typography variant="caption" sx={{ color: "text.secondary", mb: 1.5, display: "block" }}>
-                        Add your X username (e.g. johnsmith).
-                    </Typography>
-
                     {/* YouTube */}
                     <Box sx={{ mb: 0.5 }}>
                         <TextField
-                            {...register("youtube")}
+                            {...register("links.youtube")}
                             fullWidth
                             placeholder="Username"
                             slotProps={{
@@ -337,6 +272,7 @@ function ProfileInfoPage() {
                         variant="contained"
                         type="submit"
                         size="large"
+                        disabled={isPending}
                         sx={{
                             width: "100px",
                             bgcolor: "brand.main",

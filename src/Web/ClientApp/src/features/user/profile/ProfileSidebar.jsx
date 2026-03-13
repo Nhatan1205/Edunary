@@ -68,8 +68,6 @@ function ProfileSidebar() {
         </Typography>
       </Box>
 
-      <Divider sx={{ mb: 0.5, borderColor: "divider", }} />
-
       {/* Nav List */}
       <List disablePadding>
         {NAV_ITEMS.map((item) => {

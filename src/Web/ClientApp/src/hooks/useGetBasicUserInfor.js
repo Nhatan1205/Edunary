@@ -7,14 +7,14 @@ import { useAuth } from '../context/AuthContext';
  * @returns {Object} React Query result with user data
  */
 const useGetBasicUserInfo = () => {
-  const { isAuthenticated } = useAuth(); 
+  const { isAuthenticated } = useAuth();
 
   return useQuery({
     queryKey: ['userInfo'],
     queryFn: async () => {
       const userClient = new UserClient();
       const result = await userClient.getBasicInfo();
-      
+
       if (!result) {
         throw new Error('Failed to fetch customer information');
       }
@@ -25,14 +25,17 @@ const useGetBasicUserInfo = () => {
         fullName: result.fullName,
         phoneNumber: result.phoneNumber,
         avatar: result.avatar,
+        headline: result.headline ?? '',
+        description: result.description ?? '',
+        links: result.links ?? {},
       };
       return userData;
     },
-    staleTime: Infinity,    
-    refetchOnMount: false,   
+    staleTime: Infinity,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    enabled: isAuthenticated, 
+    enabled: isAuthenticated,
   });
 };
 

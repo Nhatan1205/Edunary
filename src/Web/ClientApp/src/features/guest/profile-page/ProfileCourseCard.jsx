@@ -30,25 +30,6 @@ export default function ProfileCourseCard({ course }) {
         >
             {/* 1. Image Area relative for Absolute Bestseller Badge */}
             <Box sx={{ position: "relative", mb: 2 }}>
-                {course.isBestseller && (
-                    <Box
-                        sx={{
-                            position: "absolute",
-                            top: 8,
-                            left: 8,
-                            bgcolor: "#d6f5f3",
-                            color: "#0F2B2A",
-                            px: 1,
-                            py: 0.25,
-                            borderRadius: 1,
-                            fontWeight: 600,
-                            fontSize: "0.75rem",
-                            zIndex: 1,
-                        }}
-                    >
-                        Bestseller
-                    </Box>
-                )}
                 <CardMedia
                     component="img"
                     height="160"

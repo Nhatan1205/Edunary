@@ -2324,6 +2324,41 @@ export class UserClient {
         return Promise.resolve<void>(null as any);
     }
 
+    updateUserInfo(command: UpdateUserInfoCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/User";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateUserInfo(_response);
+        });
+    }
+
+    protected processUpdateUserInfo(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     getBasicInfo(): Promise<UserVm> {
         let url_ = this.baseUrl + "/api/User/basic-info";
         url_ = url_.replace(/[?&]$/, "");
@@ -6676,12 +6711,119 @@ export interface ICreateUserCommand {
     fullName?: string | undefined;
 }
 
+export class UpdateUserInfoCommand implements IUpdateUserInfoCommand {
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: UserLinksDto | undefined;
+
+    constructor(data?: IUpdateUserInfoCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fullName = _data["fullName"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.headline = _data["headline"];
+            this.description = _data["description"];
+            this.links = _data["links"] ? UserLinksDto.fromJS(_data["links"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UpdateUserInfoCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserInfoCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fullName"] = this.fullName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["headline"] = this.headline;
+        data["description"] = this.description;
+        data["links"] = this.links ? this.links.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUpdateUserInfoCommand {
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: UserLinksDto | undefined;
+}
+
+export class UserLinksDto implements IUserLinksDto {
+    website?: string | undefined;
+    facebook?: string | undefined;
+    linkedin?: string | undefined;
+    tiktok?: string | undefined;
+    youtube?: string | undefined;
+
+    constructor(data?: IUserLinksDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.website = _data["website"];
+            this.facebook = _data["facebook"];
+            this.linkedin = _data["linkedin"];
+            this.tiktok = _data["tiktok"];
+            this.youtube = _data["youtube"];
+        }
+    }
+
+    static fromJS(data: any): UserLinksDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserLinksDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["website"] = this.website;
+        data["facebook"] = this.facebook;
+        data["linkedin"] = this.linkedin;
+        data["tiktok"] = this.tiktok;
+        data["youtube"] = this.youtube;
+        return data;
+    }
+}
+
+export interface IUserLinksDto {
+    website?: string | undefined;
+    facebook?: string | undefined;
+    linkedin?: string | undefined;
+    tiktok?: string | undefined;
+    youtube?: string | undefined;
+}
+
 export class UserVm implements IUserVm {
     id?: string | undefined;
     email?: string | undefined;
     fullName?: string | undefined;
     phoneNumber?: string | undefined;
     avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: UserLinksDto | undefined;
 
     constructor(data?: IUserVm) {
         if (data) {
@@ -6699,6 +6841,9 @@ export class UserVm implements IUserVm {
             this.fullName = _data["fullName"];
             this.phoneNumber = _data["phoneNumber"];
             this.avatar = _data["avatar"];
+            this.headline = _data["headline"];
+            this.description = _data["description"];
+            this.links = _data["links"] ? UserLinksDto.fromJS(_data["links"]) : <any>undefined;
         }
     }
 
@@ -6716,6 +6861,9 @@ export class UserVm implements IUserVm {
         data["fullName"] = this.fullName;
         data["phoneNumber"] = this.phoneNumber;
         data["avatar"] = this.avatar;
+        data["headline"] = this.headline;
+        data["description"] = this.description;
+        data["links"] = this.links ? this.links.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -6726,6 +6874,9 @@ export interface IUserVm {
     fullName?: string | undefined;
     phoneNumber?: string | undefined;
     avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: UserLinksDto | undefined;
 }
 
 export class ChangePasswordCommand implements IChangePasswordCommand {

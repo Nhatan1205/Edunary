@@ -26,7 +26,7 @@ function CourseOverviewPage() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { data: coursesData } =
-    useGetCoursesAuthor("",2,1,1000);
+    useGetCoursesAuthor("", 2, 1, 1000);
 
   const courseIdParam = searchParams.getAll("course_id")
     .map(val => {
@@ -82,27 +82,27 @@ function CourseOverviewPage() {
 
   return (
     <Container fluid>
-      <Box 
-        display="flex" 
-        justifyContent="flex-start" 
+      <Box
+        display="flex"
+        justifyContent="flex-start"
         alignItems="center"
-        flexDirection={{ xs: "column", md: "row" }} 
+        flexDirection={{ xs: "column", md: "row" }}
         mb={2}
         gap={4}
       >
-        <PageTitle 
-          title="Overview" 
-          subtitle="Get top insights about your performance" 
+        <PageTitle
+          title="Overview"
+          subtitle="Get top insights about your performance"
         />
 
         <DefaultSelect
           data={[
-              { label: "All courses", value: null },
-              ...(coursesData?.items?.map(course => ({
-                label: course.title,
-                value: course.id
-              })) || [])
-            ]}
+            { label: "All courses", value: null },
+            ...(coursesData?.items?.map(course => ({
+              label: course.title,
+              value: course.id
+            })) || [])
+          ]}
           value={courseIdParam}
           onChange={selected => updateQueryParam('course_id', selected)}
           defaultLabel="All courses"
@@ -110,9 +110,9 @@ function CourseOverviewPage() {
       </Box>
       <Row>
         <Col md={12}>
-          <Paper variant="outlined" sx={{ borderRadius: 0,mb:4, borderColor: '#d1d7dc',boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
-            
-            <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} sx={{px:2, gap:1}}>
+          <Paper variant="outlined" sx={{ borderRadius: 0, mb: 4, borderColor: '#d1d7dc', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+
+            <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} sx={{ px: 2, gap: 1 }}>
               <MetricTab
                 label="This month so far"
                 value={`$ 0`}
@@ -128,7 +128,7 @@ function CourseOverviewPage() {
                 active={tab === 'enrollment'}
                 onClick={() => handleTabClick('enrollment')}
               />
-               <MetricTab
+              <MetricTab
                 label="This month so far"
                 tooltip="Ratings are calculated from individual students' ratings and a variety of other signals, like age of rating and reliability, to ensure that they reflect course quality fairly and accurately."
                 value={`${Number(courseStats?.summary?.averageRatingThisMonth || 0).toFixed(2)}`}
@@ -140,11 +140,11 @@ function CourseOverviewPage() {
             <Divider />
 
             {/* Filter Bar */}
-            <Box 
-              p={2} 
-              display="flex" 
-              justifyContent="flex-end" 
-              alignItems="center" 
+            <Box
+              p={2}
+              display="flex"
+              justifyContent="flex-end"
+              alignItems="center"
               gap={2}
               mr={2}
             >
@@ -161,7 +161,7 @@ function CourseOverviewPage() {
                 variant="contained" 
                 endIcon={<KeyboardArrowDownIcon />}
                 sx={{ 
-                  backgroundColor: 'brand.main', // Udemy purple style
+                  backgroundColor: 'brand.main', // Edunary purple style
                   textTransform: 'none',
                   fontWeight: 700,
                   borderRadius: 0,
@@ -188,22 +188,22 @@ function CourseOverviewPage() {
                   Loading...
                 </Typography>
               ) : (
-              <>
-                {(tab === "enrollment" || tab === "revenue") ? (
-                  <LineChartWidget
-                    data={courseStats?.stats?.data || []}
-                    metric={getMetricLabel(courseStats?.stats?.metric)}
-                    aggregationLevel={courseStats?.stats?.aggregationLevel}
-                    height={440}
-                  />
-                ) : (
-                  <BarChartWidget
-                    data={courseStats?.stats?.data || []}
-                    metric={getMetricLabel(courseStats?.stats?.metric)}
-                    height={440}
-                  />
-                )}
-              </>
+                <>
+                  {(tab === "enrollment" || tab === "revenue") ? (
+                    <LineChartWidget
+                      data={courseStats?.stats?.data || []}
+                      metric={getMetricLabel(courseStats?.stats?.metric)}
+                      aggregationLevel={courseStats?.stats?.aggregationLevel}
+                      height={440}
+                    />
+                  ) : (
+                    <BarChartWidget
+                      data={courseStats?.stats?.data || []}
+                      metric={getMetricLabel(courseStats?.stats?.metric)}
+                      height={440}
+                    />
+                  )}
+                </>
               )}
             </Box>
 

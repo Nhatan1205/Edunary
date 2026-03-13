@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Edunary.Application.Common.Interfaces;
@@ -12,11 +13,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using Microsoft.IdentityModel.Protocols; 
 using Microsoft.IdentityModel.Protocols.OpenIdConnect; 
-using System.Net.Http; 
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace Edunary.Infrastructure.Identity;
 
@@ -78,13 +78,15 @@ public class IdentityService : IIdentityService
         try
         {
             IdentityResult result;
+            var avatarUrl = string.IsNullOrWhiteSpace(avatar)
+                ? $"https://ui-avatars.com/api/?name={WebUtility.UrlEncode(fullName.Trim())}&background=random" : avatar;
             var user = new ApplicationUser
             {
                 UserName = userName,
                 PhoneNumber = phoneNumber,
                 Email = email,
                 FullName = fullName,
-                Avatar = avatar,
+                Avatar = avatarUrl,
             };
             if (!string.IsNullOrEmpty(password))
             {
@@ -221,6 +223,9 @@ public class IdentityService : IIdentityService
                     FullName = user.FullName,
                     Password = user.PasswordHash,
                     Roles = listRoleUser,
+                    Description = user.Description,
+                    Headline = user.Headline,
+                    Links = user.Links
                 };
 
                 if (!user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.Now)
@@ -241,6 +246,28 @@ public class IdentityService : IIdentityService
         }
 
         return userModel;
+    }
+
+    public async Task<Result> UpdateUserAsync(UserModel model)
+    {
+        var user = await _userManager.FindByIdAsync(model.Id);
+        if (user == null)
+        {
+            return Result.Failure("User not found.");
+        }
+
+        user.FullName = model.FullName;
+        user.PhoneNumber = model.PhoneNumber;
+        user.Headline = model.Headline;
+        user.Description = model.Description;
+        user.Links = model.Links;
+
+        var updateResult = await _userManager.UpdateAsync(user);
+        if (updateResult.Succeeded)
+        {
+            return Result.Success("User updated successfully.");
+        }
+        return Result.Failure("Update user failed");
     }
 
     public async Task<Result> Login(string userName, string passWord, AccountType accountType, bool? forceFirstLogin = null, string defaultPassword = null)

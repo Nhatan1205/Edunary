@@ -16,13 +16,15 @@ public interface IIdentityService
     Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password);
 
     Task<Result> DeleteUserAsync(string userId);
-    
+
+    Task<Result> UpdateUserAsync(UserModel model);
+
     Task<Result> Register(string userName, string phoneNumber, string email, string password, string fullName, string avatar = null);
     
     Task<bool> CheckUserNameExist(string userName);
     
     Task<UserModel> GetUserById(string userId);
-    
+
     Task<Result> Login(string userName, string passWord, AccountType accountType, bool? forceFirstLogin = null, string defaultPassword = null);
 
     Task<Result> RefreshToken();

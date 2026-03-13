@@ -1,0 +1,51 @@
+﻿using System.Text.Json;
+using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Models;
+using Edunary.Domain.Common;
+
+namespace Edunary.Application.Users.Commands.UpdateUserInfoCommand;
+public class UpdateUserInfoCommand : IRequest<Result>
+{
+    public string FullName { get; init; }
+    public string PhoneNumber { get; init; }
+    public string Headline { get; init; }
+    public string Description { get; init; }
+    public UserLinksDto Links { get; init; }
+}
+
+public class UpdateUserInfoCommandHandler : IRequestHandler<UpdateUserInfoCommand, Result>
+{
+    private readonly IApplicationDbContext _context;
+    private readonly IIdentityService _identityService;
+    private readonly ICurrentUserService _currentUserService;
+    public UpdateUserInfoCommandHandler(
+        IApplicationDbContext context,
+        IIdentityService identityService,
+        ICurrentUserService currentUserService)
+    {
+        _context = context;
+        _identityService = identityService;
+        _currentUserService = currentUserService;
+    }
+    public async Task<Result> Handle(UpdateUserInfoCommand request, CancellationToken cancellationToken)
+    {
+        var userId = _currentUserService.UserId;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Result.Failure("User not authenticated");
+        }
+
+        var userModel = new UserModel
+        {
+            Id = userId,
+            FullName = request.FullName,
+            PhoneNumber = request.PhoneNumber,
+            Headline = request.Headline,
+            Description = request.Description,
+            Links = JsonSerializer.Serialize(request.Links)
+        };
+
+        var result = await _identityService.UpdateUserAsync(userModel);
+        return result;
+    }
+}

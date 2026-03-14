@@ -521,7 +521,7 @@ function CourseCurriculum() {
           variant="contained"
           size="large"
           onClick={handleUpdateCourse}
-          disabled={isCourseDataLoading || isUpdating}
+          disabled={isCourseDataLoading || isUpdating || !hasUnsavedChanges}
           sx={{
             bgcolor: "brand.main",
             "&:hover": {

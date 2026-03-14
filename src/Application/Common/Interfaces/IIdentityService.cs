@@ -19,6 +19,8 @@ public interface IIdentityService
 
     Task<Result> UpdateUserAsync(UserModel model);
 
+    Task<Result> UpdateUserAvatarAsync(string avatarUrl, string userId);
+
     Task<Result> Register(string userName, string phoneNumber, string email, string password, string fullName, string avatar = null);
     
     Task<bool> CheckUserNameExist(string userName);

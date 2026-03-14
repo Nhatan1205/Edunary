@@ -2442,6 +2442,41 @@ export class UserClient {
         return Promise.resolve<PublicProfileDto>(null as any);
     }
 
+    updateUserAvatar(command: UpdateUserAvatarCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/User/avatar";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateUserAvatar(_response);
+        });
+    }
+
+    protected processUpdateUserAvatar(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     getBasicInfo(): Promise<UserVm> {
         let url_ = this.baseUrl + "/api/User/basic-info";
         url_ = url_.replace(/[?&]$/, "");
@@ -5375,10 +5410,9 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     categoryTitle?: string | undefined;
     ratings?: number;
     totalStudents?: number;
-    instructorName?: string | undefined;
     content?: string | undefined;
     lastModified?: Date;
-    instructorAvatar?: string | undefined;
+    instructor?: InstructorDto | undefined;
 
     constructor(data?: IGetPublicCourseByIdDto) {
         if (data) {
@@ -5410,10 +5444,9 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.categoryTitle = _data["categoryTitle"];
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
-            this.instructorName = _data["instructorName"];
             this.content = _data["content"];
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
-            this.instructorAvatar = _data["instructorAvatar"];
+            this.instructor = _data["instructor"] ? InstructorDto.fromJS(_data["instructor"]) : <any>undefined;
         }
     }
 
@@ -5445,10 +5478,9 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["categoryTitle"] = this.categoryTitle;
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
-        data["instructorName"] = this.instructorName;
         data["content"] = this.content;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
-        data["instructorAvatar"] = this.instructorAvatar;
+        data["instructor"] = this.instructor ? this.instructor.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -5473,10 +5505,53 @@ export interface IGetPublicCourseByIdDto {
     categoryTitle?: string | undefined;
     ratings?: number;
     totalStudents?: number;
-    instructorName?: string | undefined;
     content?: string | undefined;
     lastModified?: Date;
-    instructorAvatar?: string | undefined;
+    instructor?: InstructorDto | undefined;
+}
+
+export class InstructorDto implements IInstructorDto {
+    id?: string | undefined;
+    name?: string | undefined;
+    avatar?: string | undefined;
+
+    constructor(data?: IInstructorDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.avatar = _data["avatar"];
+        }
+    }
+
+    static fromJS(data: any): InstructorDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["avatar"] = this.avatar;
+        return data;
+    }
+}
+
+export interface IInstructorDto {
+    id?: string | undefined;
+    name?: string | undefined;
+    avatar?: string | undefined;
 }
 
 export class PaginatedListOfPublicCoursesByUserIdDto implements IPaginatedListOfPublicCoursesByUserIdDto {
@@ -7032,6 +7107,42 @@ export interface IUserLinksDto {
     linkedin?: string | undefined;
     twitter?: string | undefined;
     youtube?: string | undefined;
+}
+
+export class UpdateUserAvatarCommand implements IUpdateUserAvatarCommand {
+    imageUrl?: string | undefined;
+
+    constructor(data?: IUpdateUserAvatarCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageUrl = _data["imageUrl"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUserAvatarCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserAvatarCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageUrl"] = this.imageUrl;
+        return data;
+    }
+}
+
+export interface IUpdateUserAvatarCommand {
+    imageUrl?: string | undefined;
 }
 
 export class UserVm implements IUserVm {

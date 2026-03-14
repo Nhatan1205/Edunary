@@ -48,10 +48,9 @@ const CourseOverview = () => {
   const transformedCourseData = {
     ...courseData,
     category: courseData.categoryTitle || "Course",
-    instructor: courseData.targetAudience || "Instructor",
-    rating: 4.8, 
-    totalRatings: 156, 
-    originalPrice: courseData.price * 1.3, 
+    rating: 4.8,
+    totalRatings: 156,
+    originalPrice: courseData.price * 1.3,
     currentPrice: courseData.price,
     discount: 20,
     sections: 12,

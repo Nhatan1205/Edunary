@@ -2118,6 +2118,35 @@
         }
       }
     },
+    "/api/User/avatar": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "UpdateUserAvatar",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserAvatarCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/User/basic-info": {
       "get": {
         "tags": [
@@ -3728,10 +3757,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "instructorName": {
-            "type": "string",
-            "nullable": true
-          },
           "content": {
             "type": "string",
             "nullable": true
@@ -3740,7 +3765,29 @@
             "type": "string",
             "format": "date-time"
           },
-          "instructorAvatar": {
+          "instructor": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InstructorDto"
+              }
+            ]
+          }
+        }
+      },
+      "InstructorDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
             "type": "string",
             "nullable": true
           }
@@ -4453,6 +4500,16 @@
             "nullable": true
           },
           "youtube": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateUserAvatarCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "imageUrl": {
             "type": "string",
             "nullable": true
           }

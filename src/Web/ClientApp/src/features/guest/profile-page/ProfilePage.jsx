@@ -172,7 +172,7 @@ function ProfilePage() {
 
                     {/* Courses list */}
                     {isCoursesLoading || (coursesData?.items?.length > 0) ? (
-                        <Box sx={{ pb: { xs: 4, md: 5 } }}>
+                        <Box sx={{ pb: { xs: 4, md: 5 }, mt: 4 }}>
                             <Typography variant="h5" fontWeight={700} sx={{ color: "text.primary", mb: 3 }}>
                                 My courses {coursesData ? `(${coursesData.totalCount})` : ""}
                             </Typography>

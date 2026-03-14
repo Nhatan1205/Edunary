@@ -3,6 +3,12 @@ using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetPublicCourseById;
 
+public class InstructorDto
+{
+    public string Id { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+}
 public class GetPublicCourseByIdDto
 {
     public int Id { get; set; }
@@ -24,10 +30,9 @@ public class GetPublicCourseByIdDto
     public string CategoryTitle { get; set; } = null!;
     public float Ratings { get; set; }
     public int TotalStudents { get; set; }
-    public string InstructorName { get; set; } = null!;
     public string Content { get; set; } = null!;
     public DateTimeOffset LastModified { get; set; }
-    public string InstructorAvatar { get; set; } = null!;
+    public InstructorDto Instructor { get; set; } = null!;
 
     private class Mapping : Profile
     {
@@ -35,7 +40,7 @@ public class GetPublicCourseByIdDto
         {
             CreateMap<Course, GetPublicCourseByIdDto>()
                 .ForMember(dest => dest.CategoryTitle, opt => opt.MapFrom(src => src.Category.Title))
-                .ForMember(d => d.InstructorName, opt => opt.Ignore());
+                .ForMember(dest => dest.Instructor, opt => opt.Ignore());
         }
     }
 }

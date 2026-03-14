@@ -1,5 +1,6 @@
 ﻿using Edunary.Application.Users.Commands.ChangePasswordCommand;
 using Edunary.Application.Users.Commands.CreateUserCommand;
+using Edunary.Application.Users.Commands.UpdateUserAvatarCommand;
 using Edunary.Application.Users.Commands.UpdateUserInfoCommand;
 using Edunary.Application.Users.Queries.GetBasicUserInfoQuery;
 using Edunary.Application.Users.Queries.GetPublicUserInfoQuery;
@@ -16,6 +17,7 @@ public class User : EndpointGroupBase
             .RequireAuthorization()
             .MapPost(Create, "create")
             .MapPut(UpdateUserInfo)
+            .MapPut(UpdateUserAvatar, "avatar")
             .MapGet(GetBasicInfo, "basic-info")
             .MapPost(ChangePassword, "change-password");
         //public endpoint
@@ -43,6 +45,16 @@ public class User : EndpointGroupBase
         }
         return Results.Ok(result);
     }
+    public async Task<IResult> UpdateUserAvatar(ISender sender, UpdateUserAvatarCommand command)
+    {
+        var result = await sender.Send(command);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
+
 
     public async Task<UserVm> GetBasicInfo(ISender sender)
     {

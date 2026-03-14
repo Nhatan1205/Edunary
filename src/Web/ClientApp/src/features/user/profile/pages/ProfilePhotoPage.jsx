@@ -3,16 +3,22 @@ import {
   Box,
   Button,
   Paper,
-  TextField,
   Typography,
 } from "@mui/material";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Container } from "reactstrap";
 import { toast } from "react-toastify";
+import useUpdateUserAvatar from "../../../../hooks/useUpdateUserAvatar";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
+import useGetBasicUserInfo from "../../../../hooks/useGetBasicUserInfor";
 
 function ProfilePhotoPage() {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
-  const [fileName, setFileName] = useState("");
+
+  const { data: userInfo, isLoading: isLoadingUserInfo } = useGetBasicUserInfo();
+
+  const updateAvatarMutation = useUpdateUserAvatar();
+  const isSaving = updateAvatarMutation.isPending || updateAvatarMutation.isLoading;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -24,12 +30,10 @@ function ProfilePhotoPage() {
       return;
     }
 
-    if (file.size > 1 * 1024 * 1024) {
-      toast.error("Image size should be under 1MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be under 5MB.");
       return;
     }
-
-    setFileName(file.name);
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -43,8 +47,7 @@ function ProfilePhotoPage() {
       toast.warn("Please select an image first.");
       return;
     }
-    // TODO: call API to save photo
-    toast.success("Photo saved successfully!");
+    updateAvatarMutation.mutate(selectedImageUrl);
   };
 
   return (
@@ -86,15 +89,17 @@ function ProfilePhotoPage() {
               overflow: "hidden",
             }}
           >
-            {selectedImageUrl ? (
+            {isLoadingUserInfo ? (
+              <LoadingSpinner size={40} color="brand.main" />
+            ) : selectedImageUrl || userInfo?.avatar ? (
               <Box
                 component="img"
-                src={selectedImageUrl}
+                src={selectedImageUrl || userInfo?.avatar}
                 alt="Profile preview"
                 sx={{
                   width: "100%",
                   height: "100%",
-                  objectFit: "cover",
+                  objectFit: "contain",
                 }}
               />
             ) : (
@@ -112,11 +117,19 @@ function ProfilePhotoPage() {
           </Typography>
 
           <Box sx={{ display: "flex", gap: 0, alignItems: "stretch" }}>
+            {/* Hidden file input */}
+            <input
+              type="file"
+              accept="image/*"
+              id="upload-avatar"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
             {/* Upload button */}
             <Button
-              variant="outline"
+              variant="outlined"
               component="label"
-              htmlFor="upload-image"
+              htmlFor="upload-avatar"
               sx={{
                 borderColor: "brand.main",
                 border: "1px solid",
@@ -139,6 +152,7 @@ function ProfilePhotoPage() {
             variant="contained"
             size="large"
             onClick={handleSave}
+            disabled={isSaving}
             sx={{
               width: "100px",
               bgcolor: "brand.main",

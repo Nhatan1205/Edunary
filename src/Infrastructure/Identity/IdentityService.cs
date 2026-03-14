@@ -270,6 +270,26 @@ public class IdentityService : IIdentityService
         return Result.Failure("Update user failed");
     }
 
+    public async Task<Result> UpdateUserAvatarAsync(string avatarUrl, string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return Result.Failure("User not found.");
+        }
+
+        user.Avatar = avatarUrl;
+
+        var updateResult = await _userManager.UpdateAsync(user);
+
+        if (updateResult.Succeeded)
+        {
+            return Result.Success("User avatar updated successfully.");
+        }
+
+        return Result.Failure("Update avatar failed.");
+    }
+
     public async Task<Result> Login(string userName, string passWord, AccountType accountType, bool? forceFirstLogin = null, string defaultPassword = null)
     {
         Result rs = Result.Failure();

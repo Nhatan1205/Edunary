@@ -1,6 +1,7 @@
 import { Container } from "reactstrap";
 import AlertBox from "../../../../../components/AlertBox";
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import {
   DndContext,
   closestCenter,
@@ -81,6 +82,34 @@ function CourseCurriculum() {
       count += sections[i].items.length;
     }
     return count + itemIndex;
+  };
+
+  // Validate curriculum content
+  const validateCurriculumContent = () => {
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i];
+      
+      // Validate section title
+      if (!section.title || !section.title.trim()) {
+        return {
+          isValid: false,
+          errorMessage: `Section ${i + 1} must have a title.`,
+        };
+      }
+      
+      // Validate curriculum items in the section
+      for (let j = 0; j < section.items.length; j++) {
+        const item = section.items[j];
+        if (!item.title || !item.title.trim()) {
+          return {
+            isValid: false,
+            errorMessage: `Section ${i + 1}, Item ${j + 1} must have a title.`,
+          };
+        }
+      }
+    }
+    
+    return { isValid: true };
   };
 
   // Add new section
@@ -350,6 +379,13 @@ function CourseCurriculum() {
 
   // Handle save from dialog
   const handleSaveFromDialog = async () => {
+    // Validate curriculum content before saving
+    const validation = validateCurriculumContent();
+    if (!validation.isValid) {
+      toast.error(validation.errorMessage);
+      return;
+    }
+    
     await handleUpdateCourse();
     setShowSaveDialog(false);
     setHasUnsavedChanges(false);
@@ -379,6 +415,13 @@ function CourseCurriculum() {
 
   // Handle update course
   const handleUpdateCourse = async () => {
+    // Validate curriculum content before saving
+    const validation = validateCurriculumContent();
+    if (!validation.isValid) {
+      toast.error(validation.errorMessage);
+      return;
+    }
+
     const videoContentIds = getAllVideoContentIds(sections);
     const totalVideoDuration = getTotalVideoDuration(sections);
     const data = {

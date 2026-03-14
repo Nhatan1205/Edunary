@@ -9,10 +9,13 @@ import {
 import MetaChip from "../../../components/MetaChip";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import DefaultImage from "../../../assets/images/default.jpg";
+import { Link as RouterLink } from "react-router";
 
 export default function ProfileCourseCard({ course }) {
     return (
         <Card
+            component={RouterLink}
+            to={`/course/${course.id}`}
             sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -24,6 +27,7 @@ export default function ProfileCourseCard({ course }) {
                 transition: "background-color 0.2s ease",
                 padding: 2,
                 height: "100%",
+                textDecoration: "none",
                 "&:hover": {
                     backgroundColor: "background.muted",
                 },

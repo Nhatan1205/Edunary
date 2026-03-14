@@ -379,12 +379,6 @@ function CourseCurriculum() {
 
   // Handle save from dialog
   const handleSaveFromDialog = async () => {
-    // Validate curriculum content before saving
-    const validation = validateCurriculumContent();
-    if (!validation.isValid) {
-      toast.error(validation.errorMessage);
-      return;
-    }
     
     await handleUpdateCourse();
     setShowSaveDialog(false);

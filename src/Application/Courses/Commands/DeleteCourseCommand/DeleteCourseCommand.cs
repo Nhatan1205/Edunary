@@ -57,6 +57,19 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
             };
             await _sender.Send(unsetCommand, cancellationToken);
 
+            // Remove all carts containing this course
+            var courseIdAsString = request.Id.ToString();
+            var cartsToRemove = await _context.Carts
+                .Where(c => c.CourseId == courseIdAsString)
+                .ToListAsync(cancellationToken);
+
+            int cartsRemovedCount = 0;
+            if (cartsToRemove.Any())
+            {
+                _context.Carts.RemoveRange(cartsToRemove);
+                cartsRemovedCount = cartsToRemove.Count;
+            }
+
             _context.Courses.Remove(entity);
             if (!string.IsNullOrEmpty(imgLink))
             {   
@@ -66,7 +79,7 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
             var result = await _context.SaveChangesAsync(cancellationToken);
             if (result > 0)
             {
-                return Result.Success($"Course with ID {request.Id} deleted successfully.");
+        return Result.Success($"Course with ID {request.Id} deleted successfully.");
             }
             return Result.Failure("Course deleted unsuccessfully");
         }

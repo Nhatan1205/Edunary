@@ -29,7 +29,6 @@ const useGetPublicCoursesByUserId = (userId, pageNumber = 1, pageSize = 9) => {
       };
     },
     enabled: !!userId,
-    keepPreviousData: true, // tốt cho pagination
   });
 };
 

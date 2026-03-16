@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  Divider,
   List,
   ListItemButton,
   ListItemText,

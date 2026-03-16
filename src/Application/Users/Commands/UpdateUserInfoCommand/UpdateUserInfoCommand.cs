@@ -15,15 +15,10 @@ public class UpdateUserInfoCommand : IRequest<Result>
 
 public class UpdateUserInfoCommandHandler : IRequestHandler<UpdateUserInfoCommand, Result>
 {
-    private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly ICurrentUserService _currentUserService;
-    public UpdateUserInfoCommandHandler(
-        IApplicationDbContext context,
-        IIdentityService identityService,
-        ICurrentUserService currentUserService)
+    public UpdateUserInfoCommandHandler(IIdentityService identityService, ICurrentUserService currentUserService)
     {
-        _context = context;
         _identityService = identityService;
         _currentUserService = currentUserService;
     }

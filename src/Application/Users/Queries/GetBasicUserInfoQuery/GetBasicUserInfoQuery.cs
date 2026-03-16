@@ -32,6 +32,10 @@ public class GetBasicUserInfoQueryHandler : IRequestHandler<GetBasicUserInfoQuer
     {
         var userId = _currentUserService.UserId;
         var user = await _identityService.GetUserById(userId);
+        if (user == null)
+        {
+            return null;
+        }
         var UserLink = string.IsNullOrEmpty(user.Links) ? null : JsonSerializer.Deserialize<UserLinksDto>(user.Links);
         if (user != null)
         {

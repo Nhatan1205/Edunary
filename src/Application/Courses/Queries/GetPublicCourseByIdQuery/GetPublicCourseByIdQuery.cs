@@ -33,12 +33,15 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
         if (course == null) return null!;
         var user = await _identityService.GetUserById(course.CreatedBy);
 
-        course.Instructor = new InstructorDto
+        if (user != null)
         {
-            Id = user.Id,   
-            Name = user.FullName,
-            Avatar = user.Avatar
-        };
+            course.Instructor = new InstructorDto
+            {
+                Id = user.Id,
+                Name = user.FullName,
+                Avatar = user.Avatar
+            };
+        }
 
         if (!string.IsNullOrWhiteSpace(course.Content))
         {

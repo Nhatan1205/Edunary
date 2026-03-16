@@ -33,9 +33,19 @@ public class GetPublicUserInfoQueryHandler : IRequestHandler<GetPublicUserInfoQu
         var totalLearners = courses.Sum(c => c.TotalStudents);
         var totalReviews = courses.Sum(c => c.TotalRatingStudent);
 
-        var userLink = string.IsNullOrEmpty(user.Links)
-            ? null
-            : JsonSerializer.Deserialize<UserLinksDto>(user.Links);
+        UserLinksDto userLink = null;
+
+        if (!string.IsNullOrWhiteSpace(user.Links))
+        {
+            try
+            {
+                userLink = JsonSerializer.Deserialize<UserLinksDto>(user.Links);
+            }
+            catch (JsonException)
+            {
+                userLink = null;
+            }
+        }
 
         return new PublicProfileDto
         {

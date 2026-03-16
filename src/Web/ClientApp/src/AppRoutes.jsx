@@ -75,7 +75,7 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/user/info" replace />,
+            element: <Navigate to="/user/profile" replace />,
           },
           { path: "profile", element: <ProfileInfoPage /> },
           { path: "photo", element: <ProfilePhotoPage /> },

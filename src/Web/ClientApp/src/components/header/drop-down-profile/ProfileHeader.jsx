@@ -1,6 +1,7 @@
 import { Avatar, Box, Button, Typography, CircularProgress } from "@mui/material";
 import AvatarImage from "../../../assets/images/avatar.jpg";
 import useGetBasicUserInfo from "../../../hooks/useGetBasicUserInfor";
+import { Link as RouterLink } from "react-router";
 
 function ProfileHeader({ onViewProfile, isMobile }) {
   const { data: userInfo, isLoading } = useGetBasicUserInfo();
@@ -45,6 +46,8 @@ function ProfileHeader({ onViewProfile, isMobile }) {
             {userInfo?.email || ""}
           </Typography>
           <Button
+            component={RouterLink}
+            to={"/user/profile"}
             variant="contained"
             fullWidth
             onClick={() => onViewProfile("View Profile")}

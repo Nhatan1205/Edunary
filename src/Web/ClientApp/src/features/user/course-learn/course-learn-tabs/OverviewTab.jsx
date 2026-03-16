@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Typography,
@@ -13,6 +12,7 @@ import {
   Avatar,
   Paper,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -51,34 +51,34 @@ function OverviewTab({ courseId }) {
         <Typography component="h2" sx={{ fontSize: "1.5rem", fontWeight: 700, mb: 1, color: "text.primary" }}>
           {courseData.title}
         </Typography>
-        
+
         {courseData.subtitle && (
-           <Typography sx={{ fontSize: "1rem", mb: 2, color: "text.secondary", fontWeight: 400 }}>
-             {courseData.subtitle}
-           </Typography>
+          <Typography sx={{ fontSize: "1rem", mb: 2, color: "text.secondary", fontWeight: 400 }}>
+            {courseData.subtitle}
+          </Typography>
         )}
 
         <Stack direction="row" spacing={2} flexWrap="wrap" alignItems="center" sx={{ gap: 1 }}>
-          <Chip 
-            label={courseData.categoryTitle} 
+          <Chip
+            label={courseData.categoryTitle}
             size="small"
-            sx={{ 
-              bgcolor: "brand.light", 
-              color: "brand.darker", 
-              fontWeight: 600, 
+            sx={{
+              bgcolor: "brand.light",
+              color: "brand.darker",
+              fontWeight: 600,
               fontSize: "0.75rem",
               height: "24px"
-            }} 
+            }}
           />
-          
+
           <Box sx={{ display: "flex", alignItems: "center", color: "warning.main" }}>
-             <StarIcon sx={{ fontSize: "1rem", mr: 0.5 }} />
-             <Typography sx={{ fontSize: "0.8rem", fontWeight: "bold" }}>{courseData.ratings || 0} rating</Typography>
+            <StarIcon sx={{ fontSize: "1rem", mr: 0.5 }} />
+            <Typography sx={{ fontSize: "0.8rem", fontWeight: "bold" }}>{courseData.ratings || 0} rating</Typography>
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary" }}>
-             <PeopleAltIcon sx={{ fontSize: "1rem", mr: 0.5 }} />
-             <Typography sx={{ fontSize: "0.8rem" }}>{courseData.totalStudents} students</Typography>
+            <PeopleAltIcon sx={{ fontSize: "1rem", mr: 0.5 }} />
+            <Typography sx={{ fontSize: "0.8rem" }}>{courseData.totalStudents} students</Typography>
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary" }}>
@@ -98,9 +98,9 @@ function OverviewTab({ courseId }) {
             borderColor: "divider",
             bgcolor: "background.surface",
           }}
-          >
+        >
           <Typography sx={{ fontSize: "1.1rem", fontWeight: 700, mb: 2, color: "text.primary" }}>
-              What you'll learn
+            What you'll learn
           </Typography>
           <Grid container spacing={1}>
             {courseData.learningObjectives.map((item, index) => (
@@ -160,10 +160,10 @@ function OverviewTab({ courseId }) {
                 <ListItemIcon sx={{ minWidth: 24, mt: 0.8 }}>
                   <FiberManualRecordIcon sx={{ fontSize: 8, color: "text.secondary" }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary={req} 
-                  slotProps={{ 
-                    primary: { fontSize: "0.875rem", color: "text.primary" } 
+                <ListItemText
+                  primary={req}
+                  slotProps={{
+                    primary: { fontSize: "0.875rem", color: "text.primary" }
                   }}
                 />
               </ListItem>
@@ -172,14 +172,14 @@ function OverviewTab({ courseId }) {
         </Box>
       )}
 
-       {courseData.targetAudience && courseData.targetAudience.length > 0 && (
+      {courseData.targetAudience && courseData.targetAudience.length > 0 && (
         <Box sx={{ mb: 3 }}>
           <Typography sx={{ fontSize: "1.1rem", fontWeight: 700, mb: 1.5, color: "text.primary" }}>
             Who this course is for
           </Typography>
           <Box component="ul" sx={{ py: 0 }}>
             {courseData.targetAudience.map((audience, index) => (
-               <Typography
+              <Typography
                 key={index}
                 component="li"
                 variant="body1"
@@ -199,16 +199,19 @@ function OverviewTab({ courseId }) {
           Instructor
         </Typography>
         <Stack direction="row" spacing={2} alignItems="flex-start">
-          <Avatar 
+          <Avatar
             sx={{ width: 56, height: 56, bgcolor: "brand.main", fontSize: "1.25rem" }}
-            src={courseData.instructorAvatar || defaultAvatar}
+            src={courseData.instructor.avatar || defaultAvatar}
           >
           </Avatar>
           <Box>
-            <Typography sx={{ fontSize: "1rem", fontWeight: 700, color: "brand.dark" }}>
-               <Box component="span" sx={{ wordBreak: "break-word" }}>
-                  {courseData.instructorName}
-               </Box>
+            <Typography
+              component={RouterLink}
+              to={`/profile/${courseData.instructor.id}`}
+              sx={{ fontSize: "1rem", fontWeight: 700, color: "brand.dark", textDecoration: "none" }}>
+              <Box component="span" sx={{ wordBreak: "break-word" }}>
+                {courseData.instructor.name}
+              </Box>
             </Typography>
             <Typography sx={{ fontSize: "0.8rem", color: "text.secondary", mb: 0.5 }}>
               Instructor

@@ -12,6 +12,7 @@ using Edunary.Application.Courses.Queries.GetCoursesWithPagination;
 using Edunary.Application.Courses.Queries.GetEnrolledCoursesQuery;
 using Edunary.Application.Courses.Queries.GetHomepageCoursesQuery;
 using Edunary.Application.Courses.Queries.GetPublicCourseById;
+using Edunary.Application.Courses.Queries.GetPublicCoursesByUserIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -37,8 +38,9 @@ public class Courses : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(GetCoursesWithPagination,"search")
             .MapGet(GetHomepageCourses, "homepage")
-            .MapGet(GetPublicCourseById, "public/{id}");
-        
+            .MapGet(GetPublicCourseById, "public/{id}")
+            .MapGet(GetPublicCoursesByUserId, "public/user/{userId}");
+
     }
 
     public async Task<ReturnResult<CreatedCourseDto>> CreateCourse(ISender sender, CreateCourseCommand command)
@@ -100,6 +102,11 @@ public class Courses : EndpointGroupBase
     public async Task<GetPublicCourseByIdDto> GetPublicCourseById(ISender sender, int id)
     {
         return await sender.Send(new GetPublicCourseByIdQuery() { Id = id });
+    }
+
+    public async Task<PaginatedList<PublicCoursesByUserIdDto>> GetPublicCoursesByUserId(ISender sender, [AsParameters] GetPublicCoursesByUserIdQuery query)
+    {
+        return await sender.Send(query);
     }
 
 }

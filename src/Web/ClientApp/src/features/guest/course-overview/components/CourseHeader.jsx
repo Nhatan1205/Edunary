@@ -1,15 +1,16 @@
-import { Box, Typography, Rating, Chip, Stack} from '@mui/material'
+import { Box, Typography, Rating, Chip, Stack } from '@mui/material'
 import { Schedule, Update, Language } from '@mui/icons-material'
-import { formatMonthYear} from '../../../../utils/helpers'
+import { formatMonthYear } from '../../../../utils/helpers'
 import MetaChip from '../../../../components/MetaChip';
+import { Link as RouterLink } from "react-router";
 
 const CourseHeader = ({ courseData }) => {
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography 
-        variant="body2" 
-        color="text.tertiary" 
-        sx={{ 
+      <Typography
+        variant="body2"
+        color="text.tertiary"
+        sx={{
           mb: 1.5,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
@@ -19,12 +20,12 @@ const CourseHeader = ({ courseData }) => {
       >
         {courseData.category} • {courseData.topic}
       </Typography>
-      
-      <Typography 
-        variant="h2" 
-        component="h1" 
-        sx={{ 
-          fontWeight: 700, 
+
+      <Typography
+        variant="h2"
+        component="h1"
+        sx={{
+          fontWeight: 700,
           mb: 2,
           lineHeight: 1.3,
           color: 'text.inverse',
@@ -34,27 +35,27 @@ const CourseHeader = ({ courseData }) => {
         {courseData.title}
       </Typography>
 
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            mb: 3,
-            color: '#F3F3F3',
-            fontWeight: 400,
-            lineHeight: 1.4,
-            maxWidth: '850px',
-            wordBreak: "break-word",
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            height: "2.6em",
-          }}
-        >
-          {courseData.subtitle}
-        </Typography>
+      <Typography
+        variant="h6"
+        sx={{
+          mb: 3,
+          color: '#F3F3F3',
+          fontWeight: 400,
+          lineHeight: 1.4,
+          maxWidth: '850px',
+          wordBreak: "break-word",
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          height: "2.6em",
+        }}
+      >
+        {courseData.subtitle}
+      </Typography>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, flexWrap: 'wrap' }}>
-        <Typography 
+        <Typography
           variant="body2"
           sx={{
             fontWeight: 600,
@@ -68,7 +69,7 @@ const CourseHeader = ({ courseData }) => {
 
         <Rating
           value={courseData.ratings}
-          precision={0.5} 
+          precision={0.5}
           size="small"
           readOnly
           sx={{
@@ -83,9 +84,9 @@ const CourseHeader = ({ courseData }) => {
           }}
         />
 
-        <Typography 
-          variant="body2" 
-          sx={{ 
+        <Typography
+          variant="body2"
+          sx={{
             color: 'text.inverse',
             fontWeight: 600,
             display: 'flex',
@@ -105,7 +106,8 @@ const CourseHeader = ({ courseData }) => {
         >
           Created by{" "}
           <Typography
-            component="span"
+            component={RouterLink}
+            to={`/profile/${courseData.instructor.id}`}
             sx={{
               fontWeight: 600,
               textDecoration: 'underline',
@@ -113,22 +115,22 @@ const CourseHeader = ({ courseData }) => {
               wordBreak: "break-word",
             }}
           >
-            {courseData.instructorName}
+            {courseData.instructor.name}
           </Typography>
         </Typography>
-        </Box>
+      </Box>
 
       <Stack direction="row" spacing={0.5} sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
         {courseData.totalStudents > -1 && (
-            <MetaChip
-                label={"Bestseller"}
-                backgroundColor={"#eceb98"}
-                color={"#3d3c0a"}
-                borderColor={"#eceb98"}
-            />
-          )}
+          <MetaChip
+            label={"Bestseller"}
+            backgroundColor={"#eceb98"}
+            color={"#3d3c0a"}
+            borderColor={"#eceb98"}
+          />
+        )}
         <Chip
-          icon={<Schedule sx={{ fontSize: '16px !important'}} />}
+          icon={<Schedule sx={{ fontSize: '16px !important' }} />}
           label={courseData?.content?.TotalVideoDuration || "8 hours"}
           variant="outlined"
           size="small"
@@ -142,7 +144,7 @@ const CourseHeader = ({ courseData }) => {
         />
 
         <Chip
-          icon={<Language sx={{ fontSize: '16px !important'}} />}
+          icon={<Language sx={{ fontSize: '16px !important' }} />}
           label={courseData.language}
           variant="outlined"
           size="small"
@@ -167,7 +169,7 @@ const CourseHeader = ({ courseData }) => {
             }
           }}
         />
-        
+
       </Stack>
     </Box>
   )

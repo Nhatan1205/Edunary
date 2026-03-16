@@ -14,17 +14,24 @@ const useChangePassword = (onSuccessCallback) => {
       });
     },
     onSuccess: () => {
-        toast.success("Password changed successfully!");
-        tokenService.clearRequiresPasswordChange();
-        if (onSuccessCallback) {
-            onSuccessCallback();
-        }
+      toast.success("Password changed successfully!");
+      tokenService.clearRequiresPasswordChange();
+      if (onSuccessCallback) {
+        onSuccessCallback();
+      }
     },
     onError: (error) => {
-      const msg =
-        error?.response ||
-        error?.message ||
-        "An error occurred while changing password.";
+      let msg = "An error occurred while changing password.";
+
+      if (error?.response) {
+        try {
+          const data = JSON.parse(error.response);
+          msg = data.message;
+        } catch {
+          msg = error.message;
+        }
+      }
+
       toast.error(msg);
     },
   });

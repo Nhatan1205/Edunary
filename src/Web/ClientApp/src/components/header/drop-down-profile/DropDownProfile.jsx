@@ -15,7 +15,7 @@ const MENU_ITEMS = [
   {
     title: "Account Settings",
     icon: <Settings fontSize="small" />,
-    path: "/counter",
+    path: "/user/security",
   },
   {
     title: "Language: English",

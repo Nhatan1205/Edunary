@@ -39,6 +39,11 @@ import AnnouncementComposePage from "./features/instructor/communication-section
 import AnnouncementEditPage from "./features/instructor/communication-section/announcements-page/announcements-edit-page.jsx/AnnouncementEditPage";
 import CourseInitialRedirect from "./features/user/my-learning/CourseInitialRedirect";
 import NotFound from "./components/NotFound";
+import ProfileManageLayout from "./layouts/ProfileManageLayout";
+import ProfileInfoPage from "./features/user/profile/pages/ProfileInfoPage";
+import ProfilePhotoPage from "./features/user/profile/pages/ProfilePhotoPage";
+import AccountSecurityPage from "./features/user/profile/pages/AccountSecurityPage";
+import ProfilePage from "./features/guest/profile-page/ProfilePage";
 
 const router = createBrowserRouter([
   {
@@ -55,6 +60,27 @@ const router = createBrowserRouter([
       {
         path: "/theme-demo",
         element: <ThemeDemo />,
+      },
+      {
+        path: "/profile/:id",
+        element: <ProfilePage />
+      },
+      {
+        path: "/user",
+        element: (
+          <ProtectedRoute>
+            <ProfileManageLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/user/profile" replace />,
+          },
+          { path: "profile", element: <ProfileInfoPage /> },
+          { path: "photo", element: <ProfilePhotoPage /> },
+          { path: "security", element: <AccountSecurityPage /> },
+        ],
       },
       {
         path: "/cart",
@@ -96,7 +122,7 @@ const router = createBrowserRouter([
         path: "/course/search",
         element: <SearchPage />,
       },
-            {
+      {
         path: "/faq",
         element: <FAQPage />,
       },
@@ -108,7 +134,7 @@ const router = createBrowserRouter([
         path: "/policy",
         element: <PolicyPage />,
       },
-            {
+      {
         path: "/faq",
         element: <FAQPage />,
       },
@@ -267,7 +293,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <CourseInitialRedirect />, 
+        element: <CourseInitialRedirect />,
       },
       {
         path: "lecture/:contentId",

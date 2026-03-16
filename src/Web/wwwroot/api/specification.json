@@ -1319,6 +1319,58 @@
         }
       }
     },
+    "/api/Courses/public/user/{userId}": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "operationId": "GetPublicCoursesByUserId",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfPublicCoursesByUserIdDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Enrollment/check/{courseId}": {
       "get": {
         "tags": [
@@ -1991,6 +2043,93 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/User": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "UpdateUserInfo",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserInfoCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "GetPublicUserInfo",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProfileDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/User/avatar": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "UpdateUserAvatar",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserAvatarCommand"
               }
             }
           },
@@ -3618,10 +3757,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "instructorName": {
-            "type": "string",
-            "nullable": true
-          },
           "content": {
             "type": "string",
             "nullable": true
@@ -3630,7 +3765,106 @@
             "type": "string",
             "format": "date-time"
           },
-          "instructorAvatar": {
+          "instructor": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InstructorDto"
+              }
+            ]
+          }
+        }
+      },
+      "InstructorDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaginatedListOfPublicCoursesByUserIdDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PublicCoursesByUserIdDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicCoursesByUserIdDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "float"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "level": {
+            "type": "string",
+            "nullable": true
+          },
+          "topic": {
+            "type": "string",
+            "nullable": true
+          },
+          "ratings": {
+            "type": "number",
+            "format": "float"
+          },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdBy": {
             "type": "string",
             "nullable": true
           }
@@ -4219,6 +4453,72 @@
           }
         }
       },
+      "UpdateUserInfoCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "links": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserLinksDto"
+              }
+            ]
+          }
+        }
+      },
+      "UserLinksDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "website": {
+            "type": "string",
+            "nullable": true
+          },
+          "facebook": {
+            "type": "string",
+            "nullable": true
+          },
+          "linkedin": {
+            "type": "string",
+            "nullable": true
+          },
+          "twitter": {
+            "type": "string",
+            "nullable": true
+          },
+          "youtube": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateUserAvatarCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "UserVm": {
         "type": "object",
         "additionalProperties": false,
@@ -4242,6 +4542,22 @@
           "avatar": {
             "type": "string",
             "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "links": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserLinksDto"
+              }
+            ]
           }
         }
       },
@@ -4256,6 +4572,56 @@
           "newPassword": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "PublicProfileDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "links": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserLinksDto"
+              }
+            ]
+          },
+          "totalLearners": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalReviews": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

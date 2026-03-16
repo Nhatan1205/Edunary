@@ -31,8 +31,17 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
             .ProjectTo<GetPublicCourseByIdDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
         if (course == null) return null!;
-        course.InstructorName = await _identityService.GetFullNameAsync(course.CreatedBy);
-        course.InstructorAvatar = await _identityService.GetUserAvatarAsync(course.CreatedBy);
+        var user = await _identityService.GetUserById(course.CreatedBy);
+
+        if (user != null)
+        {
+            course.Instructor = new InstructorDto
+            {
+                Id = user.Id,
+                Name = user.FullName,
+                Avatar = user.Avatar
+            };
+        }
 
         if (!string.IsNullOrWhiteSpace(course.Content))
         {

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Edunary.Application.Common.Models;
+﻿using Edunary.Application.Common.Models;
 
-namespace Edunary.Application.Users.Queries.GetBasicUserInfoQuery;
-public class UserVm
+namespace Edunary.Application.Users.Queries.GetPublicUserInfoQuery;
+public class PublicProfileDto
 {
     public string Id { get; set; }
     public string Email { get; set; }
@@ -17,4 +12,7 @@ public class UserVm
     public string Headline { get; set; }
     public string Description { get; set; }
     public UserLinksDto Links { get; set; }
+
+    public int TotalLearners { get; set; }
+    public int TotalReviews { get; set; }
 }

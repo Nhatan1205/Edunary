@@ -63,12 +63,23 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         }
 
         // Verify payment with Stripe
-        var paymentVerified = await _paymentService.VerifyPaymentAsync(request.PaymentIntentId, cancellationToken);
-        
-        if (!paymentVerified)
+        if (order.TotalAmount > 0)
         {
-            _logger.LogWarning("Payment verification failed for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
-            throw new InvalidOperationException("Payment verification failed");
+            var paymentVerified = await _paymentService.VerifyPaymentAsync(request.PaymentIntentId, cancellationToken);
+
+            if (!paymentVerified)
+            {
+                _logger.LogWarning("Payment verification failed for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
+                throw new InvalidOperationException("Payment verification failed");
+            }
+        }
+        else
+        {
+            _logger.LogInformation(
+                "Free order detected for Order {OrderId}. Skipping Stripe verification for PaymentIntentId: {PaymentIntentId}",
+                order.Id,
+                request.PaymentIntentId
+            );
         }
 
         // Update order status

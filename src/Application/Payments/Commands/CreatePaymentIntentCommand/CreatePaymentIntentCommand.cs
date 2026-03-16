@@ -32,6 +32,22 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
         _logger = logger;
     }
 
+    private CreatePaymentIntentDto CreateFreeOrderPaymentIntent(string userId)
+    {
+        var freePaymentIntentId = $"free_{Guid.NewGuid():N}";
+        _logger.LogInformation(
+            "Free checkout detected (amount=0). Skipping Stripe PaymentIntent for user {UserId}. PaymentIntentId={PaymentIntentId}",
+            userId,
+            freePaymentIntentId
+        );
+        return new CreatePaymentIntentDto
+        {
+            ClientSecret = string.Empty,
+            Amount = 0m,
+            PaymentIntentId = freePaymentIntentId
+        };
+    }
+
     public async Task<ReturnResult<CreatePaymentIntentDto>> Handle(CreatePaymentIntentCommand request, CancellationToken cancellationToken)
     {
         try
@@ -132,17 +148,30 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
                 });
             }
 
-            // Create payment intent using Stripe service
-            var paymentResponse = await _paymentService.CreatePaymentIntentAsync(courseList, userEmail, cancellationToken);
+            var totalAmount = courseList.Sum(c => c.Price);
+            var amountInCents = (long)decimal.Round(totalAmount * 100m, 0, MidpointRounding.AwayFromZero);
 
-            if (paymentResponse == null)
+            CreatePaymentIntentDto paymentResponse;
+
+            // Stripe does not allow creating PaymentIntents with amount = 0.
+            if (amountInCents <= 0)
             {
-                _logger.LogError("Failed to create payment intent with Stripe for user {UserId}", userId);
-                return new ReturnResult<CreatePaymentIntentDto>
+                paymentResponse = CreateFreeOrderPaymentIntent(userId);
+            }
+            else
+            {
+                // Create payment intent using Stripe service
+                paymentResponse = await _paymentService.CreatePaymentIntentAsync(courseList, userEmail, cancellationToken);
+
+                if (paymentResponse == null)
                 {
-                    Result = null,
-                    Message = "Failed to create payment intent"
-};
+                    _logger.LogError("Failed to create payment intent with Stripe for user {UserId}", userId);
+                    return new ReturnResult<CreatePaymentIntentDto>
+                    {
+                        Result = null,
+                        Message = "Failed to create payment intent"
+                    };
+                }
             }
 
             // Create Order in database
@@ -167,7 +196,7 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
                 {
                     Result = null,
                     Message = "Failed to create order"
-};
+                };
             }
 
             _logger.LogInformation("Successfully created payment intent {PaymentIntentId} for order {OrderId}", 

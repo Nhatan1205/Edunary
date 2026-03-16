@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react"
-import { Container, Box, Paper, Grid } from "@mui/material"
+import { Container, Box, Paper, Grid, Button, Typography } from "@mui/material"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
 import { useLocation, useNavigate } from "react-router"
@@ -28,12 +28,34 @@ export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState("")
   const [paymentIntentId, setPaymentIntentId] = useState("")
   const [loading, setLoading] = useState(true)
+  const [initError, setInitError] = useState("")
 
   const courses = useMemo(() => {
     return location.state?.courses || []
   }, [location.state?.courses])
 
   const totalPrice = location.state?.totalAmount || courses.reduce((sum, course) => sum + course.price, 0)
+
+  const handleFreeCheckout = useCallback(
+    async (paymentClient, paymentResult) => {
+      const confirmResponse = await paymentClient.confirmPayment({
+        paymentIntentId: paymentResult.paymentIntentId,
+      })
+      if (confirmResponse?.success) {
+        navigate('/payment-success', {
+          state: {
+            paymentIntentId: paymentResult.paymentIntentId,
+            courses: courses,
+            totalAmount: totalPrice,
+            orderId: confirmResponse.orderId,
+          },
+        })
+      } else {
+        toast.error(confirmResponse?.message || 'Failed to confirm free checkout')
+        navigate('/')
+      }
+    }, [navigate, courses, totalPrice]
+   )
 
   const createPaymentIntent = useCallback(async () => {
     try {
@@ -51,17 +73,24 @@ export default function CheckoutPage() {
         navigate("/")
         return
       }
-
-      setClientSecret(response.result.clientSecret)
-      setPaymentIntentId(response.result.paymentIntentId)
+      const paymentResult = response.result
+      // Free checkout: Stripe does not create PaymentIntents for $0.
+      // Nếu không có clientSecret thì xác nhận thanh toán miễn phí
+      if (!paymentResult?.clientSecret) {
+        await handleFreeCheckout(paymentClient, paymentResult)
+        return
+      }
+      setClientSecret(paymentResult.clientSecret)
+      setPaymentIntentId(paymentResult.paymentIntentId)
 
     } catch (error) {
       console.error("Error creating payment intent:", error)
       toast.error("Failed to initialize payment. Please try again.")
+      setInitError("Failed to initialize payment. Please try again.")
     } finally {
       setLoading(false)
     }
-  }, [courses])
+  }, [courses, navigate, handleFreeCheckout])
 
   // Step 1: Create PaymentIntent when component mounts
   useEffect(() => {
@@ -74,13 +103,46 @@ export default function CheckoutPage() {
     createPaymentIntent()
   }, [courses, navigate, createPaymentIntent])
 
-  if (loading || !clientSecret) {
+  if (loading) {
     return (
       <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
         <Container maxWidth="xl">
           <CheckoutHeader />
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
             <LoadingSpinner size={60} message="Initializing payment..." />
+          </Box>
+        </Container>
+      </Box>
+    )
+  }
+
+  if (initError || !clientSecret) {
+    return (
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="xl">
+          <CheckoutHeader />
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="400px"
+            textAlign="center"
+          >
+            <Typography variant="h6" gutterBottom>
+              {initError || "Unable to initialize payment at this time."}
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/")}
+              sx={{
+                mt: 2,
+                backgroundColor: "brand.main",
+                "&:hover": { backgroundColor: "brand.dark" },
+              }}
+            >
+              Go back to home
+            </Button>
           </Box>
         </Container>
       </Box>

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Payments.Queries.GetPaymentStatusQuery;
 
@@ -45,13 +46,24 @@ public class GetPaymentStatusQueryHandler : IRequestHandler<GetPaymentStatusQuer
                 return Result.Failure("Order not found for the provided payment intent ID");
             }
 
-            // Get payment status from Stripe
-            var stripePaymentStatus = await _paymentService.GetPaymentStatusAsync(request.PaymentIntentId, cancellationToken);
-            
-            if (string.IsNullOrEmpty(stripePaymentStatus))
+            string stripePaymentStatus;
+
+            // Stripe does not have a PaymentIntent for free ($0) orders.
+            // Therefore, derive status from our order state.
+            if (order.TotalAmount <= 0)
             {
-                _logger.LogWarning("Unable to get payment status from Stripe for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
-                stripePaymentStatus = "Unknown";
+                stripePaymentStatus = order.Status == OrderStatus.Completed ? "succeeded" : "pending";
+            }
+            else
+            {
+                // Get payment status from Stripe
+                stripePaymentStatus = await _paymentService.GetPaymentStatusAsync(request.PaymentIntentId, cancellationToken);
+
+                if (string.IsNullOrEmpty(stripePaymentStatus))
+                {
+                    _logger.LogWarning("Unable to get payment status from Stripe for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
+                    stripePaymentStatus = "Unknown";
+                }
             }
 
             var payment = order.Payments?.FirstOrDefault();

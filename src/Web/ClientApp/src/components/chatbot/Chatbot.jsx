@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './Chatbot.css';
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  const iframeRef = useRef(null);
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleRefresh = () => {
+    if (iframeRef.current) {
+      iframeRef.current.src = iframeRef.current.src;
+    }
   };
 
   return (
@@ -14,12 +21,18 @@ function Chatbot() {
       <div className={`chatbot-container ${isOpen ? 'open' : ''}`}>
         <div className="chatbot-header">
           <h3>Edunary Chatbot</h3>
-          <button className="close-button" onClick={toggleChatbot}>
-            ✕
-          </button>
+          <div className="header-buttons">
+            <button className="refresh-button" onClick={handleRefresh} title="Clear chat history">
+              ↻
+            </button>
+            <button className="close-button" onClick={toggleChatbot}>
+              ✕
+            </button>
+          </div>
         </div>
         <iframe 
-          src="https://edunary-ai-center.onrender.com/" 
+          ref={iframeRef}
+          src="http://127.0.0.1:8000/" 
           className="chatbot-iframe"
           title="AI Chatbot Demo"
           allow="microphone">

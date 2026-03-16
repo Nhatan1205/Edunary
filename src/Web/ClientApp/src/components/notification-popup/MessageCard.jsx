@@ -1,13 +1,13 @@
 import { Avatar, Box, MenuItem, Typography } from "@mui/material";
 import DefaultImage from "../../assets/images/default.jpg";
-import {formatTimeAgo} from "../../utils/helpers";
-import useUpdateNotificationStatus from "../../hooks/useUpdateNoificationStatus";
+import { formatTimeAgo } from "../../utils/helpers";
+import useUpdateNotificationStatus from "../../hooks/useUpdateNotificationStatus";
 function MessageCard({ notification }) {
   const { id, title, created, isRead, imageUrl } = notification;
   const updateNotificationStatusMutation = useUpdateNotificationStatus();
 
   function handleUpdateStatus() {
-    updateNotificationStatusMutation.mutate({ id });
+    updateNotificationStatusMutation.mutate([id]);
   }
 
   return (

@@ -5839,7 +5839,7 @@ export interface IGetNotificationByUserIdDto {
 }
 
 export class UpdateNotificationStatusCommand implements IUpdateNotificationStatusCommand {
-    id?: number;
+    ids?: number[] | undefined;
 
     constructor(data?: IUpdateNotificationStatusCommand) {
         if (data) {
@@ -5852,7 +5852,11 @@ export class UpdateNotificationStatusCommand implements IUpdateNotificationStatu
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
+            if (Array.isArray(_data["ids"])) {
+                this.ids = [] as any;
+                for (let item of _data["ids"])
+                    this.ids!.push(item);
+            }
         }
     }
 
@@ -5865,13 +5869,17 @@ export class UpdateNotificationStatusCommand implements IUpdateNotificationStatu
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
+        if (Array.isArray(this.ids)) {
+            data["ids"] = [];
+            for (let item of this.ids)
+                data["ids"].push(item);
+        }
         return data;
     }
 }
 
 export interface IUpdateNotificationStatusCommand {
-    id?: number;
+    ids?: number[] | undefined;
 }
 
 export class ReturnResultOfCreatePaymentIntentDto implements IReturnResultOfCreatePaymentIntentDto {

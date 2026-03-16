@@ -1,5 +1,6 @@
 import { Box, Button, Divider, Menu, Typography } from "@mui/material";
 import MessageCard from "./MessageCard";
+import useUpdateNotificationStatus from "../../hooks/useUpdateNotificationStatus";
 
 function NotificationPopup({
   open,
@@ -7,6 +8,16 @@ function NotificationPopup({
   handleClosePopup,
   notifications,
 }) {
+  const updateNotificationStatusMutation = useUpdateNotificationStatus();
+
+  function handleMarkAll() {
+    if (!notifications || notifications.length === 0) return;
+
+    const ids = notifications.filter((n) => !n.isRead).map((n) => n.id);
+    if (ids.length === 0) return;
+    updateNotificationStatusMutation.mutate(ids);
+  }
+
   return (
     <Menu
       disableScrollLock={true}
@@ -82,6 +93,7 @@ function NotificationPopup({
         }}
       >
         <Button
+          onClick={handleMarkAll}
           sx={{
             flex: 1,
             color: "brand.dark",

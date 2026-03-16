@@ -14,14 +14,9 @@ import { Link as RouterLink } from "react-router";
 import { useState } from 'react';
 import RatingPopup from '../../../../components/RatingPopup';
 
-const getRandomColor = (id) => {
-  const colors = ['#ff6b81', '#74b9ff', '#6c5ce7', '#fd79a8', '#00cec9', '#fdcb6e', '#e17055', '#a29bfe'];
-  return colors[id % colors.length];
-};
-
 function CourseCard({ course }) {
-  const { id, title, instructorName, imageUrl, price, ratings } = course;
-  const progress = Math.floor(Math.random() * 100);
+  const { id, title, instructorName, imageUrl, ratings,totalLectures, completedLectures } = course;
+  const progress = totalLectures ? Math.round((completedLectures / totalLectures) * 100): 0;
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   return (

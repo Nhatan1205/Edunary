@@ -16,6 +16,9 @@ public class EnrolledCoursesDto
     public string InstructorName { get; set; }
     public float Ratings { get; set; }
 
+    public int TotalLectures { get; set; }
+    public int CompletedLectures { get; set; }
+
     private class Mapping : Profile
     {
         public Mapping()

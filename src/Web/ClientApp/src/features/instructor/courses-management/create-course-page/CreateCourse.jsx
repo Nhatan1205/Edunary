@@ -5,7 +5,7 @@ import StepCourseCategory from "./Steps/StepCourseCategory";
 import StepCourseTitle from "./Steps/StepCourseTitle";
 import { useForm } from "react-hook-form";
 import StepCoursePrice from "./Steps/StepCoursePrice";
-import useCreateCourse from "../../../../hooks/useCreateCourse";
+import useCreateCourse from "../../../../hooks/course-hooks/useCreateCourse";
 
 function CreateCourse() {
   //form data

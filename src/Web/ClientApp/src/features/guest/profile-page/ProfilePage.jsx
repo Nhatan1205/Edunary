@@ -14,13 +14,13 @@ import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import XIcon from '@mui/icons-material/X';
 import { useParams } from "react-router";
-import useGetPublicUserInfo from "../../../hooks/useGetPublicUserInfo";
-import useGetPublicCoursesByUserId from "../../../hooks/useGetPublicCoursesByUserId";
+import useGetPublicCoursesByUserId from "../../../hooks/course-hooks/useGetPublicCoursesByUserId";
 import ProfileCourseCard from "./ProfileCourseCard";
 import DOMPurify from "dompurify";
 import AvatarImage from "../../../assets/images/avatar.jpg";
 import CustomPagination from "../../../components/pagination/CustomPagination";
 import LoadingSpinner from "../../../components/LoadingSpinner";
+import useGetPublicUserInfo from "../../../hooks/auth-hooks/useGetPublicUserInfo";
 
 
 

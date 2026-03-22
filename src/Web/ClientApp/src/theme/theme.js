@@ -45,7 +45,7 @@ const theme = createTheme({
       inverse: "#F7FBFA",
     },
 
-    divider: "#bebebeff",
+    divider: "#E0E0E0",
   },
 
   typography: {

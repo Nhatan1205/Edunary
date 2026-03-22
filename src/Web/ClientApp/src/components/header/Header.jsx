@@ -23,11 +23,11 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import DropDownProfile from "./drop-down-profile/DropDownProfile";
 import AvatarImage from "../../assets/images/avatar.jpg";
 import { useAuth } from "../../context/AuthContext";
-import useGetBasicUserInfo from "../../hooks/useGetBasicUserInfor";
 import NotificationPopup from "../notification-popup/NotificationPopup";
-import useGetNotificationsByUserId from "../../hooks/useGetNotificationByUserId";
+import useGetNotificationsByUserId from "../../hooks/notifications-hooks/useGetNotificationByUserId";
 import { useNavigate } from "react-router";
-import { useCart } from "../../hooks/useCart";
+import { useCart } from "../../hooks/cart-hooks/useCart";
+import useGetBasicUserInfo from "../../hooks/auth-hooks/useGetBasicUserInfor";
 
 function Header() {
   const theme = useTheme();

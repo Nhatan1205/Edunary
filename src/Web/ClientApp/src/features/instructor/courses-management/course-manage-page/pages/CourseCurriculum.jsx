@@ -24,9 +24,9 @@ import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import SortableSection from "../course-section/SortableSection";
 import SortableCurriculumItem from "../course-section/SortableCurriculumItem";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
-import useSetCourseIdForContent from "../../../../../hooks/useSetCourseIdForContent";
-import useGetCourseById from "../../../../../hooks/useGetCourseById";
-import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
+import useSetCourseIdForContent from "../../../../../hooks/course-content-hooks/useSetCourseIdForContent";
+import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById";
+import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 import { useBlocker } from "react-router-dom";
 import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/SaveChangesDialog";
 
@@ -39,7 +39,7 @@ function CourseCurriculum() {
   const [sections, setSections] = useState([]);
   const [initialContent, setInitialContent] = useState([]);
   const [activeId, setActiveId] = useState(null);
-  const [activeType, setActiveType] = useState(null); 
+  const [activeType, setActiveType] = useState(null);
   const [nextSectionId, setNextSectionId] = useState(1);
   const [nextItemId, setNextItemId] = useState(1);
   const [confirmDialog, setConfirmDialog] = useState({
@@ -88,7 +88,7 @@ function CourseCurriculum() {
   const validateCurriculumContent = () => {
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
-      
+
       // Validate section title
       if (!section.title || !section.title.trim()) {
         return {
@@ -96,7 +96,7 @@ function CourseCurriculum() {
           errorMessage: `Section ${i + 1} must have a title.`,
         };
       }
-      
+
       // Validate curriculum items in the section
       for (let j = 0; j < section.items.length; j++) {
         const item = section.items[j];
@@ -108,7 +108,7 @@ function CourseCurriculum() {
         }
       }
     }
-    
+
     return { isValid: true };
   };
 
@@ -119,7 +119,7 @@ function CourseCurriculum() {
       title: "",
       learningObjectives: "",
       items: [],
-      isEditMode: true, 
+      isEditMode: true,
       published: false,
     };
     setSections([...sections, newSection]);
@@ -153,18 +153,18 @@ function CourseCurriculum() {
         const videoIds = section.items
           .filter(item => item.videoId)
           .map(item => item.videoId);
-        
+
         const resourceIds = section.items
           .flatMap(item => item.resources || [])
           .map(resource => resource.id)
           .filter(id => id);
-        
+
         const allContentIds = [...videoIds, ...resourceIds];
-        
+
         if (allContentIds.length > 0) {
           await setContentIds(allContentIds, null);
         }
-        
+
         setSections(sections.filter((s) => s.sectionId !== sectionId));
         setConfirmDialog({ ...confirmDialog, open: false });
       },
@@ -180,7 +180,7 @@ function CourseCurriculum() {
           title: "",
           description: "",
           content: "",
-          type: null, 
+          type: null,
           isPendingType: true,
           downloadable: false,
           resources: []
@@ -216,7 +216,7 @@ function CourseCurriculum() {
   const deleteCurriculumItem = async (sectionId, itemId) => {
     const section = sections.find(s => s.sectionId === sectionId);
     const item = section?.items.find(i => i.itemId === itemId);
-    
+
     // If it's pending or has no title, delete directly without confirmation
     if (item?.isPendingType || !item?.title) {
       const newSections = sections.map((section) => {
@@ -240,20 +240,20 @@ function CourseCurriculum() {
       onConfirm: async () => {
         // Collect video ID and resource IDs
         const contentIds = [];
-        
+
         if (item?.videoId) {
           contentIds.push(item.videoId);
         }
-        
+
         if (item?.resources && item.resources.length > 0) {
           const resourceIds = item.resources.map(r => r.id).filter(id => id);
           contentIds.push(...resourceIds);
         }
-        
+
         if (contentIds.length > 0) {
           await setContentIds(contentIds, null);
         }
-        
+
         const newSections = sections.map((section) => {
           if (section.sectionId === sectionId) {
             return {
@@ -352,7 +352,7 @@ function CourseCurriculum() {
   // Block navigation if unsaved changes
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      hasUnsavedChanges && 
+      hasUnsavedChanges &&
       currentLocation.pathname !== nextLocation.pathname
   );
 
@@ -379,7 +379,7 @@ function CourseCurriculum() {
 
   // Handle save from dialog
   const handleSaveFromDialog = async () => {
-    
+
     await handleUpdateCourse();
     setShowSaveDialog(false);
     setHasUnsavedChanges(false);
@@ -390,14 +390,14 @@ function CourseCurriculum() {
 
   // Handle discard from dialog
   const handleDiscardChanges = async () => {
-    const oldIds = getAllContentIds(initialContent); 
-    const newIds = getAllContentIds(sections);        
+    const oldIds = getAllContentIds(initialContent);
+    const newIds = getAllContentIds(sections);
     const addedIds = newIds.filter(id => !oldIds.includes(id));
     const removedIds = oldIds.filter(id => !newIds.includes(id));
     if (addedIds.length > 0) {
       await setContentIds(addedIds, null);
     }
-    if (removedIds.length > 0 ) {
+    if (removedIds.length > 0) {
       await setContentIds(removedIds, courseId);
     }
     setShowSaveDialog(false);
@@ -485,7 +485,7 @@ function CourseCurriculum() {
 
   const setContentIds = async (contentIds, courseId) => {
     if (contentIds.length > 0) {
-      await setCourseIdForContent.mutateAsync({ 
+      await setCourseIdForContent.mutateAsync({
         contentIds: contentIds,
         courseId: courseId
       });
@@ -503,16 +503,16 @@ function CourseCurriculum() {
   return (
     <>
       <Box
-        sx={{ 
+        sx={{
           display: "flex",
-          justifyContent: "space-between", 
+          justifyContent: "space-between",
           alignItems: "center",
-          mb: 2.75, 
+          mb: 2.75,
         }}
       >
-        <Typography 
-          variant="h5" 
-          fontWeight={600} 
+        <Typography
+          variant="h5"
+          fontWeight={600}
         >
           Curriculum
         </Typography>
@@ -548,7 +548,7 @@ function CourseCurriculum() {
           Start putting together your course by creating sections, lectures and
           practice activities (quizzes, coding exercises and assignments).
         </AlertBox>
-  
+
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

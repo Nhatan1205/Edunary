@@ -9,7 +9,7 @@ import {
 } from "@mui/material"
 import LoadingSpinner from "../../../components/LoadingSpinner"
 import CartItem from "./CartItem"
-import { useCart } from "../../../hooks/useCart"
+import { useCart } from "../../../hooks/cart-hooks/useCart"
 import { useNavigate } from "react-router"
 
 const CartPage = () => {

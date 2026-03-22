@@ -13,11 +13,11 @@ import {
   Paper,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import useGetCategories from "../../../../../hooks/useGetCategories";
-import useGetCourseById from "../../../../../hooks/useGetCourseById";
+import useGetCategories from "../../../../../hooks/category-hooks/useGetCategories";
+import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById";
 import { useParams } from "react-router";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
-import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
+import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 import TextEditor from "../../../../../components/TextEditor";
 import { toast } from "react-toastify";
 import { useState } from "react";
@@ -57,30 +57,30 @@ function CourseLandingPage() {
     const updateData = {
       ...data,
     };
-    
+
     if (selectedImageUrl) {
       updateData.imageUrl = selectedImageUrl;
     }
-    
+
     updatecourseMutation.mutate(updateData);
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     const mimeType = file.type;
     if (!mimeType.includes("image")) {
       toast.error("Only image files are allowed!");
       return;
     }
-    
+
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Only JPG and PNG images are allowed!");
       return;
     }
-    
+
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (_event) => {
@@ -98,12 +98,12 @@ function CourseLandingPage() {
 
   return (
     <Container className="py-2">
-      <AlertBox severity="info" sx={{py: 2,mb: 4}}>
-          Your course landing page is crucial to your success on Edunary. If
-          it's done right, it can also help you gain visibility in search
-          engines like Google. As you complete this section, think about
-          creating a compelling Course Landing Page that demonstrates why
-          someone would want to enroll in your course. Learn more about.
+      <AlertBox severity="info" sx={{ py: 2, mb: 4 }}>
+        Your course landing page is crucial to your success on Edunary. If
+        it's done right, it can also help you gain visibility in search
+        engines like Google. As you complete this section, think about
+        creating a compelling Course Landing Page that demonstrates why
+        someone would want to enroll in your course. Learn more about.
       </AlertBox>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -227,7 +227,7 @@ function CourseLandingPage() {
             }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <>
-                <TextEditor value={value} onChange={onChange} buttons={['bold','italic','underline','|','ul','ol']}/>
+                <TextEditor value={value} onChange={onChange} buttons={['bold', 'italic', 'underline', '|', 'ul', 'ol']} />
                 {error ? (
                   <Typography variant="caption" color="error">
                     {error.message}

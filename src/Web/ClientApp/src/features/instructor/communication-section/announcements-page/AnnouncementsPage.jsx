@@ -5,9 +5,10 @@ import PageTitle from '../../../../components/PageTitle';
 import emptyMailboxImg from "../../../../assets/images/empty-mailbox.png";
 import { Link as RouterLink, useNavigate } from "react-router";
 import { useState } from 'react';
-import useGetAnnouncements from '../../../../hooks/useGetAnnouncements';
+import useGetAnnouncements from '../../../../hooks/announcement-hooks/useGetAnnouncements';
 import CustomPagination from '../../../../components/pagination/CustomPagination';
 import CustomDataGrid from '../../../../components/datagrid/CustomDataGrid';
+import MainCard from '../../../../components/instructor-layout/MainCard';
 
 
 const columnsSetting = [
@@ -17,8 +18,8 @@ const columnsSetting = [
         flex: 2,
         minWidth: 200,
         renderCell: (params) => (
-            <div style={{ 
-                whiteSpace: 'normal', 
+            <div style={{
+                whiteSpace: 'normal',
                 lineHeight: '1.4',
                 paddingTop: '8px',
                 paddingBottom: '8px'
@@ -35,8 +36,8 @@ const columnsSetting = [
         renderCell: (params) => {
             const textContent = params.value.replace(/<[^>]*>/g, '');
             return (
-                <div 
-                    style={{ 
+                <div
+                    style={{
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -50,7 +51,7 @@ const columnsSetting = [
         }
     },
     {
-        field: 'sentAt',    
+        field: 'sentAt',
         headerName: 'Sent At',
         width: 180,
         renderCell: (params) => {
@@ -94,7 +95,7 @@ export default function AnnouncementsPage() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(0);
     const [pageNumber, setPageNumber] = useState(1);
-    
+
     function handleTabChange(event, newValue) {
         setActiveTab(newValue)
         setPageNumber(1);
@@ -105,7 +106,7 @@ export default function AnnouncementsPage() {
     }
 
     const { data: announcementsData, isLoading: isAnnouncementsLoading } = useGetAnnouncements(activeTab, pageNumber, 8);
-    
+
     function handleRowClick(params) {
         navigate(`/instructor/communication/announcements/${params.id}/edit`);
     }
@@ -114,16 +115,16 @@ export default function AnnouncementsPage() {
     const hasData = announcementsData?.items && announcementsData.items.length > 0;
 
     return (
-        <Container fluid>
+        <MainCard>
             <Row className="mb-4">
                 <Col xs="12" className="mb-3 d-flex justify-content-between align-items-center">
                     <PageTitle title="Announcements" />
                     <Button
                         component={RouterLink}
                         to="/instructor/communication/announcements/new"
-                        variant="contained" 
-                        sx={{ 
-                            bgcolor: 'brand.main', 
+                        variant="contained"
+                        sx={{
+                            bgcolor: 'brand.main',
                             '&:hover': { bgcolor: 'brand.dark' },
                             textTransform: 'none',
                             px: 3,
@@ -138,7 +139,7 @@ export default function AnnouncementsPage() {
                 <Col xs="12">
                     <Typography
                         variant="body2"
-                        sx={{ 
+                        sx={{
                             color: '#666',
                             lineHeight: 1.6,
                             mb: 2
@@ -146,7 +147,7 @@ export default function AnnouncementsPage() {
                     >
                         Share updates and important information about your course. These will be sent via email and appear in the course dashboard. Only external links are allowed. Edunary links are not permitted.
                     </Typography>
-                    <Box sx={{  pt: 2 }}>
+                    <Box sx={{ pt: 2 }}>
                         <Tabs
                             value={activeTab}
                             onChange={handleTabChange}
@@ -179,11 +180,11 @@ export default function AnnouncementsPage() {
 
                     {/* Hiển thị empty state khi không có data */}
                     {!isAnnouncementsLoading && !hasData ? (
-                        <Box 
-                            sx={{ 
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                alignItems: 'center', 
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
                                 justifyContent: 'center',
                                 minHeight: '420px',
                                 bgcolor: 'white',
@@ -202,10 +203,10 @@ export default function AnnouncementsPage() {
                                 }}
                             />
 
-                            <Typography 
-                                variant="h5" 
-                                sx={{ 
-                                    fontWeight: 600, 
+                            <Typography
+                                variant="h5"
+                                sx={{
+                                    fontWeight: 600,
                                     color: '#333',
                                     mb: 2
                                 }}
@@ -213,9 +214,9 @@ export default function AnnouncementsPage() {
                                 No announcements yet
                             </Typography>
 
-                            <Typography 
-                                variant="body1" 
-                                sx={{ 
+                            <Typography
+                                variant="body1"
+                                sx={{
                                     color: '#666',
                                     textAlign: 'center',
                                     maxWidth: '500px',
@@ -240,8 +241,8 @@ export default function AnnouncementsPage() {
                                 {announcementsData.totalPages > 1 && (
                                     <div className="d-flex justify-content-center mt-4">
                                         <CustomPagination
-                                            count={announcementsData.totalPages} 
-                                            page={pageNumber} 
+                                            count={announcementsData.totalPages}
+                                            page={pageNumber}
                                             onChange={handlePageChange}
                                         />
                                     </div>
@@ -251,6 +252,6 @@ export default function AnnouncementsPage() {
                     )}
                 </Col>
             </Row>
-        </Container>
+        </MainCard>
     );
 }

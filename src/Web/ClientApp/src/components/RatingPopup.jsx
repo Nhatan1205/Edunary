@@ -10,7 +10,7 @@ import {
   Button
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useUpsertRatingCourse, useGetRatingCourseByUser } from '../hooks/useRatingCourse';
+import { useUpsertRatingCourse, useGetRatingCourseByUser } from '../hooks/rating-hooks/useRatingCourse';
 import { formatTimeAgo } from '../utils/helpers';
 
 const MAX_FEEDBACK = 500;
@@ -19,7 +19,7 @@ const RatingPopup = ({ open, onClose, courseId }) => {
   const [ratingValue, setRatingValue] = useState(5);
   const [feedback, setFeedback] = useState('');
   const [isEditing, setIsEditing] = useState();
-  
+
   // Get existing rating if any
   const { data: existingRating } = useGetRatingCourseByUser(courseId);
   const { upsertRating, loading } = useUpsertRatingCourse();
@@ -72,10 +72,10 @@ const RatingPopup = ({ open, onClose, courseId }) => {
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
       paper={{
         sx: {
@@ -88,11 +88,11 @@ const RatingPopup = ({ open, onClose, courseId }) => {
       <DialogContent>
         {/* Header Row: Back button and Close Icon */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Button 
+          <Button
             onClick={onClose}
-            sx={{ 
-              textTransform: 'none', 
-              color: 'brand.main', 
+            sx={{
+              textTransform: 'none',
+              color: 'brand.main',
               fontWeight: 'bold',
               fontSize: '0.8rem',
               minWidth: 0,
@@ -115,8 +115,8 @@ const RatingPopup = ({ open, onClose, courseId }) => {
 
             {/* Star Rating - Read only */}
             <Box my={2}>
-              <Rating 
-                name="course-rating-readonly" 
+              <Rating
+                name="course-rating-readonly"
                 value={ratingValue}
                 readOnly
                 size="large"
@@ -128,11 +128,11 @@ const RatingPopup = ({ open, onClose, courseId }) => {
 
             {/* Review Text */}
             {feedback && (
-              <Box 
-                sx={{ 
-                  width: '100%', 
-                  p: 2, 
-                  bgcolor: '#f5f5f5', 
+              <Box
+                sx={{
+                  width: '100%',
+                  p: 2,
+                  bgcolor: '#f5f5f5',
                   borderRadius: 2,
                   mb: 2
                 }}
@@ -152,7 +152,7 @@ const RatingPopup = ({ open, onClose, courseId }) => {
 
             {/* Action Buttons */}
             <Box display="flex" gap={2} mt={2}>
-              <Button 
+              <Button
                 variant="contained"
                 onClick={() => setIsEditing(true)}
                 sx={{
@@ -176,7 +176,7 @@ const RatingPopup = ({ open, onClose, courseId }) => {
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Why did you leave this rating?
             </Typography>
-            
+
             {/* dynamic label based on rating */}
             <Typography variant="body2" color="text.secondary" gutterBottom>
               {currentLabel}
@@ -184,8 +184,8 @@ const RatingPopup = ({ open, onClose, courseId }) => {
 
             {/* Star Rating - Editable */}
             <Box mt={1} mb={3}>
-              <Rating 
-                name="course-rating" 
+              <Rating
+                name="course-rating"
                 value={ratingValue}
                 onChange={(event, newValue) => {
                   setRatingValue(newValue ?? 0);
@@ -211,7 +211,7 @@ const RatingPopup = ({ open, onClose, courseId }) => {
                 'aria-label': 'course-feedback'
               }}
               sx={{
-                  fontSize: '0.9rem'
+                fontSize: '0.9rem'
               }}
             />
 
@@ -230,7 +230,7 @@ const RatingPopup = ({ open, onClose, courseId }) => {
 
             {/* Footer Action Button */}
             <Box display="flex" justifyContent="flex-end" width="100%" mt={2}>
-              <Button 
+              <Button
                 variant="contained"
                 onClick={() => handleSaveButton(ratingValue, feedback)}
                 disabled={loading}

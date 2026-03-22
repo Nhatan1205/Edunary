@@ -1,4 +1,4 @@
-import useGetCategories from "../../../hooks/useGetCategories";
+import useGetCategories from "../../../hooks/category-hooks/useGetCategories";
 import DesktopDropDownMenu from "./Desktop/DesktopDropDownMenu";
 import MobileDropDownMenu from "./Mobile/MobileDropDownMenu";
 
@@ -31,7 +31,7 @@ const MENU_DATA = {
 
 function DropDownMenu({ open, anchorEl, handleCloseDropDown, isMobile }) {
 
-  const { data: categoryData } = useGetCategories(1,10);
+  const { data: categoryData } = useGetCategories(1, 10);
   return isMobile ? (
     <MobileDropDownMenu
       open={open}

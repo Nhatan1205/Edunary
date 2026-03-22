@@ -1,6 +1,6 @@
 import { useParams, Navigate } from "react-router-dom";
-import LoadingSpinner from "../../../components/LoadingSpinner"; 
-import useGetLastAccessedItem from "../../../hooks/useGetLastAccessedItem";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import useGetLastAccessedItem from "../../../hooks/course-progress-hooks/useGetLastAccessedItem";
 const CourseInitialRedirect = () => {
   const { courseId } = useParams();
   const { data: courseProgressData, isLoading } = useGetLastAccessedItem(courseId);

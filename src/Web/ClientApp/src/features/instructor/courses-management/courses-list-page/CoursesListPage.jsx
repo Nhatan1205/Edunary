@@ -1,14 +1,15 @@
-import { useState} from "react";
+import { useState } from "react";
 import { Col, Container, Row } from "reactstrap";
 import ToolbarCourse from "./ToolbarCourse";
 import PageTitle from "../../../../components/PageTitle";
-import useGetCoursesAuthor from "../../../../hooks/useGetCoursesAuthor";
+import useGetCoursesAuthor from "../../../../hooks/course-hooks/useGetCoursesAuthor";
 import { Typography } from "@mui/material";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
 import CourseCard from "./CourseCard";
 import { useSearchParams } from "react-router";
 import { getCourseManagementSortBy } from "../../../../utils/helpers";
 import CustomPagination from "../../../../components/pagination/CustomPagination";
+import MainCard from "../../../../components/instructor-layout/MainCard";
 
 function CoursesListPage() {
   const [pageNumber, setPageNumber] = useState(1);
@@ -18,15 +19,15 @@ function CoursesListPage() {
   const sortBy = getCourseManagementSortBy(sortParam);
 
   const { data: coursesData, isLoading: isCourseDataLoading } =
-    useGetCoursesAuthor(decodeURIComponent(query),sortBy,pageNumber, 5);
+    useGetCoursesAuthor(decodeURIComponent(query), sortBy, pageNumber, 5);
 
 
-  function handlePageChange(event,value){
+  function handlePageChange(event, value) {
     setPageNumber(value);
   };
 
   return (
-    <Container fluid>
+    <MainCard>
       <PageTitle title="Courses Management" />
       <ToolbarCourse />
       {isCourseDataLoading ? (
@@ -56,10 +57,10 @@ function CoursesListPage() {
 
       {coursesData && coursesData.totalPages > 1 && (
         <div className="d-flex justify-content-center mt-4">
-          <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange}/>
+          <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange} />
         </div>
       )}
-    </Container>
+    </MainCard>
   );
 }
 

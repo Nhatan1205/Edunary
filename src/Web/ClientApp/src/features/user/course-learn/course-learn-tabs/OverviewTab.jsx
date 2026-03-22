@@ -20,7 +20,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import StarIcon from "@mui/icons-material/Star";
 import DOMPurify from "dompurify";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
-import useGetPublicCourseById from "../../../../hooks/useGetPublicCourseById";
+import useGetPublicCourseById from "../../../../hooks/course-hooks/useGetPublicCourseById";
 import { formatMonthYear } from "../../../../utils/helpers";
 import defaultAvatar from '../../../../assets/images/avatar.jpg';
 

@@ -12,8 +12,8 @@ import {
 import { Container } from "reactstrap";
 import TextEditor from "../../../../components/TextEditor";
 import AlertBox from "../../../../components/AlertBox";
-import useGetBasicUserInfo from "../../../../hooks/useGetBasicUserInfor";
-import useUpdateUserInfo from "../../../../hooks/useUpdateUserInfo";
+import useGetBasicUserInfo from "../../../../hooks/auth-hooks/useGetBasicUserInfor";
+import useUpdateUserInfo from "../../../../hooks/auth-hooks/useUpdateUserInfo";
 
 const HEADLINE_MAX = 60;
 

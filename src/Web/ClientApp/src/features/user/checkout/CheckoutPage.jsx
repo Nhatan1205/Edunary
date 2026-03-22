@@ -39,9 +39,9 @@ export default function CheckoutPage() {
     try {
       setLoading(true)
       const paymentClient = new PaymentClient()
-      
+
       const courseIds = courses.map(course => String(course.id || course.courseId))
-      
+
       const response = await paymentClient.createPaymentIntent({
         courseIds: courseIds
       })
@@ -52,9 +52,9 @@ export default function CheckoutPage() {
         return
       }
 
-      setClientSecret(response.clientSecret)
-      setPaymentIntentId(response.paymentIntentId)
-      
+      setClientSecret(response.result.clientSecret)
+      setPaymentIntentId(response.result.paymentIntentId)
+
     } catch (error) {
       console.error("Error creating payment intent:", error)
       toast.error("Failed to initialize payment. Please try again.")
@@ -116,7 +116,7 @@ export default function CheckoutPage() {
                   borderColor: "divider",
                 }}
               >
-                <CheckoutForm 
+                <CheckoutForm
                   courses={courses}
                   totalPrice={totalPrice}
                   country={country}

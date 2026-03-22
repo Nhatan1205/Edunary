@@ -3,7 +3,7 @@ import { useParams } from 'react-router'
 import CourseHeader from './components/CourseHeader'
 import CourseSidebar from './components/CourseSidebar'
 import CourseTabs from './components/CourseTabs'
-import useGetPublicCourseById from '../../../hooks/useGetPublicCourseById'
+import useGetPublicCourseById from '../../../hooks/course-hooks/useGetPublicCourseById'
 import LoadingSpinner from '../../../components/LoadingSpinner'
 import { Container } from 'reactstrap'
 

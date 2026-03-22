@@ -15,8 +15,8 @@ import {
   CheckCircleOutline,
 } from "@mui/icons-material";
 import { Container } from "reactstrap";
-import useChangePassword from "../../../../hooks/useChangePassword";
-import useGetBasicUserInfo from "../../../../hooks/useGetBasicUserInfor";
+import useGetBasicUserInfo from "../../../../hooks/auth-hooks/useGetBasicUserInfor";
+import useChangePassword from "../../../../hooks/auth-hooks/useChangePassword";
 
 const textFieldSx = {
   "& label.Mui-focused": { color: "brand.dark" },

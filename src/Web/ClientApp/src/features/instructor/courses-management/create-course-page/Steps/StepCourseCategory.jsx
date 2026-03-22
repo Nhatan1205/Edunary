@@ -1,7 +1,7 @@
 import { CircularProgress, Typography } from "@mui/material";
 import { Controller } from "react-hook-form";
 import { Container, FormGroup, Input } from "reactstrap";
-import useGetCategories from "../../../../../hooks/useGetCategories";
+import useGetCategories from "../../../../../hooks/category-hooks/useGetCategories";
 
 function StepCourseCategory({ control, errors }) {
   const { data, isLoading } = useGetCategories(1, 20);

@@ -11,10 +11,10 @@ import {
 import {
   Star,
 } from "@mui/icons-material";
-import { Link as RouterLink, useParams } from "react-router-dom"; 
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { Lightbulb, EmojiEvents, KeyboardArrowDown } from "@mui/icons-material";
 import RatingPopup from "../../../../components/RatingPopup";
-import useGetLearningHeader from "../../../../hooks/useGetLearningHeader";
+import useGetLearningHeader from "../../../../hooks/course-progress-hooks/useGetLearningHeader";
 import { useEffect, useState } from "react";
 
 function CourseLearnHeader() {
@@ -148,7 +148,7 @@ function CourseLearnHeader() {
             <Button
               sx={{
                 textTransform: "none",
-                color: "#d1d7dc", 
+                color: "#d1d7dc",
                 "&:hover": {
                   color: "white",
                   bgcolor: "rgba(255,255,255,0.1)"
@@ -166,8 +166,8 @@ function CourseLearnHeader() {
               </Box>
             </Button>
 
-            <RatingPopup 
-              open={isPopupOpen} 
+            <RatingPopup
+              open={isPopupOpen}
               onClose={() => setIsPopupOpen(false)}
               courseId={courseId}
             />

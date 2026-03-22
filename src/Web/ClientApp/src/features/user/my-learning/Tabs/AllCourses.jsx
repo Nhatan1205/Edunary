@@ -1,7 +1,7 @@
 import { Box, Paper, Typography, Button } from '@mui/material'
 import { Row, Col } from 'reactstrap'
 import CourseCard from '../CourseCard/CourseCard'
-import useGetCoursesStudent from '../../../../hooks/useGetCoursesStudent';
+import useGetCoursesStudent from '../../../../hooks/course-hooks/useGetCoursesStudent';
 import CourseSkeleton from '../../../../components/skeleton/CourseSkeleton';
 import LoadingSpinner from '../../../../components/LoadingSpinner';
 import CustomPagination from '../../../../components/pagination/CustomPagination';
@@ -11,12 +11,12 @@ import { useNavigate } from "react-router-dom"
 function AllCourses() {
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
-  const {data: courseStudentData, isLoading: isCourseStudentLoading} = useGetCoursesStudent(pageNumber, 12);
+  const { data: courseStudentData, isLoading: isCourseStudentLoading } = useGetCoursesStudent(pageNumber, 12);
 
   const handlePageChange = (event, value) => {
     setPageNumber(value);
   };
-  
+
   if (isCourseStudentLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -36,8 +36,8 @@ function AllCourses() {
             Browse our course catalog and start learning today!
           </Typography>
 
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={() => navigate('/')}
             sx={{
               backgroundColor: 'brand.main',
@@ -60,14 +60,14 @@ function AllCourses() {
             </Col>
           ))
         ) : (
-          courseStudentData?.items.map((course) => ( 
+          courseStudentData?.items.map((course) => (
             <CourseCard course={course} key={course.id} />
           ))
         )}
       </Row>
       {courseStudentData && courseStudentData.totalPages > 1 && (
         <div className="d-flex justify-content-center mt-4">
-          <CustomPagination count={courseStudentData.totalPages} page={pageNumber} onChange={handlePageChange}/>
+          <CustomPagination count={courseStudentData.totalPages} page={pageNumber} onChange={handlePageChange} />
         </div>
       )}
     </Box>

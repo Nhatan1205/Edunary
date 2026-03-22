@@ -2,45 +2,45 @@ import { Box, Button, Typography } from "@mui/material";
 import { Container } from "reactstrap";
 import TextList from "../../../../../components/text-list/TextList";
 import { useParams } from "react-router";
-import useGetCourseById from "../../../../../hooks/useGetCourseById";
+import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
-import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
+import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 import { Controller, useForm } from "react-hook-form";
 import AlertBox from "../../../../../components/AlertBox";
 
 function CourseIntenedLearners() {
-    const { courseId } = useParams();
-    const { data: courseData, isLoading: isCourseDataLoading } =
-      useGetCourseById(courseId);
-    const updatecourseMutation = useUpdateCourse();
-    const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
+  const { courseId } = useParams();
+  const { data: courseData, isLoading: isCourseDataLoading } =
+    useGetCourseById(courseId);
+  const updatecourseMutation = useUpdateCourse();
+  const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
 
-    const { control, handleSubmit} = useForm({
-      values: courseData || {
-        learningObjectives: [],
-        requirements: [],
-        targetAudience: []
-      },
-    });
+  const { control, handleSubmit } = useForm({
+    values: courseData || {
+      learningObjectives: [],
+      requirements: [],
+      targetAudience: []
+    },
+  });
 
 
-    const onSubmit = (data) => {
-      const updateData = {
-        ...courseData,
-        learningObjectives: data.learningObjectives,
-        requirements: data.requirements,
-        targetAudience: data.targetAudience,
-      };
-      updatecourseMutation.mutate(updateData);
+  const onSubmit = (data) => {
+    const updateData = {
+      ...courseData,
+      learningObjectives: data.learningObjectives,
+      requirements: data.requirements,
+      targetAudience: data.targetAudience,
     };
+    updatecourseMutation.mutate(updateData);
+  };
 
-    if (isCourseDataLoading) {
-        return (
-          <div className="d-flex justify-content-center align-items-center vh-100">
-            <LoadingSpinner />
-          </div>
-        );
-      }
+  if (isCourseDataLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <LoadingSpinner />
+      </div>
+    );
+  }
   return (
     <Container className="py-2">
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -52,7 +52,7 @@ function CourseIntenedLearners() {
         <Typography variant="body2" sx={{ color: "text.primary", textAlign: "justify", mb: 3 }}>
           You must enter at least 4 learning objectives or outcomes that learners can expect to achieve after completing your course.
         </Typography>
-         <Controller
+        <Controller
           name="learningObjectives"
           control={control}
           rules={{
@@ -87,7 +87,7 @@ function CourseIntenedLearners() {
         </Typography>
         <Typography variant="body2" sx={{ color: "text.primary", textAlign: "justify", mb: 3 }}>
           List the required skills, experience, tools or equipment learners should have prior to taking your course.
-If there are no requirements, use this space as an opportunity to lower the barrier for beginners.
+          If there are no requirements, use this space as an opportunity to lower the barrier for beginners.
         </Typography>
         <Controller
           name="requirements"
@@ -107,7 +107,7 @@ If there are no requirements, use this space as an opportunity to lower the barr
             </>
           )}
         />
-                {/* Target audience */}
+        {/* Target audience */}
         <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, fontWeight: 700 }}>
           Who is this course for?
         </Typography>

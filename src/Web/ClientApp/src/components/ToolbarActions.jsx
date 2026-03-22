@@ -14,11 +14,11 @@ import {
   Button,
   Toolbar,
 } from "@mui/material";
-import useGetBasicUserInfo from "../hooks/useGetBasicUserInfor";
 import NotificationPopup from "./notification-popup/NotificationPopup";
-import useGetNotificationsByUserId from "../hooks/useGetNotificationByUserId";
+import useGetNotificationsByUserId from "../hooks/notifications-hooks/useGetNotificationByUserId";
 import { useNavigate } from "react-router";
-import { useCart } from "../hooks/useCart";
+import useGetBasicUserInfo from "../hooks/auth-hooks/useGetBasicUserInfor";
+import { useCart } from "../hooks/cart-hooks/useCart";
 function ToolbarActions() {
   const { user } = useAuth();
   const { data: userInfo } = useGetBasicUserInfo();
@@ -49,8 +49,8 @@ function ToolbarActions() {
         sx={{
           color: "text.primary",
           textTransform: "none",
-          padding: "10px 24px",
-          fontSize: "16px",
+          padding: "6px 16px",
+          fontSize: "14px",
           fontWeight: "500",
           borderRadius: "8px",
           whiteSpace: "nowrap",
@@ -67,7 +67,7 @@ function ToolbarActions() {
         aria-label="show cart items"
         sx={{
           color: "text.primary",
-          padding: isMobile ? "6px" : "10px",
+          padding: isMobile ? "4px" : "6px",
           borderRadius: "8px",
           "&:hover": {
             backgroundColor: "background.muted",
@@ -85,7 +85,7 @@ function ToolbarActions() {
         aria-label="show new notifications"
         sx={{
           color: "text.primary",
-          padding: isMobile ? "6px" : "10px",
+          padding: isMobile ? "4px" : "6px",
           borderRadius: "8px",
           "&:hover": {
             backgroundColor: "background.muted",
@@ -116,7 +116,7 @@ function ToolbarActions() {
         aria-label="user account"
         sx={{
           color: "text.primary",
-          padding: isMobile ? "6px" : "10px",
+          padding: isMobile ? "4px" : "6px",
           borderRadius: "8px",
           "&:hover": {
             backgroundColor: "background.muted",
@@ -128,8 +128,8 @@ function ToolbarActions() {
           alt={userInfo?.fullName || user?.email || "User"}
           src={userInfo?.avatar || AvatarImage}
           sx={{
-            width: isMobile ? 32 : 40,
-            height: isMobile ? 32 : 40,
+            width: isMobile ? 28 : 32,
+            height: isMobile ? 28 : 32,
           }}
         />
       </IconButton>

@@ -8,7 +8,7 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import { useEnrollmentStatus } from "../../hooks/useEnrollmentStatus";
+import { useEnrollmentStatus } from "../../hooks/course-hooks/useEnrollmentStatus";
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router'
 
@@ -250,7 +250,7 @@ function CoursePopover({
 
           {/* Action Buttons */}
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          {isAuthenticated && isEnrolled ? (
+            {isAuthenticated && isEnrolled ? (
               <Button
                 variant="contained"
                 fullWidth

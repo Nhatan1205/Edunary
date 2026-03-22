@@ -23,9 +23,9 @@ import {
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
-import { useEnrollmentStatus } from '../../../../hooks/useEnrollmentStatus'
+import { useEnrollmentStatus } from '../../../../hooks/course-hooks/useEnrollmentStatus'
 import { formatMonthYear, getLevelLabel } from '../../../../utils/helpers'
-import { useAddToCart } from '../../../../hooks/useAddToCart'
+import { useAddToCart } from '../../../../hooks/cart-hooks/useAddToCart'
 import DefaultImage from "../../../../assets/images/default.jpg";
 
 const CourseSidebar = ({ courseData }) => {
@@ -54,10 +54,10 @@ const CourseSidebar = ({ courseData }) => {
     navigate(`/course/${courseData.id}/learn`)
   }
 
-   const totalArticles = courseData.content?.Sections?.reduce(
-      (sum, section) => 
-        sum + section.Items.filter(item => item.ContentType === "article").length, 0
-    )|| 0;
+  const totalArticles = courseData.content?.Sections?.reduce(
+    (sum, section) =>
+      sum + section.Items.filter(item => item.ContentType === "article").length, 0
+  ) || 0;
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
       navigate('/login')
@@ -68,9 +68,9 @@ const CourseSidebar = ({ courseData }) => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: 380 }}>
-      <Paper 
+      <Paper
         elevation={0}
-        sx={{ 
+        sx={{
           border: '1px solid',
           borderColor: 'divider',
           borderRadius: 1,
@@ -79,8 +79,8 @@ const CourseSidebar = ({ courseData }) => {
           top: 24
         }}
       >
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             position: 'relative',
             width: '100%',
             paddingTop: '56.25%',
@@ -100,21 +100,21 @@ const CourseSidebar = ({ courseData }) => {
               height: '100%',
               objectFit: 'cover'
             }}
-          />  
+          />
         </Box>
 
         <Box sx={{ p: 3 }}>
           {/* Pricing */}
           <Box sx={{ mb: 3 }}>
-            <Typography 
-              variant="h4" 
-              sx={{ 
+            <Typography
+              variant="h4"
+              sx={{
                 fontWeight: 700,
                 color: 'text.primary',
                 mb: 1
               }}
             >
-              US${courseData.currentPrice}  
+              US${courseData.currentPrice}
             </Typography>
           </Box>
 
@@ -122,32 +122,10 @@ const CourseSidebar = ({ courseData }) => {
           <Box sx={{ mb: 2 }}>
             {isAuthenticated && isEnrolled ? (
               <Button
-              variant="contained"
-              fullWidth
-              onClick={handleGoToCourse}
-              startIcon={<PlayArrow />}
-              sx={{
-                py: 1.5,
-                mb: 2,
-                fontWeight: 600,
-                backgroundColor: 'brand.main',
-                color: 'text.inverse',
-                '&:hover': {
-                  backgroundColor: 'brand.dark',
-                },
-                borderRadius: 1.5,
-                textTransform: 'none'
-              }}
-            >
-              Go to Course
-            </Button>
-            ) : (
-               <>
-              <Button
                 variant="contained"
                 fullWidth
-                onClick={handleBuyNow}
-                disabled={loading}
+                onClick={handleGoToCourse}
+                startIcon={<PlayArrow />}
                 sx={{
                   py: 1.5,
                   mb: 2,
@@ -161,37 +139,59 @@ const CourseSidebar = ({ courseData }) => {
                   textTransform: 'none'
                 }}
               >
-                {loading ? 'Checking...' : 'Buy Now'}
+                Go to Course
               </Button>
-              <Button
-                variant="outlined"
-                fullWidth
-                onClick={handleAddToCart}
-                startIcon={<ShoppingCart />}
-                disabled={loading || addingToCart}
-                sx={{
-                  py: 1.5,
-                  borderColor: 'brand.main',
-                  color: 'brand.main',
-                  fontWeight: 500,
-                  borderRadius: 1.5,
-                  textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: 'brand.lighter',
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleBuyNow}
+                  disabled={loading}
+                  sx={{
+                    py: 1.5,
+                    mb: 2,
+                    fontWeight: 600,
+                    backgroundColor: 'brand.main',
+                    color: 'text.inverse',
+                    '&:hover': {
+                      backgroundColor: 'brand.dark',
+                    },
+                    borderRadius: 1.5,
+                    textTransform: 'none'
+                  }}
+                >
+                  {loading ? 'Checking...' : 'Buy Now'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={handleAddToCart}
+                  startIcon={<ShoppingCart />}
+                  disabled={loading || addingToCart}
+                  sx={{
+                    py: 1.5,
                     borderColor: 'brand.main',
-                  }
-                }}
-              >
-                {addingToCart ? 'Adding...' : 'Add to Cart'}
-              </Button>
-            </>
+                    color: 'brand.main',
+                    fontWeight: 500,
+                    borderRadius: 1.5,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: 'brand.lighter',
+                      borderColor: 'brand.main',
+                    }
+                  }}
+                >
+                  {addingToCart ? 'Adding...' : 'Add to Cart'}
+                </Button>
+              </>
             )}
           </Box>
 
           {/* Money Back Guarantee */}
           <Typography
             variant="body2"
-            sx={{ 
+            sx={{
               textAlign: 'center',
               color: 'text.secondary',
               mb: 2,
@@ -204,7 +204,7 @@ const CourseSidebar = ({ courseData }) => {
           {/* Course Details */}
           <Typography
             variant="subtitle1"
-            sx={{ 
+            sx={{
               fontWeight: 700,
               mb: 1.5,
               color: 'text.primary',
@@ -346,37 +346,37 @@ const CourseSidebar = ({ courseData }) => {
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography 
-            variant="subtitle2" 
-            sx={{ 
-              fontWeight: 600, 
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 600,
               mb: 1,
               color: 'text.primary'
             }}
           >
             Course Information
           </Typography>
-        
-        <Stack spacing={1}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body2" color="text.tertiary">Language:</Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight={500}>
-              {courseData.language}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body2" color="text.tertiary">Level:</Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight={500}>
-              {getLevelLabel(courseData.level)}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body2" color="text.tertiary">Last updated:</Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight={500}>
-              {formatMonthYear(courseData.lastModified)}
-            </Typography>
-          </Box>
-        </Stack>
+
+          <Stack spacing={1}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant="body2" color="text.tertiary">Language:</Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                {courseData.language}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant="body2" color="text.tertiary">Level:</Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                {getLevelLabel(courseData.level)}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant="body2" color="text.tertiary">Last updated:</Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                {formatMonthYear(courseData.lastModified)}
+              </Typography>
+            </Box>
+          </Stack>
 
         </Box>
       </Paper>

@@ -27,10 +27,10 @@ import {
 import GoogleIcon from "@mui/icons-material/Google";
 // import FacebookIcon from "@mui/icons-material/Facebook";
 // import GitHubIcon from "@mui/icons-material/GitHub";
-import useLogin from "../../../../hooks/useLogin";
-import useGoogleLogin from "../../../../hooks/useGoogleLogin";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
 import { GoogleLogin } from "@react-oauth/google";
+import useLogin from "../../../../hooks/auth-hooks/useLogin";
+import useGoogleLogin from "../../../../hooks/auth-hooks/useGoogleLogin";
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const loginMutation = useLogin();
@@ -581,8 +581,8 @@ function Login() {
                         >
                           <GoogleIcon sx={{ color: "#EA4335", fontSize: 22 }} />
                         </IconButton> */}
-                        <Box sx={{ 
-                          position: 'relative', 
+                        <Box sx={{
+                          position: 'relative',
                           textAlign: 'center',
                           '&::before': {
                             content: '""',
@@ -612,9 +612,9 @@ function Login() {
                         </Box>
                         <Box sx={{ position: 'relative' }}>
                           {/* Hidden GoogleLogin */}
-                          <Box sx={{ 
-                            position: 'absolute', 
-                            opacity: 0, 
+                          <Box sx={{
+                            position: 'absolute',
+                            opacity: 0,
                             pointerEvents: 'none',
                             '& > div': { display: 'none' }
                           }}>
@@ -623,7 +623,7 @@ function Login() {
                               onError={handleGoogleLoginError}
                             />
                           </Box>
-                          
+
                           {/* Custom Button */}
                           <IconButton
                             onClick={() => {

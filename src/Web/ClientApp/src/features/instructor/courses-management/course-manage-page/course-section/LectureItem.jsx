@@ -28,7 +28,7 @@ import VideoContent from "./VideoContent";
 import ArticleContent from "./ArticleContent";
 import ResourceContent from "./ResourceContent";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
-import useSetCourseIdForContent from "../../../../../hooks/useSetCourseIdForContent";
+import useSetCourseIdForContent from "../../../../../hooks/course-content-hooks/useSetCourseIdForContent";
 
 function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, dndAttributes, dndListeners, isDragging }) {
   const setCourseIdForContent = useSetCourseIdForContent();
@@ -48,7 +48,7 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = description;
     const textContent = tempDiv.textContent || tempDiv.innerText || "";
-    
+
     if (onUpdate) {
       // Only save if there's actual content
       onUpdate(item.itemId, { description: textContent.trim() ? description : "" });
@@ -85,7 +85,7 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
   const handleSelectContentType = (contentType) => {
     setShowContentTypeSelector(false);
     setSelectedContentType(contentType);
-    
+
     if (onUpdate) {
       onUpdate(item.itemId, { contentType });
     }
@@ -138,12 +138,12 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
         contentIds: [pendingDeleteResource.id],
         courseId: null
       });
-      
+
       const updatedResources = (item.resources || []).filter(
         r => r.id !== pendingDeleteResource.id
       );
       onUpdate(item.itemId, { resources: updatedResources });
-      
+
       setShowDeleteResourceConfirm(false);
       setPendingDeleteResource(null);
     }
@@ -189,10 +189,10 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
       }}
     >
       {/* Header */}
-      <Box sx={{ 
-        p: 2, 
-        display: "flex", 
-        alignItems: "center", 
+      <Box sx={{
+        p: 2,
+        display: "flex",
+        alignItems: "center",
         gap: 1,
         "&:hover": {
           bgcolor: "background.alt",
@@ -234,7 +234,7 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
         >
           <EditIcon fontSize="small" />
         </IconButton>
-        
+
         <IconButton
           size="small"
           onClick={() => onDelete(item.itemId)}
@@ -242,7 +242,7 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
         >
           <DeleteIcon fontSize="small" />
         </IconButton>
-        
+
         <IconButton
           size="small"
           onClick={() => setExpanded(!expanded)}
@@ -254,9 +254,9 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
 
       {/* Expanded Content */}
       <Collapse in={expanded}>
-        <Box sx={{ 
-          px: 2, 
-          pb: 2, 
+        <Box sx={{
+          px: 2,
+          pb: 2,
           pt: 0,
           borderTop: (theme) => `1px solid ${theme.palette.divider}`,
         }}>
@@ -265,10 +265,10 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
             {showContentTypeSelector && (
               <Box sx={{ mb: 2 }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      fontWeight: 600, 
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
                       color: "text.primary",
                       fontSize: "0.9rem"
                     }}
@@ -308,16 +308,16 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
                       },
                     }}
                   >
-                    <OndemandVideoIcon 
-                      sx={{ 
-                        fontSize: "1.5rem", 
+                    <OndemandVideoIcon
+                      sx={{
+                        fontSize: "1.5rem",
                         color: "text.secondary",
                         mb: 0.5
-                      }} 
+                      }}
                     />
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
+                    <Typography
+                      variant="body2"
+                      sx={{
                         fontWeight: 600,
                         color: "text.primary",
                         fontSize: "0.875rem"
@@ -345,16 +345,16 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
                       },
                     }}
                   >
-                    <ArticleIcon 
-                      sx={{ 
-                        fontSize: "1.5rem", 
+                    <ArticleIcon
+                      sx={{
+                        fontSize: "1.5rem",
                         color: "text.secondary",
                         mb: 0.5
-                      }} 
+                      }}
                     />
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
+                    <Typography
+                      variant="body2"
+                      sx={{
                         fontWeight: 600,
                         color: "text.primary",
                         fontSize: "0.875rem"
@@ -404,24 +404,24 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
             {/* Description Form */}
             {showDescriptionForm && (
               <Box sx={{
-                  mb: 2,  
-                  borderTop: (theme) => `1px solid ${theme.palette.divider}`,
-                  borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-                  pt: 2,                       
-                  pb: 2,
-                }}>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    mb: 1, 
-                    fontWeight: 700, 
+                mb: 2,
+                borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+                borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                pt: 2,
+                pb: 2,
+              }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mb: 1,
+                    fontWeight: 700,
                     color: "text.primary",
                     fontSize: "0.95rem"
                   }}
                 >
                   Lecture Description
                 </Typography>
-                
+
                 <TextEditor
                   value={description}
                   onChange={setDescription}
@@ -492,7 +492,7 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
                 />
               </Box>
             )}
-            
+
             {!showDescriptionForm && !hasDescriptionContent(item.description) && (
               <Button
                 variant="outlined"
@@ -518,8 +518,8 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
 
             {/* Display Resources List when not showing form */}
             {!showResourcesForm && item.resources && item.resources.length > 0 && (
-              <Box 
-                sx={{ 
+              <Box
+                sx={{
                   mt: 2,
                   p: 2,
                   border: (theme) => `1px solid ${theme.palette.divider}`,
@@ -548,12 +548,12 @@ function LectureItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, 
                         borderColor: "divider",
                       }}
                     >
-                      <InsertDriveFileOutlinedIcon 
-                        sx={{ 
-                          mr: 1.5, 
+                      <InsertDriveFileOutlinedIcon
+                        sx={{
+                          mr: 1.5,
                           color: "text.secondary",
                           fontSize: "1rem"
-                        }} 
+                        }}
                       />
                       <ListItemText
                         primary={resource.fileName}

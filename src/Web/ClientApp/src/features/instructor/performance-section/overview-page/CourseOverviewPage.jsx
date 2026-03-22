@@ -13,6 +13,7 @@ import LineChartWidget from '../../../../components/charts/LineChartWidget';
 import useGetCoursesAuthor from '../../../../hooks/useGetCoursesAuthor';
 import useGetCourseStats from '../../../../hooks/useGetCourseStats';
 import BarChartWidget from '../../../../components/charts/BarChartWidget';
+import MainCard from '../../../../components/instructor-layout/MainCard';
 
 const dateFilterData = [
   { label: "Last 7 days", value: "week" },
@@ -81,7 +82,7 @@ function CourseOverviewPage() {
 
 
   return (
-    <Container fluid>
+    <MainCard >
       <Box
         display="flex"
         justifyContent="flex-start"
@@ -110,7 +111,7 @@ function CourseOverviewPage() {
       </Box>
       <Row>
         <Col md={12}>
-          <Paper variant="outlined" sx={{ borderRadius: 0, mb: 4, borderColor: '#d1d7dc', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+          <Paper variant="outlined" sx={{ borderRadius: 0, mb: 4, borderColor: 'divider' }}>
 
             <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} sx={{ px: 2, gap: 1 }}>
               <MetricTab
@@ -219,7 +220,7 @@ function CourseOverviewPage() {
           </Paper>
         </Col>
       </Row>
-    </Container>
+    </MainCard>
   );
 }
 

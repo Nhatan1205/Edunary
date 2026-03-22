@@ -1,144 +1,70 @@
-import { DashboardLayout } from "@toolpad/core/DashboardLayout";
-import DevicesIcon from "@mui/icons-material/Devices";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import PeopleIcon from "@mui/icons-material/People";
-import BackpackIcon from "@mui/icons-material/Backpack";
-import ChatIcon from "@mui/icons-material/Chat";
-import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
-import MessageIcon from "@mui/icons-material/Message";
-import MonetizationOnRoundedIcon from "@mui/icons-material/MonetizationOnRounded";
-import RateReviewRoundedIcon from "@mui/icons-material/RateReviewRounded";
-import AnnouncementRoundedIcon from '@mui/icons-material/AnnouncementRounded';
+import { useState, useEffect, useCallback } from "react";
 import { Outlet } from "react-router";
-import { ReactRouterAppProvider } from "@toolpad/core/react-router";
-import { Lightbulb } from "@mui/icons-material";
+
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Box from "@mui/material/Box";
 import { Container } from "reactstrap";
-import { createTheme } from "@mui/material";
-import theme from "../theme/theme";
-import ToolbarActions from "../components/ToolbarActions";
+
+import InstructorHeader from "../components/instructor-layout/InstructorHeader";
+import InstructorSidebar from "../components/instructor-layout/InstructorSidebar";
+import MainContentStyled from "../components/instructor-layout/MainContentStyled";
+import DrawerContext from "../components/instructor-layout/DrawerContext";
 import CustomBreadcrumbs from "../components/breadcrumb/CustomBreadcrumbs";
 
-const NAVIGATION = [
-  {
-    title: "Courses",
-    icon: <DevicesIcon />,
-    expanded: true,
-    children: [
-      {
-        segment: "instructor/courses",
-        title: "Courses",
-        icon: <LibraryBooksIcon />,
-      },
-      {
-        segment: "course-bundles",
-        title: "Course Bundles",
-        icon: <BackpackIcon />,
-      },
-    ],
-  },
-
-  {
-    segment: "instructor/communication",
-    title: "Communication",
-    icon: <ChatIcon />,
-    expanded: true,
-    children: [
-      {
-        segment: "qna",
-        title: "Q&A",
-        icon: <QuestionAnswerIcon />,
-      },
-      {
-        segment: "messages",
-        title: "Message",
-        icon: <MessageIcon />,
-      },
-      {
-        segment: "assignments",
-        title: "Assignments",
-        icon: <AssignmentIcon />,
-      },
-      {
-        segment: "announcements",
-        title: "Announcements",
-        icon: <AnnouncementRoundedIcon />,
-      },
-    ],
-  },
-  {
-    segment: "instructor/performance",
-    title: "Performance",
-    icon: <BarChartIcon />,
-    expanded: true,
-    children: [
-      {
-        segment: "overview/revenue",
-        title: "Overview",
-        icon: <BarChartIcon />,
-      },
-      {
-        segment: "revenue",
-        title: "Revenue",
-        icon: <MonetizationOnRoundedIcon />,
-      },
-      {
-        segment: "students",
-        title: "Students",
-        icon: <PeopleIcon />,
-      },
-      {
-        segment: "reviews",
-        title: "Reviews",
-        icon: <RateReviewRoundedIcon />,
-      },
-    ],
-  },
-];
-
-const dashboardTheme = createTheme(theme, {
-  palette: {
-    primary: theme.palette.brand,
-    secondary: theme.palette.secondaryBrand,
-  },
-});
-
-const BRANDING = {
-  logo: (
-    <Lightbulb
-      sx={{
-        color: "brand.main",
-        width: 30,
-        height: 30,
-      }}
-    />
-  ),
-  title: "Edunary",
-  homeUrl: "/",
-};
-
 function InstructorLayout() {
+  const theme = useTheme();
+  const downMD = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [drawerOpen, setDrawerOpen] = useState(true);
+
+  const toggleDrawer = useCallback(() => {
+    setDrawerOpen((prev) => !prev);
+  }, []);
+
+  // Close drawer on mobile
+  useEffect(() => {
+    if (downMD) {
+      setDrawerOpen(false);
+    }
+  }, [downMD]);
+
   return (
-    <ReactRouterAppProvider
-      navigation={NAVIGATION}
-      branding={BRANDING}
-      theme={dashboardTheme}
-    >
-      <DashboardLayout
-        defaultExpanded={true}
-        slots={{
-          toolbarActions: ToolbarActions,
-        }}
-      >
-        <Container className="pt-3 pb-2 pt-5 px-sm-4 px-md-5 mx-auto mw-100 ">
-          <Container fluid>
-            <CustomBreadcrumbs />
-          </Container>
-          <Outlet />
-        </Container>
-      </DashboardLayout>
-    </ReactRouterAppProvider>
+    <DrawerContext.Provider value={{ drawerOpen, toggleDrawer }}>
+      <Box sx={{ display: "flex" }}>
+        {/* header */}
+        <AppBar
+          enableColorOnDark
+          position="fixed"
+          color="inherit"
+          elevation={0}
+          sx={{ bgcolor: "background.default" }}
+        >
+          <Toolbar sx={{ py: 0.5, px: 2, minHeight: "48px !important" }}>
+            <InstructorHeader />
+          </Toolbar>
+        </AppBar>
+
+        {/* sidebar */}
+        <InstructorSidebar />
+
+        {/* main content */}
+        <MainContentStyled open={drawerOpen}>
+          <Box
+            sx={{
+              minHeight: "calc(100vh - 88px)",
+              display: "flex",
+              flexDirection: "column",
+              py: 2,
+            }}
+          >
+            <Outlet />
+          </Box>
+        </MainContentStyled>
+      </Box>
+    </DrawerContext.Provider>
   );
 }
 

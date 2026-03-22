@@ -7,7 +7,7 @@ function CustomBreadcrumbs() {
   const pathnames = location.pathname.split("/").filter(x => x);
 
   return (
-    <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+    <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2, px: 3, pt: 3 }}>
       {pathnames.map((value, index) => {
         // Bỏ qua nếu segment là ID
         if (!shouldShowBreadcrumb(value)) {

@@ -1,12 +1,12 @@
 import { Box, Button, Typography } from "@mui/material";
 import { Container } from "reactstrap";
-import useGetCourseById from "../../../../../hooks/useGetCourseById";
+import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById";
 import { useParams, useNavigate } from "react-router";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
-import useDeleteCourse from "../../../../../hooks/useDeleteCourse";
+import useDeleteCourse from "../../../../../hooks/course-hooks/useDeleteCourse";
 import { useState } from "react";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
-import useUpdateCourse from "../../../../../hooks/useUpdateCourse";
+import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 
 function CourseSetting() {
   const { courseId } = useParams();
@@ -18,7 +18,7 @@ function CourseSetting() {
     navigate("/instructor/courses");
   });
   const updatecourseMutation = useUpdateCourse();
-  
+
   const isDeleting = deleteCourseMutation.isPending || deleteCourseMutation.isLoading;
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
   const handleTogglePublish = () => {

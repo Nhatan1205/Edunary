@@ -1,17 +1,17 @@
-import { Box} from "@mui/material";
+import { Box } from "@mui/material";
 import SearchHeader from "./SearchHeader";
 import { Container } from "reactstrap";
 import SearchSection from "./search-section/SearchSection";
 import { useSearchParams } from "react-router";
 import NoResult from "../../../components/NoResult";
 import FilterToolBar from "./FilterToolBar";
-import useGetCourses from "../../../hooks/useGetCourses";
+import useGetCourses from "../../../hooks/course-hooks/useGetCourses";
 import { getCourseSortBy, getPublishDate } from "../../../utils/helpers";
-import useGetCategories from "../../../hooks/useGetCategories";
+import useGetCategories from "../../../hooks/category-hooks/useGetCategories";
 import { useState } from "react";
 import CustomPagination from "../../../components/pagination/CustomPagination";
 
-function buildFilterData(params){
+function buildFilterData(params) {
   const filterData = [];
   //level filter
   const levels = params.getAll("instructional_level");
@@ -79,7 +79,7 @@ function buildFilterData(params){
   return filterData;
 };
 
-function getHeaderTitle(params,categories= []) {
+function getHeaderTitle(params, categories = []) {
   const query = params.get("query");
   const categoryIds = params.getAll("category");
   const sort = params.get("sort");
@@ -116,29 +116,29 @@ function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const sortParam = searchParams.get("sort") || "";
-  
+
   const filters = buildFilterData(searchParams);
   const sortBy = getCourseSortBy(sortParam);
-  const headerTitle = getHeaderTitle(searchParams,categoryData);
-  const { data: coursesData, isLoading: isCourseDataLoading } = useGetCourses(decodeURIComponent(query),filters,sortBy,pageNumber,24);
-  
+  const headerTitle = getHeaderTitle(searchParams, categoryData);
+  const { data: coursesData, isLoading: isCourseDataLoading } = useGetCourses(decodeURIComponent(query), filters, sortBy, pageNumber, 24);
+
   const handlePageChange = (event, value) => {
     setPageNumber(value);
   };
 
   return (
     <Box component={"main"} sx={{ bgcolor: "background.default" }}>
-        <Container className="my-4">
-            <SearchHeader title={headerTitle} resultCount={coursesData?.items?.length || 0} />
-            <FilterToolBar categoryData={categoryData} />
-            <SearchSection coursesData={coursesData?.items} isLoading={isCourseDataLoading}/>
-            {coursesData && coursesData.totalPages > 1 && (
-              <div className="d-flex justify-content-center mt-4">
-                <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange}/>
-              </div>
-            )}
-            {(coursesData?.items?.length === 0) && <NoResult searchValue={query} sx={{mt: "80px",mb:"120px"}}/>}
-        </Container>
+      <Container className="my-4">
+        <SearchHeader title={headerTitle} resultCount={coursesData?.items?.length || 0} />
+        <FilterToolBar categoryData={categoryData} />
+        <SearchSection coursesData={coursesData?.items} isLoading={isCourseDataLoading} />
+        {coursesData && coursesData.totalPages > 1 && (
+          <div className="d-flex justify-content-center mt-4">
+            <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange} />
+          </div>
+        )}
+        {(coursesData?.items?.length === 0) && <NoResult searchValue={query} sx={{ mt: "80px", mb: "120px" }} />}
+      </Container>
     </Box>
   )
 }

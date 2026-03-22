@@ -1,5 +1,5 @@
-import { 
-  Box, 
+import {
+  Box,
   Typography,
   IconButton,
   Checkbox,
@@ -16,8 +16,8 @@ import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useParams, useNavigate } from "react-router-dom";
-import useGetLearningSidebar from "../../../../hooks/useGetLearningSidebar";
-import useUpdateCompleteCP from "../../../../hooks/useUpdateCompleteCP";
+import useGetLearningSidebar from "../../../../hooks/course-progress-hooks/useGetLearningSidebar";
+import useUpdateCompleteCP from "../../../../hooks/course-progress-hooks/useUpdateCompleteCP";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
 import { useState, useEffect } from "react";
 
@@ -32,12 +32,12 @@ function CourseLearnSidebar({ onClose }) {
   const [currentResources, setCurrentResources] = useState([]);
 
   useEffect(() => {
-    if (courseProgressData && courseProgressData.progress) { 
+    if (courseProgressData && courseProgressData.progress) {
       const courseContent = JSON.parse(courseProgressData?.progress)?.contents || [];
       setCourseContents(courseContent);
       let activeSectionId = null;
       if (contentId) {
-        const foundSection = courseContent.find(section => 
+        const foundSection = courseContent.find(section =>
           section.items?.some(item => item.itemId === contentId)
         );
         if (foundSection) {
@@ -60,7 +60,7 @@ function CourseLearnSidebar({ onClose }) {
   const handleCheckboxChange = async (event, sectionId, itemId, currentStatus) => {
     event.stopPropagation();
     const newStatus = !currentStatus;
-    setCourseContents(prevContents => 
+    setCourseContents(prevContents =>
       prevContents.map(section => {
         if (section.sectionId === sectionId) {
           return {
@@ -78,9 +78,9 @@ function CourseLearnSidebar({ onClose }) {
     );
     try {
       await updateProgressMutation.mutateAsync({
-          courseId: Number(courseId), 
-          itemId: itemId,
-          isCompleted: newStatus,
+        courseId: Number(courseId),
+        itemId: itemId,
+        isCompleted: newStatus,
       });
     } catch (error) {
       console.error("Failed to update status", error);
@@ -132,19 +132,19 @@ function CourseLearnSidebar({ onClose }) {
       }
       return acc;
     }, 0);
-    
+
     const minutes = Math.floor(totalDuration / 60);
     const seconds = totalDuration % 60;
     const durationStr = minutes > 0 ? `${minutes}min` : `${seconds}s`;
-    
+
     return { completedItems, totalItems, durationStr };
   };
 
   const handleItemClick = (item) => {
     const routeType = item.type === 'quiz' ? 'quiz' : 'lecture';
     navigate(`/course/${courseId}/learn/${routeType}/${item.itemId}`);
-    if (onClose && window.innerWidth < 900) { 
-       onClose(); 
+    if (onClose && window.innerWidth < 900) {
+      onClose();
     }
   };
 
@@ -158,12 +158,12 @@ function CourseLearnSidebar({ onClose }) {
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
-      
-      <Box 
-        sx={{ 
-          p: 2, 
-          display: "flex", 
-          justifyContent: "space-between", 
+
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
           alignItems: "center",
           bgcolor: "background.paper",
           borderBottom: 1,
@@ -173,7 +173,7 @@ function CourseLearnSidebar({ onClose }) {
         <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.1rem", color: "text.primary" }}>
           Course content
         </Typography>
-        
+
         <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
           <CloseIcon />
         </IconButton>
@@ -183,7 +183,7 @@ function CourseLearnSidebar({ onClose }) {
         {courseContents.map((section, sectionIndex) => {
           const { completedItems, totalItems, durationStr } = calculateSectionStats(section);
           const isExpanded = expandedSections[section.sectionId];
-          
+
           return (
             <Box key={section.sectionId} sx={{ borderBottom: 1, borderColor: "divider" }}>
               <Box
@@ -206,7 +206,7 @@ function CourseLearnSidebar({ onClose }) {
                     {completedItems} / {totalItems} | {durationStr}
                   </Typography>
                 </Box>
-                <IconButton size="small" sx={{ 
+                <IconButton size="small" sx={{
                   transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                   transition: 'transform 0.3s'
                 }}>
@@ -217,8 +217,8 @@ function CourseLearnSidebar({ onClose }) {
               <Collapse in={isExpanded}>
                 <Box sx={{ bgcolor: "background.surface" }}>
                   {section.items.map((item, itemIndex) => (
-                    <Box 
-                      key={item.itemId} 
+                    <Box
+                      key={item.itemId}
                       onClick={() => handleItemClick(item)}
                       sx={{ cursor: "pointer" }}
                     >
@@ -229,16 +229,16 @@ function CourseLearnSidebar({ onClose }) {
                           display: "flex",
                           alignItems: "flex-start",
                           gap: 1.5,
-                          bgcolor: item.itemId === contentId 
+                          bgcolor: item.itemId === contentId
                             ? "#effcf9ff"
-                            : item.isCompleted 
-                                ? "background.muted" 
-                                : "background.paper",
+                            : item.isCompleted
+                              ? "background.muted"
+                              : "background.paper",
                           // bgcolor: item.isCompleted ? "background.muted" : "background.paper",
-                          "&:hover": { 
-                            bgcolor: item.itemId === contentId 
+                          "&:hover": {
+                            bgcolor: item.itemId === contentId
                               ? "brand.lighter"
-                              : "background.alt" 
+                              : "background.alt"
                           },
                           // "&:hover": { bgcolor: "background.alt" },
                           borderBottom: itemIndex < section.items.length - 1 ? 1 : 0,
@@ -259,13 +259,13 @@ function CourseLearnSidebar({ onClose }) {
                             }
                           }}
                         />
-                        
+
                         <Box sx={{ flex: 1, minWidth: 0 }}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
                             {getItemIcon(item)}
-                            <Typography 
-                              variant="body2" 
-                              sx={{ 
+                            <Typography
+                              variant="body2"
+                              sx={{
                                 fontWeight: 500,
                                 color: "text.primary",
                               }}
@@ -273,7 +273,7 @@ function CourseLearnSidebar({ onClose }) {
                               {itemIndex + 1}. {item.title}
                             </Typography>
                           </Box>
-                          
+
                           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
                             <Box>
                               {(item.videoDuration && item.contentType === 'video') && (
@@ -282,7 +282,7 @@ function CourseLearnSidebar({ onClose }) {
                                 </Typography>
                               )}
                             </Box>
-                            
+
                             <Box>
                               {item.resources && item.resources.length > 0 && (
                                 <Button
@@ -296,7 +296,7 @@ function CourseLearnSidebar({ onClose }) {
                                     fontSize: "0.75rem",
                                     minWidth: "auto",
                                     p: 0.5,
-                                    "&:hover": { bgcolor: "brand.light", color: "white"}
+                                    "&:hover": { bgcolor: "brand.light", color: "white" }
                                   }}
                                 >
                                   Resources
@@ -330,11 +330,11 @@ function CourseLearnSidebar({ onClose }) {
         }}
       >
         {currentResources.map((resource, index) => (
-          <MenuItem 
+          <MenuItem
             key={index}
             onClick={() => handleResourceItemClick(resource.fileUrl)}
-            sx={{ 
-              display: "flex", 
+            sx={{
+              display: "flex",
               gap: 1.5,
               py: 1.5,
               "&:hover": { bgcolor: "background.alt" }
@@ -347,7 +347,7 @@ function CourseLearnSidebar({ onClose }) {
           </MenuItem>
         ))}
       </Menu>
-      
+
     </Box>
   );
 }

@@ -1,10 +1,10 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { Avatar, Box, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router";
-import useGetCourses from "../../../hooks/useGetCourses";
+import useGetCourses from "../../../hooks/course-hooks/useGetCourses";
 
 function DropDownSearch({ searchValue, handleClose, debouncedValue }) {
-    const { data: coursesData } = useGetCourses(debouncedValue.length > 2 ? decodeURIComponent(debouncedValue) : "",[],0, 1, 4);
+    const { data: coursesData } = useGetCourses(debouncedValue.length > 2 ? decodeURIComponent(debouncedValue) : "", [], 0, 1, 4);
 
     return (
         <Box sx={{ py: 2, px: 1 }}>
@@ -23,7 +23,7 @@ function DropDownSearch({ searchValue, handleClose, debouncedValue }) {
                     py: 1.5,
                     textDecoration: "none",
                     "&:hover": {
-                    bgcolor: "#EDEFF0",
+                        bgcolor: "#EDEFF0",
                     },
                 }}
             >

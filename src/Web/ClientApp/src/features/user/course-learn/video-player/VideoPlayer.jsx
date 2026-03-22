@@ -1,14 +1,14 @@
 import { Box, Typography, CircularProgress, Button } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { 
-  ArrowBackIosNew as ArrowBackIcon, 
+import {
+  ArrowBackIosNew as ArrowBackIcon,
   ArrowForwardIos as ArrowForwardIcon,
 } from "@mui/icons-material";
 import CourseLearnTab from "../course-learn-tabs/CourseLearnTab";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
-import useGetCPByItemId from "../../../../hooks/useGetCPByItemId";
-import useUpdateCPByItemId from "../../../../hooks/useUpdateCPByItemId";
+import useGetCPByItemId from "../../../../hooks/course-progress-hooks/useGetCPByItemId";
+import useUpdateCPByItemId from "../../../../hooks/course-progress-hooks/useUpdateCPByItemId";
 
 function VideoPlayer() {
   const { courseId, contentId } = useParams();
@@ -16,7 +16,7 @@ function VideoPlayer() {
   const { data: itemData, isLoading } = useGetCPByItemId(contentId, courseId);
   const [showOverlay, setShowOverlay] = useState(false);
   const [countdown, setCountdown] = useState(5);
-  
+
   const timerRef = useRef(null);
   const videoRef = useRef(null);
   const lastSaveTimeRef = useRef(0);
@@ -38,7 +38,7 @@ function VideoPlayer() {
     if (currentItem && videoRef.current && currentItem.lastPosition > 0) {
       const restoreTime = () => {
         if (videoRef.current) {
-          if (videoRef.current.currentTime < 2) { 
+          if (videoRef.current.currentTime < 2) {
             videoRef.current.currentTime = currentItem.lastPosition;
           }
         }
@@ -79,8 +79,8 @@ function VideoPlayer() {
 
   useEffect(() => {
     if (countdown === 0 && showOverlay && overlayTriggerItemRef.current === contentId) {
-       if (timerRef.current) clearInterval(timerRef.current);
-       handleNavigateNext();
+      if (timerRef.current) clearInterval(timerRef.current);
+      handleNavigateNext();
     }
   }, [countdown, showOverlay, handleNavigateNext, contentId]);
 
@@ -96,7 +96,7 @@ function VideoPlayer() {
           courseId,
           itemId: contentId,
           lastPosition: 0,
-          isCompleted: true 
+          isCompleted: true
         });
       } catch (error) {
         hasProcessedEndRef.current = false;
@@ -119,8 +119,8 @@ function VideoPlayer() {
     if (!videoRef.current) return;
     const now = Date.now();
     if (now - lastSaveTimeRef.current > 5000) {
-        saveProgress(videoRef.current.currentTime);
-        lastSaveTimeRef.current = now;
+      saveProgress(videoRef.current.currentTime);
+      lastSaveTimeRef.current = now;
     }
   };
 
@@ -138,14 +138,14 @@ function VideoPlayer() {
         lastPosition: currentTime,
         isCompleted: currentItem?.isCompleted || false
       });
-    } catch(e) { 
-      console.error("Error saving progress:", e); 
+    } catch (e) {
+      console.error("Error saving progress:", e);
     }
   };
 
   const handleArticleInteraction = async () => {
     if (currentItem?.contentType === 'article' && !currentItem?.isCompleted) {
-      
+
       await updateProgressMutation.mutateAsync({
         courseId,
         itemId: contentId,
@@ -155,7 +155,7 @@ function VideoPlayer() {
     }
   };
 
-  if (isLoading){
+  if (isLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
         <LoadingSpinner />
@@ -176,39 +176,39 @@ function VideoPlayer() {
 
   return (
     <Box>
-      <Box 
-        sx={{ 
-          width: "100%", 
+      <Box
+        sx={{
+          width: "100%",
           height: "500px",
-          bgcolor: "black", 
-          position: "relative", 
-          display: "flex", 
-          alignItems: "center", 
+          bgcolor: "black",
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
           justifyContent: "center",
           color: "white",
           "&:hover .nav-btn": { opacity: 1 }
         }}
       >
         {currentItem.contentType === 'video' ? (
-           <video 
-             ref={videoRef}
-             key={currentItem.itemId} 
-             controls={!showOverlay} 
-             width="100%" 
-             height="100%"
-             autoPlay 
-             src={currentItem.content} 
-             onEnded={handleVideoEnded}
-             onTimeUpdate={handleTimeUpdate} 
-             onPause={handlePause}
-             style={{ display: showOverlay ? 'none' : 'block' }}
-           >
-             Your browser does not support the video tag.
-           </video>
+          <video
+            ref={videoRef}
+            key={currentItem.itemId}
+            controls={!showOverlay}
+            width="100%"
+            height="100%"
+            autoPlay
+            src={currentItem.content}
+            onEnded={handleVideoEnded}
+            onTimeUpdate={handleTimeUpdate}
+            onPause={handlePause}
+            style={{ display: showOverlay ? 'none' : 'block' }}
+          >
+            Your browser does not support the video tag.
+          </video>
         ) : (
           <Box sx={{ p: 4, bgcolor: '#fff', color: '#000', width: '100%', height: '100%', overflow: 'auto' }} onClick={handleArticleInteraction}>
-             <Typography variant="h4" gutterBottom>{currentItem.title}</Typography>
-             <div dangerouslySetInnerHTML={{ __html: currentItem.content }} />
+            <Typography variant="h4" gutterBottom>{currentItem.title}</Typography>
+            <div dangerouslySetInnerHTML={{ __html: currentItem.content }} />
           </Box>
         )}
 
@@ -217,7 +217,7 @@ function VideoPlayer() {
             sx={{
               position: "absolute",
               top: 0, left: 0, right: 0, bottom: 0,
-              bgcolor: "rgba(0, 0, 0, 0.92)", 
+              bgcolor: "rgba(0, 0, 0, 0.92)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -235,10 +235,10 @@ function VideoPlayer() {
                 animation: "slideUp 0.5s ease-out"
               }}
             >
-              <Typography 
-                variant="subtitle1" 
-                sx={{ 
-                  color: "#a0a0a0", 
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  color: "#a0a0a0",
                   mb: 2,
                   textTransform: "uppercase",
                   letterSpacing: "2px",
@@ -248,14 +248,14 @@ function VideoPlayer() {
               >
                 Up Next
               </Typography>
-              
-              <Typography 
-                variant="h5" 
-                sx={{ 
-                  color: "#fff", 
-                  fontWeight: 600, 
-                  mb: 5, 
-                  textAlign: "center", 
+
+              <Typography
+                variant="h5"
+                sx={{
+                  color: "#fff",
+                  fontWeight: 600,
+                  mb: 5,
+                  textAlign: "center",
                   px: 4,
                   maxWidth: "600px",
                   lineHeight: 1.4
@@ -265,19 +265,19 @@ function VideoPlayer() {
               </Typography>
 
               <Box sx={{ position: 'relative', display: 'inline-flex', mb: 3 }}>
-                <CircularProgress 
-                  variant="determinate" 
-                  value={100} 
+                <CircularProgress
+                  variant="determinate"
+                  value={100}
                   size={100}
                   thickness={2}
                   sx={{ color: "rgba(255,255,255,0.08)", position: "absolute" }}
                 />
-                <CircularProgress 
-                  variant="determinate" 
-                  value={((5 - countdown) / 5) * 100} 
+                <CircularProgress
+                  variant="determinate"
+                  value={((5 - countdown) / 5) * 100}
                   size={100}
                   thickness={2}
-                  sx={{ 
+                  sx={{
                     color: "#5ac8fa",
                     transition: "none",
                     "& .MuiCircularProgress-circle": { transition: "stroke-dashoffset 1s linear" }
@@ -298,18 +298,18 @@ function VideoPlayer() {
                 </Box>
               </Box>
 
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 onClick={handleCancelAutoPlay}
-                sx={{ 
-                  color: "#fff", 
+                sx={{
+                  color: "#fff",
                   borderColor: "rgba(255,255,255,0.3)",
-                  textTransform: "none", 
+                  textTransform: "none",
                   fontSize: "0.95rem",
                   px: 4, py: 1,
                   borderRadius: "8px",
                   fontWeight: 500,
-                  "&:hover": { 
+                  "&:hover": {
                     bgcolor: "rgba(255,255,255,0.08)",
                     borderColor: "rgba(255,255,255,0.5)"
                   }
@@ -336,9 +336,9 @@ function VideoPlayer() {
             }}
           >
             <ArrowBackIcon fontSize="small" />
-            <Box 
-              sx={{ 
-                width: 0, opacity: 0, overflow: "hidden", 
+            <Box
+              sx={{
+                width: 0, opacity: 0, overflow: "hidden",
                 transition: "all 0.3s ease",
                 whiteSpace: "nowrap",
                 ".nav-btn:hover &": { width: "auto", opacity: 1, ml: 1 }
@@ -364,9 +364,9 @@ function VideoPlayer() {
               "&:hover": { bgcolor: "rgba(0,0,0,0.8)", opacity: 1, pl: 2 }
             }}
           >
-            <Box 
-              sx={{ 
-                width: 0, opacity: 0, overflow: "hidden", 
+            <Box
+              sx={{
+                width: 0, opacity: 0, overflow: "hidden",
                 transition: "all 0.3s ease",
                 whiteSpace: "nowrap",
                 textAlign: "right",

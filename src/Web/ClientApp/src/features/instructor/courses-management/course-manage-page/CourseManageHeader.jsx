@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { Container } from "reactstrap";
 import { Link as RouterLink, useParams } from "react-router";
-import useGetCourseById from "../../../../hooks/useGetCourseById";
+import useGetCourseById from "../../../../hooks/course-hooks/useGetCourseById";
 
 function CourseManageHeader() {
   const { courseId } = useParams();

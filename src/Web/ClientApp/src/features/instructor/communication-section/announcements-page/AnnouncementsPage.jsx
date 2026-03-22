@@ -5,7 +5,7 @@ import PageTitle from '../../../../components/PageTitle';
 import emptyMailboxImg from "../../../../assets/images/empty-mailbox.png";
 import { Link as RouterLink, useNavigate } from "react-router";
 import { useState } from 'react';
-import useGetAnnouncements from '../../../../hooks/useGetAnnouncements';
+import useGetAnnouncements from '../../../../hooks/announcement-hooks/useGetAnnouncements';
 import CustomPagination from '../../../../components/pagination/CustomPagination';
 import CustomDataGrid from '../../../../components/datagrid/CustomDataGrid';
 import MainCard from '../../../../components/instructor-layout/MainCard';

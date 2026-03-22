@@ -10,8 +10,8 @@ import MetricTab from './MetricTab';
 import DefaultSelect from '../../../../components/drop-down/DefaultSelect';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import LineChartWidget from '../../../../components/charts/LineChartWidget';
-import useGetCoursesAuthor from '../../../../hooks/useGetCoursesAuthor';
-import useGetCourseStats from '../../../../hooks/useGetCourseStats';
+import useGetCoursesAuthor from '../../../../hooks/course-hooks/useGetCoursesAuthor';
+import useGetCourseStats from '../../../../hooks/course-hooks/useGetCourseStats';
 import BarChartWidget from '../../../../components/charts/BarChartWidget';
 import MainCard from '../../../../components/instructor-layout/MainCard';
 

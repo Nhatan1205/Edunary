@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Col, Container, Row } from "reactstrap";
 import ToolbarCourse from "./ToolbarCourse";
 import PageTitle from "../../../../components/PageTitle";
-import useGetCoursesAuthor from "../../../../hooks/useGetCoursesAuthor";
+import useGetCoursesAuthor from "../../../../hooks/course-hooks/useGetCoursesAuthor";
 import { Typography } from "@mui/material";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
 import CourseCard from "./CourseCard";

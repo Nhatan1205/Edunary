@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
-import useRegister from "../../../../hooks/useRegister";
 import signupImage from "../../../../assets/images/sign-up.jpg";
 import {
   Box,
@@ -29,8 +28,9 @@ import GoogleIcon from "@mui/icons-material/Google";
 // import FacebookIcon from "@mui/icons-material/Facebook";
 // import GitHubIcon from "@mui/icons-material/GitHub";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
-import useGoogleLogin from "../../../../hooks/useGoogleLogin";
+import useGoogleLogin from "../../../../hooks/auth-hooks/useGoogleLogin";
 import { GoogleLogin } from "@react-oauth/google";
+import useRegister from "../../../../hooks/auth-hooks/useRegister";
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -507,8 +507,8 @@ function Register() {
                         >
                           <GoogleIcon sx={{ color: "#EA4335", fontSize: 22 }} />
                         </IconButton> */}
-                        <Box sx={{ 
-                          position: 'relative', 
+                        <Box sx={{
+                          position: 'relative',
                           textAlign: 'center',
                           '&::before': {
                             content: '""',
@@ -538,9 +538,9 @@ function Register() {
                         </Box>
                         <Box sx={{ position: 'relative' }}>
                           {/* Hidden GoogleLogin */}
-                          <Box sx={{ 
-                            position: 'absolute', 
-                            opacity: 0, 
+                          <Box sx={{
+                            position: 'absolute',
+                            opacity: 0,
                             pointerEvents: 'none',
                             '& > div': { display: 'none' }
                           }}>
@@ -549,7 +549,7 @@ function Register() {
                               onError={handleGoogleLoginError}
                             />
                           </Box>
-                          
+
                           {/* Custom Button */}
                           <IconButton
                             onClick={() => {

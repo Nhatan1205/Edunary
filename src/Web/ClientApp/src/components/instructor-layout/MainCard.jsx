@@ -8,6 +8,7 @@ export default function MainCard({ children }) {
             border: '1px solid',
             borderColor: 'divider',
             borderRadius: 3,
+            minHeight: "80vh"
         }}>
             <CustomBreadcrumbs />
             <Divider />

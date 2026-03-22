@@ -4,13 +4,14 @@ import { Avatar, Box, Button, Chip, TextField, Typography } from "@mui/material"
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import TextEditor from "../../../../../components/TextEditor";
-import useGetCoursesAuthor from "../../../../../hooks/useGetCoursesAuthor";
+import useGetCoursesAuthor from "../../../../../hooks/course-hooks/useGetCoursesAuthor";
 import CustomDataGrid from "../../../../../components/datagrid/CustomDataGrid";
-import useDebounce from "../../../../../hooks/useDebounce";
-import useCreateAnnouncement from "../../../../../hooks/useCreateAnnouncement";
+import useDebounce from "../../../../../hooks/common/useDebounce";
+import useCreateAnnouncement from "../../../../../hooks/announcement-hooks/useCreateAnnouncement";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
 import { toast } from "react-toastify";
 import AlertBox from "../../../../../components/AlertBox";
+import MainCard from "src/components/instructor-layout/MainCard";
 
 const columnsSetting = [
     {
@@ -21,7 +22,7 @@ const columnsSetting = [
             return (
                 <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                     {params.value ? (
-                        <img 
+                        <img
                             src={params.value}
                             alt={params.row.title}
                             style={{
@@ -34,7 +35,7 @@ const columnsSetting = [
                     ) : (
                         <Avatar
                             variant="rounded"
-                            sx={{ 
+                            sx={{
                                 width: 60,
                                 height: 40,
                                 bgcolor: '#e0e0e0'
@@ -46,9 +47,9 @@ const columnsSetting = [
         },
         sortable: false
     },
-    { 
-        field: 'title', 
-        headerName: 'Title', 
+    {
+        field: 'title',
+        headerName: 'Title',
         width: 400,
         flex: 1
     },
@@ -93,7 +94,7 @@ function AnnouncementComposePage() {
 
     const { mutate: createAnnouncement, isPending } = useCreateAnnouncement();
 
-    const { control,register, handleSubmit, formState: { errors }, reset } = useForm({
+    const { control, register, handleSubmit, formState: { errors }, reset } = useForm({
         defaultValues: {
             subject: '',
             content: ''
@@ -135,7 +136,7 @@ function AnnouncementComposePage() {
 
     const handleSaveDraft = handleSubmit((data) => onSubmit(data, 0));
     const handleSend = handleSubmit((data) => onSubmit(data, 1));
-    
+
     function handleDiscard() {
         reset();
         setSelectedCourses({ type: "include", ids: {} });
@@ -143,165 +144,148 @@ function AnnouncementComposePage() {
     };
 
     return (
-        <Container fluid className="py-4" style={{ paddingLeft: "240px", paddingRight: "240px" }}>
-            <Row className="mb-4">
-                <Col xs="12">
-                    <PageTitle title="New Educational Announcement" />
+        <MainCard>
+            <Container fluid className="py-4" style={{ paddingLeft: "240px", paddingRight: "240px" }}>
+                <Row className="mb-4">
+                    <Col xs="12">
+                        <PageTitle title="New Educational Announcement" />
 
-                    <Box sx={{ my: 3 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                            Audience
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
-                            Define who you want to send the announcement to. You can select courses and then filter learners by enrollment date, course progress, etc.
-                        </Typography>
-                    </Box>
-
-                    {/* Course Section */}
-                    <Box sx={{ mb: 4 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                            Courses
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            placeholder="Search for courses"
-                            variant="outlined"
-                            sx={{ mb: 2 }}
-                            value={searchValue}
-                            onChange={handleInputChange}
-                        />
-                        <CustomDataGrid
-                            rows={coursesData?.items || []}
-                            columns={columnsSetting}
-                            loading={isCourseDataLoading}
-                            checkboxSelection={true}
-                            onSelectionChange={handleSelectionChange}
-                            height={384}
-                        />
-                        {coursesData && coursesData.totalPages > 1 && (
-                            <div className="d-flex justify-content-center mt-4">
-                            <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange}/>
-                            </div>
-                        )}
-                    </Box>
-
-                    {/* Divider */}
-                    <Box sx={{ borderTop: '1px solid #e0e0e0', my: 4 }} />
-
-                    {/* Content Section */}
-                    <Box sx={{ mb: 4 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                            <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                                Content
+                        <Box sx={{ my: 3 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                                Audience
                             </Typography>
-                            <Button 
-                                variant="outlined" 
-                                sx={{ 
-                                    textTransform: 'none',
-                                    borderColor: 'brand.main',
-                                    color: 'brand.main',
-                                    '&:hover': {
-                                        borderColor: 'brand.main',
-                                        backgroundColor: 'rgba(124, 58, 237, 0.04)'
-                                    }
-                                }}
-                            >
-                                Preview ▼
-                            </Button>
+                            <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
+                                Define who you want to send the announcement to. You can select courses and then filter learners by enrollment date, course progress, etc.
+                            </Typography>
                         </Box>
 
-                        {/* Subject Field */}
-                        <Box sx={{ mb: 3 }}>
-                            <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
-                                Subject
+                        {/* Course Section */}
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                                Courses
                             </Typography>
-
                             <TextField
-                                {...register("subject", {
-                                    required: "Subject is required",
-                                    maxLength: { value: 55, message: "Subject must be 55 characters or less" },
-                                    minLength: { value: 5, message: "Subject must be at least 5 characters" },
-                                })}
                                 fullWidth
+                                placeholder="Search for courses"
                                 variant="outlined"
-                                placeholder="Announcement and email title (55 character max)"
-                                error={!!errors.subject}
-                                slotProps={{
-                                    htmlInput: { maxLength: 55 }
-                                }}
+                                sx={{ mb: 2 }}
+                                value={searchValue}
+                                onChange={handleInputChange}
                             />
-
-                            {errors.subject && (
-                                <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
-                                    {errors.subject.message}
-                                </AlertBox>
+                            <CustomDataGrid
+                                rows={coursesData?.items || []}
+                                columns={columnsSetting}
+                                loading={isCourseDataLoading}
+                                checkboxSelection={true}
+                                onSelectionChange={handleSelectionChange}
+                                height={384}
+                            />
+                            {coursesData && coursesData.totalPages > 1 && (
+                                <div className="d-flex justify-content-center mt-4">
+                                    <CustomPagination count={coursesData.totalPages} page={pageNumber} onChange={handlePageChange} />
+                                </div>
                             )}
-
-                            <Typography variant="caption" sx={{ color: '#666', mt: 1, display: 'block' }}>
-                                This will be the subject of your email
-                            </Typography>
                         </Box>
-                        {/* Body Field */}
-                        <Box sx={{ mb: 3 }}>
-                            <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
-                                Body
-                            </Typography>
-                            <Controller
-                                name="content"
-                                control={control}
-                                rules={{ 
-                                    required: "Content is required",
-                                    minLength: {
-                                        value: 20,
-                                        message: "Minimum 20 characters required",
-                                    },
-                                 }}
-                                render={({ field }) => (
-                                    <>
-                                        <TextEditor 
-                                            value={field.value} 
-                                            onChange={field.onChange}
-                                            buttons={['bold','italic','underline','|','ul','ol']}
-                                        />
-                                        {errors.content && (
-                                            <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
-                                                {errors.content.message}
-                                            </AlertBox>
-                                        )}
-                                    </>
+
+                        {/* Divider */}
+                        <Box sx={{ borderTop: '1px solid #e0e0e0', my: 4 }} />
+
+                        {/* Content Section */}
+                        <Box sx={{ mb: 4 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                                    Content
+                                </Typography>
+                                <Button
+                                    variant="outlined"
+                                    sx={{
+                                        textTransform: 'none',
+                                        borderColor: 'brand.main',
+                                        color: 'brand.main',
+                                        '&:hover': {
+                                            borderColor: 'brand.main',
+                                            backgroundColor: 'rgba(124, 58, 237, 0.04)'
+                                        }
+                                    }}
+                                >
+                                    Preview ▼
+                                </Button>
+                            </Box>
+
+                            {/* Subject Field */}
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
+                                    Subject
+                                </Typography>
+
+                                <TextField
+                                    {...register("subject", {
+                                        required: "Subject is required",
+                                        maxLength: { value: 55, message: "Subject must be 55 characters or less" },
+                                        minLength: { value: 5, message: "Subject must be at least 5 characters" },
+                                    })}
+                                    fullWidth
+                                    variant="outlined"
+                                    placeholder="Announcement and email title (55 character max)"
+                                    error={!!errors.subject}
+                                    slotProps={{
+                                        htmlInput: { maxLength: 55 }
+                                    }}
+                                />
+
+                                {errors.subject && (
+                                    <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
+                                        {errors.subject.message}
+                                    </AlertBox>
                                 )}
-                            />
+
+                                <Typography variant="caption" sx={{ color: '#666', mt: 1, display: 'block' }}>
+                                    This will be the subject of your email
+                                </Typography>
+                            </Box>
+                            {/* Body Field */}
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
+                                    Body
+                                </Typography>
+                                <Controller
+                                    name="content"
+                                    control={control}
+                                    rules={{
+                                        required: "Content is required",
+                                        minLength: {
+                                            value: 20,
+                                            message: "Minimum 20 characters required",
+                                        },
+                                    }}
+                                    render={({ field }) => (
+                                        <>
+                                            <TextEditor
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                buttons={['bold', 'italic', 'underline', '|', 'ul', 'ol']}
+                                            />
+                                            {errors.content && (
+                                                <AlertBox severity="error" variant="standard" sx={{ mt: 2 }}>
+                                                    {errors.content.message}
+                                                </AlertBox>
+                                            )}
+                                        </>
+                                    )}
+                                />
+                            </Box>
                         </Box>
-                    </Box>
 
-                    {/* Divider */}
-                    <Box sx={{ borderTop: '1px solid #e0e0e0', my: 4 }} />
+                        {/* Divider */}
+                        <Box sx={{ borderTop: '1px solid #e0e0e0', my: 4 }} />
 
-                    {/* Action Buttons */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Button 
-                            variant="outlined"
-                            onClick={handleDiscard}
-                            disabled={isPending}
-                            sx={{ 
-                                textTransform: 'none',
-                                color: 'brand.main',
-                                borderColor: 'brand.main',
-                                '&:hover': {
-                                    borderColor: 'brand.main',
-                                    backgroundColor: 'rgba(124, 58, 237, 0.04)'
-                                }
-                            }}
-                        >
-                            Discard
-                        </Button>
-                        
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Button 
+                        {/* Action Buttons */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Button
                                 variant="outlined"
-                                onClick={handleSaveDraft}
+                                onClick={handleDiscard}
                                 disabled={isPending}
-                                sx={{ 
+                                sx={{
                                     textTransform: 'none',
                                     color: 'brand.main',
                                     borderColor: 'brand.main',
@@ -311,27 +295,46 @@ function AnnouncementComposePage() {
                                     }
                                 }}
                             >
-                                Save as draft
+                                Discard
                             </Button>
-                            <Button 
-                                variant="contained"
-                                onClick={handleSend}
-                                disabled={isPending}
-                                sx={{ 
-                                    textTransform: 'none',
-                                    backgroundColor: 'brand.main',
-                                    '&:hover': {
-                                        backgroundColor: 'brand.main'
-                                    }
-                                }}
-                            >
-                                {isPending ? 'Sending...' : 'Send'}
-                            </Button>
+
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Button
+                                    variant="outlined"
+                                    onClick={handleSaveDraft}
+                                    disabled={isPending}
+                                    sx={{
+                                        textTransform: 'none',
+                                        color: 'brand.main',
+                                        borderColor: 'brand.main',
+                                        '&:hover': {
+                                            borderColor: 'brand.main',
+                                            backgroundColor: 'rgba(124, 58, 237, 0.04)'
+                                        }
+                                    }}
+                                >
+                                    Save as draft
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSend}
+                                    disabled={isPending}
+                                    sx={{
+                                        textTransform: 'none',
+                                        backgroundColor: 'brand.main',
+                                        '&:hover': {
+                                            backgroundColor: 'brand.main'
+                                        }
+                                    }}
+                                >
+                                    {isPending ? 'Sending...' : 'Send'}
+                                </Button>
+                            </Box>
                         </Box>
-                    </Box>
-                </Col>
-            </Row>
-        </Container>
+                    </Col>
+                </Row>
+            </Container>
+        </MainCard>
     );
 }
 

@@ -3,7 +3,7 @@ import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import RatingStatistics from "./RatingStatistics";
 import ReviewsFilter from "./ReviewsFilter";
 import ReviewsList from "./ReviewsList";
-import { useGetRatingsByCourse } from "../../hooks/useRatingCourse";
+import { useGetRatingsByCourse } from "../../hooks/rating-hooks/useRatingCourse";
 
 function RatingTab({ courseId }) {
   const [searchQuery, setSearchQuery] = useState("");

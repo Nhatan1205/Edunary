@@ -16,14 +16,14 @@ import {
   Article as ArticleIcon,
 } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
-import useCheckContentExists from "../../../../../hooks/useCheckContentExists";
-import useCreateCourseContent from "../../../../../hooks/useCreateCourseContent";
-import useGetCourseContent from "../../../../../hooks/useGetCourseContent";
-import useDeleteCourseContentById from "../../../../../hooks/useDeleteCourseContentById";
-import useSetCourseIdForContent from "../../../../../hooks/useSetCourseIdForContent";
-import useGenerateUploadUrl from "../../../../../hooks/useGenerateUploadUrl";
-import useUploadToSpaces from "../../../../../hooks/useUploadToSpaces";
-import useAddLinkToCC from "../../../../../hooks/useAddLinkToCC";
+import useCheckContentExists from "../../../../../hooks/course-content-hooks/useCheckContentExists";
+import useCreateCourseContent from "../../../../../hooks/course-content-hooks/useCreateCourseContent";
+import useGetCourseContent from "../../../../../hooks/course-content-hooks/useGetCourseContent";
+import useDeleteCourseContentById from "../../../../../hooks/course-content-hooks/useDeleteCourseContentById";
+import useSetCourseIdForContent from "../../../../../hooks/course-content-hooks/useSetCourseIdForContent";
+import useGenerateUploadUrl from "../../../../../hooks/course-content-hooks/useGenerateUploadUrl";
+import useUploadToSpaces from "../../../../../hooks/course-content-hooks/useUploadToSpaces";
+import useAddLinkToCC from "../../../../../hooks/course-content-hooks/useAddLinkToCC";
 import FileOverrideDialog from "./FileOverrideDialog";
 import FileUploadSection from "./FileUploadSection";
 import FileLibraryTable from "./FileLibraryTable";
@@ -56,7 +56,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const generateUploadUrl = useGenerateUploadUrl();
   const uploadToSpaces = useUploadToSpaces();
   const addLinkToCC = useAddLinkToCC();
-  const { data: courseContents, isLoading : isLoadingCourseContents } = useGetCourseContent();
+  const { data: courseContents, isLoading: isLoadingCourseContents } = useGetCourseContent();
 
   // Format date helper
   const formatDate = (date) => {
@@ -68,7 +68,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
   };
 
   // Filter course contents based on search query and only show videos
-  const filteredCourseContents = courseContents?.filter(content => 
+  const filteredCourseContents = courseContents?.filter(content =>
     content.contentType?.startsWith('video/') &&
     content.fileName.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
@@ -81,7 +81,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
     const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     setVideoDuration(formattedDuration);
     if (onUpdate) {
-      onUpdate(item.itemId, { 
+      onUpdate(item.itemId, {
         videoDuration: formattedDuration
       });
     }
@@ -89,7 +89,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
 
   const handleUploadFile = async (file, override = false) => {
     if (item.videoId) {
-      await setCourseIdForContent.mutateAsync({ 
+      await setCourseIdForContent.mutateAsync({
         contentIds: [item.videoId],
         courseId: null
       });
@@ -98,8 +98,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
     const fileSize = file.size;
     const maxSize = 5 * 1024 * 1024;
     if (fileSize > maxSize) {
-      const data = await generateUploadUrl.mutateAsync({ 
-        fileName: file.name, 
+      const data = await generateUploadUrl.mutateAsync({
+        fileName: file.name,
         contentType: file.type
       });
       const { uploadUrl, fileName, fileUrl } = data.result;
@@ -108,8 +108,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
         setVideoUploadInfo(prev => prev ? { ...prev, status: "Upload failed" } : null);
         return;
       }
-      const result = await addLinkToCC.mutateAsync({ 
-        title: fileName, 
+      const result = await addLinkToCC.mutateAsync({
+        title: fileName,
         url: fileUrl,
         isOverride: override,
         courseId: courseId ? parseInt(courseId) : null,
@@ -118,31 +118,31 @@ function VideoContent({ item, onUpdate, onCancel }) {
       if (result && result.result) {
         setUploadedContent(result.result.fileUrl);
         setIsDownloadable(false);
-        
+
         if (onUpdate) {
-          onUpdate(item.itemId, { 
+          onUpdate(item.itemId, {
             content: result.result.fileUrl,
             downloadable: false,
-            videoId : result.result.id
+            videoId: result.result.id
           });
         }
       }
     }
     else {
-      const result = await createCourseContent.mutateAsync({ 
-        file, 
+      const result = await createCourseContent.mutateAsync({
+        file,
         isOverride: override,
         courseId: courseId ? parseInt(courseId) : null
       });
       if (result && result.result) {
         setUploadedContent(result.result.fileUrl);
         setIsDownloadable(false);
-        
+
         if (onUpdate) {
-          onUpdate(item.itemId, { 
+          onUpdate(item.itemId, {
             content: result.result.fileUrl,
             downloadable: false,
-            videoId : result.result.id
+            videoId: result.result.id
           });
         }
       }
@@ -154,7 +154,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
 
   const handleCheckExistFile = async (file) => {
     const exists = await checkContentExists.mutateAsync({ fileName: file.name });
-    
+
     if (exists) {
       setPendingFile(file);
       setShowOverrideDialog(true);
@@ -170,7 +170,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
         showProgress: true,
         override: false,
       });
-      
+
       await handleUploadFile(file, false);
     }
   };
@@ -178,7 +178,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const handleVideoFileChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      
+
       // Validate file type - only allow video formats
       const validVideoTypes = [
         'video/mp4',
@@ -191,23 +191,23 @@ function VideoContent({ item, onUpdate, onCancel }) {
         'video/3gpp',
         'video/x-flv'
       ];
-      
+
       if (!validVideoTypes.includes(file.type) && !file.type.startsWith('video/')) {
         setInfoMessage("Invalid file format. Please select a valid video file (MP4, AVI, MOV, WMV, WebM, etc.).");
         setShowInfoDialog(true);
         e.target.value = '';
         return;
       }
-      
+
       const maxSize = 512 * 1024 * 1024;
-      
+
       if (file.size > maxSize) {
         setInfoMessage("File size exceeds 512MB. Please select a smaller video file.");
         setShowInfoDialog(true);
         e.target.value = '';
         return;
       }
-      
+
       await handleCheckExistFile(file);
     }
     e.target.value = '';
@@ -216,7 +216,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const handleConfirmOverride = async () => {
     if (pendingFile) {
       setShowOverrideDialog(false);
-      
+
       setSelectedVideoFile(pendingFile);
       setVideoUploadInfo({
         fileName: pendingFile.name,
@@ -228,9 +228,9 @@ function VideoContent({ item, onUpdate, onCancel }) {
         showProgress: true,
         override: overrideChecked,
       });
-      
+
       await handleUploadFile(pendingFile, overrideChecked);
-      
+
       setPendingFile(null);
       setOverrideChecked(false);
     }
@@ -244,7 +244,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
 
   const handleDownloadableChange = (checked) => {
     setIsDownloadable(checked);
-    
+
     if (onUpdate) {
       onUpdate(item.itemId, { downloadable: checked });
     }
@@ -254,15 +254,15 @@ function VideoContent({ item, onUpdate, onCancel }) {
     setShowVideoUploadForm(true);
   };
 
-  const handleReplaceContentType = async() => {
-    if (item.videoId ) {
-      await setCourseIdForContent.mutateAsync({ 
-        contentIds: [item.videoId], 
-        courseId: null 
+  const handleReplaceContentType = async () => {
+    if (item.videoId) {
+      await setCourseIdForContent.mutateAsync({
+        contentIds: [item.videoId],
+        courseId: null
       });
     }
     if (onUpdate) {
-      onUpdate(item.itemId, { 
+      onUpdate(item.itemId, {
         content: null,
         contentType: null,
         videoId: null,
@@ -293,32 +293,32 @@ function VideoContent({ item, onUpdate, onCancel }) {
   };
 
   const handleDeleteOldContent = async () => {
-    if (item.videoId ) {
-      await setCourseIdForContent.mutateAsync({ 
-        contentIds: [item.videoId], 
-        courseId: null 
+    if (item.videoId) {
+      await setCourseIdForContent.mutateAsync({
+        contentIds: [item.videoId],
+        courseId: null
       });
     }
   }
-  
+
   const handleSelectFromLibrary = async (content) => {
     if (courseId) {
       // Delete old content if exists
       await handleDeleteOldContent();
-      await setCourseIdForContent.mutateAsync({ 
-        contentIds: [content.id], 
-        courseId: parseInt(courseId) 
+      await setCourseIdForContent.mutateAsync({
+        contentIds: [content.id],
+        courseId: parseInt(courseId)
       });
-      
+
       // Set the uploaded content to display the video
       setUploadedContent(content.fileUrl);
       setShowVideoUploadForm(false);
-      
+
       if (onUpdate) {
-        onUpdate(item.itemId, { 
+        onUpdate(item.itemId, {
           content: content.fileUrl,
           downloadable: false,
-          videoId : content.id
+          videoId: content.id
         });
       }
     }
@@ -337,15 +337,15 @@ function VideoContent({ item, onUpdate, onCancel }) {
     <>
       {/* Video Upload Form */}
       {showVideoUploadForm && (
-        <Box sx={{ 
+        <Box sx={{
           mb: 2,
           borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
           pb: 2,
-          }}>
+        }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Typography 
-              variant="h6" 
-              sx={{ 
+            <Typography
+              variant="h6"
+              sx={{
                 fontWeight: 600,
                 color: "text.primary",
               }}
@@ -357,7 +357,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
               onClick={() => {
                 setShowVideoUploadForm(false);
                 setSelectedVideoFile(null);
-                
+
                 // If no content uploaded yet, cancel and go back to +Content button
                 if (!uploadedContent && onCancel) {
                   onCancel();
@@ -374,8 +374,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
             </Button>
           </Box>
 
-          <Tabs 
-            value={videoUploadTab} 
+          <Tabs
+            value={videoUploadTab}
             onChange={(e, newValue) => setVideoUploadTab(newValue)}
             sx={{
               borderBottom: 1,
@@ -439,7 +439,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
               </Box>
 
               {/* Video Library Table */}
-              <FileLibraryTable 
+              <FileLibraryTable
                 contents={filteredCourseContents}
                 onSelect={handleSelectFromLibrary}
                 onDelete={handleDeleteContent}
@@ -451,9 +451,9 @@ function VideoContent({ item, onUpdate, onCancel }) {
 
       {/* Uploaded Video Display */}
       {uploadedContent && !showVideoUploadForm && (
-        <Box 
-          sx={{ 
-            mb: 2, 
+        <Box
+          sx={{
+            mb: 2,
             p: 2,
             border: (theme) => `1px solid ${theme.palette.divider}`,
             borderRadius: 1,
@@ -474,7 +474,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
                 position: "relative",
               }}
             >
-              <video 
+              <video
                 src={uploadedContent}
                 style={{
                   width: '100%',
@@ -491,9 +491,9 @@ function VideoContent({ item, onUpdate, onCancel }) {
             {/* Video Info */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 1 }}>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
+                <Typography
+                  variant="body2"
+                  sx={{
                     fontWeight: 600,
                     wordBreak: "break-word",
                     fontSize: "0.95rem",
@@ -501,16 +501,16 @@ function VideoContent({ item, onUpdate, onCancel }) {
                 >
                   {uploadedContent.split('/').pop() || "Video"}
                 </Typography>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
+                <Typography
+                  variant="caption"
+                  sx={{
                     color: "text.secondary",
                   }}
                 >
                   {videoDuration}
                 </Typography>
               </Box>
-              
+
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
                 <Button
                   size="small"

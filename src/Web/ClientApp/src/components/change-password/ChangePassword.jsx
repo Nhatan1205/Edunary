@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { Close, Visibility, VisibilityOff, LockOutlined, CheckCircleOutline } from "@mui/icons-material";
 import { useState } from "react";
-import useChangePassword from "../../hooks/useChangePassword";
+import useChangePassword from "../../hooks/auth-hooks/useChangePassword";
 
 function ChangePassword({ open, onClose, isFirstLogin = false, defaultPassword = "" }) {
   const [showOldPassword, setShowOldPassword] = useState(false);
@@ -136,7 +136,7 @@ function ChangePassword({ open, onClose, isFirstLogin = false, defaultPassword =
             >
               <Typography variant="body2" color="#B54708" fontWeight={500}>
                 For your security reasons, please change your password. You can close this window and change your password later. (Not
-              recommended)
+                recommended)
               </Typography>
             </Box>
           )}

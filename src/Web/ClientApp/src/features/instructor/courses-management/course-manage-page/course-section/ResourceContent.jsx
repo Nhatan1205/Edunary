@@ -9,14 +9,14 @@ import {
   TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import useCheckContentExists from "../../../../../hooks/useCheckContentExists";
-import useCreateCourseContent from "../../../../../hooks/useCreateCourseContent";
-import useAddLinkToCC from "../../../../../hooks/useAddLinkToCC";
-import useGetCourseContent from "../../../../../hooks/useGetCourseContent";
-import useDeleteCourseContentById from "../../../../../hooks/useDeleteCourseContentById";
-import useSetCourseIdForContent from "../../../../../hooks/useSetCourseIdForContent";
-import useGenerateUploadUrl from "../../../../../hooks/useGenerateUploadUrl";
-import useUploadToSpaces from "../../../../../hooks/useUploadToSpaces";
+import useCheckContentExists from "../../../../../hooks/course-content-hooks/useCheckContentExists";
+import useCreateCourseContent from "../../../../../hooks/course-content-hooks/useCreateCourseContent";
+import useAddLinkToCC from "../../../../../hooks/course-content-hooks/useAddLinkToCC";
+import useGetCourseContent from "../../../../../hooks/course-content-hooks/useGetCourseContent";
+import useDeleteCourseContentById from "../../../../../hooks/course-content-hooks/useDeleteCourseContentById";
+import useSetCourseIdForContent from "../../../../../hooks/course-content-hooks/useSetCourseIdForContent";
+import useGenerateUploadUrl from "../../../../../hooks/course-content-hooks/useGenerateUploadUrl";
+import useUploadToSpaces from "../../../../../hooks/course-content-hooks/useUploadToSpaces";
 import FileOverrideDialog from "./FileOverrideDialog";
 import FileUploadSection from "./FileUploadSection";
 import FileLibraryTable from "./FileLibraryTable";
@@ -70,8 +70,8 @@ function ResourceContent({ item, onUpdate, onClose }) {
     const fileSize = file.size;
     const maxSize = 5 * 1024 * 1024;
     if (fileSize > maxSize) {
-      const data = await generateUploadUrl.mutateAsync({ 
-        fileName: file.name, 
+      const data = await generateUploadUrl.mutateAsync({
+        fileName: file.name,
         contentType: file.type
       });
       const { uploadUrl, fileName, fileUrl } = data.result;
@@ -80,8 +80,8 @@ function ResourceContent({ item, onUpdate, onClose }) {
         setFileUploadInfo(prev => prev ? { ...prev, status: "Upload failed" } : null);
         return;
       }
-      const result = await addLinkToCC.mutateAsync({ 
-        title: fileName, 
+      const result = await addLinkToCC.mutateAsync({
+        title: fileName,
         url: fileUrl,
         isOverride: override,
         courseId: courseId ? parseInt(courseId) : null,
@@ -89,7 +89,7 @@ function ResourceContent({ item, onUpdate, onClose }) {
       });
       if (result && result.result) {
         if (onUpdate) {
-          onUpdate(item.itemId, { 
+          onUpdate(item.itemId, {
             resources: [...(item.resources || []), {
               id: result.result.id,
               fileName: result.result.fileName,
@@ -105,7 +105,7 @@ function ResourceContent({ item, onUpdate, onClose }) {
         isOverride: override,
         courseId: courseId ? parseInt(courseId) : null
       });
-  
+
       if (result && result.result) {
         // Add to resources list
         if (onUpdate) {
@@ -262,7 +262,7 @@ function ResourceContent({ item, onUpdate, onClose }) {
     setLinkTitle("");
     setLinkUrl("");
     setPendingLink(null);
-    
+
     if (onClose) {
       onClose();
     }
@@ -295,8 +295,8 @@ function ResourceContent({ item, onUpdate, onClose }) {
       <Box sx={{
         mt: 2,
         borderTop: (theme) => `1px solid ${theme.palette.divider}`,
-        pt: 2,                       
-        }}>
+        pt: 2,
+      }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
           <Typography
             variant="h6"
@@ -325,153 +325,153 @@ function ResourceContent({ item, onUpdate, onClose }) {
           </Button>
         </Box>
 
-          <Tabs
-            value={resourceTab}
-            onChange={(e, newValue) => setResourceTab(newValue)}
-            sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-              mb: 2,
-              "& .MuiTab-root": {
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.9rem",
-              },
-            }}
-          >
-            <Tab label="Downloadable File" />
-            <Tab label="Add from library" />
-            <Tab label="External Resource" />
-          </Tabs>
+        <Tabs
+          value={resourceTab}
+          onChange={(e, newValue) => setResourceTab(newValue)}
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+            "& .MuiTab-root": {
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+            },
+          }}
+        >
+          <Tab label="Downloadable File" />
+          <Tab label="Add from library" />
+          <Tab label="External Resource" />
+        </Tabs>
 
-          {/* Downloadable File Tab */}
-          {resourceTab === 0 && (
-            <FileUploadSection
-              fileInfo={fileUploadInfo}
-              onFileChange={handleFileChange}
-              acceptFileType="*/*"
-              maxSizeMB={1024}
-              noteText="Note: A resource is for any type of document that can be used to help students in the lecture. This file is going to be seen as a lecture extra. Make sure everything is legible and the file size is less than 512MB."
-              buttonLabel="Select File"
+        {/* Downloadable File Tab */}
+        {resourceTab === 0 && (
+          <FileUploadSection
+            fileInfo={fileUploadInfo}
+            onFileChange={handleFileChange}
+            acceptFileType="*/*"
+            maxSizeMB={1024}
+            noteText="Note: A resource is for any type of document that can be used to help students in the lecture. This file is going to be seen as a lecture extra. Make sure everything is legible and the file size is less than 512MB."
+            buttonLabel="Select File"
+          />
+        )}
+
+        {/* Add from library Tab */}
+        {resourceTab === 1 && (
+          <Box>
+            {/* Search Bar */}
+            <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+              <TextField
+                fullWidth
+                placeholder="Search files by name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                size="small"
+              />
+            </Box>
+
+            {/* Library Table */}
+            <FileLibraryTable
+              contents={filteredCourseContents}
+              onSelect={handleSelectFromLibrary}
+              onDelete={handleDeleteContent}
             />
-          )}
+          </Box>
+        )}
 
-          {/* Add from library Tab */}
-          {resourceTab === 1 && (
-            <Box>
-              {/* Search Bar */}
-              <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
-                <TextField
-                  fullWidth
-                  placeholder="Search files by name"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  size="small"
-                />
-              </Box>
+        {/* External Resource Tab */}
+        {resourceTab === 2 && (
+          <Box>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                mb: 1,
+                fontWeight: 600,
+                fontSize: "0.875rem",
+                color: "text.primary"
+              }}
+            >
+              Title
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="A descriptive title"
+              value={linkTitle}
+              onChange={(e) => setLinkTitle(e.target.value)}
+              sx={{
+                mb: 2.5,
+                "& .MuiOutlinedInput-root": {
+                  padding: "12px 16px",
+                  fontSize: "14px",
+                  "&:hover fieldset": {
+                    borderColor: "brand.main",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "brand.main",
+                    borderWidth: "2px",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  padding: 0,
+                },
+              }}
+            />
 
-              {/* Library Table */}
-              <FileLibraryTable
-                contents={filteredCourseContents}
-                onSelect={handleSelectFromLibrary}
-                onDelete={handleDeleteContent}
-              />
-            </Box>
-          )}
+            <Typography
+              variant="subtitle2"
+              sx={{
+                mb: 1,
+                fontWeight: 600,
+                fontSize: "0.875rem",
+                color: "text.primary"
+              }}
+            >
+              URL
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="https://example.com"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                  padding: "12px 16px",
+                  fontSize: "14px",
+                  "&:hover fieldset": {
+                    borderColor: "brand.main",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "brand.main",
+                    borderWidth: "2px",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  padding: 0,
+                },
+              }}
+            />
 
-          {/* External Resource Tab */}
-          {resourceTab === 2 && (
-            <Box>
-              <Typography 
-                variant="subtitle2" 
-                sx={{ 
-                  mb: 1,
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                variant="contained"
+                onClick={handleAddLink}
+                disabled={!linkTitle.trim() || !linkUrl.trim()}
+                sx={{
+                  bgcolor: "brand.main",
+                  textTransform: "none",
                   fontWeight: 600,
-                  fontSize: "0.875rem",
-                  color: "text.primary"
+                  px: 3,
+                  "&:hover": {
+                    bgcolor: "brand.dark",
+                  },
                 }}
               >
-                Title
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="A descriptive title"
-                value={linkTitle}
-                onChange={(e) => setLinkTitle(e.target.value)}
-                sx={{ 
-                  mb: 2.5,
-                  "& .MuiOutlinedInput-root": {
-                    padding: "12px 16px",
-                    fontSize: "14px",
-                    "&:hover fieldset": {
-                      borderColor: "brand.main",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "brand.main",
-                      borderWidth: "2px",
-                    },
-                  },
-                  "& .MuiInputBase-input": {
-                    padding: 0,
-                  },
-                }}
-              />
-              
-              <Typography 
-                variant="subtitle2" 
-                sx={{ 
-                  mb: 1,
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  color: "text.primary"
-                }}
-              >
-                URL
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="https://example.com"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                sx={{ 
-                  mb: 3,
-                  "& .MuiOutlinedInput-root": {
-                    padding: "12px 16px",
-                    fontSize: "14px",
-                    "&:hover fieldset": {
-                      borderColor: "brand.main",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "brand.main",
-                      borderWidth: "2px",
-                    },
-                  },
-                  "& .MuiInputBase-input": {
-                    padding: 0,
-                  },
-                }}
-              />
-              
-              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button
-                  variant="contained"
-                  onClick={handleAddLink}
-                  disabled={!linkTitle.trim() || !linkUrl.trim()}
-                  sx={{
-                    bgcolor: "brand.main",
-                    textTransform: "none",
-                    fontWeight: 600,
-                    px: 3,
-                    "&:hover": {
-                      bgcolor: "brand.dark",
-                    },
-                  }}
-                >
-                  Add link
-                </Button>
-              </Box>
+                Add link
+              </Button>
             </Box>
-          )}
+          </Box>
+        )}
       </Box>
 
       {/* Dialogs */}

@@ -18,7 +18,7 @@ import DefaultImage from "../../../../assets/images/default.jpg";
 import MetaChip from '../../../../components/MetaChip';
 import { Link as RouterLink, useNavigate } from "react-router";
 import { useAuth } from "../../../../context/AuthContext";
-import { useAddToCart } from "../../../../hooks/useAddToCart";
+import { useAddToCart } from "../../../../hooks/cart-hooks/useAddToCart";
 
 function CourseCard({ course }) {
   const { id, imageUrl, title, price, level, ratings, instructorName, totalStudents } = course;

@@ -8,9 +8,9 @@ import {
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Container } from "reactstrap";
 import { toast } from "react-toastify";
-import useUpdateUserAvatar from "../../../../hooks/useUpdateUserAvatar";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
-import useGetBasicUserInfo from "../../../../hooks/useGetBasicUserInfor";
+import useGetBasicUserInfo from "../../../../hooks/auth-hooks/useGetBasicUserInfor";
+import useUpdateUserAvatar from "../../../../hooks/auth-hooks/useUpdateUserAvatar";
 
 function ProfilePhotoPage() {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);

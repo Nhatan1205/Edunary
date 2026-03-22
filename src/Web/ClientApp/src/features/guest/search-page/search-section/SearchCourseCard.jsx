@@ -9,7 +9,7 @@ import { useRef } from 'react';
 import { getPopoverOrigin } from '../../../../utils/getPopoverOrigin';
 import { Link as RouterLink, useNavigate } from "react-router";
 import CoursePopoverMin from '../../../../components/course-popover/CoursePopoverMin';
-import { useAddToCart } from '../../../../hooks/useAddToCart';
+import { useAddToCart } from '../../../../hooks/cart-hooks/useAddToCart';
 import { useAuth } from '../../../../context/AuthContext';
 import LoadingSpinner from '../../../../components/LoadingSpinner';
 

@@ -7,8 +7,8 @@ import {
   Typography,
 } from "@mui/material";
 import { NavLink, useLocation } from "react-router";
-import useGetBasicUserInfo from "../../../hooks/useGetBasicUserInfor";
 import AvatarImage from "../../../assets/images/avatar.jpg";
+import useGetBasicUserInfo from "../../../hooks/auth-hooks/useGetBasicUserInfor";
 
 const getNavItems = (userId) => [
   { label: "View public profile", path: `/profile/${userId}`, external: true },

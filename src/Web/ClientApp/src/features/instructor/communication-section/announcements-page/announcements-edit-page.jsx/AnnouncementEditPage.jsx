@@ -14,7 +14,7 @@ import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateAnnouncement from "../../../../../hooks/announcement-hooks/useUpdateAnnouncement";
 import { toast } from "react-toastify";
 import AlertBox from "../../../../../components/AlertBox";
-import MainCard from "src/components/instructor-layout/MainCard";
+import MainCard from "../../../../../components/instructor-layout/MainCard";
 
 const columnsSetting = [
     {

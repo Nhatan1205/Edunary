@@ -11,7 +11,7 @@ import useCreateAnnouncement from "../../../../../hooks/announcement-hooks/useCr
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
 import { toast } from "react-toastify";
 import AlertBox from "../../../../../components/AlertBox";
-import MainCard from "src/components/instructor-layout/MainCard";
+import MainCard from "../../../../../components/instructor-layout/MainCard";
 
 const columnsSetting = [
     {

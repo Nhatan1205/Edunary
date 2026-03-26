@@ -5,6 +5,7 @@ import AddIcon from "@mui/icons-material/Add";
 import MainCard from "../../../../components/instructor-layout/MainCard";
 import PageTitle from "../../../../components/PageTitle";
 import RoadmapCard from "./RoadmapCard";
+import RoadmapMetadataDialog from "../roadmap-edit-page/roadmap-meta-dialog/RoadmapMetaDialog";
 
 const mockRoadmaps = [
     { id: 1, title: "AWS Roadmap", visibility: "Public", topicCount: 14 },
@@ -14,6 +15,15 @@ const mockRoadmaps = [
 
 function RoadMapsPage() {
     const [roadmaps] = useState(mockRoadmaps);
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+    const handleCreateClose = (data) => {
+        if (data) {
+            console.log("Create roadmap:", data);
+            // TODO: call API to create roadmap
+        }
+        setCreateDialogOpen(false);
+    };
 
     return (
         <MainCard>
@@ -29,6 +39,7 @@ function RoadMapsPage() {
                     variant="contained"
                     disableElevation
                     startIcon={<AddIcon />}
+                    onClick={() => setCreateDialogOpen(true)}
                     sx={{
                         textTransform: "none",
                         backgroundColor: "brand.main",
@@ -74,6 +85,12 @@ function RoadMapsPage() {
                     </Box>
                 </Col>
             </Row>
+            {/* Create Roadmap Dialog */}
+            <RoadmapMetadataDialog
+                open={createDialogOpen}
+                onClose={handleCreateClose}
+                mode="create"
+            />
         </MainCard>
     );
 }

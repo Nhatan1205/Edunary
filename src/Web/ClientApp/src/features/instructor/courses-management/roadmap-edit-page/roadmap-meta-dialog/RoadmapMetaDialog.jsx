@@ -1,4 +1,6 @@
 import { Controller, useForm } from "react-hook-form";
+import useCreateRoadmap from "../../../../../hooks/roadmap-hooks/useCreateRoadmap";
+import useGetRoadmapTopics from "../../../../../hooks/roadmap-hooks/useGetRoadmapTopics";
 import {
     Dialog,
     DialogTitle,
@@ -17,19 +19,6 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { getLevelLabel } from "../../../../../utils/helpers";
 
-// Mock data for topics — replace with API data later
-const MOCK_TOPICS = [
-    { id: "frontend", label: "Frontend Development" },
-    { id: "backend", label: "Backend Development" },
-    { id: "fullstack", label: "Full-Stack Development" },
-    { id: "mobile", label: "Mobile Development" },
-    { id: "devops", label: "DevOps & Cloud" },
-    { id: "data-science", label: "Data Science" },
-    { id: "machine-learning", label: "Machine Learning" },
-    { id: "ui-ux", label: "UI / UX Design" },
-    { id: "cybersecurity", label: "Cybersecurity" },
-    { id: "game-dev", label: "Game Development" },
-];
 
 const inputFocusSx = {
     "& label.Mui-focused": {
@@ -50,7 +39,11 @@ export default function RoadmapMetadataDialog({
     open,
     onClose,
     defaultValues,
+    mode = "edit",
 }) {
+    const isCreate = mode === "create";
+    const createRoadmap = useCreateRoadmap();
+    const { data: topics = [], isLoading: topicsLoading } = useGetRoadmapTopics();
     const {
         register,
         control,
@@ -68,10 +61,19 @@ export default function RoadmapMetadataDialog({
         },
     });
 
-    // Replace this with an API call later
     const onSubmit = (data) => {
-        console.log("Roadmap metadata:", data);
-        onClose(data);
+        const payload = {
+            title: data.title,
+            subtitle: data.subtitle,
+            description: data.description,
+            roadmapTopicId: Number(data.topic),
+            skillLevel: Number(data.skillLevel),
+        };
+        if (isCreate) {
+            createRoadmap.mutate(payload);
+        } else {
+            onClose(payload);
+        }
     };
 
     const handleClose = () => {
@@ -103,7 +105,7 @@ export default function RoadmapMetadataDialog({
                 }}
             >
                 <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
-                    Edit Roadmap Info
+                    {isCreate ? "Create New Roadmap" : "Edit Roadmap Info"}
                 </Typography>
                 <IconButton size="small" onClick={handleClose}>
                     <CloseIcon fontSize="small" />
@@ -201,14 +203,30 @@ export default function RoadmapMetadataDialog({
                             <Controller
                                 name="topic"
                                 control={control}
+                                rules={{ required: "Please select a topic" }}
                                 render={({ field }) => (
                                     <FormControl fullWidth size="small" sx={inputFocusSx}>
                                         <InputLabel>Topic</InputLabel>
-                                        <Select {...field} label="Topic">
-                                            <MenuItem value="">-- Select Topic --</MenuItem>
-                                            {MOCK_TOPICS.map((t) => (
+                                        <Select
+                                            {...field}
+                                            label="Topic"
+                                            disabled={topicsLoading}
+                                            error={!!errors.topic}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        maxHeight: 220,
+                                                        overflowY: "auto",
+                                                    },
+                                                },
+                                            }}
+                                        >
+                                            <MenuItem value="">
+                                                {topicsLoading ? "Loading..." : "-- Select Topic --"}
+                                            </MenuItem>
+                                            {topics.map((t) => (
                                                 <MenuItem key={t.id} value={t.id}>
-                                                    {t.label}
+                                                    {t.title}
                                                 </MenuItem>
                                             ))}
                                         </Select>
@@ -225,10 +243,11 @@ export default function RoadmapMetadataDialog({
                             <Controller
                                 name="skillLevel"
                                 control={control}
+                                rules={{ required: "Please select a skill level" }}
                                 render={({ field }) => (
-                                    <FormControl fullWidth size="small" sx={inputFocusSx}>
+                                    <FormControl fullWidth size="small" sx={inputFocusSx} error={!!errors.skillLevel}>
                                         <InputLabel>Skill Level</InputLabel>
-                                        <Select {...field} label="Skill Level">
+                                        <Select {...field} label="Skill Level" error={!!errors.skillLevel}>
                                             <MenuItem value="">-- Select Level --</MenuItem>
                                             <MenuItem value={0}>{getLevelLabel(0)}</MenuItem>
                                             <MenuItem value={1}>{getLevelLabel(1)}</MenuItem>
@@ -277,6 +296,7 @@ export default function RoadmapMetadataDialog({
                     <Button
                         type="submit"
                         variant="contained"
+                        disabled={isCreate && createRoadmap.isPending}
                         sx={{
                             textTransform: "none",
                             bgcolor: "brand.main",
@@ -285,7 +305,9 @@ export default function RoadmapMetadataDialog({
                             "&:hover": { bgcolor: "brand.dark" },
                         }}
                     >
-                        Save
+                        {isCreate && createRoadmap.isPending
+                            ? "Creating..."
+                            : isCreate ? "Create" : "Save"}
                     </Button>
                 </DialogActions>
             </form>

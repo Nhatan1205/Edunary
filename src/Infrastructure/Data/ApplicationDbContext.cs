@@ -37,6 +37,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<RatingCourse> RatingCourses => Set<RatingCourse>();
 
+    public DbSet<Roadmap> Roadmaps => Set<Roadmap>();
+    public DbSet<RoadmapTopic> RoadmapTopics => Set<RoadmapTopic>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

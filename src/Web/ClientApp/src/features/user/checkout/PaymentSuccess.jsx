@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useEffect } from "react"
 import { 
   Container, 
   Box, 
@@ -17,37 +17,18 @@ import {
   Home as HomeIcon,
   School as SchoolIcon
 } from "@mui/icons-material"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "react-toastify"
-import { PaymentClient } from "../../../web-api-client.ts"
+import usePaymentStatus from "../../../hooks/checkout-hooks/usePaymentStatus"
 import LoadingSpinner from "../../../components/LoadingSpinner"
 
 export default function PaymentSuccess() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [paymentStatus, setPaymentStatus] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const { paymentIntentId } = location.state || {}
-
-  const fetchPaymentStatus = useCallback(async () => {
-    try {
-      setLoading(true)
-      const paymentClient = new PaymentClient()
-      
-      // Step 5: Get final payment status
-      const response = await paymentClient.getPaymentStatus(paymentIntentId)
-      setPaymentStatus(response)
-      
-    } catch (error) {
-      console.error("Error fetching payment status:", error)
-      setError("Failed to fetch payment status")
-      toast.error("Failed to fetch payment status")
-    } finally {
-      setLoading(false)
-    }
-  }, [paymentIntentId])
+  const [searchParams] = useSearchParams()
+  const { paymentIntentId: statePaymentIntentId } = location.state || {}
+  const paymentIntentId = statePaymentIntentId || searchParams.get("payment_intent")
+  const { paymentStatus, loading, error } = usePaymentStatus(paymentIntentId)
 
   useEffect(() => {
     if (!paymentIntentId) {
@@ -55,9 +36,7 @@ export default function PaymentSuccess() {
       navigate("/")
       return
     }
-
-    fetchPaymentStatus()
-  }, [paymentIntentId, navigate, fetchPaymentStatus])
+  }, [paymentIntentId, navigate])
 
   const handleBackToHome = () => {
     navigate("/")

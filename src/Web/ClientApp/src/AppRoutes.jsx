@@ -44,6 +44,10 @@ import ProfileInfoPage from "./features/user/profile/pages/ProfileInfoPage";
 import ProfilePhotoPage from "./features/user/profile/pages/ProfilePhotoPage";
 import AccountSecurityPage from "./features/user/profile/pages/AccountSecurityPage";
 import ProfilePage from "./features/guest/profile-page/ProfilePage";
+import CareerPathOverviewPage from "./features/guest/career-paths-overview-page/CareerPathOverviewPage";
+import CareerPathPage from "./features/guest/career-paths-page/CareerPathPage";
+import RoadMapsPage from "./features/instructor/courses-management/roadmaps-page/RoadMapsPage";
+import RoadmapEditPage from "./features/instructor/courses-management/roadmap-edit-page/RoadmapEditPage";
 
 const router = createBrowserRouter([
   {
@@ -64,6 +68,14 @@ const router = createBrowserRouter([
       {
         path: "/profile/:id",
         element: <ProfilePage />
+      },
+      {
+        path: "/career-paths",
+        element: <CareerPathPage />
+      },
+      {
+        path: "/career-paths/:id",
+        element: <CareerPathOverviewPage />
       },
       {
         path: "/user",
@@ -174,7 +186,6 @@ const router = createBrowserRouter([
   },
   {
     path: "/instructor",
-
     element: (
       <ProtectedRoute>
         <InstructorLayout />
@@ -188,6 +199,10 @@ const router = createBrowserRouter([
       {
         path: "courses",
         element: <CoursesListPage />,
+      },
+      {
+        path: "roadmaps",
+        element: <RoadMapsPage />,
       },
       {
         path: "performance",
@@ -228,6 +243,13 @@ const router = createBrowserRouter([
         ],
       }
     ],
+  },
+  {
+    path: "/instructor/roadmaps/:roadmapId/edit",
+    element:
+      <ProtectedRoute>
+        <RoadmapEditPage />
+      </ProtectedRoute>
   },
   {
     path: "/course/create/",

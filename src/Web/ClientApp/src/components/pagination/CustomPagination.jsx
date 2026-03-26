@@ -1,6 +1,6 @@
 import { Box, Pagination } from "@mui/material";
 
-function CustomPagination({ count = 0, page = 1, onChange}) {
+function CustomPagination({ count = 0, page = 1, onChange }) {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
       <Pagination
@@ -8,7 +8,7 @@ function CustomPagination({ count = 0, page = 1, onChange}) {
         page={page}
         onChange={onChange}
         siblingCount={1}
-        boundaryCount={1}
+        boundaryCount={0}
         shape="rounded"
         sx={{
           '& .MuiPaginationItem-root': {

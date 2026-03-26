@@ -100,7 +100,7 @@ const CourseCard = ({ course }) => {
               component={RouterLink}
               to="/"
               sx={{
-                color: "primary.main",
+                color: "brand.dark",
                 fontSize: "1rem",
                 fontWeight: 500,
                 textDecoration: "none",

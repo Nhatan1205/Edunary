@@ -83,6 +83,14 @@ function ToolbarCourse() {
             sx={{
               width: { xs: "100%", sm: "300px", md: "350px" },
               backgroundColor: "white",
+              "& .MuiOutlinedInput-root": {
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "brand.main",
+                },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "brand.main",
+                },
+              },
             }}
           />
 

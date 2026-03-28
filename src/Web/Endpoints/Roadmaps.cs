@@ -2,6 +2,8 @@ using Edunary.Application.Common.Models;
 using Edunary.Application.Roadmaps.Commands.CreateRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.DeleteRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.UpdateRoadmapCommand;
+using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapDetailQuery;
+using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapsQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapDetailQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapsAuthorQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapTopicsQuery;
@@ -23,6 +25,8 @@ public class Roadmaps : EndpointGroupBase
             .MapGet(GetRoadmapDetail, "{id}");
 
         app.MapGroup(this)
+            .MapGet(GetPublicRoadmaps, "public")
+            .MapGet(GetPublicRoadmapDetail, "public/{id}")
             .MapGet(GetTopics, "public/topics");
     }
 
@@ -58,6 +62,16 @@ public class Roadmaps : EndpointGroupBase
         var result = await sender.Send(command);
         if (!result.Succeeded) return Results.BadRequest(result);
         return Results.Ok(result);
+    }
+
+    public async Task<PaginatedList<PublicRoadmapListDto>> GetPublicRoadmaps(ISender sender, [AsParameters] GetPublicRoadmapsQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<PublicRoadmapDetailDto> GetPublicRoadmapDetail(ISender sender, int id)
+    {
+        return await sender.Send(new GetPublicRoadmapDetailQuery { Id = id });
     }
 }
 

@@ -9,6 +9,7 @@ import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
 import { Box, Button, Typography } from "@mui/material";
 import ConfirmDialog from "../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import useDeleteRoadmap from "../../../../hooks/roadmap-hooks/useDeleteRoadmap";
+import { Link as RouterLink } from "react-router";
 
 function RoadmapCard({ roadmap }) {
     const navigate = useNavigate();
@@ -112,6 +113,9 @@ function RoadmapCard({ roadmap }) {
                     </Button>
 
                     <Button
+                        component={RouterLink}
+                        to={`/career-paths/${roadmap.id}`}
+                        target="_blank"
                         variant="outlined"
                         startIcon={<OpenInNewOutlinedIcon sx={{ fontSize: 18 }} />}
                         sx={{

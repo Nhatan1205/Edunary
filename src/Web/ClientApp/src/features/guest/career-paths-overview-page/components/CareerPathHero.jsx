@@ -1,22 +1,25 @@
-import { Box, Typography, Button, Chip, Paper } from '@mui/material'
+import { Box, Typography, Avatar } from '@mui/material'
 import { Link } from 'react-router-dom'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import PeopleIcon from '@mui/icons-material/People'
-import { useTheme } from '@mui/material/styles'
 import { Row, Col } from 'reactstrap'
 
 const CareerPathHero = ({ careerPath }) => {
-  const theme = useTheme()
+
+  const handleCreatorClick = () => {
+    if (careerPath.creator?.id) {
+      window.open(`/profile/${careerPath.creator.id}`, '_blank')
+    }
+  }
 
   return (
-    <Box sx={{ py: 5, bgcolor: 'background.default' }}>
+    <Box sx={{ pt: 4 }}>
       <Row className="align-items-center">
         {/* Left column */}
         <Col xs={12} md={7}>
           {/* Breadcrumb */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
             <ArrowBackIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-            <Link to="/career-paths" style={{ color: theme.palette.text.secondary, textDecoration: 'none', fontSize: '0.85rem' }}>
+            <Link to="/career-paths" style={{ textDecoration: 'none', fontSize: '0.85rem', color: 'inherit', opacity: 0.7 }}>
               Career Paths
             </Link>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>/</Typography>
@@ -37,38 +40,50 @@ const CareerPathHero = ({ careerPath }) => {
           >
             {careerPath.title}
           </Typography>
-
-          {/* Description */}
           <Typography
             variant="body1"
             sx={{ color: 'text.secondary', mb: 3, maxWidth: 500, lineHeight: 1.7 }}
           >
-            {careerPath.description}
+            {careerPath.subtitle}
           </Typography>
 
-          {/* Enroll + Learners */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-            <Button
-              variant="contained"
-              size="large"
+          {/* Avatar + creator */}
+          <Box
+            onClick={handleCreatorClick}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.25,
+              cursor: careerPath.creator?.id ? 'pointer' : 'default',
+              '&:hover': careerPath.creator?.id ? { textDecoration: 'underline' } : {},
+            }}
+          >
+            <Avatar
+              src={careerPath.creator?.avatar}
+              alt={careerPath.creator?.name}
               sx={{
-                bgcolor: theme.palette.brand.main,
-                color: '#fff',
-                px: 4,
-                py: 1.2,
-                borderRadius: 2,
-                fontWeight: 600,
-                '&:hover': { bgcolor: theme.palette.brand.dark },
+                width: 36,
+                height: 36,
+                border: '2px solid',
+                borderColor: 'brand.light',
               }}
+            />
+            <Typography
+              variant="body2"
+              sx={{ color: 'text.secondary', fontSize: 13 }}
             >
-              Enroll now
-            </Button>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <PeopleIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                <strong>{careerPath.learnersCount}</strong> learners enrolled
-              </Typography>
-            </Box>
+              Created by{' '}
+              <Box
+                component="span"
+                sx={{
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  cursor: 'pointer',
+                }}
+              >
+                {careerPath.creator?.name}
+              </Box>
+            </Typography>
           </Box>
         </Col>
       </Row>

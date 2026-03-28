@@ -1,7 +1,4 @@
-using Edunary.Application.Roadmaps.Models;
-
-namespace Edunary.Application.Roadmaps.Queries.GetRoadmapDetailQuery;
-
+﻿namespace Edunary.Application.Roadmaps.Models;
 public class RoadmapGraphResponse
 {
     public List<RoadmapNodeResponse> Nodes { get; set; } = new();

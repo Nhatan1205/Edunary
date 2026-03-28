@@ -1,9 +1,9 @@
-import { Box, Typography, Divider } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import BarChartIcon from '@mui/icons-material/BarChart'
-import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import CategoryIcon from '@mui/icons-material/Category'
 import PublicIcon from '@mui/icons-material/Public'
 import CardMembershipIcon from '@mui/icons-material/CardMembership'
-import { useTheme } from '@mui/material/styles'
+import { getLevelLabel } from '../../../../utils/helpers'
 
 const StatItem = ({ icon, primary, secondary }) => {
   return (
@@ -37,19 +37,18 @@ const StatItem = ({ icon, primary, secondary }) => {
 }
 
 const CareerPathStats = ({ careerPath }) => {
-  const theme = useTheme()
-  const brandColor = theme.palette.brand?.main ?? '#2DC9A0'
+  const brandColor = 'brand.main'
 
   const stats = [
     {
       icon: <BarChartIcon sx={{ color: brandColor, fontSize: 22 }} />,
-      primary: careerPath?.skillLevel || 'Beginner',
+      primary: getLevelLabel(careerPath?.skillLevel),
       secondary: 'Skill level',
     },
     {
-      icon: <AccessTimeIcon sx={{ color: brandColor, fontSize: 22 }} />,
-      primary: careerPath?.duration || '3 months',
-      secondary: 'Time to complete',
+      icon: <CategoryIcon sx={{ color: brandColor, fontSize: 22 }} />,
+      primary: careerPath?.topic?.title || 'General',
+      secondary: 'Topic',
     },
     {
       icon: <PublicIcon sx={{ color: brandColor, fontSize: 22 }} />,
@@ -66,13 +65,11 @@ const CareerPathStats = ({ careerPath }) => {
   return (
     <Box
       sx={{
-        border: '1px solid',
-        borderColor: 'divider',
         borderRadius: 3,
         display: 'flex',
         alignItems: 'stretch',
         flexWrap: { xs: 'wrap', md: 'nowrap' },
-        bgcolor: '#f9f9fb',
+        bgcolor: 'background.alt',
         my: 3,
         overflow: 'hidden',
       }}

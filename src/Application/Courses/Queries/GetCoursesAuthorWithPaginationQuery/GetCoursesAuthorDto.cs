@@ -10,6 +10,9 @@ public class GetCoursesAuthorDto
     public float Price { get; set; }
     public int CategoryId { get; set; }
     public string ImageUrl { get; set; }
+    public int TotalStudents { get; set; }
+    public float Ratings { get; set; }
+
     public CourseStatus Status { get; set; }
     public DateTimeOffset Created { get; set; }
 

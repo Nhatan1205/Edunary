@@ -1,7 +1,12 @@
 using Edunary.Application.Common.Models;
 using Edunary.Application.Roadmaps.Commands.CreateRoadmapCommand;
+using Edunary.Application.Roadmaps.Commands.DeleteRoadmapCommand;
+using Edunary.Application.Roadmaps.Commands.UpdateRoadmapCommand;
+using Edunary.Application.Roadmaps.Queries.GetRoadmapDetailQuery;
+using Edunary.Application.Roadmaps.Queries.GetRoadmapsAuthorQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapTopicsQuery;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Edunary.Web.Endpoints;
 
@@ -11,7 +16,11 @@ public class Roadmaps : EndpointGroupBase
     {
         app.MapGroup(this)
             .RequireAuthorization()
-            .MapPost(CreateRoadmap);
+            .MapPost(CreateRoadmap)
+            .MapPut(UpdateRoadmap)
+            .MapDelete(DeleteRoadmap)
+            .MapGet(GetRoadmapsAuthor)
+            .MapGet(GetRoadmapDetail, "{id}");
 
         app.MapGroup(this)
             .MapGet(GetTopics, "public/topics");
@@ -25,6 +34,30 @@ public class Roadmaps : EndpointGroupBase
     public async Task<List<RoadmapTopicDto>> GetTopics(ISender sender)
     {
         return await sender.Send(new GetRoadmapTopicsQuery());
+    }
+
+    public async Task<IResult> UpdateRoadmap(ISender sender, UpdateRoadmapCommand command)
+    {
+        var result = await sender.Send(command);
+        if (!result.Succeeded) return Results.BadRequest(result);
+        return Results.Ok(result);
+    }
+
+    public async Task<PaginatedList<RoadmapAuthorDto>> GetRoadmapsAuthor(ISender sender, [AsParameters] GetRoadmapsAuthorQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<RoadmapDetailDto> GetRoadmapDetail(ISender sender, int id)
+    {
+        return await sender.Send(new GetRoadmapDetailQuery { Id = id });
+    }
+
+    public async Task<IResult> DeleteRoadmap(ISender sender, [FromBody] DeleteRoadmapCommand command)
+    {
+        var result = await sender.Send(command);
+        if (!result.Succeeded) return Results.BadRequest(result);
+        return Results.Ok(result);
     }
 }
 

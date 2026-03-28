@@ -1,23 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box } from "@mui/material";
 import { ReactFlowProvider } from "@xyflow/react";
+import { RoadmapEditorProvider } from "../../../../context/RoadmapEditorContext";
+import { useRoadmapEditor } from "../../../../context/RoadmapEditorContext";
 import RoadmapToolbar from "./RoadmapToolbar";
 import RoadmapCanvas from "./RoadmapCanvas";
 import RoadmapCoursesSidebar from "./courses-sidebar/RoadmapCoursesSidebar";
 import RoadmapMetadataDialog from "./roadmap-meta-dialog/RoadmapMetaDialog";
 
-export default function RoadmapEditPage() {
-    const [coursesSidebarOpen, setCoursesSidebarOpen] = useState(false);
-    const [metadataDialogOpen, setMetadataDialogOpen] = useState(false);
-
-    // Replace defaultValues with API data later
-    const handleMetadataClose = (data) => {
-        if (data) {
-            console.log("Saved metadata:", data);
-            // TODO: call API to update roadmap metadata
-        }
-        setMetadataDialogOpen(false);
-    };
+function RoadmapEditPageContent() {
+    const { metadataDialogOpen, closeMetaDialog, roadmapId } =
+        useRoadmapEditor();
 
     return (
         <Box
@@ -29,28 +22,39 @@ export default function RoadmapEditPage() {
                 overflow: "hidden",
             }}
         >
-            <RoadmapToolbar
-                onToggleCourses={() => setCoursesSidebarOpen((prev) => !prev)}
-                onEditMetadata={() => setMetadataDialogOpen(true)}
-            />
+            <RoadmapToolbar />
 
             {/* Canvas area — sidebar overlays inside here */}
-            <Box sx={{ flex: 1, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <Box
+                sx={{
+                    flex: 1,
+                    position: "relative",
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                }}
+            >
                 <ReactFlowProvider>
                     <RoadmapCanvas />
                 </ReactFlowProvider>
 
-                <RoadmapCoursesSidebar
-                    open={coursesSidebarOpen}
-                    onClose={() => setCoursesSidebarOpen(false)}
-                />
+                <RoadmapCoursesSidebar />
             </Box>
 
             {/* Roadmap Metadata Dialog */}
             <RoadmapMetadataDialog
                 open={metadataDialogOpen}
-                onClose={handleMetadataClose}
+                onClose={closeMetaDialog}
+                roadmapId={roadmapId}
             />
         </Box>
+    );
+}
+
+export default function RoadmapEditPage() {
+    return (
+        <RoadmapEditorProvider>
+            <RoadmapEditPageContent />
+        </RoadmapEditorProvider>
     );
 }

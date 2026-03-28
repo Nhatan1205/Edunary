@@ -1,6 +1,9 @@
+
 import { Controller, useForm } from "react-hook-form";
 import useCreateRoadmap from "../../../../../hooks/roadmap-hooks/useCreateRoadmap";
+import useUpdateRoadmap from "../../../../../hooks/roadmap-hooks/useUpdateRoadmap";
 import useGetRoadmapTopics from "../../../../../hooks/roadmap-hooks/useGetRoadmapTopics";
+import useGetRoadmapDetail from "../../../../../hooks/roadmap-hooks/useGetRoadmapDetail";
 import {
     Dialog,
     DialogTitle,
@@ -15,6 +18,7 @@ import {
     Select,
     MenuItem,
     IconButton,
+    CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { getLevelLabel } from "../../../../../utils/helpers";
@@ -38,12 +42,21 @@ const inputFocusSx = {
 export default function RoadmapMetadataDialog({
     open,
     onClose,
-    defaultValues,
+    roadmapId,
     mode = "edit",
 }) {
     const isCreate = mode === "create";
     const createRoadmap = useCreateRoadmap();
+    const updateRoadmap = useUpdateRoadmap();
     const { data: topics = [], isLoading: topicsLoading } = useGetRoadmapTopics();
+
+    // Fetch roadmap detail when editing
+    const { data: roadmapDetail, isLoading: detailLoading } = useGetRoadmapDetail(
+        !isCreate && open ? roadmapId : null
+    );
+
+    const emptyValues = { title: "", subtitle: "", description: "", topic: "", skillLevel: "" };
+
     const {
         register,
         control,
@@ -52,13 +65,15 @@ export default function RoadmapMetadataDialog({
         reset,
         formState: { errors },
     } = useForm({
-        values: defaultValues || {
-            title: "",
-            subtitle: "",
-            description: "",
-            topic: "",
-            skillLevel: "",
-        },
+        values: !isCreate && roadmapDetail
+            ? {
+                title: roadmapDetail.title ?? "",
+                subtitle: roadmapDetail.subtitle ?? "",
+                description: roadmapDetail.description ?? "",
+                topic: roadmapDetail.roadmapTopicId ?? "",
+                skillLevel: roadmapDetail.skillLevel ?? "",
+            }
+            : emptyValues,
     });
 
     const onSubmit = (data) => {
@@ -72,13 +87,24 @@ export default function RoadmapMetadataDialog({
         if (isCreate) {
             createRoadmap.mutate(payload);
         } else {
-            onClose(payload);
+            updateRoadmap.mutate(
+                {
+                    id: roadmapId,
+                    ...payload,
+                },
+                {
+                    onSuccess: () => {
+                        reset(emptyValues);
+                        onClose();
+                    },
+                }
+            );
         }
     };
 
     const handleClose = () => {
-        reset();
-        onClose(null);
+        reset(emptyValues);
+        onClose();
     };
 
     return (
@@ -117,168 +143,178 @@ export default function RoadmapMetadataDialog({
                 <DialogContent
                     sx={{ px: 3, pt: 2, display: "flex", flexDirection: "column", gap: 3 }}
                 >
-                    {/* Title */}
-                    <Box>
-                        <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700 }}>
-                            Title
-                        </Typography>
-                        <TextField
-                            {...register("title", {
-                                required: "Title is required",
-                                minLength: {
-                                    value: 5,
-                                    message: "Title must be at least 5 characters",
-                                },
-                            })}
-                            fullWidth
-                            size="small"
-                            placeholder="Enter roadmap title"
-                            error={!!errors.title}
-                            helperText={
-                                errors.title
-                                    ? errors.title.message
-                                    : "A short, descriptive title for your roadmap"
-                            }
-                            slotProps={{
-                                htmlInput: { maxLength: 60 },
-                                input: {
-                                    endAdornment: (
-                                        <Typography
-                                            variant="caption"
-                                            sx={{ color: "text.secondary", whiteSpace: "nowrap" }}
-                                        >
-                                            {watch("title")?.length || 0}/60
-                                        </Typography>
-                                    ),
-                                },
-                            }}
-                            sx={inputFocusSx}
-                        />
-                    </Box>
+                    {/* Loading state for edit mode */}
+                    {!isCreate && detailLoading && (
+                        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+                            <CircularProgress size={36} sx={{ color: "brand.main" }} />
+                        </Box>
+                    )}
 
-                    {/* Subtitle */}
-                    <Box>
-                        <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700 }}>
-                            Subtitle
-                        </Typography>
-                        <TextField
-                            {...register("subtitle", {
-                                maxLength: {
-                                    value: 90,
-                                    message: "Maximum 90 characters",
-                                },
-                            })}
-                            fullWidth
-                            size="small"
-                            placeholder="Enter roadmap subtitle"
-                            error={!!errors.subtitle}
-                            helperText={
-                                errors.subtitle
-                                    ? errors.subtitle.message
-                                    : "A brief summary that appears below the title"
-                            }
-                            slotProps={{
-                                htmlInput: { maxLength: 90 },
-                                input: {
-                                    endAdornment: (
-                                        <Typography
-                                            variant="caption"
-                                            sx={{ color: "text.secondary", whiteSpace: "nowrap" }}
-                                        >
-                                            {watch("subtitle")?.length || 0}/90
-                                        </Typography>
-                                    ),
-                                },
-                            }}
-                            sx={inputFocusSx}
-                        />
-                    </Box>
-                    {/* Topic & Skill Level — side by side */}
-                    <Box sx={{ display: "flex", gap: 2 }}>
-                        {/* Topic */}
-                        <Box sx={{ flex: 1 }}>
+                    {/* Form fields — hidden while loading in edit mode */}
+                    <Box sx={{ display: !isCreate && detailLoading ? "none" : "contents" }}>
+                        {/* Title */}
+                        <Box>
                             <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700 }}>
-                                Topic
+                                Title
                             </Typography>
-                            <Controller
-                                name="topic"
-                                control={control}
-                                rules={{ required: "Please select a topic" }}
-                                render={({ field }) => (
-                                    <FormControl fullWidth size="small" sx={inputFocusSx}>
-                                        <InputLabel>Topic</InputLabel>
-                                        <Select
-                                            {...field}
-                                            label="Topic"
-                                            disabled={topicsLoading}
-                                            error={!!errors.topic}
-                                            MenuProps={{
-                                                PaperProps: {
-                                                    sx: {
-                                                        maxHeight: 220,
-                                                        overflowY: "auto",
+                            <TextField
+                                {...register("title", {
+                                    required: "Title is required",
+                                    minLength: {
+                                        value: 5,
+                                        message: "Title must be at least 5 characters",
+                                    },
+                                })}
+                                fullWidth
+                                size="small"
+                                placeholder="Enter roadmap title"
+                                error={!!errors.title}
+                                helperText={
+                                    errors.title
+                                        ? errors.title.message
+                                        : "A short, descriptive title for your roadmap"
+                                }
+                                slotProps={{
+                                    htmlInput: { maxLength: 60 },
+                                    input: {
+                                        endAdornment: (
+                                            <Typography
+                                                variant="caption"
+                                                sx={{ color: "text.secondary", whiteSpace: "nowrap" }}
+                                            >
+                                                {watch("title")?.length || 0}/60
+                                            </Typography>
+                                        ),
+                                    },
+                                }}
+                                sx={inputFocusSx}
+                            />
+                        </Box>
+
+                        {/* Subtitle */}
+                        <Box>
+                            <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700 }}>
+                                Subtitle
+                            </Typography>
+                            <TextField
+                                {...register("subtitle", {
+                                    maxLength: {
+                                        value: 90,
+                                        message: "Maximum 90 characters",
+                                    },
+                                })}
+                                fullWidth
+                                size="small"
+                                placeholder="Enter roadmap subtitle"
+                                error={!!errors.subtitle}
+                                helperText={
+                                    errors.subtitle
+                                        ? errors.subtitle.message
+                                        : "A brief summary that appears below the title"
+                                }
+                                slotProps={{
+                                    htmlInput: { maxLength: 90 },
+                                    input: {
+                                        endAdornment: (
+                                            <Typography
+                                                variant="caption"
+                                                sx={{ color: "text.secondary", whiteSpace: "nowrap" }}
+                                            >
+                                                {watch("subtitle")?.length || 0}/90
+                                            </Typography>
+                                        ),
+                                    },
+                                }}
+                                sx={inputFocusSx}
+                            />
+                        </Box>
+                        {/* Topic & Skill Level — side by side */}
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                            {/* Topic */}
+                            <Box sx={{ flex: 1 }}>
+                                <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700 }}>
+                                    Topic
+                                </Typography>
+                                <Controller
+                                    name="topic"
+                                    control={control}
+                                    rules={{ required: "Please select a topic" }}
+                                    render={({ field }) => (
+                                        <FormControl fullWidth size="small" sx={inputFocusSx}>
+                                            <InputLabel>Topic</InputLabel>
+                                            <Select
+                                                {...field}
+                                                label="Topic"
+                                                disabled={topicsLoading}
+                                                error={!!errors.topic}
+                                                MenuProps={{
+                                                    PaperProps: {
+                                                        sx: {
+                                                            maxHeight: 220,
+                                                            overflowY: "auto",
+                                                        },
                                                     },
-                                                },
-                                            }}
-                                        >
-                                            <MenuItem value="">
-                                                {topicsLoading ? "Loading..." : "-- Select Topic --"}
-                                            </MenuItem>
-                                            {topics.map((t) => (
-                                                <MenuItem key={t.id} value={t.id}>
-                                                    {t.title}
+                                                }}
+                                            >
+                                                <MenuItem value="">
+                                                    {topicsLoading ? "Loading..." : "-- Select Topic --"}
                                                 </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                )}
-                            />
+                                                {topics.map((t) => (
+                                                    <MenuItem key={t.id} value={t.id}>
+                                                        {t.title}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    )}
+                                />
+                            </Box>
+
+                            {/* Skill Level */}
+                            <Box sx={{ flex: 1 }}>
+                                <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700 }}>
+                                    Skill Level
+                                </Typography>
+                                <Controller
+                                    name="skillLevel"
+                                    control={control}
+                                    rules={{ required: "Please select a skill level" }}
+                                    render={({ field }) => (
+                                        <FormControl fullWidth size="small" sx={inputFocusSx} error={!!errors.skillLevel}>
+                                            <InputLabel>Skill Level</InputLabel>
+                                            <Select {...field} label="Skill Level" error={!!errors.skillLevel}>
+                                                <MenuItem value="">-- Select Level --</MenuItem>
+                                                <MenuItem value={0}>{getLevelLabel(0)}</MenuItem>
+                                                <MenuItem value={1}>{getLevelLabel(1)}</MenuItem>
+                                                <MenuItem value={2}>{getLevelLabel(2)}</MenuItem>
+                                                <MenuItem value={3}>{getLevelLabel(3)}</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    )}
+                                />
+                            </Box>
                         </Box>
 
-                        {/* Skill Level */}
-                        <Box sx={{ flex: 1 }}>
+                        {/* Description */}
+                        <Box>
                             <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700 }}>
-                                Skill Level
+                                Description
                             </Typography>
-                            <Controller
-                                name="skillLevel"
-                                control={control}
-                                rules={{ required: "Please select a skill level" }}
-                                render={({ field }) => (
-                                    <FormControl fullWidth size="small" sx={inputFocusSx} error={!!errors.skillLevel}>
-                                        <InputLabel>Skill Level</InputLabel>
-                                        <Select {...field} label="Skill Level" error={!!errors.skillLevel}>
-                                            <MenuItem value="">-- Select Level --</MenuItem>
-                                            <MenuItem value={0}>{getLevelLabel(0)}</MenuItem>
-                                            <MenuItem value={1}>{getLevelLabel(1)}</MenuItem>
-                                            <MenuItem value={2}>{getLevelLabel(2)}</MenuItem>
-                                            <MenuItem value={3}>{getLevelLabel(3)}</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                )}
+                            <TextField
+                                {...register("description")}
+                                fullWidth
+                                multiline
+                                minRows={3}
+                                maxRows={6}
+                                size="small"
+                                placeholder="Describe what learners will achieve with this roadmap"
+                                helperText="Explain the goals and target audience of this roadmap"
+                                sx={inputFocusSx}
                             />
                         </Box>
-                    </Box>
-
-                    {/* Description */}
-                    <Box>
-                        <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700 }}>
-                            Description
-                        </Typography>
-                        <TextField
-                            {...register("description")}
-                            fullWidth
-                            multiline
-                            minRows={3}
-                            maxRows={6}
-                            size="small"
-                            placeholder="Describe what learners will achieve with this roadmap"
-                            helperText="Explain the goals and target audience of this roadmap"
-                            sx={inputFocusSx}
-                        />
-                    </Box>
 
 
+                    </Box> {/* end conditional render wrapper */}
                 </DialogContent>
 
                 {/* ── Footer ── */}
@@ -296,7 +332,11 @@ export default function RoadmapMetadataDialog({
                     <Button
                         type="submit"
                         variant="contained"
-                        disabled={isCreate && createRoadmap.isPending}
+                        disabled={
+                            (isCreate && createRoadmap.isPending) ||
+                            (!isCreate && detailLoading) ||
+                            (!isCreate && updateRoadmap.isPending)
+                        }
                         sx={{
                             textTransform: "none",
                             bgcolor: "brand.main",
@@ -307,7 +347,9 @@ export default function RoadmapMetadataDialog({
                     >
                         {isCreate && createRoadmap.isPending
                             ? "Creating..."
-                            : isCreate ? "Create" : "Save"}
+                            : !isCreate && updateRoadmap.isPending
+                                ? "Saving..."
+                                : isCreate ? "Create" : "Save"}
                     </Button>
                 </DialogActions>
             </form>

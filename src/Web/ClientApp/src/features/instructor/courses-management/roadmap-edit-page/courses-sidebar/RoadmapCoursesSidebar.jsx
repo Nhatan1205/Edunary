@@ -5,7 +5,6 @@ import {
     TextField,
     InputAdornment,
     IconButton,
-    Card,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
@@ -13,11 +12,13 @@ import useGetCoursesAuthor from "../../../../../hooks/course-hooks/useGetCourses
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
 import SidebarCourseCard from "./SidebarCourseCard";
+import { useRoadmapEditor } from "../../../../../context/RoadmapEditorContext";
 
 const SIDEBAR_WIDTH = 380;
 
+export default function RoadmapCoursesSidebar() {
+    const { coursesSidebarOpen, closeSidebar, addedCourseIds } = useRoadmapEditor();
 
-export default function RoadmapCoursesSidebar({ open, onClose }) {
     const [searchText, setSearchText] = useState("");
     const [appliedSearch, setAppliedSearch] = useState("");
     const [pageNumber, setPageNumber] = useState(1);
@@ -33,7 +34,7 @@ export default function RoadmapCoursesSidebar({ open, onClose }) {
         setPageNumber(value);
     }
 
-    if (!open) return null;
+    if (!coursesSidebarOpen) return null;
 
     return (
         <Box
@@ -67,7 +68,7 @@ export default function RoadmapCoursesSidebar({ open, onClose }) {
                 >
                     Your Courses
                 </Typography>
-                <IconButton size="small" onClick={onClose}>
+                <IconButton size="small" onClick={closeSidebar}>
                     <CloseIcon sx={{ fontSize: "1.2rem" }} />
                 </IconButton>
             </Box>
@@ -135,7 +136,11 @@ export default function RoadmapCoursesSidebar({ open, onClose }) {
                         }}
                     >
                         {coursesData.items.map((course) => (
-                            <SidebarCourseCard key={course.id} course={course} />
+                            <SidebarCourseCard
+                                key={course.id}
+                                course={course}
+                                disabled={addedCourseIds?.has(course.id)}
+                            />
                         ))}
                     </Box>
                 ) : (

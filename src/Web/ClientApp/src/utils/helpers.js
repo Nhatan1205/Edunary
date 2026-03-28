@@ -112,3 +112,85 @@ export function getCourseManagementSortBy(value) {
       return CourseManagementSortBy.Newest;
   }
 }
+
+
+/**
+ * Utility functions to convert between React Flow data and
+ * the backend's RoadmapGraphData JSON structure.
+ *
+ * Backend GraphData (save):
+ *   { nodes: [{ clientNodeId, courseId, positionX, positionY, sortOrder }],
+ *     edges: [{ sourceNodeId, targetNodeId }] }
+ *
+ * Backend GraphResponse (fetch — enriched):
+ *   { nodes: [{ clientNodeId, courseId, courseTitle, courseImageUrl, positionX, positionY, sortOrder }],
+ *     edges: [{ sourceNodeId, targetNodeId }] }
+ */
+
+/**
+ * Generate a unique clientNodeId for a new node.
+ * Format: "node_<timestamp>_<random>"
+ */
+export function generateNodeId() {
+  return `node_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * Convert enriched GraphData response (from GET /roadmaps/{id})
+ * into React Flow nodes + edges.
+ *
+ * @param {object|null} graphData - RoadmapGraphResponse from API
+ * @returns {{ nodes: object[], edges: object[] }}
+ */
+export function graphResponseToReactFlow(graphData) {
+  if (!graphData) return { nodes: [], edges: [] };
+
+  const nodes = (graphData.nodes || []).map((n) => ({
+    id: n.clientNodeId,
+    type: "courseNode",
+    position: { x: n.positionX, y: n.positionY },
+    data: {
+      course: {
+        id: n.course.courseId,
+        title: n.course.title,
+        imageUrl: n.course.imageUrl,
+        totalStudents: n.course.totalStudents,
+        ratings: n.course.ratings,
+      },
+      sortOrder: n.sortOrder,
+    },
+  }));
+
+  const edges = (graphData.edges || []).map((e) => ({
+    id: `${e.sourceNodeId}-${e.targetNodeId}`,
+    source: e.sourceNodeId,
+    target: e.targetNodeId,
+  }));
+
+  return { nodes, edges };
+}
+
+/**
+ * Convert React Flow nodes + edges into the lean GraphData JSON
+ * expected by UpdateRoadmapCommand.graphData.
+ *
+ * @param {object[]} nodes - React Flow nodes
+ * @param {object[]} edges - React Flow edges
+ * @returns {{ nodes: object[], edges: object[] }}
+ */
+export function reactFlowToGraphData(nodes, edges) {
+  const apiNodes = nodes.map((n, index) => ({
+    clientNodeId: n.id,
+    courseId: n.data.course.id,
+    positionX: n.position.x,
+    positionY: n.position.y,
+    sortOrder: n.data.sortOrder ?? index,
+  }));
+
+  const apiEdges = edges.map((e) => ({
+    sourceNodeId: e.source,
+    targetNodeId: e.target,
+  }));
+
+  return { nodes: apiNodes, edges: apiEdges };
+}

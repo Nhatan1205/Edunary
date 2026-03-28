@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import {
     ReactFlow,
     Background,
@@ -9,10 +9,13 @@ import {
     applyEdgeChanges,
     Handle,
     Position,
+    useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Box } from "@mui/material";
-import CourseNode from "../../../../components/roadmap/CourseNode"
+import { Box, IconButton, Tooltip } from "@mui/material";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import CourseNode from "../../../../components/roadmap/CourseNode";
+import { useRoadmapEditor } from "../../../../context/RoadmapEditorContext";
 
 const handleStyle = {
     background: "#3FCCB2",
@@ -23,19 +26,59 @@ const handleStyle = {
 
 function CourseFlowNode({ data }) {
     return (
-        <>
+        <Box
+            sx={{
+                position: "relative",
+                "&:hover .node-context-menu": { opacity: 1, pointerEvents: "auto" },
+            }}
+        >
             <Handle
                 type="target"
                 position={Position.Top}
                 style={handleStyle}
             />
+
+            <Box
+                className="node-context-menu"
+                sx={{
+                    position: "absolute",
+                    top: -36,
+                    right: 0,
+                    zIndex: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    bgcolor: "background.paper",
+                    borderRadius: "10px",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    p: 0.3,
+                    opacity: 0,
+                    pointerEvents: "none",
+                    transition: "opacity 0.15s ease",
+                }}
+            >
+                <Tooltip title="Delete node" placement="top" arrow>
+                    <IconButton
+                        size="small"
+                        className="node-delete-btn"
+                        sx={{
+                            color: "error.main",
+                            "&:hover": { bgcolor: "error.lighter", color: "error.dark" },
+                        }}
+                    >
+                        <DeleteOutlineIcon sx={{ fontSize: "1.15rem" }} />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+
             <CourseNode course={data.course} />
             <Handle
                 type="source"
                 position={Position.Bottom}
                 style={handleStyle}
             />
-        </>
+        </Box>
     );
 }
 
@@ -43,132 +86,62 @@ const nodeTypes = { courseNode: CourseFlowNode };
 
 const defaultEdgeOptions = {
     style: { stroke: "#3FCCB2", strokeWidth: 2 },
-    animated: true,
 };
 
-// ─── Mock courses for the roadmap editor ─────────────────────────────────────
-// Replace with API data later
-export const mockCourses = [
-    {
-        id: "c1",
-        title: "Introduction to Web Development",
-        description:
-            "Learn the foundations of HTML, CSS, and JavaScript to build modern websites...",
-        duration: "20h",
-        rating: 4.7,
-        status: "COMPLETED",
-        thumbnail: null,
-    },
-    {
-        id: "c2",
-        title: "JavaScript Fundamentals",
-        description:
-            "Deep dive into ES6+, closures, async/await, and DOM manipulation...",
-        duration: "25h",
-        rating: 4.6,
-        status: "COMPLETED",
-        thumbnail: null,
-    },
-    {
-        id: "c3",
-        title: "React.js Essentials",
-        description:
-            "Build dynamic user interfaces with React, hooks, and component patterns...",
-        duration: "30h",
-        rating: 4.8,
-        status: "IN_PROGRESS",
-        thumbnail: null,
-    },
-    {
-        id: "c4",
-        title: "Node.js & Express Backend",
-        description:
-            "Create RESTful APIs and server-side applications with Node.js...",
-        duration: "28h",
-        rating: 4.5,
-        status: null,
-        thumbnail: null,
-    },
-    {
-        id: "c5",
-        title: "Database Design & SQL",
-        description:
-            "Master relational databases, SQL queries, and data modelling techniques...",
-        duration: "18h",
-        rating: 4.9,
-        status: null,
-        thumbnail: null,
-    },
-    {
-        id: "c6",
-        title: "Full-Stack Project & Deployment",
-        description:
-            "Combine everything into a production-ready full-stack application...",
-        duration: "35h",
-        rating: 4.7,
-        status: null,
-        thumbnail: null,
-    },
-];
-
-// ─── Layout constants ─────────────────────────────────────────────────────────
-const NODE_W = 320;
-const NODE_H = 380;
-const COL_GAP = 120;
-const ROW_GAP = 80;
-const COLS = 2;
-
-// ─── Build initial nodes ──────────────────────────────────────────────────────
-const totalWidth = COLS * NODE_W + (COLS - 1) * COL_GAP;
-
-export const initialNodes = mockCourses.map((course, i) => {
-    const row = Math.floor(i / COLS);
-    const col = i % COLS;
-    const rowCount = Math.min(COLS, mockCourses.length - row * COLS);
-    const rowWidth = rowCount * NODE_W + (rowCount - 1) * COL_GAP;
-    const offsetX = (totalWidth - rowWidth) / 2;
-
-    return {
-        id: course.id,
-        type: "courseNode",
-        position: {
-            x: offsetX + col * (NODE_W + COL_GAP),
-            y: row * (NODE_H + ROW_GAP),
-        },
-        data: { course },
-    };
-});
-
-// ─── Build initial edges ──────────────────────────────────────────────────────
-const edgeStyle = { stroke: "#3FCCB2", strokeWidth: 2 };
-
-export const initialEdges = [
-    { id: "e1-2", source: "c1", target: "c2", animated: true, style: edgeStyle },
-    { id: "e1-3", source: "c1", target: "c3", animated: true, style: edgeStyle },
-    { id: "e2-4", source: "c2", target: "c4", animated: false, style: edgeStyle },
-    { id: "e3-5", source: "c3", target: "c5", animated: false, style: edgeStyle },
-    { id: "e4-6", source: "c4", target: "c6", animated: false, style: edgeStyle },
-    { id: "e5-6", source: "c5", target: "c6", animated: false, style: edgeStyle },
-];
-
-
 export default function RoadmapCanvas() {
-    const [nodes, setNodes] = useState(initialNodes);
-    const [edges, setEdges] = useState(initialEdges);
+    const { nodes, edges, setNodes, setEdges, addCourseNode } = useRoadmapEditor();
+    const { screenToFlowPosition, deleteElements } = useReactFlow();
 
     const onNodesChange = useCallback(
         (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-        []
+        [setNodes]
     );
 
     const onEdgesChange = useCallback(
         (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-        []
+        [setEdges]
     );
 
     const onConnect = useCallback(
         (connection) => setEdges((eds) => addEdge(connection, eds)),
-        []
+        [setEdges]
+    );
+
+    // ─── Node click — handle delete button ────────────────────────────────
+    const onNodeClick = useCallback(
+        (event, node) => {
+            const target = event.target;
+            if (target.closest(".node-delete-btn")) {
+                deleteElements({ nodes: [{ id: node.id }] });
+            }
+        },
+        [deleteElements]
+    );
+
+    // ─── Drag-and-drop from sidebar ──────────────────────────────────────
+    const onDragOver = useCallback((event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+    }, []);
+
+    const onDrop = useCallback(
+        (event) => {
+            event.preventDefault();
+
+            const courseJson = event.dataTransfer.getData(
+                "application/edunary-course"
+            );
+            if (!courseJson) return;
+
+            const course = JSON.parse(courseJson);
+            const position = screenToFlowPosition({
+                x: event.clientX,
+                y: event.clientY,
+            });
+
+            addCourseNode(course, position);
+        },
+        [screenToFlowPosition, addCourseNode]
     );
 
     return (
@@ -187,6 +160,9 @@ export default function RoadmapCanvas() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                onNodeClick={onNodeClick}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
                 defaultEdgeOptions={defaultEdgeOptions}
                 fitView
                 fitViewOptions={{ padding: 0.15 }}
@@ -197,7 +173,7 @@ export default function RoadmapCanvas() {
                 snapToGrid
                 snapGrid={[20, 20]}
             >
-                <Background color="#d0e8e5" variant="dots" gap={20} size={1.5} />
+                <Background color="#d0e8e5" variant="dots" gap={20} size={4} />
                 <Controls
                     style={{
                         borderRadius: 10,

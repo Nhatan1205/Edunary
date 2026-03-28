@@ -2008,6 +2008,159 @@ export class RoadmapsClient {
         return Promise.resolve<ReturnResultOfCreatedRoadmapDto>(null as any);
     }
 
+    updateRoadmap(command: UpdateRoadmapCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Roadmaps";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateRoadmap(_response);
+        });
+    }
+
+    protected processUpdateRoadmap(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteRoadmap(command: DeleteRoadmapCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Roadmaps";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteRoadmap(_response);
+        });
+    }
+
+    protected processDeleteRoadmap(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getRoadmapsAuthor(searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfRoadmapAuthorDto> {
+        let url_ = this.baseUrl + "/api/Roadmaps?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRoadmapsAuthor(_response);
+        });
+    }
+
+    protected processGetRoadmapsAuthor(response: Response): Promise<PaginatedListOfRoadmapAuthorDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfRoadmapAuthorDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfRoadmapAuthorDto>(null as any);
+    }
+
+    getRoadmapDetail(id: number): Promise<RoadmapDetailDto> {
+        let url_ = this.baseUrl + "/api/Roadmaps/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRoadmapDetail(_response);
+        });
+    }
+
+    protected processGetRoadmapDetail(response: Response): Promise<RoadmapDetailDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoadmapDetailDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RoadmapDetailDto>(null as any);
+    }
+
     getTopics(): Promise<RoadmapTopicDto[]> {
         let url_ = this.baseUrl + "/api/Roadmaps/public/topics";
         url_ = url_.replace(/[?&]$/, "");
@@ -4381,6 +4534,8 @@ export class GetCoursesAuthorDto implements IGetCoursesAuthorDto {
     price?: number;
     categoryId?: number;
     imageUrl?: string | undefined;
+    totalStudents?: number;
+    ratings?: number;
     status?: CourseStatus;
     created?: Date;
 
@@ -4401,6 +4556,8 @@ export class GetCoursesAuthorDto implements IGetCoursesAuthorDto {
             this.price = _data["price"];
             this.categoryId = _data["categoryId"];
             this.imageUrl = _data["imageUrl"];
+            this.totalStudents = _data["totalStudents"];
+            this.ratings = _data["ratings"];
             this.status = _data["status"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
         }
@@ -4421,6 +4578,8 @@ export class GetCoursesAuthorDto implements IGetCoursesAuthorDto {
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
         data["imageUrl"] = this.imageUrl;
+        data["totalStudents"] = this.totalStudents;
+        data["ratings"] = this.ratings;
         data["status"] = this.status;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         return data;
@@ -4434,6 +4593,8 @@ export interface IGetCoursesAuthorDto {
     price?: number;
     categoryId?: number;
     imageUrl?: string | undefined;
+    totalStudents?: number;
+    ratings?: number;
     status?: CourseStatus;
     created?: Date;
 }
@@ -6656,6 +6817,486 @@ export interface ICreateRoadmapCommand {
     description?: string | undefined;
     roadmapTopicId?: number;
     skillLevel?: CourseLevel;
+}
+
+export class UpdateRoadmapCommand implements IUpdateRoadmapCommand {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    roadmapTopicId?: number;
+    skillLevel?: CourseLevel;
+    isPublic?: boolean;
+    graphData?: string | undefined;
+
+    constructor(data?: IUpdateRoadmapCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.description = _data["description"];
+            this.roadmapTopicId = _data["roadmapTopicId"];
+            this.skillLevel = _data["skillLevel"];
+            this.isPublic = _data["isPublic"];
+            this.graphData = _data["graphData"];
+        }
+    }
+
+    static fromJS(data: any): UpdateRoadmapCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateRoadmapCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["description"] = this.description;
+        data["roadmapTopicId"] = this.roadmapTopicId;
+        data["skillLevel"] = this.skillLevel;
+        data["isPublic"] = this.isPublic;
+        data["graphData"] = this.graphData;
+        return data;
+    }
+}
+
+export interface IUpdateRoadmapCommand {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    roadmapTopicId?: number;
+    skillLevel?: CourseLevel;
+    isPublic?: boolean;
+    graphData?: string | undefined;
+}
+
+export class DeleteRoadmapCommand implements IDeleteRoadmapCommand {
+    id?: number;
+
+    constructor(data?: IDeleteRoadmapCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): DeleteRoadmapCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteRoadmapCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IDeleteRoadmapCommand {
+    id?: number;
+}
+
+export class PaginatedListOfRoadmapAuthorDto implements IPaginatedListOfRoadmapAuthorDto {
+    items?: RoadmapAuthorDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfRoadmapAuthorDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(RoadmapAuthorDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfRoadmapAuthorDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfRoadmapAuthorDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfRoadmapAuthorDto {
+    items?: RoadmapAuthorDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class RoadmapAuthorDto implements IRoadmapAuthorDto {
+    id?: number;
+    title?: string | undefined;
+    visibility?: string | undefined;
+    topicCount?: number;
+
+    constructor(data?: IRoadmapAuthorDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.visibility = _data["visibility"];
+            this.topicCount = _data["topicCount"];
+        }
+    }
+
+    static fromJS(data: any): RoadmapAuthorDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoadmapAuthorDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["visibility"] = this.visibility;
+        data["topicCount"] = this.topicCount;
+        return data;
+    }
+}
+
+export interface IRoadmapAuthorDto {
+    id?: number;
+    title?: string | undefined;
+    visibility?: string | undefined;
+    topicCount?: number;
+}
+
+export class RoadmapDetailDto implements IRoadmapDetailDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    roadmapTopicId?: number;
+    topicTitle?: string | undefined;
+    skillLevel?: CourseLevel;
+    isPublic?: boolean;
+    graphData?: RoadmapGraphResponse | undefined;
+
+    constructor(data?: IRoadmapDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.description = _data["description"];
+            this.roadmapTopicId = _data["roadmapTopicId"];
+            this.topicTitle = _data["topicTitle"];
+            this.skillLevel = _data["skillLevel"];
+            this.isPublic = _data["isPublic"];
+            this.graphData = _data["graphData"] ? RoadmapGraphResponse.fromJS(_data["graphData"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RoadmapDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoadmapDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["description"] = this.description;
+        data["roadmapTopicId"] = this.roadmapTopicId;
+        data["topicTitle"] = this.topicTitle;
+        data["skillLevel"] = this.skillLevel;
+        data["isPublic"] = this.isPublic;
+        data["graphData"] = this.graphData ? this.graphData.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRoadmapDetailDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    roadmapTopicId?: number;
+    topicTitle?: string | undefined;
+    skillLevel?: CourseLevel;
+    isPublic?: boolean;
+    graphData?: RoadmapGraphResponse | undefined;
+}
+
+export class RoadmapGraphResponse implements IRoadmapGraphResponse {
+    nodes?: RoadmapNodeResponse[] | undefined;
+    edges?: RoadmapEdgeData[] | undefined;
+
+    constructor(data?: IRoadmapGraphResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["nodes"])) {
+                this.nodes = [] as any;
+                for (let item of _data["nodes"])
+                    this.nodes!.push(RoadmapNodeResponse.fromJS(item));
+            }
+            if (Array.isArray(_data["edges"])) {
+                this.edges = [] as any;
+                for (let item of _data["edges"])
+                    this.edges!.push(RoadmapEdgeData.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RoadmapGraphResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoadmapGraphResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.nodes)) {
+            data["nodes"] = [];
+            for (let item of this.nodes)
+                data["nodes"].push(item.toJSON());
+        }
+        if (Array.isArray(this.edges)) {
+            data["edges"] = [];
+            for (let item of this.edges)
+                data["edges"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IRoadmapGraphResponse {
+    nodes?: RoadmapNodeResponse[] | undefined;
+    edges?: RoadmapEdgeData[] | undefined;
+}
+
+export class RoadmapNodeResponse implements IRoadmapNodeResponse {
+    clientNodeId?: string | undefined;
+    course?: CourseNodeDto | undefined;
+    positionX?: number;
+    positionY?: number;
+    sortOrder?: number;
+
+    constructor(data?: IRoadmapNodeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.clientNodeId = _data["clientNodeId"];
+            this.course = _data["course"] ? CourseNodeDto.fromJS(_data["course"]) : <any>undefined;
+            this.positionX = _data["positionX"];
+            this.positionY = _data["positionY"];
+            this.sortOrder = _data["sortOrder"];
+        }
+    }
+
+    static fromJS(data: any): RoadmapNodeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoadmapNodeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["clientNodeId"] = this.clientNodeId;
+        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
+        data["positionX"] = this.positionX;
+        data["positionY"] = this.positionY;
+        data["sortOrder"] = this.sortOrder;
+        return data;
+    }
+}
+
+export interface IRoadmapNodeResponse {
+    clientNodeId?: string | undefined;
+    course?: CourseNodeDto | undefined;
+    positionX?: number;
+    positionY?: number;
+    sortOrder?: number;
+}
+
+export class CourseNodeDto implements ICourseNodeDto {
+    courseId?: number;
+    title?: string | undefined;
+    imageUrl?: string | undefined;
+    totalStudents?: number;
+    ratings?: number;
+
+    constructor(data?: ICourseNodeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.imageUrl = _data["imageUrl"];
+            this.totalStudents = _data["totalStudents"];
+            this.ratings = _data["ratings"];
+        }
+    }
+
+    static fromJS(data: any): CourseNodeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseNodeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["imageUrl"] = this.imageUrl;
+        data["totalStudents"] = this.totalStudents;
+        data["ratings"] = this.ratings;
+        return data;
+    }
+}
+
+export interface ICourseNodeDto {
+    courseId?: number;
+    title?: string | undefined;
+    imageUrl?: string | undefined;
+    totalStudents?: number;
+    ratings?: number;
+}
+
+export class RoadmapEdgeData implements IRoadmapEdgeData {
+    sourceNodeId?: string | undefined;
+    targetNodeId?: string | undefined;
+
+    constructor(data?: IRoadmapEdgeData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sourceNodeId = _data["sourceNodeId"];
+            this.targetNodeId = _data["targetNodeId"];
+        }
+    }
+
+    static fromJS(data: any): RoadmapEdgeData {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoadmapEdgeData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sourceNodeId"] = this.sourceNodeId;
+        data["targetNodeId"] = this.targetNodeId;
+        return data;
+    }
+}
+
+export interface IRoadmapEdgeData {
+    sourceNodeId?: string | undefined;
+    targetNodeId?: string | undefined;
 }
 
 export class RoadmapTopicDto implements IRoadmapTopicDto {

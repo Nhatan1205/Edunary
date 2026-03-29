@@ -69,7 +69,7 @@ const CareerPathStats = ({ careerPath }) => {
         display: 'flex',
         alignItems: 'stretch',
         flexWrap: { xs: 'wrap', md: 'nowrap' },
-        bgcolor: 'background.alt',
+        bgcolor: '#F8F8F8',
         my: 3,
         overflow: 'hidden',
       }}

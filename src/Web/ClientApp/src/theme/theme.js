@@ -27,7 +27,7 @@ const theme = createTheme({
       // Background 3 - paper/card
       paper: "#FFFFFF", // use for cards, dialogs, menus
       // Background 4 - alt (alternate section backgrounds)
-      alt: "#F4F7F6", // use to separate sections, sidebars
+      alt: "#fbf9fa", // use to separate sections, sidebars
       // muted surfaces - for subtle grouping (forms, footers)
       muted: "#EFF7F6",
     },

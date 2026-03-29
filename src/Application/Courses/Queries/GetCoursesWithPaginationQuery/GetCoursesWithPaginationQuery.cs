@@ -1,4 +1,5 @@
 ﻿using Edunary.Application.Common.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
@@ -19,13 +20,15 @@ public class GetCoursesWithPaginationQueryHandler : IRequestHandler<GetCoursesWi
     private readonly IMapper _mapper;
     private readonly IFilterService _filterService;
     private readonly IIdentityService _identityService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public GetCoursesWithPaginationQueryHandler(IApplicationDbContext context, IMapper mapper, IFilterService filterService, IIdentityService identityService)
+    public GetCoursesWithPaginationQueryHandler(IApplicationDbContext context, IMapper mapper, IFilterService filterService, IIdentityService identityService, ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _filterService = filterService;
         _identityService = identityService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<PaginatedList<GetCourseDto>> Handle(GetCoursesWithPaginationQuery request, CancellationToken cancellationToken)
@@ -90,6 +93,23 @@ public class GetCoursesWithPaginationQueryHandler : IRequestHandler<GetCoursesWi
                 instructorNames.ContainsKey(course.CreatedBy))
             {
                 course.InstructorName = instructorNames[course.CreatedBy];
+            }
+        }
+
+        // set enrollment flags for current user (if authenticated)
+        var userId = _currentUserService?.UserId;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var courseIds = courses.Items.Select(c => c.Id).ToList();
+            var enrolledIds = await _context.Enrollments
+                .Where(e => e.StudentId == userId && courseIds.Contains(e.CourseId))
+                .Select(e => e.CourseId)
+                .ToListAsync(cancellationToken);
+
+            var enrolledIdSet = enrolledIds.ToHashSet();
+            foreach (var course in courses.Items)
+            {
+                course.IsEnrolled = enrolledIdSet.Contains(course.Id);
             }
         }
 

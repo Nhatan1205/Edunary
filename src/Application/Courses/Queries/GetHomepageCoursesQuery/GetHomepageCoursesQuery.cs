@@ -1,4 +1,5 @@
 ﻿using Edunary.Application.Common.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Edunary.Application.Courses.Queries.GetHomepageCoursesQuery;
 
 namespace Edunary.Application.Courses.Queries.GetCoursesHomepageQuery;

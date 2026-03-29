@@ -15,6 +15,7 @@ public class GetCourseDto
     public string Topic { get; set; }
     public float Ratings { get; set; }
     public int TotalStudents { get; set; }
+    public bool IsEnrolled { get; set; }
     public string InstructorName { get; set; }
     public string CreatedBy { get; set; }
     public string Created { get; set; }

@@ -23,7 +23,6 @@ import {
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
-import { useEnrollmentStatus } from '../../../../hooks/course-hooks/useEnrollmentStatus'
 import { formatMonthYear, getLevelLabel } from '../../../../utils/helpers'
 import { useAddToCart } from '../../../../hooks/cart-hooks/useAddToCart'
 import DefaultImage from "../../../../assets/images/default.jpg";
@@ -31,7 +30,7 @@ import DefaultImage from "../../../../assets/images/default.jpg";
 const CourseSidebar = ({ courseData }) => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
-  const { isEnrolled, loading } = useEnrollmentStatus(courseData.id)
+  const isEnrolled = courseData?.isEnrolled ?? false
   const { addToCart, loading: addingToCart } = useAddToCart()
 
   const handleBuyNow = () => {
@@ -147,7 +146,6 @@ const CourseSidebar = ({ courseData }) => {
                   variant="contained"
                   fullWidth
                   onClick={handleBuyNow}
-                  disabled={loading}
                   sx={{
                     py: 1.5,
                     mb: 2,
@@ -161,14 +159,14 @@ const CourseSidebar = ({ courseData }) => {
                     textTransform: 'none'
                   }}
                 >
-                  {loading ? 'Checking...' : 'Buy Now'}
+                  Buy Now
                 </Button>
                 <Button
                   variant="outlined"
                   fullWidth
                   onClick={handleAddToCart}
                   startIcon={<ShoppingCart />}
-                  disabled={loading || addingToCart}
+                  disabled={addingToCart}
                   sx={{
                     py: 1.5,
                     borderColor: 'brand.main',

@@ -4,19 +4,24 @@ import LoadingSpinner from "../../../../components/LoadingSpinner";
 import useGetCoursesStudent from "../../../../hooks/course-hooks/useGetCoursesStudent";
 import { useAuth } from "../../../../context/AuthContext";
 import useGetHomepageCourses from "../../../../hooks/course-hooks/useGetCoursesHomepage";
-// Sample data matching your image
+import useScrollAnimation from "../../../../hooks/common/useScrollAnimation";
 
 function CourseSection() {
   const { isAuthenticated } = useAuth();
   const { data: courseData, isLoading: isCourseLoading } = useGetHomepageCourses();
   const { data: courseStudentData, isLoading: isCourseStudentLoading } = useGetCoursesStudent(1, 4, isAuthenticated);
+  const sectionRef = useScrollAnimation("fade-in-up", { threshold: 0.05 });
 
   if (isCourseLoading || isCourseStudentLoading) {
     <LoadingSpinner />;
   }
 
   return (
-    <Box sx={{ py: 4 }}>
+    <Box
+      component="section"
+      ref={sectionRef}
+      sx={{ py: { xs: 5, md: 7 }, bgcolor: "background.default" }}
+    >
       {(isAuthenticated && courseStudentData?.items.length > 0) && (
         <CourseSubSection
           title="Complete your Course"

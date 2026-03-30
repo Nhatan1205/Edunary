@@ -610,6 +610,85 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("RatingCourses");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.Roadmap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GraphData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPublic")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoadmapTopicId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subtitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoadmapTopicId");
+
+                    b.ToTable("Roadmaps");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.RoadmapTopic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoadmapTopics");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
                 {
                     b.Property<int>("Id")
@@ -1003,6 +1082,17 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.Roadmap", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.RoadmapTopic", "RoadmapTopic")
+                        .WithMany("Roadmaps")
+                        .HasForeignKey("RoadmapTopicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RoadmapTopic");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.TodoList", "List")
@@ -1107,6 +1197,11 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.RoadmapTopic", b =>
+                {
+                    b.Navigation("Roadmaps");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.TodoList", b =>

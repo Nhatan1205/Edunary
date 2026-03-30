@@ -2,6 +2,7 @@ import { Container, Row, Col } from 'reactstrap';
 import { Button, Typography, Box, Tabs, Tab } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import PageTitle from '../../../../components/PageTitle';
+import NoData from '../../../../components/NoData';
 import emptyMailboxImg from "../../../../assets/images/empty-mailbox.png";
 import { Link as RouterLink, useNavigate } from "react-router";
 import { useState } from 'react';
@@ -178,54 +179,12 @@ export default function AnnouncementsPage() {
                         </Tabs>
                     </Box>
 
-                    {/* Hiển thị empty state khi không có data */}
                     {!isAnnouncementsLoading && !hasData ? (
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                minHeight: '420px',
-                                bgcolor: 'white',
-                                borderRadius: 2,
-                                p: 4
-                            }}
-                        >
-                            <Box
-                                component="img"
-                                src={emptyMailboxImg}
-                                alt="Empty mailbox"
-                                sx={{
-                                    width: 200,
-                                    height: "auto",
-                                    borderRadius: 2,
-                                }}
-                            />
-
-                            <Typography
-                                variant="h5"
-                                sx={{
-                                    fontWeight: 600,
-                                    color: '#333',
-                                    mb: 2
-                                }}
-                            >
-                                No announcements yet
-                            </Typography>
-
-                            <Typography
-                                variant="body1"
-                                sx={{
-                                    color: '#666',
-                                    textAlign: 'center',
-                                    maxWidth: '500px',
-                                    lineHeight: 1.6
-                                }}
-                            >
-                                Here's where you can send your students email announcements. Use educational emails to support your students' learning. Use promotional emails to market your courses.
-                            </Typography>
-                        </Box>
+                        <NoData
+                            image={emptyMailboxImg}
+                            title="No announcements yet"
+                            description="Here's where you can send your students email announcements. Use educational emails to support your students' learning. Use promotional emails to market your courses."
+                        />
                     ) : (
                         /* Hiển thị DataGrid khi có data */
                         hasData && (

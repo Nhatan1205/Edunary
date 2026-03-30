@@ -9,7 +9,6 @@ const useGetPublicCourseById = (id) => {
 
       try {
         const result = await coursesClient.getPublicCourseById(id);
-
         if (result === null) {
           throw new Error("Course not found");
         }

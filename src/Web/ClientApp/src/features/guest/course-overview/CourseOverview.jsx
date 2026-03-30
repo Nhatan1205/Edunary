@@ -6,6 +6,7 @@ import CourseTabs from './components/CourseTabs'
 import useGetPublicCourseById from '../../../hooks/course-hooks/useGetPublicCourseById'
 import LoadingSpinner from '../../../components/LoadingSpinner'
 import { Container } from 'reactstrap'
+import RelatedRoadmaps from './components/RelatedRoadmaps'
 
 const reviews = [
   {
@@ -89,7 +90,8 @@ const CourseOverview = () => {
               md: '1fr 380px'
             },
             gap: 4,
-            mt: { xs: 3, md: 0 }
+            mt: { xs: 3, md: 0 },
+            mb: 4,
           }}
         >
           <Box sx={{ minWidth: 0, py: 4 }}>
@@ -106,6 +108,12 @@ const CourseOverview = () => {
           </Box>
         </Box>
       </Container>
+
+      <Box sx={{ bgcolor: 'background.alt' }}>
+        <Container>
+          <RelatedRoadmaps courseId={id} />
+        </Container>
+      </Box>
     </Box>
   )
 }

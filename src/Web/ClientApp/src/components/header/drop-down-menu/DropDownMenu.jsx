@@ -9,8 +9,8 @@ const MENU_DATA = {
       path: "/business",
     },
     {
-      title: "Teach on Edunary",
-      path: "/teach",
+      title: "Career paths",
+      path: "/career-paths",
     },
   ],
   resources: [

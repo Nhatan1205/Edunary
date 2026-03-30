@@ -10,6 +10,7 @@ import MessageIcon from "@mui/icons-material/Message";
 import MonetizationOnRoundedIcon from "@mui/icons-material/MonetizationOnRounded";
 import RateReviewRoundedIcon from "@mui/icons-material/RateReviewRounded";
 import AnnouncementRoundedIcon from "@mui/icons-material/AnnouncementRounded";
+import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 
 const instructorMenuItems = {
   items: [
@@ -24,6 +25,13 @@ const instructorMenuItems = {
           type: "item",
           url: "/instructor/courses",
           icon: LibraryBooksIcon,
+        },
+        {
+          id: "roadmaps",
+          title: "Roadmaps",
+          type: "item",
+          url: "/instructor/roadmaps",
+          icon: MapOutlinedIcon,
         },
         {
           id: "course-bundles",

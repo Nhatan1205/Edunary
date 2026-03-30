@@ -14,6 +14,8 @@ import useGetCoursesAuthor from '../../../../hooks/course-hooks/useGetCoursesAut
 import useGetCourseStats from '../../../../hooks/course-hooks/useGetCourseStats';
 import BarChartWidget from '../../../../components/charts/BarChartWidget';
 import MainCard from '../../../../components/instructor-layout/MainCard';
+import NoData from '../../../../components/NoData';
+import emptyAnalyticsImg from '../../../../assets/images/empty-analytics.png';
 
 const dateFilterData = [
   { label: "Last 7 days", value: "week" },
@@ -188,6 +190,13 @@ function CourseOverviewPage() {
                 <Typography variant="body1" color="text.secondary">
                   Loading...
                 </Typography>
+              ) : !courseStats?.stats?.data?.length ? (
+                <NoData
+                  image={emptyAnalyticsImg}
+                  title="No data available yet"
+                  description="Once students start engaging with your courses, your performance metrics will appear here."
+                  minHeight="380px"
+                />
               ) : (
                 <>
                   {(tab === "enrollment" || tab === "revenue") ? (

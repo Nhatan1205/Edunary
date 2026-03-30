@@ -29,5 +29,9 @@ public interface IApplicationDbContext
     public DbSet<Announcement> Announcements { get; }
     public DbSet<RatingCourse> RatingCourses { get; }
 
+    public DbSet<Roadmap> Roadmaps { get; }
+    public DbSet<RoadmapTopic> RoadmapTopics { get; }
+
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

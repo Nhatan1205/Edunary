@@ -1,4 +1,4 @@
-﻿using Edunary.Domain.Constants;
+using Edunary.Domain.Constants;
 using Edunary.Domain.Entities;
 using Edunary.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
@@ -119,6 +119,26 @@ public class ApplicationDbContextInitialiser
                 new Category { Title = "Design" },
                 new Category { Title = "Development" },
                 new Category { Title = "Film & Video" }
+            );
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.RoadmapTopics.Any())
+        {
+            _context.RoadmapTopics.AddRange(
+                new RoadmapTopic { Title = "Frontend" },
+                new RoadmapTopic { Title = "Backend" },
+                new RoadmapTopic { Title = "Full Stack" },
+                new RoadmapTopic { Title = "DevOps" },
+                new RoadmapTopic { Title = "Data Analyst" },
+                new RoadmapTopic { Title = "AI Engineer" },
+                new RoadmapTopic { Title = "Android" },
+                new RoadmapTopic { Title = "Machine Learning" },
+                new RoadmapTopic { Title = "PostgreSQL" },
+                new RoadmapTopic { Title = "iOS" },
+                new RoadmapTopic { Title = "Blockchain" },
+                new RoadmapTopic { Title = "UX Design" }
             );
 
             await _context.SaveChangesAsync();

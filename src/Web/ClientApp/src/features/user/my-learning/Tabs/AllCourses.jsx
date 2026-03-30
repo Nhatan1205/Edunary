@@ -1,12 +1,14 @@
-import { Box, Paper, Typography, Button } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import { Row, Col } from 'reactstrap'
 import CourseCard from '../CourseCard/CourseCard'
 import useGetCoursesStudent from '../../../../hooks/course-hooks/useGetCoursesStudent';
 import CourseSkeleton from '../../../../components/skeleton/CourseSkeleton';
 import LoadingSpinner from '../../../../components/LoadingSpinner';
 import CustomPagination from '../../../../components/pagination/CustomPagination';
+import NoResult from '../../../../components/NoResult';
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom"
+import emptyLearningImg from '../../../../assets/images/empty-learning.png';
 
 function AllCourses() {
   const navigate = useNavigate();
@@ -24,32 +26,35 @@ function AllCourses() {
       </div>
     );
   }
+
   if (!courseStudentData || courseStudentData.items.length === 0) {
     return (
       <Box sx={{ py: 4, px: 2, maxWidth: 1200, mx: 'auto' }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h4" sx={{ mb: 2 }}>
-            You haven't enrolled in any courses
-          </Typography>
-
-          <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-            Browse our course catalog and start learning today!
-          </Typography>
-
+        <NoResult
+          image={emptyLearningImg}
+          title="You haven't enrolled in any courses"
+          description="Browse our course catalog and start learning today!"
+        />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
           <Button
             variant="contained"
             onClick={() => navigate('/')}
             sx={{
               backgroundColor: 'brand.main',
-              '&:hover': { backgroundColor: 'brand.dark' }
+              '&:hover': { backgroundColor: 'brand.dark' },
+              textTransform: 'none',
+              px: 4,
+              py: 1.2,
+              fontWeight: 600,
             }}
           >
             View Courses
           </Button>
-        </Paper>
+        </Box>
       </Box>
     )
   }
+
   return (
     <Box sx={{ mt: 5 }}>
       <Row>

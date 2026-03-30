@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { getLevelLabel } from "../../../../../utils/helpers";
+import AlertBox from "../../../../../components/AlertBox";
 
 
 const inputFocusSx = {
@@ -169,11 +170,7 @@ export default function RoadmapMetadataDialog({
                                 size="small"
                                 placeholder="Enter roadmap title"
                                 error={!!errors.title}
-                                helperText={
-                                    errors.title
-                                        ? errors.title.message
-                                        : "A short, descriptive title for your roadmap"
-                                }
+                                helperText={!errors.title ? "A short, descriptive title for your roadmap" : undefined}
                                 slotProps={{
                                     htmlInput: { maxLength: 60 },
                                     input: {
@@ -189,6 +186,11 @@ export default function RoadmapMetadataDialog({
                                 }}
                                 sx={inputFocusSx}
                             />
+                            {errors.title && (
+                                <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
+                                    {errors.title.message}
+                                </AlertBox>
+                            )}
                         </Box>
 
                         {/* Subtitle */}
@@ -268,6 +270,11 @@ export default function RoadmapMetadataDialog({
                                         </FormControl>
                                     )}
                                 />
+                                {errors.topic && (
+                                    <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
+                                        {errors.topic.message}
+                                    </AlertBox>
+                                )}
                             </Box>
 
                             {/* Skill Level */}
@@ -292,6 +299,11 @@ export default function RoadmapMetadataDialog({
                                         </FormControl>
                                     )}
                                 />
+                                {errors.skillLevel && (
+                                    <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
+                                        {errors.skillLevel.message}
+                                    </AlertBox>
+                                )}
                             </Box>
                         </Box>
 

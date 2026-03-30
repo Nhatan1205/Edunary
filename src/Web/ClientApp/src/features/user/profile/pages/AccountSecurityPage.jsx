@@ -17,6 +17,7 @@ import {
 import { Container } from "reactstrap";
 import useGetBasicUserInfo from "../../../../hooks/auth-hooks/useGetBasicUserInfor";
 import useChangePassword from "../../../../hooks/auth-hooks/useChangePassword";
+import AlertBox from "../../../../components/AlertBox";
 
 const textFieldSx = {
   "& label.Mui-focused": { color: "brand.dark" },
@@ -126,7 +127,6 @@ function AccountSecurityPage() {
             size="small"
             variant="outlined"
             error={!!errors.oldPassword}
-            helperText={errors.oldPassword?.message}
             sx={textFieldSx}
             slotProps={{
               input: {
@@ -144,6 +144,11 @@ function AccountSecurityPage() {
               },
             }}
           />
+          {errors.oldPassword && (
+            <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
+              {errors.oldPassword.message}
+            </AlertBox>
+          )}
         </Box>
 
         {/* New Password */}
@@ -160,8 +165,8 @@ function AccountSecurityPage() {
               },
               pattern: {
                 value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/,
-                message:
-                  "Password must include uppercase, lowercase, number, and special character",
+                // message:
+                //   "Password must include uppercase, lowercase, number, and special character",
               },
             })}
             fullWidth
@@ -170,7 +175,6 @@ function AccountSecurityPage() {
             size="small"
             variant="outlined"
             error={!!errors.newPassword}
-            helperText={errors.newPassword?.message}
             sx={textFieldSx}
             slotProps={{
               input: {
@@ -188,6 +192,11 @@ function AccountSecurityPage() {
               },
             }}
           />
+          {errors.newPassword && (
+            <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
+              {errors.newPassword.message}
+            </AlertBox>
+          )}
           {/* Password Requirements */}
           {newPassword && (
             <Box
@@ -257,7 +266,6 @@ function AccountSecurityPage() {
             size="small"
             variant="outlined"
             error={!!errors.confirmPassword}
-            helperText={errors.confirmPassword?.message}
             sx={textFieldSx}
             slotProps={{
               input: {
@@ -281,6 +289,11 @@ function AccountSecurityPage() {
               },
             }}
           />
+          {errors.confirmPassword && (
+            <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
+              {errors.confirmPassword.message}
+            </AlertBox>
+          )}
         </Box>
 
         {/* Submit Button */}

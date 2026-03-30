@@ -10,6 +10,7 @@ import RoadmapMetadataDialog from "../roadmap-edit-page/roadmap-meta-dialog/Road
 import useGetRoadmapsAuthor from "../../../../hooks/roadmap-hooks/useGetRoadmapsAuthor";
 import CustomPagination from "../../../../components/pagination/CustomPagination";
 import AlertBox from "../../../../components/AlertBox";
+import NoData from "../../../../components/NoData";
 import emptyRoadmapImg from "../../../../assets/images/empty-roadmap.png";
 
 function RoadMapsPage() {
@@ -152,52 +153,13 @@ function RoadMapsPage() {
                                 </Typography>
                             </Box>
                         ) : roadmaps.length === 0 ? (
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    minHeight: '420px',
-                                    p: 4,
-                                }}
-                            >
-                                <Box
-                                    component="img"
-                                    src={emptyRoadmapImg}
-                                    alt="No roadmaps"
-                                    sx={{
-                                        width: 200,
-                                        height: "auto",
-                                        borderRadius: 2,
-                                    }}
-                                />
-                                <Typography
-                                    variant="h5"
-                                    sx={{
-                                        fontWeight: 600,
-                                        color: '#333',
-                                        mb: 2,
-                                    }}
-                                >
-                                    {searchText
-                                        ? `No results found for "${searchText}"`
-                                        : "No roadmaps yet"}
-                                </Typography>
-                                <Typography
-                                    variant="body1"
-                                    sx={{
-                                        color: '#666',
-                                        textAlign: 'center',
-                                        maxWidth: '500px',
-                                        lineHeight: 1.6,
-                                    }}
-                                >
-                                    {searchText
-                                        ? "Try a different keyword or clear your search to see all your roadmaps."
-                                        : "Start building a roadmap to guide your students through a structured learning journey toward their career goals."}
-                                </Typography>
-                            </Box>
+                            <NoData
+                                image={emptyRoadmapImg}
+                                title={searchText ? `No results found for "${searchText}"` : "No roadmaps yet"}
+                                description={searchText
+                                    ? "Try a different keyword or clear your search to see all your roadmaps."
+                                    : "Start building a roadmap to guide your students through a structured learning journey toward their career goals."}
+                            />
                         ) : (
                             roadmaps.map((roadmap) => (
                                 <RoadmapCard

@@ -19,6 +19,10 @@ export const ACTIONS = {
     CLOSE_SIDEBAR: "CLOSE_SIDEBAR",
     OPEN_META_DIALOG: "OPEN_META_DIALOG",
     CLOSE_META_DIALOG: "CLOSE_META_DIALOG",
+
+    // Orphan confirm dialog
+    OPEN_ORPHAN_CONFIRM: "OPEN_ORPHAN_CONFIRM",
+    CLOSE_ORPHAN_CONFIRM: "CLOSE_ORPHAN_CONFIRM",
 };
 
 export const initialState = {
@@ -26,6 +30,8 @@ export const initialState = {
     edges: [],
     coursesSidebarOpen: false,
     metadataDialogOpen: false,
+    orphanConfirmOpen: false,
+    orphanNodeCount: 0,
 };
 
 export function roadmapEditorReducer(state, action) {
@@ -55,6 +61,12 @@ export function roadmapEditorReducer(state, action) {
 
         case ACTIONS.CLOSE_META_DIALOG:
             return { ...state, metadataDialogOpen: false };
+
+        case ACTIONS.OPEN_ORPHAN_CONFIRM:
+            return { ...state, orphanConfirmOpen: true, orphanNodeCount: action.payload };
+
+        case ACTIONS.CLOSE_ORPHAN_CONFIRM:
+            return { ...state, orphanConfirmOpen: false, orphanNodeCount: 0 };
 
         default:
             return state;
@@ -128,24 +140,19 @@ export function RoadmapEditorProvider({ children }) {
         });
     }, []);
 
-    // ── Save roadmap ────────────────────────────────────────────────────
-    const handleSave = useCallback(() => {
+    // ── Internal: actually execute the save ─────────────────────────────
+    const executeSave = useCallback((nodes, edges) => {
         if (!roadmapDetail) return;
 
-        const { nodes: currentNodes, edges: currentEdges } = stateRef.current;
-
-        // Remove orphan nodes (no edges connected)
         const connectedNodeIds = new Set(
-            currentEdges.flatMap((e) => [e.source, e.target])
+            edges.flatMap((e) => [e.source, e.target])
         );
-        const connectedNodes = currentNodes.filter((n) =>
-            connectedNodeIds.has(n.id)
-        );
+        const connectedNodes = nodes.filter((n) => connectedNodeIds.has(n.id));
 
-        // Update canvas state to reflect cleanup
+        // Update canvas to reflect orphan removal
         dispatch({ type: ACTIONS.SET_NODES, payload: connectedNodes });
 
-        const graphData = reactFlowToGraphData(connectedNodes, currentEdges);
+        const graphData = reactFlowToGraphData(connectedNodes, edges);
 
         updateRoadmap.mutate({
             id: numericId,
@@ -158,6 +165,40 @@ export function RoadmapEditorProvider({ children }) {
             graphData: JSON.stringify(graphData),
         });
     }, [roadmapDetail, numericId, updateRoadmap]);
+
+    // ── handleSave: check for orphans first ─────────────────────────────
+    const handleSave = useCallback(() => {
+        if (!roadmapDetail) return;
+
+        const { nodes: currentNodes, edges: currentEdges } = stateRef.current;
+
+        const connectedNodeIds = new Set(
+            currentEdges.flatMap((e) => [e.source, e.target])
+        );
+        const orphanCount = currentNodes.filter(
+            (n) => !connectedNodeIds.has(n.id)
+        ).length;
+
+        if (orphanCount > 0) {
+            // Show confirm dialog instead of silently dropping them
+            dispatch({ type: ACTIONS.OPEN_ORPHAN_CONFIRM, payload: orphanCount });
+            return;
+        }
+
+        executeSave(currentNodes, currentEdges);
+    }, [roadmapDetail, executeSave]);
+
+    // ── confirmSave: called when user clicks "Yes" on orphan dialog ──────
+    const confirmSave = useCallback(() => {
+        const { nodes: currentNodes, edges: currentEdges } = stateRef.current;
+        dispatch({ type: ACTIONS.CLOSE_ORPHAN_CONFIRM });
+        executeSave(currentNodes, currentEdges);
+    }, [executeSave]);
+
+    const closeOrphanConfirm = useCallback(
+        () => dispatch({ type: ACTIONS.CLOSE_ORPHAN_CONFIRM }),
+        []
+    );
 
     // ── UI toggle actions ───────────────────────────────────────────────
     const toggleSidebar = useCallback(
@@ -191,6 +232,8 @@ export function RoadmapEditorProvider({ children }) {
             edges: state.edges,
             coursesSidebarOpen: state.coursesSidebarOpen,
             metadataDialogOpen: state.metadataDialogOpen,
+            orphanConfirmOpen: state.orphanConfirmOpen,
+            orphanNodeCount: state.orphanNodeCount,
 
             // Data
             roadmapDetail,
@@ -206,6 +249,8 @@ export function RoadmapEditorProvider({ children }) {
             // Actions
             addCourseNode,
             handleSave,
+            confirmSave,
+            closeOrphanConfirm,
             isSaving: updateRoadmap.isPending,
 
             // UI toggles
@@ -223,6 +268,8 @@ export function RoadmapEditorProvider({ children }) {
             setEdges,
             addCourseNode,
             handleSave,
+            confirmSave,
+            closeOrphanConfirm,
             updateRoadmap.isPending,
             toggleSidebar,
             closeSidebar,

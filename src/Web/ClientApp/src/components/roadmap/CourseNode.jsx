@@ -1,7 +1,8 @@
 import React from "react";
-import { Box, Typography, Chip } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import StarIcon from "@mui/icons-material/Star";
+import DefaultImage from "../../assets/images/default.jpg";
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 const mockCourse = {
@@ -15,59 +16,19 @@ const mockCourse = {
 };
 
 function CourseThumbnail({ src }) {
-
     return (
         <Box
+            component="img"
+            src={src || DefaultImage}
+            alt="course thumbnail"
             sx={{
-                position: "relative",
                 width: "100%",
                 borderRadius: "12px",
-                overflow: "hidden",
                 aspectRatio: "16/9",
-                background: src
-                    ? "transparent"
-                    : "linear-gradient(135deg, #1a2e2b 0%, #0d1f1d 60%, #112925 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                objectFit: "cover",
+                display: "block",
             }}
-        >
-            {/* Decorative binary/matrix text overlay */}
-            {!src && (
-                <Box
-                    sx={{
-                        position: "absolute",
-                        inset: 0,
-                        color: "rgba(63, 204, 178, 0.18)",
-                        fontSize: "0.45rem",
-                        lineHeight: 1.4,
-                        letterSpacing: "0.05em",
-                        overflow: "hidden",
-                        userSelect: "none",
-                        p: 1,
-                        fontFamily: "monospace",
-                    }}
-                >
-                    {Array.from({ length: 24 }).map((_, i) => (
-                        <div key={i}>
-                            {Array.from({ length: 60 })
-                                .map(() => (Math.random() > 0.5 ? "1" : "0"))
-                                .join(" ")}
-                        </div>
-                    ))}
-                </Box>
-            )}
-
-            {/* Real thumbnail */}
-            {src && (
-                <Box
-                    component="img"
-                    src={src}
-                    alt="course thumbnail"
-                    sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-            )}
-        </Box>
+        />
     );
 }
 
@@ -93,7 +54,7 @@ export default function CourseNode({ course = mockCourse }) {
             }}
         >
             {/* Thumbnail */}
-            <CourseThumbnail src={course.imageUrl} status={course.status} />
+            <CourseThumbnail src={course.imageUrl} />
 
             {/* Text body */}
             <Box sx={{ px: 0.5 }}>
@@ -125,7 +86,7 @@ export default function CourseNode({ course = mockCourse }) {
             {/* Divider line */}
             <Box sx={{ height: "1px", bgcolor: "divider", mx: 0.5 }} />
 
-            {/* Footer: duration + rating */}
+            {/* Footer: students + rating */}
             <Box
                 sx={{
                     display: "flex",

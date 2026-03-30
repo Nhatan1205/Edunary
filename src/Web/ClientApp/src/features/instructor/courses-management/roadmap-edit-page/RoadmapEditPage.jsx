@@ -7,10 +7,18 @@ import RoadmapToolbar from "./RoadmapToolbar";
 import RoadmapCanvas from "./RoadmapCanvas";
 import RoadmapCoursesSidebar from "./courses-sidebar/RoadmapCoursesSidebar";
 import RoadmapMetadataDialog from "./roadmap-meta-dialog/RoadmapMetaDialog";
+import ConfirmDialog from "../../../../components/ConfirmDialogPopup/ConfirmDialog";
 
 function RoadmapEditPageContent() {
-    const { metadataDialogOpen, closeMetaDialog, roadmapId } =
-        useRoadmapEditor();
+    const {
+        metadataDialogOpen,
+        closeMetaDialog,
+        roadmapId,
+        orphanConfirmOpen,
+        orphanNodeCount,
+        confirmSave,
+        closeOrphanConfirm,
+    } = useRoadmapEditor();
 
     return (
         <Box
@@ -46,6 +54,15 @@ function RoadmapEditPageContent() {
                 open={metadataDialogOpen}
                 onClose={closeMetaDialog}
                 roadmapId={roadmapId}
+            />
+
+            {/* Orphan nodes confirm dialog */}
+            <ConfirmDialog
+                open={orphanConfirmOpen}
+                title="Unconnected Nodes Detected"
+                message={`You have ${orphanNodeCount} node${orphanNodeCount > 1 ? "s" : ""} with no connections. These nodes will be removed when you save. Do you want to continue?`}
+                onClose={closeOrphanConfirm}
+                onConfirm={confirmSave}
             />
         </Box>
     );

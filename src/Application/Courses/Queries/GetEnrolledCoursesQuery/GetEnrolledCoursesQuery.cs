@@ -85,6 +85,24 @@ public class GetEnrolledCoursesQueryHandler : IRequestHandler<GetEnrolledCourses
             course.CompletedLectures = completedLectures;
         }
 
+        // get user's ratings for these courses
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var ratings = await _context.RatingCourses
+                .Where(r => r.UserId == userId && courseIds.Contains(r.CourseId))
+                .Select(r => new { r.CourseId, r.Rating })
+                .ToListAsync(cancellationToken);
+
+            var ratingsByCourseId = ratings.ToDictionary(r => r.CourseId, r => r.Rating);
+            foreach (var course in courses.Items)
+            {
+                if (ratingsByCourseId.TryGetValue(course.Id, out var rating))
+                {
+                    course.UserRating = rating;
+                }
+            }
+        }
+
         //get instructor name
         var instructorIds = courses.Items
             .Select(c => c.CreatedBy)

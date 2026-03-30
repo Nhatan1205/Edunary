@@ -8,7 +8,6 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import { useEnrollmentStatus } from "../../hooks/course-hooks/useEnrollmentStatus";
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router'
 
@@ -123,8 +122,8 @@ function CoursePopover({
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { isAuthenticated } = useAuth()
-  const { isEnrolled } = useEnrollmentStatus(course.id)
+  const { isAuthenticated } = useAuth();
+  const isEnrolled = course?.isEnrolled ?? false;
   const navigate = useNavigate()
 
   const handleGoToCourse = () => {

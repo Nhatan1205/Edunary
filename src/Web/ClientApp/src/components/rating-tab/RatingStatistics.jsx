@@ -1,17 +1,18 @@
 import { Box, Typography, Stack, Rating, LinearProgress } from "@mui/material";
 
-function RatingStatistics({ reviews = [] }) {
-  const total = reviews.length;
-  
+function RatingStatistics({ reviews }) {
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
+  const total = safeReviews.length;
+
   // Calculate the count and percentage for each rating level
   const getRatingData = (starValue) => {
-    const count = reviews.filter((r) => Math.round(r.rating) === starValue).length;
+    const count = safeReviews.filter((r) => Math.round(r.rating) === starValue).length;
     const percentage = total === 0 ? 0 : (count / total) * 100;
     return { percentage };
   };
 
   // Calculate average rating
-  const avg = total === 0 ? 0 : reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / total;
+  const avg = total === 0 ? 0 : safeReviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / total;
 
   return (
     <Box sx={{ mb: 4, p: 3, bgcolor: (theme) => theme.palette.background.paper, borderRadius: 2 }}>

@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { RatingCourseClient, UpsertRatingCourseCommand } from '../../web-api-client.ts';
 
 // Get RatingCourse by user_id and course_id
-export const useGetRatingCourseByUser = (courseId) => {
+export const useGetRatingCourseByUser = (courseId, enabled = true) => {
   return useQuery({
     queryKey: ['ratingCourse', courseId],
     queryFn: async () => {
@@ -11,7 +11,7 @@ export const useGetRatingCourseByUser = (courseId) => {
       const result = await client.getRatingCourseByUser(courseId);
       return result;
     },
-    enabled: !!courseId,
+    enabled: !!courseId && !!enabled,
     retry: false,
     staleTime: 5 * 60 * 1000,
   });

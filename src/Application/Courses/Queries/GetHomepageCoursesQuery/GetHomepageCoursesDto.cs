@@ -18,6 +18,7 @@ public class GetHomepageCoursesDto
     public int TotalStudents { get; set; }
     public string CreatedBy { get; set; }
     public string InstructorName { get; set; }
+    public bool IsEnrolled { get; set; }
 
     private class Mapping : Profile
     {

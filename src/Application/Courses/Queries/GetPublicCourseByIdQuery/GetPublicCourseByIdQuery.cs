@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Courses.Queries.GetPublicCourseByIdQuery;
+using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.Courses.Queries.GetPublicCourseById;
 
@@ -15,12 +16,14 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IIdentityService _identityService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public GetPublicCourseByIdQueryHandler(IApplicationDbContext context, IMapper mapper, IIdentityService identityService)
+    public GetPublicCourseByIdQueryHandler(IApplicationDbContext context, IMapper mapper, IIdentityService identityService, ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _identityService = identityService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<GetPublicCourseByIdDto> Handle(GetPublicCourseByIdQuery request, CancellationToken cancellationToken)
@@ -68,6 +71,15 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
             {
                 WriteIndented = true
             });
+        }
+        // set enrollment flag if user is authenticated
+        var userId = _currentUserService?.UserId;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var isEnrolled = await _context.Enrollments
+                .AnyAsync(e => e.StudentId == userId && e.CourseId == course.Id, cancellationToken);
+
+            course.IsEnrolled = isEnrolled;
         }
         return course;
     }

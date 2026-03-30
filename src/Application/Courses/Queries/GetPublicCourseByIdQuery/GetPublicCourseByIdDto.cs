@@ -30,6 +30,7 @@ public class GetPublicCourseByIdDto
     public string CategoryTitle { get; set; } = null!;
     public float Ratings { get; set; }
     public int TotalStudents { get; set; }
+    public bool IsEnrolled { get; set; }
     public string Content { get; set; } = null!;
     public DateTimeOffset LastModified { get; set; }
     public InstructorDto Instructor { get; set; } = null!;

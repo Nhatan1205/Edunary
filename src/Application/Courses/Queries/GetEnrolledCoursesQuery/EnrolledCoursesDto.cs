@@ -18,6 +18,7 @@ public class EnrolledCoursesDto
 
     public int TotalLectures { get; set; }
     public int CompletedLectures { get; set; }
+    public int? UserRating { get; set; }
 
     private class Mapping : Profile
     {

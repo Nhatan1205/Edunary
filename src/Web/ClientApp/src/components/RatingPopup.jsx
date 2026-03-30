@@ -20,8 +20,8 @@ const RatingPopup = ({ open, onClose, courseId }) => {
   const [feedback, setFeedback] = useState('');
   const [isEditing, setIsEditing] = useState();
 
-  // Get existing rating if any
-  const { data: existingRating } = useGetRatingCourseByUser(courseId);
+  // Get existing rating if any — only fetch when popup is open
+  const { data: existingRating } = useGetRatingCourseByUser(courseId, open);
   const { upsertRating, loading } = useUpsertRatingCourse();
 
   // Load existing rating when available

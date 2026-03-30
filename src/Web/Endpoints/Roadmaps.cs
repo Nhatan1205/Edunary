@@ -3,6 +3,7 @@ using Edunary.Application.Roadmaps.Commands.CreateRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.DeleteRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.UpdateRoadmapCommand;
 using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapDetailQuery;
+using Edunary.Application.Roadmaps.Queries.GetRelatedRoadmapsByCourseIdQuery;
 using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapsQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapDetailQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapsAuthorQuery;
@@ -27,7 +28,8 @@ public class Roadmaps : EndpointGroupBase
         app.MapGroup(this)
             .MapGet(GetPublicRoadmaps, "public")
             .MapGet(GetPublicRoadmapDetail, "public/{id}")
-            .MapGet(GetTopics, "public/topics");
+            .MapGet(GetTopics, "public/topics")
+            .MapGet(GetRelatedRoadmapsByCourseId, "public/course/{courseId}");
     }
 
     public async Task<ReturnResult<CreatedRoadmapDto>> CreateRoadmap(ISender sender, CreateRoadmapCommand command)
@@ -72,6 +74,11 @@ public class Roadmaps : EndpointGroupBase
     public async Task<PublicRoadmapDetailDto> GetPublicRoadmapDetail(ISender sender, int id)
     {
         return await sender.Send(new GetPublicRoadmapDetailQuery { Id = id });
+    }
+
+    public async Task<List<RelatedRoadmapDto>> GetRelatedRoadmapsByCourseId(ISender sender, int courseId)
+    {
+        return await sender.Send(new GetRelatedRoadmapsByCourseIdQuery { CourseId = courseId });
     }
 }
 

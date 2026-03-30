@@ -98,7 +98,7 @@ export default function CareerPathFlow({ nodes, edges }) {
                             boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
                         }}
                     />
-                    <Background color="#fbf9fa" gap={20} size={2} variant="dots" />
+                    <Background color="#d0e8e5" variant="dots" gap={20} size={2} />
                 </ReactFlow>
             </Box>
         </Box>

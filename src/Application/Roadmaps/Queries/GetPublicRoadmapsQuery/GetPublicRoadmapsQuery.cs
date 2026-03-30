@@ -51,28 +51,28 @@ public class GetPublicRoadmapsQueryHandler : IRequestHandler<GetPublicRoadmapsQu
             .ProjectTo<PublicRoadmapListDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
 
-        // Enrich creator info
+        // Enrich creator info — one GetUserById call per unique creator
+        // (GetUserById = 1 FindByIdAsync, vs calling GetFullNameAsync + GetUserAvatarAsync = 2 FindByIdAsync)
         var creatorIds = result.Items
             .Select(r => r.Creator?.Id)
             .Where(id => !string.IsNullOrEmpty(id))
             .Distinct()
             .ToList();
 
-        var creatorNames = new Dictionary<string, string>();
-        var creatorAvatars = new Dictionary<string, string>();
+        var creatorInfos = new Dictionary<string, (string Name, string Avatar)>();
 
         foreach (var creatorId in creatorIds)
         {
-            creatorNames[creatorId] = await _identityService.GetFullNameAsync(creatorId);
-            creatorAvatars[creatorId] = await _identityService.GetUserAvatarAsync(creatorId);
+            var user = await _identityService.GetUserById(creatorId);
+            creatorInfos[creatorId] = (user?.FullName ?? user?.UserName, user?.Avatar);
         }
 
         foreach (var item in result.Items)
         {
-            if (!string.IsNullOrEmpty(item.Creator?.Id))
+            if (!string.IsNullOrEmpty(item.Creator?.Id) && creatorInfos.TryGetValue(item.Creator.Id, out var info))
             {
-                item.Creator.Name = creatorNames.GetValueOrDefault(item.Creator.Id);
-                item.Creator.Avatar = creatorAvatars.GetValueOrDefault(item.Creator.Id);
+                item.Creator.Name = info.Name;
+                item.Creator.Avatar = info.Avatar;
             }
         }
 

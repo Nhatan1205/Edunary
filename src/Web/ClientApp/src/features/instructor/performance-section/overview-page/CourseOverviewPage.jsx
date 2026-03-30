@@ -14,6 +14,7 @@ import useGetCoursesAuthor from '../../../../hooks/course-hooks/useGetCoursesAut
 import useGetCourseStats from '../../../../hooks/course-hooks/useGetCourseStats';
 import BarChartWidget from '../../../../components/charts/BarChartWidget';
 import MainCard from '../../../../components/instructor-layout/MainCard';
+import emptyAnalyticsImg from '../../../../assets/images/empty-analytics.png';
 
 const dateFilterData = [
   { label: "Last 7 days", value: "week" },
@@ -188,6 +189,49 @@ function CourseOverviewPage() {
                 <Typography variant="body1" color="text.secondary">
                   Loading...
                 </Typography>
+              ) : !courseStats?.stats?.data?.length ? (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '380px',
+                    p: 4,
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={emptyAnalyticsImg}
+                    alt="No analytics data"
+                    sx={{
+                      width: 200,
+                      height: 'auto',
+                      borderRadius: 2,
+                    }}
+                  />
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 600,
+                      color: '#333',
+                      mb: 2,
+                    }}
+                  >
+                    No data available yet
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: '#666',
+                      textAlign: 'center',
+                      maxWidth: '500px',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    Once students start engaging with your courses, your performance metrics will appear here.
+                  </Typography>
+                </Box>
               ) : (
                 <>
                   {(tab === "enrollment" || tab === "revenue") ? (

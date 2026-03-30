@@ -1997,6 +1997,41 @@
         }
       }
     },
+    "/api/Roadmaps/public/course/{courseId}": {
+      "get": {
+        "tags": [
+          "Roadmaps"
+        ],
+        "operationId": "GetRelatedRoadmapsByCourseId",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RelatedRoadmapDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/TodoItems": {
       "get": {
         "tags": [
@@ -2496,6 +2531,41 @@
             "JWT": []
           }
         ]
+      }
+    },
+    "/api/User/top-instructors": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "GetTopInstructors",
+        "parameters": [
+          {
+            "name": "Count",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopInstructorDto"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/WeatherForecasts": {
@@ -4976,6 +5046,32 @@
           }
         }
       },
+      "RelatedRoadmapDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "topicTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "PaginatedListOfTodoItemBriefDto": {
         "type": "object",
         "additionalProperties": false,
@@ -5401,6 +5497,36 @@
             "format": "int32"
           },
           "totalReviews": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TopInstructorDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalLearners": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCourses": {
             "type": "integer",
             "format": "int32"
           }

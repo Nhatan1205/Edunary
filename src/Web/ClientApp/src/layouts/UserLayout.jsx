@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, ScrollRestoration } from "react-router";
 import Footer from "../components/footer/Footer";
 import Header from "../components/header/Header";
 import Chatbot from "../components/chatbot/Chatbot";
@@ -6,6 +6,7 @@ import Chatbot from "../components/chatbot/Chatbot";
 function UserLayout() {
   return (
     <div>
+      <ScrollRestoration />
       <Header />
       <main className="mx-auto">
         <Outlet />

@@ -5,6 +5,7 @@ import HeroSection from "./components/HeroSection";
 import CareerPathCard from "./components/CareerPathCard";
 import useGetRoadmapTopics from "../../../hooks/roadmap-hooks/useGetRoadmapTopics";
 import useGetPublicRoadmaps from "../../../hooks/roadmap-hooks/useGetPublicRoadmaps";
+import emptyCareerPathsImg from "../../../assets/images/empty-career-paths.png";
 
 export default function CareerPathPage() {
   const [activeTopicId, setActiveTopicId] = useState(null); // null = All
@@ -96,9 +97,50 @@ export default function CareerPathPage() {
                 Failed to load career paths. Please try again later.
               </Typography>
             ) : roadmaps.length === 0 ? (
-              <Typography sx={{ color: "text.tertiary", mt: 3 }}>
-                No career paths found for this topic.
-              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: '420px',
+                  p: 4,
+                }}
+              >
+                <Box
+                  component="img"
+                  src={emptyCareerPathsImg}
+                  alt="No career paths"
+                  sx={{
+                    width: 200,
+                    height: "auto",
+                    borderRadius: 2,
+                  }}
+                />
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 600,
+                    color: '#333',
+                    mb: 2,
+                  }}
+                >
+                  No career paths found
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: '#666',
+                    textAlign: 'center',
+                    maxWidth: '500px',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {activeTopicId
+                    ? "There are no career paths for this topic yet. Try selecting a different topic or browse all paths."
+                    : "Career paths will appear here once instructors publish their roadmaps. Check back soon!"}
+                </Typography>
+              </Box>
             ) : (
               roadmaps.map((path) => (
                 <CareerPathCard key={path.id} path={path} />

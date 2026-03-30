@@ -20,19 +20,22 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
     private readonly ILogger<ConfirmPaymentCommandHandler> _logger;
     private readonly INotifyService _notifyService;
     private readonly ISender _sender;
+    private readonly ICurrentUserService _currentUserService;
 
     public ConfirmPaymentCommandHandler(
         IApplicationDbContext context, 
         IPaymentService paymentService,
         ILogger<ConfirmPaymentCommandHandler> logger,
         INotifyService notifyService,
-        ISender sender)
+        ISender sender,
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _paymentService = paymentService;
         _logger = logger;
         _notifyService = notifyService;
         _sender = sender;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ConfirmPaymentDto> Handle(ConfirmPaymentCommand request, CancellationToken cancellationToken)
@@ -50,6 +53,15 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             throw new InvalidOperationException("Order not found");
         }
 
+        // Verify current user owns this order
+        var currentUserId = _currentUserService.UserId;
+        if (order.UserId != currentUserId)
+        {
+            _logger.LogWarning("Unauthorized payment confirmation attempt. Order {OrderId} belongs to {OrderUserId}, but request from {CurrentUserId}", 
+                order.Id, order.UserId, currentUserId);
+            throw new UnauthorizedAccessException("You are not authorized to confirm this payment");
+        }
+
         // Check if order is already completed
         if (order.Status == OrderStatus.Completed)
         {
@@ -63,12 +75,23 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         }
 
         // Verify payment with Stripe
-        var paymentVerified = await _paymentService.VerifyPaymentAsync(request.PaymentIntentId, cancellationToken);
-        
-        if (!paymentVerified)
+        if (order.TotalAmount > 0)
         {
-            _logger.LogWarning("Payment verification failed for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
-            throw new InvalidOperationException("Payment verification failed");
+            var paymentVerified = await _paymentService.VerifyPaymentAsync(request.PaymentIntentId, cancellationToken);
+
+            if (!paymentVerified)
+            {
+                _logger.LogWarning("Payment verification failed for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
+                throw new InvalidOperationException("Payment verification failed");
+            }
+        }
+        else
+        {
+            _logger.LogInformation(
+                "Free order detected for Order {OrderId}. Skipping Stripe verification for PaymentIntentId: {PaymentIntentId}",
+                order.Id,
+                request.PaymentIntentId
+            );
         }
 
         // Update order status

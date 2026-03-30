@@ -2,9 +2,8 @@ import { useState } from "react"
 import { Box, Button, Alert } from "@mui/material"
 import LockIcon from "@mui/icons-material/Lock"
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
-import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
-import { PaymentClient } from "../../../../web-api-client.ts"
+import usePaymentConfirmation from "../../../../hooks/checkout-hooks/usePaymentConfirmation"
 import BillingAddress from "./BillingAddress"
 import OrderDetails from "./OrderDetails"
 
@@ -20,9 +19,10 @@ export default function CheckoutForm({
 }) {
   const stripe = useStripe()
   const elements = useElements()
-  const navigate = useNavigate()
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState(null)
+
+  const { confirmPaymentAndNavigate } = usePaymentConfirmation()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -54,27 +54,13 @@ export default function CheckoutForm({
       if (paymentIntent && paymentIntent.status === 'succeeded') {
         // Step 4: Confirm payment on our backend
         try {
-          const paymentClient = new PaymentClient()
-          const confirmResponse = await paymentClient.confirmPayment({
-            paymentIntentId: paymentIntent.id
-          })
-
-          if (confirmResponse.success) {
-            // Step 5: Navigate to success page with state
-            navigate('/payment-success', {
-              state: {
-                paymentIntentId: paymentIntent.id,
-                courses: courses,
-                totalAmount: totalPrice,
-                orderId: confirmResponse.orderId
-              }
-            })
-          } else {
-            setError(confirmResponse.message || 'Failed to confirm payment')
-            toast.error(confirmResponse.message || 'Failed to confirm payment')
+          const res = await confirmPaymentAndNavigate(paymentIntent.id, courses, totalPrice)
+          if (!res.success) {
+            setError(res.message || 'Failed to confirm payment')
+            toast.error(res.message || 'Failed to confirm payment')
           }
         } catch (confirmError) {
-          toast.error('Payment succeeded but failed to confirm on server. Please contact support.')
+          setError('Failed to confirm payment')
         }
       } else {
         setError('Payment was not completed successfully')

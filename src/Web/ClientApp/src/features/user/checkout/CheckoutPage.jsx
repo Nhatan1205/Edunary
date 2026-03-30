@@ -1,11 +1,10 @@
-import { useState, useCallback, useEffect, useMemo } from "react"
-import { Container, Box, Paper, Grid } from "@mui/material"
+import { useState, useEffect, useMemo } from "react"
+import { Container, Box, Paper, Grid, Button, Typography } from "@mui/material"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
 import { useLocation, useNavigate } from "react-router"
 import { toast } from "react-toastify"
-import { PaymentClient } from "../../../web-api-client.ts"
-import { useAuth } from "../../../context/AuthContext"
+import usePaymentInitialization from "../../../hooks/checkout-hooks/usePaymentInitialization"
 import CheckoutHeader from "./components/CheckoutHeader"
 import CheckoutForm from "./components/CheckoutForm"
 import OrderSummary from "./components/OrderSummary"
@@ -22,65 +21,65 @@ const stripePromise = loadStripe(Key.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 export default function CheckoutPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
   const [country, setCountry] = useState("Vietnam")
   const [paymentMethod, setPaymentMethod] = useState("card")
-  const [clientSecret, setClientSecret] = useState("")
-  const [paymentIntentId, setPaymentIntentId] = useState("")
-  const [loading, setLoading] = useState(true)
 
   const courses = useMemo(() => {
     return location.state?.courses || []
   }, [location.state?.courses])
 
-  const totalPrice = location.state?.totalAmount || courses.reduce((sum, course) => sum + course.price, 0)
-
-  const createPaymentIntent = useCallback(async () => {
-    try {
-      setLoading(true)
-      const paymentClient = new PaymentClient()
-
-      const courseIds = courses.map(course => String(course.id || course.courseId))
-
-      const response = await paymentClient.createPaymentIntent({
-        courseIds: courseIds
-      })
-
-      if (!response?.result) {
-        toast.error(response?.message)
-        navigate("/")
-        return
-      }
-
-      setClientSecret(response.result.clientSecret)
-      setPaymentIntentId(response.result.paymentIntentId)
-
-    } catch (error) {
-      console.error("Error creating payment intent:", error)
-      toast.error("Failed to initialize payment. Please try again.")
-    } finally {
-      setLoading(false)
-    }
-  }, [courses])
+  const totalPrice = location.state?.totalAmount ?? courses.reduce((sum, course) => sum + (course.price ?? 0), 0)
 
   // Step 1: Create PaymentIntent when component mounts
+  const { loading, clientSecret, paymentIntentId, initError, redirecting } = usePaymentInitialization(courses)
   useEffect(() => {
     if (!courses.length) {
       toast.error("No courses selected for checkout")
       navigate("/")
       return
     }
+  }, [courses, navigate])
 
-    createPaymentIntent()
-  }, [courses, navigate, createPaymentIntent])
-
-  if (loading || !clientSecret) {
+  if (loading || redirecting) {
     return (
       <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
         <Container maxWidth="xl">
           <CheckoutHeader />
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
             <LoadingSpinner size={60} message="Initializing payment..." />
+          </Box>
+        </Container>
+      </Box>
+    )
+  }
+
+  if (initError || (!clientSecret && !redirecting)) {
+    return (
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="xl">
+          <CheckoutHeader />
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="400px"
+            textAlign="center"
+          >
+            <Typography variant="h6" gutterBottom>
+              {initError || "Unable to initialize payment at this time."}
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/")}
+              sx={{
+                mt: 2,
+                backgroundColor: "brand.main",
+                "&:hover": { backgroundColor: "brand.dark" },
+              }}
+            >
+              Go back to home
+            </Button>
           </Box>
         </Container>
       </Box>

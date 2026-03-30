@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Payments.Queries.GetPaymentStatusQuery;
 
@@ -16,15 +17,18 @@ public class GetPaymentStatusQueryHandler : IRequestHandler<GetPaymentStatusQuer
     private readonly IApplicationDbContext _context;
     private readonly IPaymentService _paymentService;
     private readonly ILogger<GetPaymentStatusQueryHandler> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
     public GetPaymentStatusQueryHandler(
         IApplicationDbContext context, 
         IPaymentService paymentService,
-        ILogger<GetPaymentStatusQueryHandler> logger)
+        ILogger<GetPaymentStatusQueryHandler> logger,
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _paymentService = paymentService;
         _logger = logger;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result> Handle(GetPaymentStatusQuery request, CancellationToken cancellationToken)
@@ -45,13 +49,33 @@ public class GetPaymentStatusQueryHandler : IRequestHandler<GetPaymentStatusQuer
                 return Result.Failure("Order not found for the provided payment intent ID");
             }
 
-            // Get payment status from Stripe
-            var stripePaymentStatus = await _paymentService.GetPaymentStatusAsync(request.PaymentIntentId, cancellationToken);
-            
-            if (string.IsNullOrEmpty(stripePaymentStatus))
+            // Verify current user owns this order
+            var currentUserId = _currentUserService.UserId;
+            if (order.UserId != currentUserId)
             {
-                _logger.LogWarning("Unable to get payment status from Stripe for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
-                stripePaymentStatus = "Unknown";
+                _logger.LogWarning("Unauthorized payment status query. Order {OrderId} belongs to {OrderUserId}, but request from {CurrentUserId}", 
+                    order.Id, order.UserId, currentUserId);
+                return Result.Failure("You are not authorized to view this payment status");
+            }
+
+            string stripePaymentStatus;
+
+            // Stripe does not have a PaymentIntent for free ($0) orders.
+            // Therefore, derive status from our order state.
+            if (order.TotalAmount <= 0)
+            {
+                stripePaymentStatus = order.Status == OrderStatus.Completed ? "succeeded" : "pending";
+            }
+            else
+            {
+                // Get payment status from Stripe
+                stripePaymentStatus = await _paymentService.GetPaymentStatusAsync(request.PaymentIntentId, cancellationToken);
+
+                if (string.IsNullOrEmpty(stripePaymentStatus))
+                {
+                    _logger.LogWarning("Unable to get payment status from Stripe for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
+                    stripePaymentStatus = "Unknown";
+                }
             }
 
             var payment = order.Payments?.FirstOrDefault();

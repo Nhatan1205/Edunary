@@ -61,7 +61,7 @@ function RoadmapCard({ roadmap }) {
                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                             <AccountTreeOutlinedIcon sx={{ fontSize: 15, color: "text.secondary" }} />
                             <Typography variant="body2" color="text.secondary">
-                                {roadmap.topicCount} topics
+                                {roadmap.topicCount} courses
                             </Typography>
                         </Box>
                     </Box>
@@ -116,6 +116,7 @@ function RoadmapCard({ roadmap }) {
                         component={RouterLink}
                         to={`/career-paths/${roadmap.id}`}
                         target="_blank"
+                        rel="noopener noreferrer"
                         variant="outlined"
                         startIcon={<OpenInNewOutlinedIcon sx={{ fontSize: 18 }} />}
                         sx={{

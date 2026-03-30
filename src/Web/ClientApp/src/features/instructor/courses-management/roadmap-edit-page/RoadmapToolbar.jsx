@@ -172,7 +172,6 @@ export default function RoadmapToolbar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     startIcon={<VisibilityIcon sx={{ fontSize: "1.1rem" }} />}
-                    onClick={() => window.open(`/career-paths/${roadmapId}`, "_blank")}
                     sx={{
                         ...actionBtnBase,
                         color: "text.secondary",

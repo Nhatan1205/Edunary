@@ -26,6 +26,7 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Stripe.net" />
+    <PackageReference Include="TagLibSharp" />
   </ItemGroup>
 
   <ItemGroup>

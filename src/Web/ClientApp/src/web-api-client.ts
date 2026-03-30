@@ -802,6 +802,131 @@ export class CourseContentClient {
         }
         return Promise.resolve<ReturnResultOfGenerateUploadUrlDto>(null as any);
     }
+
+    initiateChunkedUpload(command: InitiateChunkedUploadCommand | undefined): Promise<UploadSessionDto> {
+        let url_ = this.baseUrl + "/api/CourseContent/chunks/initiate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processInitiateChunkedUpload(_response);
+        });
+    }
+
+    protected processInitiateChunkedUpload(response: Response): Promise<UploadSessionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UploadSessionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UploadSessionDto>(null as any);
+    }
+
+    uploadChunk(sessionId: string | null | undefined, chunkNumber: number, chunkHash: string | null | undefined, chunkFile: FileParameter | null | undefined): Promise<UploadSessionDto> {
+        let url_ = this.baseUrl + "/api/CourseContent/chunks/upload?";
+        if (sessionId !== undefined && sessionId !== null)
+            url_ += "sessionId=" + encodeURIComponent("" + sessionId) + "&";
+        if (chunkNumber === undefined || chunkNumber === null)
+            throw new Error("The parameter 'chunkNumber' must be defined and cannot be null.");
+        else
+            url_ += "chunkNumber=" + encodeURIComponent("" + chunkNumber) + "&";
+        if (chunkHash !== undefined && chunkHash !== null)
+            url_ += "chunkHash=" + encodeURIComponent("" + chunkHash) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (chunkFile !== null && chunkFile !== undefined)
+            content_.append("chunkFile", chunkFile.data, chunkFile.fileName ? chunkFile.fileName : "chunkFile");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUploadChunk(_response);
+        });
+    }
+
+    protected processUploadChunk(response: Response): Promise<UploadSessionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UploadSessionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UploadSessionDto>(null as any);
+    }
+
+    getUploadStatus(sessionId: string | null): Promise<UploadSessionDto> {
+        let url_ = this.baseUrl + "/api/CourseContent/chunks/{sessionId}/status";
+        if (sessionId === undefined || sessionId === null)
+            throw new Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUploadStatus(_response);
+        });
+    }
+
+    protected processGetUploadStatus(response: Response): Promise<UploadSessionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UploadSessionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UploadSessionDto>(null as any);
+    }
 }
 
 export class CourseProgressClient {
@@ -3644,6 +3769,158 @@ export class GenerateUploadUrlCommand implements IGenerateUploadUrlCommand {
 export interface IGenerateUploadUrlCommand {
     fileName?: string | undefined;
     contentType?: string | undefined;
+}
+
+export class UploadSessionDto implements IUploadSessionDto {
+    sessionId?: string | undefined;
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    uploadedChunks?: number;
+    status?: UploadStatus;
+    expiresAt?: Date;
+    progressPercentage?: number;
+    courseId?: number | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    duration?: string | undefined;
+
+    constructor(data?: IUploadSessionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sessionId = _data["sessionId"];
+            this.fileName = _data["fileName"];
+            this.fileSize = _data["fileSize"];
+            this.chunkSize = _data["chunkSize"];
+            this.totalChunks = _data["totalChunks"];
+            this.uploadedChunks = _data["uploadedChunks"];
+            this.status = _data["status"];
+            this.expiresAt = _data["expiresAt"] ? new Date(_data["expiresAt"].toString()) : <any>undefined;
+            this.progressPercentage = _data["progressPercentage"];
+            this.courseId = _data["courseId"];
+            this.fileUrl = _data["fileUrl"];
+            this.contentType = _data["contentType"];
+            this.duration = _data["duration"];
+        }
+    }
+
+    static fromJS(data: any): UploadSessionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UploadSessionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sessionId"] = this.sessionId;
+        data["fileName"] = this.fileName;
+        data["fileSize"] = this.fileSize;
+        data["chunkSize"] = this.chunkSize;
+        data["totalChunks"] = this.totalChunks;
+        data["uploadedChunks"] = this.uploadedChunks;
+        data["status"] = this.status;
+        data["expiresAt"] = this.expiresAt ? this.expiresAt.toISOString() : <any>undefined;
+        data["progressPercentage"] = this.progressPercentage;
+        data["courseId"] = this.courseId;
+        data["fileUrl"] = this.fileUrl;
+        data["contentType"] = this.contentType;
+        data["duration"] = this.duration;
+        return data;
+    }
+}
+
+export interface IUploadSessionDto {
+    sessionId?: string | undefined;
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    uploadedChunks?: number;
+    status?: UploadStatus;
+    expiresAt?: Date;
+    progressPercentage?: number;
+    courseId?: number | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    duration?: string | undefined;
+}
+
+export enum UploadStatus {
+    INITIATED = 0,
+    IN_PROGRESS = 1,
+    COMPLETED = 2,
+    FAILED = 3,
+    EXPIRED = 4,
+}
+
+export class InitiateChunkedUploadCommand implements IInitiateChunkedUploadCommand {
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    fileHash?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
+
+    constructor(data?: IInitiateChunkedUploadCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.fileSize = _data["fileSize"];
+            this.chunkSize = _data["chunkSize"];
+            this.totalChunks = _data["totalChunks"];
+            this.fileHash = _data["fileHash"];
+            this.contentType = _data["contentType"];
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): InitiateChunkedUploadCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new InitiateChunkedUploadCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["fileSize"] = this.fileSize;
+        data["chunkSize"] = this.chunkSize;
+        data["totalChunks"] = this.totalChunks;
+        data["fileHash"] = this.fileHash;
+        data["contentType"] = this.contentType;
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IInitiateChunkedUploadCommand {
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    fileHash?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
 }
 
 export class CourseProgressDto implements ICourseProgressDto {

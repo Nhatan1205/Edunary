@@ -8,8 +8,11 @@ using Edunary.Application.CourseContents.Commands.AddLinkToCCCommand;
 using Edunary.Application.CourseContents.Commands.CreateCourseContentCommand;
 using Edunary.Application.CourseContents.Commands.DeleteCourseContentCommand;
 using Edunary.Application.CourseContents.Commands.GenerateUploadUrl;
+using Edunary.Application.CourseContents.Commands.InitiateChunkedUploadCommand;
 using Edunary.Application.CourseContents.Commands.SetCourseIdForContentCommand;
+using Edunary.Application.CourseContents.Commands.UploadChunkCommand;
 using Edunary.Application.CourseContents.Queries.GetCourseContentByUserIdQuery;
+using Edunary.Application.CourseContents.Queries.GetUploadStatusQuery;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Edunary.Web.Endpoints;
@@ -31,6 +34,13 @@ public class CourseContent : EndpointGroupBase
             .RequireAuthorization()
             .DisableAntiforgery()
             .MapPost(CreateCourseContent);
+
+        app.MapGroup(this)
+            .RequireAuthorization()
+            .DisableAntiforgery()
+            .MapPost(InitiateChunkedUpload, "/chunks/initiate")
+            .MapPost(UploadChunk, "/chunks/upload")
+            .MapGet(GetUploadStatus, "/chunks/{sessionId}/status");
             
     }
 
@@ -112,6 +122,45 @@ public class CourseContent : EndpointGroupBase
     public async Task<ReturnResult<GenerateUploadUrlDto>> GenerateUploadUrl(ISender sender, GenerateUploadUrlCommand command)
     {
         var result = await sender.Send(command);
+        return result;
+    }
+
+    public async Task<UploadSessionDto> InitiateChunkedUpload(ISender sender, InitiateChunkedUploadCommand command)
+    {
+        var result = await sender.Send(command);
+        return result;
+    }
+
+    [DisableRequestSizeLimit]
+    [RequestFormLimits(MultipartBodyLengthLimit = 524288000, ValueLengthLimit = int.MaxValue)]
+    public async Task<UploadSessionDto> UploadChunk(ISender sender, [FromForm] IFormFile chunkFile, [FromForm] string sessionId, [FromForm] int chunkNumber, [FromForm] string chunkHash)
+    {
+        if (chunkFile == null || chunkFile.Length == 0)
+        {
+            throw new BadHttpRequestException("Chunk file not found.");
+        }
+
+        using var stream = chunkFile.OpenReadStream();
+        var command = new UploadChunkCommand
+        {
+            SessionId = sessionId,
+            ChunkNumber = chunkNumber,
+            ChunkStream = stream,
+            ChunkHash = chunkHash
+        };
+
+        var result = await sender.Send(command);
+        return result;
+    }
+
+    public async Task<UploadSessionDto> GetUploadStatus(ISender sender, string sessionId)
+    {
+        var query = new GetUploadStatusQuery
+        {
+            SessionId = sessionId
+        };
+
+        var result = await sender.Send(query);
         return result;
     }
 }

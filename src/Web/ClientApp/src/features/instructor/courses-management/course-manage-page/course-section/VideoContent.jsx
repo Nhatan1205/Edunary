@@ -17,13 +17,10 @@ import {
 } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import useCheckContentExists from "../../../../../hooks/course-content-hooks/useCheckContentExists";
-import useCreateCourseContent from "../../../../../hooks/course-content-hooks/useCreateCourseContent";
+import useChunkedUpload from "../../../../../hooks/course-content-hooks/useChunkedUpload";
 import useGetCourseContent from "../../../../../hooks/course-content-hooks/useGetCourseContent";
 import useDeleteCourseContentById from "../../../../../hooks/course-content-hooks/useDeleteCourseContentById";
 import useSetCourseIdForContent from "../../../../../hooks/course-content-hooks/useSetCourseIdForContent";
-import useGenerateUploadUrl from "../../../../../hooks/course-content-hooks/useGenerateUploadUrl";
-import useUploadToSpaces from "../../../../../hooks/course-content-hooks/useUploadToSpaces";
-import useAddLinkToCC from "../../../../../hooks/course-content-hooks/useAddLinkToCC";
 import FileOverrideDialog from "./FileOverrideDialog";
 import FileUploadSection from "./FileUploadSection";
 import FileLibraryTable from "./FileLibraryTable";
@@ -50,12 +47,9 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const [infoMessage, setInfoMessage] = useState("");
 
   const checkContentExists = useCheckContentExists();
-  const createCourseContent = useCreateCourseContent();
+  const chunkedUpload = useChunkedUpload();
   const deleteCourseContent = useDeleteCourseContentById();
   const setCourseIdForContent = useSetCourseIdForContent();
-  const generateUploadUrl = useGenerateUploadUrl();
-  const uploadToSpaces = useUploadToSpaces();
-  const addLinkToCC = useAddLinkToCC();
   const { data: courseContents, isLoading: isLoadingCourseContents } = useGetCourseContent();
 
   // Format date helper
@@ -94,59 +88,44 @@ function VideoContent({ item, onUpdate, onCancel }) {
         courseId: null
       });
     }
-    setVideoUploadInfo(prev => prev ? { ...prev, status: "Uploading..." } : null);
-    const fileSize = file.size;
-    const maxSize = 5 * 1024 * 1024;
-    if (fileSize > maxSize) {
-      const data = await generateUploadUrl.mutateAsync({
-        fileName: file.name,
-        contentType: file.type
-      });
-      const { uploadUrl, fileName, fileUrl } = data.result;
-      const uploadResult = await uploadToSpaces.mutateAsync({ uploadUrl, file });
-      if (!uploadResult.ok) {
-        setVideoUploadInfo(prev => prev ? { ...prev, status: "Upload failed" } : null);
-        return;
-      }
-      const result = await addLinkToCC.mutateAsync({
-        title: fileName,
-        url: fileUrl,
-        isOverride: override,
+    try {
+      const result = await chunkedUpload.mutateAsync({
+        file: file,
+        fileHash: "",
         courseId: courseId ? parseInt(courseId) : null,
-        contentType: file.type
+        onProgress: (progressData) => {
+          // Update progress in real-time
+          setVideoUploadInfo(prev => prev ? {
+            ...prev,
+            uploadedChunks: progressData.uploadedChunks,
+            totalChunks: progressData.totalChunks,
+            progressPercentage: progressData.progressPercentage,
+            status: progressData.status
+          } : null);
+        }
       });
-      if (result && result.result) {
-        setUploadedContent(result.result.fileUrl);
+      console.log("result: ", result);
+      if (result && result.sessionId) {
+        // Update with uploaded content
+        setUploadedContent(result.fileUrl || file.name);
         setIsDownloadable(false);
+        // Use duration from backend response (HH:MM:SS format)
+        setVideoDuration(result.duration || "00:00");
 
         if (onUpdate) {
           onUpdate(item.itemId, {
-            content: result.result.fileUrl,
+            content: result.fileUrl || file.name,
             downloadable: false,
-            videoId: result.result.id
+            videoId: result.sessionId,
+            videoDuration: result.duration || "00:00"
           });
         }
       }
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setVideoUploadInfo(prev => prev ? { ...prev, status: "FAILED" } : null);
     }
-    else {
-      const result = await createCourseContent.mutateAsync({
-        file,
-        isOverride: override,
-        courseId: courseId ? parseInt(courseId) : null
-      });
-      if (result && result.result) {
-        setUploadedContent(result.result.fileUrl);
-        setIsDownloadable(false);
 
-        if (onUpdate) {
-          onUpdate(item.itemId, {
-            content: result.result.fileUrl,
-            downloadable: false,
-            videoId: result.result.id
-          });
-        }
-      }
-    }
     setVideoUploadInfo(null);
     setSelectedVideoFile(null);
     setShowVideoUploadForm(false);
@@ -160,15 +139,20 @@ function VideoContent({ item, onUpdate, onCancel }) {
       setShowOverrideDialog(true);
     } else {
       setSelectedVideoFile(file);
+      const totalChunks = Math.ceil(file.size / (5 * 1024 * 1024));
+      
       setVideoUploadInfo({
         fileName: file.name,
         type: "Video",
         fileSize: file.size,
         fileType: file.type,
         uploadDate: formatDate(new Date()),
-        status: "Uploading...",
+        status: "IN_PROGRESS",
         showProgress: true,
         override: false,
+        uploadedChunks: 0,
+        totalChunks: totalChunks,
+        progressPercentage: 0,
       });
 
       await handleUploadFile(file, false);
@@ -218,15 +202,20 @@ function VideoContent({ item, onUpdate, onCancel }) {
       setShowOverrideDialog(false);
 
       setSelectedVideoFile(pendingFile);
+      const totalChunks = Math.ceil(pendingFile.size / (5 * 1024 * 1024));
+      
       setVideoUploadInfo({
         fileName: pendingFile.name,
         type: "Video",
         fileSize: pendingFile.size,
         fileType: pendingFile.type,
         uploadDate: formatDate(new Date()),
-        status: "Uploading...",
+        status: "IN_PROGRESS",
         showProgress: true,
         override: overrideChecked,
+        uploadedChunks: 0,
+        totalChunks: totalChunks,
+        progressPercentage: 0,
       });
 
       await handleUploadFile(pendingFile, overrideChecked);
@@ -499,7 +488,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
                     fontSize: "0.95rem",
                   }}
                 >
-                  {uploadedContent.split('/').pop() || "Video"}
+                  {uploadedContent.split(/[\\/]/).pop() || "Video"}
                 </Typography>
                 <Typography
                   variant="caption"

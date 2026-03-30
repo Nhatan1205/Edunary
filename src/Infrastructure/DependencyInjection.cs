@@ -72,6 +72,7 @@ public static class DependencyInjection
         services.AddScoped<INotifyService, NotifyService>();
         services.AddScoped<IFilterService, FilterService>();
         services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
+        services.AddScoped<IChunkedUploadService, ChunkedUploadService>();
 
         services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));

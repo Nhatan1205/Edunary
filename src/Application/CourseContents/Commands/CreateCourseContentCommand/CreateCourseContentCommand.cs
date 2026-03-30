@@ -44,7 +44,7 @@ public class CreateCourseContentCommandHandler : IRequestHandler<CreateCourseCon
         var fileUrl = string.Empty;
         CourseContent savedContent;
         var existingFile = await _context.CourseContents
-            .FirstOrDefaultAsync(cc => cc.FileName == request.FileName && cc.UserId == userId && cc.ContentType == request.ContentType, cancellationToken);
+            .FirstOrDefaultAsync(cc => cc.FileName == request.FileName && cc.UserId == userId && cc.ContentType == request.ContentType && cc.IsDeleted == false, cancellationToken);
         if (request.IsOverride && existingFile != null)
         {
             fileUrl = await _uploadFileService.UploadFileToSpacesAsync(request.File, request.FileName, request.ContentType);
@@ -60,7 +60,7 @@ public class CreateCourseContentCommandHandler : IRequestHandler<CreateCourseCon
             var newFileName = request.FileName;
             var count = 1;
             var existingFileNames = await _context.CourseContents
-            .Where(cc => cc.FileName.StartsWith(baseFileName) && cc.UserId == userId && cc.ContentType == request.ContentType)
+            .Where(cc => cc.FileName.StartsWith(baseFileName) && cc.UserId == userId && cc.ContentType == request.ContentType && cc.IsDeleted == false)
             .Select(cc => cc.FileName)
             .ToHashSetAsync(cancellationToken);
 

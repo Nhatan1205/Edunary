@@ -11,6 +11,16 @@ public class CourseContent : BaseAuditableEntity
     public string FileUrl { get; set; }
     public string ContentType { get; set; }
     public int? CourseId { get; set; }
+    public long FileSize { get; set; }
+
+    // field from UploadSession
+    public int ChunkSize { get; set; }
+    public int TotalChunks { get; set; }
+    public int UploadedChunks { get; set; }
+    public string FileHash { get; set; }
+    public UploadStatus Status { get; set; }
+    public DateTime? ExpiresAt { get; set; }
+
 
     public bool IsDeleted { get; set; }
     // Navigation properties

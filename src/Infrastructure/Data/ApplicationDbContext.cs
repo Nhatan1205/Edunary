@@ -28,7 +28,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<NotificationUser> NotificationUsers => Set<NotificationUser>();
 
-    public DbSet<CourseContent> CourseContents => Set<CourseContent>();
+    public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
 
     public DbSet<CourseProgress> CourseProgress => Set<CourseProgress>();
 

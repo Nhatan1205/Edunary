@@ -24,7 +24,7 @@ import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import SortableSection from "../course-section/SortableSection";
 import SortableCurriculumItem from "../course-section/SortableCurriculumItem";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
-import useSetCourseIdForContent from "../../../../../hooks/course-content-hooks/useSetCourseIdForContent";
+import useSetCourseIdForContent from "../../../../../hooks/media-file-hooks/useSetCourseIdForContent";
 import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById";
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 import { useBlocker } from "react-router-dom";

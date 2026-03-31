@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Diagnostics;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.CourseContents.Queries.GetCourseContentByUserIdQuery;
+using Edunary.Application.MediaFiles.Queries.GetMediaFileByUserIdQuery;
 using Edunary.Domain.Common;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
@@ -41,7 +41,7 @@ public class ChunkedUploadService : IChunkedUploadService
         // 1. check existed session
         if (string.IsNullOrEmpty(request.FileHash) == false)
         {
-            var existedSesssion = _context.CourseContents.FirstOrDefault(cc => 
+            var existedSesssion = _context.MediaFiles.FirstOrDefault(cc => 
                 cc.UserId == userId 
                 && cc.FileHash == request.FileHash 
                 && cc.Status == UploadStatus.IN_PROGRESS);
@@ -64,7 +64,7 @@ public class ChunkedUploadService : IChunkedUploadService
             }  
         }
         // 2. else create new session
-        var newSession = new CourseContent
+        var newSession = new MediaFile
         {
             FileName = request.FileName,
             FileSize = request.FileSize,
@@ -78,7 +78,7 @@ public class ChunkedUploadService : IChunkedUploadService
             FileUrl = "",
             CourseId = request.CourseId
         };
-        _context.CourseContents.Add(newSession);
+        _context.MediaFiles.Add(newSession);
         await _context.SaveChangesAsync();
         // 3. create temporary filepath
         
@@ -92,13 +92,14 @@ public class ChunkedUploadService : IChunkedUploadService
                 userId,
                 newSession.Id.ToString()
             );
+            var uniqueFileName = $"{newSession.Id}-{newSession.FileName}";
 
             if (!Directory.Exists(tempFolder))
             {
                 Directory.CreateDirectory(tempFolder);
             }
             
-            var filePath = Path.Combine(tempFolder, newSession.FileName);
+            var filePath = Path.Combine(tempFolder, uniqueFileName);
             newSession.FileUrl = filePath;
             await _context.SaveChangesAsync();
 
@@ -135,7 +136,7 @@ public class ChunkedUploadService : IChunkedUploadService
         var userId = _currentUserService?.UserId;
         
         // 1. Validate session exists
-        var uploadSession = _context.CourseContents
+        var uploadSession = _context.MediaFiles
             .FirstOrDefault(cc => cc.Id.ToString() == request.SessionId);
         
         if (uploadSession == null)
@@ -153,7 +154,7 @@ public class ChunkedUploadService : IChunkedUploadService
         if (uploadSession.Created.AddDays(1) < DateTime.UtcNow)
         {
             uploadSession.Status = UploadStatus.EXPIRED;
-            _context.CourseContents.Update(uploadSession);
+            _context.MediaFiles.Update(uploadSession);
             await _context.SaveChangesAsync(CancellationToken.None);
             throw new Exception("Upload session has expired");
         }
@@ -204,7 +205,7 @@ public class ChunkedUploadService : IChunkedUploadService
             uploadSession.Status = UploadStatus.IN_PROGRESS;
         }
         
-        _context.CourseContents.Update(uploadSession);
+        _context.MediaFiles.Update(uploadSession);
         await _context.SaveChangesAsync(CancellationToken.None);
         
         // If this is the last chunk, try to extract video duration
@@ -290,7 +291,7 @@ public class ChunkedUploadService : IChunkedUploadService
 
     public async Task<UploadSessionDto> GetUploadStatus(string sessionId)
     {
-        var uploadSession = await _context.CourseContents
+        var uploadSession = await _context.MediaFiles
         .FirstOrDefaultAsync(cc => cc.Id.ToString() == sessionId);
     
         if (uploadSession == null)

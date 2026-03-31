@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Edunary.Application.Common.Interfaces;
-using Edunary.Application.CourseContents.Queries.GetCourseContentByUserIdQuery;
+// using Edunary.Application.CourseContents.Queries.GetCourseContentByUserIdQuery;
 using Edunary.Application.CourseProgresses.Commands.UpdateCourseProgressCommand;
 using Edunary.Application.CourseProgresses.Queries.GetCourseProgressQuery;
 

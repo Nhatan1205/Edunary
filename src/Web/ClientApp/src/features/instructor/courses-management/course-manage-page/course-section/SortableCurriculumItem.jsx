@@ -16,7 +16,7 @@ import {
   Code as CodeIcon,
 } from "@mui/icons-material";
 import TitleInputForm from "./TitleInputForm";
-import LectureItem from "./LectureItem";
+import LectureItem from "./lecture-item/LectureItem";
 
 function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
   const {

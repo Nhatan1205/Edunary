@@ -43,7 +43,7 @@ public class Course : BaseAuditableEntity
 
     public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 
-    public ICollection<CourseContent> Contents { get; set; } = new List<CourseContent>();
+    public ICollection<MediaFile> MediaFiles { get; set; } = new List<MediaFile>();
 
     public ICollection<CourseProgress> Progresses { get; set; } = new List<CourseProgress>();
 

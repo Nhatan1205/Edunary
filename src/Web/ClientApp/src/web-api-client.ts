@@ -1418,7 +1418,7 @@ export class MediaFileClient {
         return Promise.resolve<void>(null as any);
     }
 
-    createCourseContent(isOverride: boolean | undefined, courseId: number | null | undefined, file: FileParameter | null | undefined): Promise<ReturnResultOfMediaFileDto> {
+    createMediaFile(isOverride: boolean | undefined, courseId: number | null | undefined, file: FileParameter | null | undefined): Promise<ReturnResultOfMediaFileDto> {
         let url_ = this.baseUrl + "/api/MediaFile?";
         if (isOverride === null)
             throw new Error("The parameter 'isOverride' cannot be null.");
@@ -1441,11 +1441,11 @@ export class MediaFileClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateCourseContent(_response);
+            return this.processCreateMediaFile(_response);
         });
     }
 
-    protected processCreateCourseContent(response: Response): Promise<ReturnResultOfMediaFileDto> {
+    protected processCreateMediaFile(response: Response): Promise<ReturnResultOfMediaFileDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };

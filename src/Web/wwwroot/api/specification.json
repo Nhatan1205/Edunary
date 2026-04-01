@@ -1214,7 +1214,7 @@
         "tags": [
           "MediaFile"
         ],
-        "operationId": "CreateCourseContent",
+        "operationId": "CreateMediaFile",
         "parameters": [
           {
             "name": "isOverride",

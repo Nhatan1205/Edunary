@@ -33,7 +33,7 @@ public class MediaFile : EndpointGroupBase
         app.MapGroup(this)
             .RequireAuthorization()
             .DisableAntiforgery()
-            .MapPost(CreateCourseContent);
+            .MapPost(CreateMediaFile);
 
         app.MapGroup(this)
             .RequireAuthorization()
@@ -53,7 +53,7 @@ public class MediaFile : EndpointGroupBase
 
     [DisableRequestSizeLimit]
     [RequestFormLimits(MultipartBodyLengthLimit = 524288000, ValueLengthLimit = int.MaxValue)]
-    public async Task<ReturnResult<MediaFileDto>> CreateCourseContent(ISender sender, [FromForm] IFormFile file, [FromForm] bool isOverride = false, [FromForm] int? courseId = null)
+    public async Task<ReturnResult<MediaFileDto>> CreateMediaFile(ISender sender, [FromForm] IFormFile file, [FromForm] bool isOverride = false, [FromForm] int? courseId = null)
     {
         if (file == null || file.Length == 0)
         {

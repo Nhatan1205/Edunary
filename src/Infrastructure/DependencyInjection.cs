@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 
         services.Configure<DigitalOceanSettings>(configuration.GetSection("DigitalOceanSettings"));
+        services.Configure<AccountToAccessHangfireDashboard>(configuration.GetSection("AccountToAccessHangfireDashboard"));
         services.AddSingleton<IAmazonS3>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<DigitalOceanSettings>>().Value;
@@ -73,6 +74,8 @@ public static class DependencyInjection
         services.AddScoped<IFilterService, FilterService>();
         services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
         services.AddScoped<IChunkedUploadService, ChunkedUploadService>();
+        services.AddScoped<IVideoProcessorService, VideoProcessorService>();
+        services.AddScoped<IProcessMediaFileJobService, ProcessMediaFileJobService>();
 
         services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));

@@ -3917,6 +3917,10 @@
             "format": "int32",
             "nullable": true
           },
+          "duration": {
+            "type": "string",
+            "nullable": true
+          },
           "lastModified": {
             "type": "string",
             "format": "date-time"

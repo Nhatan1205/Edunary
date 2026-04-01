@@ -467,20 +467,56 @@ function CourseCurriculum() {
     sections.forEach(section => {
       section.items.forEach(item => {
         if (item.videoDuration) {
-          const [mm, ss] = item.videoDuration.split(":").map(Number);
-          totalSeconds += mm * 60 + ss;
+          const parts = item.videoDuration.split(":").map(Number);
+          let seconds = 0;
+          
+          if (parts.length === 3) {
+            // "hh:mm:ss" format
+            seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+          } else if (parts.length === 2) {
+            // "mm:ss" format
+            seconds = parts[0] * 60 + parts[1];
+          } else if (parts.length === 1) {
+            // Just seconds
+            seconds = parts[0];
+          }
+          
+          totalSeconds += seconds;
         }
       });
     });
-    const hours = totalSeconds / 3600;
-    if (hours >= 1) {
-      return `${hours.toFixed(1)} hours`;
+    
+    const hours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const minutes = Math.floor(remainingSeconds / 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
     }
-    const minutes = totalSeconds / 60;
-    if (minutes >= 1) {
-      return `${Math.round(minutes)} minutes`;
+    if (minutes > 0) {
+      return `${minutes}m`;
     }
-    return `${totalSeconds} seconds`;
+    return `${totalSeconds}s`;
+    
+    // OLD CODE - Format mm:ss only (không hỗ trợ hh:mm:ss)
+    // let totalSeconds = 0;
+    // sections.forEach(section => {
+    //   section.items.forEach(item => {
+    //     if (item.videoDuration) {
+    //       const [mm, ss] = item.videoDuration.split(":").map(Number);
+    //       totalSeconds += mm * 60 + ss;
+    //     }
+    //   });
+    // });
+    // const hours = totalSeconds / 3600;
+    // if (hours >= 1) {
+    //   return `${hours.toFixed(1)} hours`;
+    // }
+    // const minutes = totalSeconds / 60;
+    // if (minutes >= 1) {
+    //   return `${Math.round(minutes)} minutes`;
+    // }
+    // return `${totalSeconds} seconds`;
   }
 
   const setContentIds = async (contentIds, courseId) => {

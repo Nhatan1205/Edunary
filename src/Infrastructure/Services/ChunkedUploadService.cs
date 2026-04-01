@@ -10,6 +10,7 @@ using Edunary.Application.MediaFiles.Queries.GetMediaFileByUserIdQuery;
 using Edunary.Domain.Common;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
+using Edunary.Domain.Events;
 using Edunary.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -191,6 +192,12 @@ public class ChunkedUploadService : IChunkedUploadService
         if (isLastChunk)
         {
             uploadSession.Status = UploadStatus.COMPLETED;
+            uploadSession.HlsStatus = VideoStatus.PROCESSING;
+
+            if (uploadSession.ContentType == "video/mp4")
+            {
+                uploadSession.AddDomainEvent(new UploadSessionCompletedEvent(uploadSession));
+            }
             
             // 9. Check hash match if provided
             if (!string.IsNullOrEmpty(uploadSession.FileHash))
@@ -219,7 +226,7 @@ public class ChunkedUploadService : IChunkedUploadService
         {
             SessionId = uploadSession.Id.ToString(),
             FileName = uploadSession.FileName,
-            FileSize = uploadSession.FileSize,
+            // FileSize = uploadSession.FileSize,
             ChunkSize = uploadSession.ChunkSize,
             TotalChunks = uploadSession.TotalChunks,
             UploadedChunks = uploadSession.UploadedChunks,

@@ -3,7 +3,7 @@ import DefaultImage from "../../assets/images/default.jpg";
 import { formatTimeAgo } from "../../utils/helpers";
 import useUpdateNotificationStatus from "../../hooks/notifications-hooks/useUpdateNotificationStatus";
 function MessageCard({ notification }) {
-  const { id, title, created, isRead, imageUrl } = notification;
+  const { id, title, message, created, isRead, imageUrl } = notification;
   const updateNotificationStatusMutation = useUpdateNotificationStatus();
 
   function handleUpdateStatus() {
@@ -59,6 +59,24 @@ function MessageCard({ notification }) {
         >
           {title}
         </Typography>
+        {message && (
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: "12px",
+              color: "#666",
+              marginBottom: "4px",
+              display: "-webkit-box",
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "normal",
+            }}
+          >
+            {message}
+          </Typography>
+        )}
         <Typography
           variant="caption"
           sx={{

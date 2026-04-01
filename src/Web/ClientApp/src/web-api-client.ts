@@ -5546,6 +5546,7 @@ export class MediaFileDto implements IMediaFileDto {
     fileUrl?: string | undefined;
     contentType?: string | undefined;
     courseId?: number | undefined;
+    duration?: string | undefined;
     lastModified?: Date;
 
     constructor(data?: IMediaFileDto) {
@@ -5565,6 +5566,7 @@ export class MediaFileDto implements IMediaFileDto {
             this.fileUrl = _data["fileUrl"];
             this.contentType = _data["contentType"];
             this.courseId = _data["courseId"];
+            this.duration = _data["duration"];
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
         }
     }
@@ -5584,6 +5586,7 @@ export class MediaFileDto implements IMediaFileDto {
         data["fileUrl"] = this.fileUrl;
         data["contentType"] = this.contentType;
         data["courseId"] = this.courseId;
+        data["duration"] = this.duration;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
         return data;
     }
@@ -5596,6 +5599,7 @@ export interface IMediaFileDto {
     fileUrl?: string | undefined;
     contentType?: string | undefined;
     courseId?: number | undefined;
+    duration?: string | undefined;
     lastModified?: Date;
 }
 

@@ -10,6 +10,7 @@ public class MediaFileDto
     public string FileUrl { get; set; }
     public string ContentType { get; set; }
     public int? CourseId { get; set; }
+    public string Duration { get; set;}
     public DateTimeOffset LastModified { get; set; }
     private class Mapping : Profile
     {

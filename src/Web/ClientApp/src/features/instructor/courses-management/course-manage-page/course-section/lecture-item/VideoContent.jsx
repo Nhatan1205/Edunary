@@ -9,6 +9,7 @@ import {
   Switch,
   TextField,
   IconButton,
+  duration,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -39,7 +40,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const [overrideChecked, setOverrideChecked] = useState(false);
   const [uploadedContent, setUploadedContent] = useState(item.content || null);
   const [isDownloadable, setIsDownloadable] = useState(item.downloadable || false);
-  const [videoDuration, setVideoDuration] = useState("00:00");
+  const [videoDuration, setVideoDuration] = useState(item.videoDuration || "00:00");
   const [searchQuery, setSearchQuery] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pendingDeleteContent, setPendingDeleteContent] = useState(null);
@@ -51,7 +52,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const deleteCourseContent = useDeleteMediaFileById();
   const setCourseIdForContent = useSetCourseIdForContent();
   const { data: courseContents, isLoading: isLoadingCourseContents } = useGetMediaFile();
-
+  console.log("items: ", item);
   // Format date helper
   const formatDate = (date) => {
     const d = new Date(date);
@@ -68,17 +69,17 @@ function VideoContent({ item, onUpdate, onCancel }) {
   ) || [];
 
   const handleVideoMetadataLoad = (e) => {
-    const video = e.target;
-    const duration = video.duration;
-    const minutes = Math.floor(duration / 60);
-    const seconds = Math.floor(duration % 60);
-    const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    setVideoDuration(formattedDuration);
-    if (onUpdate) {
-      onUpdate(item.itemId, {
-        videoDuration: formattedDuration
-      });
-    }
+    // const video = e.target;
+    // const duration = video.duration;
+    // const minutes = Math.floor(duration / 60);
+    // const seconds = Math.floor(duration % 60);
+    // const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // setVideoDuration(formattedDuration);
+    // if (onUpdate) {
+    //   onUpdate(item.itemId, {
+    //     videoDuration: formattedDuration
+    //   });
+    // }
   };
 
   const handleUploadFile = async (file, override = false) => {
@@ -106,14 +107,14 @@ function VideoContent({ item, onUpdate, onCancel }) {
       });
       if (result && result.sessionId) {
         // Update with uploaded content
-        setUploadedContent(result.fileUrl || file.name);
+        setUploadedContent(result.fileName || file.name);
         setIsDownloadable(false);
         // Use duration from backend response (HH:MM:SS format)
         setVideoDuration(result.duration || "00:00");
 
         if (onUpdate) {
           onUpdate(item.itemId, {
-            content: result.fileUrl || file.name,
+            content: result.fileName || file.name,
             downloadable: false,
             videoId: result.sessionId,
             videoDuration: result.duration || "00:00"
@@ -299,15 +300,17 @@ function VideoContent({ item, onUpdate, onCancel }) {
       });
 
       // Set the uploaded content to display the video
-      setUploadedContent(content.fileUrl);
+      setUploadedContent(content.fileName);
       setShowVideoUploadForm(false);
-
+    
       if (onUpdate) {
         onUpdate(item.itemId, {
-          content: content.fileUrl,
+          content: content.fileName,
           downloadable: false,
-          videoId: content.id
+          videoId: content.id,
+          videoDuration: content.duration
         });
+        setVideoDuration(content.duration);
       }
     }
   };

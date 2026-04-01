@@ -66,6 +66,42 @@ public class NotifyService : INotifyService
         }
     }
 
+    public async Task NotifyUserAsync(string userId, string title, string message, string type, object payload, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var createCommand = new CreateNotificationCommand
+            {
+                ImageUrl = string.Empty,
+                CourseId = 0,
+                Title = title,
+                Subject = "",
+                Message = message,
+                Type = type,
+                Url = string.Empty
+            };
+
+            var resultNotification = await _sender.Send(createCommand, cancellationToken);
+            if (resultNotification.Succeeded && resultNotification.Data != null)
+            {
+                var command = new CreateNotificationUserCommand
+                {
+                    NotificationId = (int)resultNotification.Data,
+                    StudentId = userId,
+                    IsRead = false
+                };
+                await _sender.Send(command, cancellationToken);
+            }
+
+            await _hub.Clients.User(userId).SendAsync("ReceiveMessage", payload, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // Log if necessary, but don't break main flow flow
+            Console.WriteLine($"Error sending notification: {ex.Message}");
+        }
+    }
+
     public async Task JoinGroupCourse(int courseId)
     {
         var userId = _currentUserService?.UserId;

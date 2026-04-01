@@ -11,6 +11,8 @@ const useChunkedUpload = () => {
       try {
         const token = tokenService.getToken();
         const CHUNK_SIZE = file.size < 5 * 1024 * 1024 ? file.size : 5 * 1024 * 1024;
+
+        const actualFileHash = await calculateFileHash(file);
         // Step 1: Initiate Upload Session
         const initiateResponse = await fetch("/api/MediaFile/chunks/initiate", {
           method: "POST",
@@ -23,7 +25,7 @@ const useChunkedUpload = () => {
             fileSize: file.size,
             chunkSize: CHUNK_SIZE,
             totalChunks: Math.ceil(file.size / CHUNK_SIZE),
-            fileHash: fileHash,
+            fileHash: actualFileHash,
             contentType: file.type,
             courseId: courseId,
           }),
@@ -170,6 +172,14 @@ const useChunkedUpload = () => {
       toast.error(errorMessage);
     },
   });
+};
+
+const calculateFileHash = async (file) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashString = hashArray.map(byte => String.fromCharCode(byte)).join('');
+  return btoa(hashString);
 };
 
 export default useChunkedUpload;

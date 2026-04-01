@@ -28,14 +28,14 @@ if (app.Environment.IsDevelopment())
         settings.Path = "/api";
         settings.DocumentPath = "/api/specification.json";
     });
-    app.UseHangfireDashboard();
-    app.MapHangfireDashboard("/HangfireDashboard");
 }
 else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+app.UseHangfireCustomDashboard(app.Environment);
+//https://localhost:5001/HangfireDashboard
 
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();

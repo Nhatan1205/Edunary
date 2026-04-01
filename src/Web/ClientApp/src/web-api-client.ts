@@ -519,291 +519,6 @@ export class CategoriesClient {
     }
 }
 
-export class CourseContentClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
-
-    getCourseContentsByUserId(): Promise<CourseContentDto[]> {
-        let url_ = this.baseUrl + "/api/CourseContent";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCourseContentsByUserId(_response);
-        });
-    }
-
-    protected processGetCourseContentsByUserId(response: Response): Promise<CourseContentDto[]> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(CourseContentDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<CourseContentDto[]>(null as any);
-    }
-
-    deleteCourseContentById(id: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/CourseContent?";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined and cannot be null.");
-        else
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteCourseContentById(_response);
-        });
-    }
-
-    protected processDeleteCourseContentById(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    createCourseContent(isOverride: boolean | undefined, courseId: number | null | undefined, file: FileParameter | null | undefined): Promise<ReturnResultOfCourseContentDto> {
-        let url_ = this.baseUrl + "/api/CourseContent?";
-        if (isOverride === null)
-            throw new Error("The parameter 'isOverride' cannot be null.");
-        else if (isOverride !== undefined)
-            url_ += "isOverride=" + encodeURIComponent("" + isOverride) + "&";
-        if (courseId !== undefined && courseId !== null)
-            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (file !== null && file !== undefined)
-            content_.append("file", file.data, file.fileName ? file.fileName : "file");
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateCourseContent(_response);
-        });
-    }
-
-    protected processCreateCourseContent(response: Response): Promise<ReturnResultOfCourseContentDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ReturnResultOfCourseContentDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ReturnResultOfCourseContentDto>(null as any);
-    }
-
-    checkContentExists(fileName: string | null | undefined): Promise<boolean> {
-        let url_ = this.baseUrl + "/api/CourseContent/exists?";
-        if (fileName !== undefined && fileName !== null)
-            url_ += "fileName=" + encodeURIComponent("" + fileName) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "POST",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCheckContentExists(_response);
-        });
-    }
-
-    protected processCheckContentExists(response: Response): Promise<boolean> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<boolean>(null as any);
-    }
-
-    setCourseIdForContent(command: SetCourseIdForContentCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/CourseContent/set-course-id";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processSetCourseIdForContent(_response);
-        });
-    }
-
-    protected processSetCourseIdForContent(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    addLinkToCourseContent(command: AddLinkToCCCommand | undefined): Promise<ReturnResultOfCourseContentDto> {
-        let url_ = this.baseUrl + "/api/CourseContent/add-link";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAddLinkToCourseContent(_response);
-        });
-    }
-
-    protected processAddLinkToCourseContent(response: Response): Promise<ReturnResultOfCourseContentDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ReturnResultOfCourseContentDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ReturnResultOfCourseContentDto>(null as any);
-    }
-
-    generateUploadUrl(command: GenerateUploadUrlCommand | undefined): Promise<ReturnResultOfGenerateUploadUrlDto> {
-        let url_ = this.baseUrl + "/api/CourseContent/generate-upload-url";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGenerateUploadUrl(_response);
-        });
-    }
-
-    protected processGenerateUploadUrl(response: Response): Promise<ReturnResultOfGenerateUploadUrlDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ReturnResultOfGenerateUploadUrlDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ReturnResultOfGenerateUploadUrlDto>(null as any);
-    }
-}
-
 export class CourseProgressClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1613,6 +1328,416 @@ export class EnrollmentClient {
             });
         }
         return Promise.resolve<CheckUserEnrollmentDto>(null as any);
+    }
+}
+
+export class MediaFileClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getMediaFilesByUserId(): Promise<MediaFileDto[]> {
+        let url_ = this.baseUrl + "/api/MediaFile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMediaFilesByUserId(_response);
+        });
+    }
+
+    protected processGetMediaFilesByUserId(response: Response): Promise<MediaFileDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MediaFileDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MediaFileDto[]>(null as any);
+    }
+
+    deleteMediaFileById(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/MediaFile?";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined and cannot be null.");
+        else
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteMediaFileById(_response);
+        });
+    }
+
+    protected processDeleteMediaFileById(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    createMediaFile(isOverride: boolean | undefined, courseId: number | null | undefined, file: FileParameter | null | undefined): Promise<ReturnResultOfMediaFileDto> {
+        let url_ = this.baseUrl + "/api/MediaFile?";
+        if (isOverride === null)
+            throw new Error("The parameter 'isOverride' cannot be null.");
+        else if (isOverride !== undefined)
+            url_ += "isOverride=" + encodeURIComponent("" + isOverride) + "&";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file !== null && file !== undefined)
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateMediaFile(_response);
+        });
+    }
+
+    protected processCreateMediaFile(response: Response): Promise<ReturnResultOfMediaFileDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfMediaFileDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfMediaFileDto>(null as any);
+    }
+
+    checkFileExists(fileName: string | null | undefined): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/MediaFile/exists?";
+        if (fileName !== undefined && fileName !== null)
+            url_ += "fileName=" + encodeURIComponent("" + fileName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCheckFileExists(_response);
+        });
+    }
+
+    protected processCheckFileExists(response: Response): Promise<boolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    setCourseIdForContent(command: SetCourseIdForContentCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/MediaFile/set-course-id";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetCourseIdForContent(_response);
+        });
+    }
+
+    protected processSetCourseIdForContent(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    addLinkToMediaFile(command: AddLinkToMFCommand | undefined): Promise<ReturnResultOfMediaFileDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/add-link";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAddLinkToMediaFile(_response);
+        });
+    }
+
+    protected processAddLinkToMediaFile(response: Response): Promise<ReturnResultOfMediaFileDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfMediaFileDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfMediaFileDto>(null as any);
+    }
+
+    generateUploadUrl(command: GenerateUploadUrlCommand | undefined): Promise<ReturnResultOfGenerateUploadUrlDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/generate-upload-url";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGenerateUploadUrl(_response);
+        });
+    }
+
+    protected processGenerateUploadUrl(response: Response): Promise<ReturnResultOfGenerateUploadUrlDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfGenerateUploadUrlDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfGenerateUploadUrlDto>(null as any);
+    }
+
+    initiateChunkedUpload(command: InitiateChunkedUploadCommand | undefined): Promise<UploadSessionDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/chunks/initiate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processInitiateChunkedUpload(_response);
+        });
+    }
+
+    protected processInitiateChunkedUpload(response: Response): Promise<UploadSessionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UploadSessionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UploadSessionDto>(null as any);
+    }
+
+    uploadChunk(sessionId: string | null | undefined, chunkNumber: number, chunkHash: string | null | undefined, chunkFile: FileParameter | null | undefined): Promise<UploadSessionDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/chunks/upload?";
+        if (sessionId !== undefined && sessionId !== null)
+            url_ += "sessionId=" + encodeURIComponent("" + sessionId) + "&";
+        if (chunkNumber === undefined || chunkNumber === null)
+            throw new Error("The parameter 'chunkNumber' must be defined and cannot be null.");
+        else
+            url_ += "chunkNumber=" + encodeURIComponent("" + chunkNumber) + "&";
+        if (chunkHash !== undefined && chunkHash !== null)
+            url_ += "chunkHash=" + encodeURIComponent("" + chunkHash) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (chunkFile !== null && chunkFile !== undefined)
+            content_.append("chunkFile", chunkFile.data, chunkFile.fileName ? chunkFile.fileName : "chunkFile");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUploadChunk(_response);
+        });
+    }
+
+    protected processUploadChunk(response: Response): Promise<UploadSessionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UploadSessionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UploadSessionDto>(null as any);
+    }
+
+    getUploadStatus(sessionId: string | null): Promise<UploadSessionDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/chunks/{sessionId}/status";
+        if (sessionId === undefined || sessionId === null)
+            throw new Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUploadStatus(_response);
+        });
+    }
+
+    protected processGetUploadStatus(response: Response): Promise<UploadSessionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UploadSessionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UploadSessionDto>(null as any);
     }
 }
 
@@ -3743,330 +3868,6 @@ export interface ICategoryDto {
     title?: string | undefined;
 }
 
-export class CourseContentDto implements ICourseContentDto {
-    id?: number;
-    userId?: string | undefined;
-    fileName?: string | undefined;
-    fileUrl?: string | undefined;
-    contentType?: string | undefined;
-    courseId?: number | undefined;
-    lastModified?: Date;
-
-    constructor(data?: ICourseContentDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userId = _data["userId"];
-            this.fileName = _data["fileName"];
-            this.fileUrl = _data["fileUrl"];
-            this.contentType = _data["contentType"];
-            this.courseId = _data["courseId"];
-            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): CourseContentDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CourseContentDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userId"] = this.userId;
-        data["fileName"] = this.fileName;
-        data["fileUrl"] = this.fileUrl;
-        data["contentType"] = this.contentType;
-        data["courseId"] = this.courseId;
-        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ICourseContentDto {
-    id?: number;
-    userId?: string | undefined;
-    fileName?: string | undefined;
-    fileUrl?: string | undefined;
-    contentType?: string | undefined;
-    courseId?: number | undefined;
-    lastModified?: Date;
-}
-
-export class SetCourseIdForContentCommand implements ISetCourseIdForContentCommand {
-    contentIds?: number[] | undefined;
-    courseId?: number | undefined;
-
-    constructor(data?: ISetCourseIdForContentCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["contentIds"])) {
-                this.contentIds = [] as any;
-                for (let item of _data["contentIds"])
-                    this.contentIds!.push(item);
-            }
-            this.courseId = _data["courseId"];
-        }
-    }
-
-    static fromJS(data: any): SetCourseIdForContentCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new SetCourseIdForContentCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.contentIds)) {
-            data["contentIds"] = [];
-            for (let item of this.contentIds)
-                data["contentIds"].push(item);
-        }
-        data["courseId"] = this.courseId;
-        return data;
-    }
-}
-
-export interface ISetCourseIdForContentCommand {
-    contentIds?: number[] | undefined;
-    courseId?: number | undefined;
-}
-
-export class ReturnResultOfCourseContentDto implements IReturnResultOfCourseContentDto {
-    result?: CourseContentDto | undefined;
-    message?: string | undefined;
-
-    constructor(data?: IReturnResultOfCourseContentDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.result = _data["result"] ? CourseContentDto.fromJS(_data["result"]) : <any>undefined;
-            this.message = _data["message"];
-        }
-    }
-
-    static fromJS(data: any): ReturnResultOfCourseContentDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ReturnResultOfCourseContentDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
-        data["message"] = this.message;
-        return data;
-    }
-}
-
-export interface IReturnResultOfCourseContentDto {
-    result?: CourseContentDto | undefined;
-    message?: string | undefined;
-}
-
-export class AddLinkToCCCommand implements IAddLinkToCCCommand {
-    title?: string | undefined;
-    url?: string | undefined;
-    contentType?: string | undefined;
-    isOverride?: boolean;
-    courseId?: number | undefined;
-
-    constructor(data?: IAddLinkToCCCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.title = _data["title"];
-            this.url = _data["url"];
-            this.contentType = _data["contentType"];
-            this.isOverride = _data["isOverride"];
-            this.courseId = _data["courseId"];
-        }
-    }
-
-    static fromJS(data: any): AddLinkToCCCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new AddLinkToCCCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["title"] = this.title;
-        data["url"] = this.url;
-        data["contentType"] = this.contentType;
-        data["isOverride"] = this.isOverride;
-        data["courseId"] = this.courseId;
-        return data;
-    }
-}
-
-export interface IAddLinkToCCCommand {
-    title?: string | undefined;
-    url?: string | undefined;
-    contentType?: string | undefined;
-    isOverride?: boolean;
-    courseId?: number | undefined;
-}
-
-export class ReturnResultOfGenerateUploadUrlDto implements IReturnResultOfGenerateUploadUrlDto {
-    result?: GenerateUploadUrlDto | undefined;
-    message?: string | undefined;
-
-    constructor(data?: IReturnResultOfGenerateUploadUrlDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.result = _data["result"] ? GenerateUploadUrlDto.fromJS(_data["result"]) : <any>undefined;
-            this.message = _data["message"];
-        }
-    }
-
-    static fromJS(data: any): ReturnResultOfGenerateUploadUrlDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ReturnResultOfGenerateUploadUrlDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
-        data["message"] = this.message;
-        return data;
-    }
-}
-
-export interface IReturnResultOfGenerateUploadUrlDto {
-    result?: GenerateUploadUrlDto | undefined;
-    message?: string | undefined;
-}
-
-export class GenerateUploadUrlDto implements IGenerateUploadUrlDto {
-    uploadUrl?: string | undefined;
-    fileName?: string | undefined;
-    fileUrl?: string | undefined;
-
-    constructor(data?: IGenerateUploadUrlDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uploadUrl = _data["uploadUrl"];
-            this.fileName = _data["fileName"];
-            this.fileUrl = _data["fileUrl"];
-        }
-    }
-
-    static fromJS(data: any): GenerateUploadUrlDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GenerateUploadUrlDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uploadUrl"] = this.uploadUrl;
-        data["fileName"] = this.fileName;
-        data["fileUrl"] = this.fileUrl;
-        return data;
-    }
-}
-
-export interface IGenerateUploadUrlDto {
-    uploadUrl?: string | undefined;
-    fileName?: string | undefined;
-    fileUrl?: string | undefined;
-}
-
-export class GenerateUploadUrlCommand implements IGenerateUploadUrlCommand {
-    fileName?: string | undefined;
-    contentType?: string | undefined;
-
-    constructor(data?: IGenerateUploadUrlCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.fileName = _data["fileName"];
-            this.contentType = _data["contentType"];
-        }
-    }
-
-    static fromJS(data: any): GenerateUploadUrlCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new GenerateUploadUrlCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["fileName"] = this.fileName;
-        data["contentType"] = this.contentType;
-        return data;
-    }
-}
-
-export interface IGenerateUploadUrlCommand {
-    fileName?: string | undefined;
-    contentType?: string | undefined;
-}
-
 export class CourseProgressDto implements ICourseProgressDto {
     id?: number;
     courseId?: number;
@@ -6165,6 +5966,486 @@ export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {
 export interface ICheckUserEnrollmentDto {
     isEnrolled?: boolean;
     enrollmentDate?: Date | undefined;
+}
+
+export class MediaFileDto implements IMediaFileDto {
+    id?: number;
+    userId?: string | undefined;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
+    duration?: string | undefined;
+    lastModified?: Date;
+
+    constructor(data?: IMediaFileDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.fileName = _data["fileName"];
+            this.fileUrl = _data["fileUrl"];
+            this.contentType = _data["contentType"];
+            this.courseId = _data["courseId"];
+            this.duration = _data["duration"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): MediaFileDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MediaFileDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["fileName"] = this.fileName;
+        data["fileUrl"] = this.fileUrl;
+        data["contentType"] = this.contentType;
+        data["courseId"] = this.courseId;
+        data["duration"] = this.duration;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IMediaFileDto {
+    id?: number;
+    userId?: string | undefined;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
+    duration?: string | undefined;
+    lastModified?: Date;
+}
+
+export class SetCourseIdForContentCommand implements ISetCourseIdForContentCommand {
+    contentIds?: number[] | undefined;
+    courseId?: number | undefined;
+
+    constructor(data?: ISetCourseIdForContentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["contentIds"])) {
+                this.contentIds = [] as any;
+                for (let item of _data["contentIds"])
+                    this.contentIds!.push(item);
+            }
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): SetCourseIdForContentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetCourseIdForContentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.contentIds)) {
+            data["contentIds"] = [];
+            for (let item of this.contentIds)
+                data["contentIds"].push(item);
+        }
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface ISetCourseIdForContentCommand {
+    contentIds?: number[] | undefined;
+    courseId?: number | undefined;
+}
+
+export class ReturnResultOfMediaFileDto implements IReturnResultOfMediaFileDto {
+    result?: MediaFileDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfMediaFileDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? MediaFileDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfMediaFileDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfMediaFileDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfMediaFileDto {
+    result?: MediaFileDto | undefined;
+    message?: string | undefined;
+}
+
+export class AddLinkToMFCommand implements IAddLinkToMFCommand {
+    title?: string | undefined;
+    url?: string | undefined;
+    contentType?: string | undefined;
+    isOverride?: boolean;
+    courseId?: number | undefined;
+
+    constructor(data?: IAddLinkToMFCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+            this.url = _data["url"];
+            this.contentType = _data["contentType"];
+            this.isOverride = _data["isOverride"];
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): AddLinkToMFCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddLinkToMFCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        data["url"] = this.url;
+        data["contentType"] = this.contentType;
+        data["isOverride"] = this.isOverride;
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IAddLinkToMFCommand {
+    title?: string | undefined;
+    url?: string | undefined;
+    contentType?: string | undefined;
+    isOverride?: boolean;
+    courseId?: number | undefined;
+}
+
+export class ReturnResultOfGenerateUploadUrlDto implements IReturnResultOfGenerateUploadUrlDto {
+    result?: GenerateUploadUrlDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfGenerateUploadUrlDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? GenerateUploadUrlDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfGenerateUploadUrlDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfGenerateUploadUrlDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfGenerateUploadUrlDto {
+    result?: GenerateUploadUrlDto | undefined;
+    message?: string | undefined;
+}
+
+export class GenerateUploadUrlDto implements IGenerateUploadUrlDto {
+    uploadUrl?: string | undefined;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+
+    constructor(data?: IGenerateUploadUrlDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.uploadUrl = _data["uploadUrl"];
+            this.fileName = _data["fileName"];
+            this.fileUrl = _data["fileUrl"];
+        }
+    }
+
+    static fromJS(data: any): GenerateUploadUrlDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateUploadUrlDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["uploadUrl"] = this.uploadUrl;
+        data["fileName"] = this.fileName;
+        data["fileUrl"] = this.fileUrl;
+        return data;
+    }
+}
+
+export interface IGenerateUploadUrlDto {
+    uploadUrl?: string | undefined;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+}
+
+export class GenerateUploadUrlCommand implements IGenerateUploadUrlCommand {
+    fileName?: string | undefined;
+    contentType?: string | undefined;
+
+    constructor(data?: IGenerateUploadUrlCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.contentType = _data["contentType"];
+        }
+    }
+
+    static fromJS(data: any): GenerateUploadUrlCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateUploadUrlCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["contentType"] = this.contentType;
+        return data;
+    }
+}
+
+export interface IGenerateUploadUrlCommand {
+    fileName?: string | undefined;
+    contentType?: string | undefined;
+}
+
+export class UploadSessionDto implements IUploadSessionDto {
+    sessionId?: string | undefined;
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    uploadedChunks?: number;
+    status?: UploadStatus;
+    expiresAt?: Date;
+    progressPercentage?: number;
+    courseId?: number | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    duration?: string | undefined;
+
+    constructor(data?: IUploadSessionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sessionId = _data["sessionId"];
+            this.fileName = _data["fileName"];
+            this.fileSize = _data["fileSize"];
+            this.chunkSize = _data["chunkSize"];
+            this.totalChunks = _data["totalChunks"];
+            this.uploadedChunks = _data["uploadedChunks"];
+            this.status = _data["status"];
+            this.expiresAt = _data["expiresAt"] ? new Date(_data["expiresAt"].toString()) : <any>undefined;
+            this.progressPercentage = _data["progressPercentage"];
+            this.courseId = _data["courseId"];
+            this.fileUrl = _data["fileUrl"];
+            this.contentType = _data["contentType"];
+            this.duration = _data["duration"];
+        }
+    }
+
+    static fromJS(data: any): UploadSessionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UploadSessionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sessionId"] = this.sessionId;
+        data["fileName"] = this.fileName;
+        data["fileSize"] = this.fileSize;
+        data["chunkSize"] = this.chunkSize;
+        data["totalChunks"] = this.totalChunks;
+        data["uploadedChunks"] = this.uploadedChunks;
+        data["status"] = this.status;
+        data["expiresAt"] = this.expiresAt ? this.expiresAt.toISOString() : <any>undefined;
+        data["progressPercentage"] = this.progressPercentage;
+        data["courseId"] = this.courseId;
+        data["fileUrl"] = this.fileUrl;
+        data["contentType"] = this.contentType;
+        data["duration"] = this.duration;
+        return data;
+    }
+}
+
+export interface IUploadSessionDto {
+    sessionId?: string | undefined;
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    uploadedChunks?: number;
+    status?: UploadStatus;
+    expiresAt?: Date;
+    progressPercentage?: number;
+    courseId?: number | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    duration?: string | undefined;
+}
+
+export enum UploadStatus {
+    INITIATED = 0,
+    IN_PROGRESS = 1,
+    COMPLETED = 2,
+    FAILED = 3,
+    EXPIRED = 4,
+}
+
+export class InitiateChunkedUploadCommand implements IInitiateChunkedUploadCommand {
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    fileHash?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
+
+    constructor(data?: IInitiateChunkedUploadCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.fileSize = _data["fileSize"];
+            this.chunkSize = _data["chunkSize"];
+            this.totalChunks = _data["totalChunks"];
+            this.fileHash = _data["fileHash"];
+            this.contentType = _data["contentType"];
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): InitiateChunkedUploadCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new InitiateChunkedUploadCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["fileSize"] = this.fileSize;
+        data["chunkSize"] = this.chunkSize;
+        data["totalChunks"] = this.totalChunks;
+        data["fileHash"] = this.fileHash;
+        data["contentType"] = this.contentType;
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IInitiateChunkedUploadCommand {
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    fileHash?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
 }
 
 export class NotificationsVm implements INotificationsVm {

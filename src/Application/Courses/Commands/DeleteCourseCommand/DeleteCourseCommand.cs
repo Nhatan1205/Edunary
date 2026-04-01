@@ -1,6 +1,6 @@
 ﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.CourseContents.Commands.UnsetCourseIdForAllContentsCommand;
+using Edunary.Application.MediaFiles.Commands.UnsetCourseIdForAllContentsCommand;
 using Edunary.Domain.Events.Courses;
 
 namespace Edunary.Application.Courses.Commands.DeleteCourse;

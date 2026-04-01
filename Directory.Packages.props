@@ -19,6 +19,7 @@
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
     <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.22" />
+    <PackageVersion Include="Hangfire.Dashboard.Basic.Authentication" Version="8.0.0" />
     <PackageVersion Include="Hangfire.SqlServer" Version="1.8.22" />
     <PackageVersion Include="MailKit" Version="4.14.1" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
@@ -50,6 +51,7 @@
     <PackageVersion Include="Respawn" Version="6.2.1" />
     <PackageVersion Include="Stripe.net" Version="49.0.0" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageVersion Include="TagLibSharp" Version="2.3.0" />
     <PackageVersion Include="Testcontainers.MsSql" Version="4.0.0" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.48.0" />
     <PackageVersion Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />

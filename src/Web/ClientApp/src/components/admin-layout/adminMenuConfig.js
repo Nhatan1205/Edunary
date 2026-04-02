@@ -19,9 +19,9 @@ const adminMenuConfig = {
       children: [
         {
           id: "app",
-          title: "App",
+          title: "Dashboard",
           type: "item",
-          url: "/admin/app",
+          url: "/admin/dashboard",
           icon: DashboardOutlinedIcon,
         },
         {

@@ -1,7 +1,6 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { Link, matchPath, useLocation } from "react-router";
 
-import useMediaQuery from "@mui/material/useMediaQuery";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -13,9 +12,8 @@ import { useAdminDrawer } from "./AdminDrawerContext";
 const borderRadius = 8;
 
 function AdminNavItem({ item, level }) {
-  const downMD = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const { pathname } = useLocation();
-  const { drawerOpen, toggleDrawer } = useAdminDrawer();
+  const { drawerOpen, toggleDrawer, downMD } = useAdminDrawer();
 
   const isSelected = !!matchPath(
     { path: item.url, end: false },
@@ -38,9 +36,9 @@ function AdminNavItem({ item, level }) {
     />
   );
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (downMD) toggleDrawer();
-  };
+  }, [downMD, toggleDrawer]);
 
   // Collapsed + level 1: icon stacked on top of label
   if (!drawerOpen && level === 1 && item.icon) {
@@ -116,34 +114,49 @@ function AdminNavItem({ item, level }) {
         mb: 0.3,
         py: 0.8,
         color: isSelected ? "brand.dark" : "text.tertiary",
+        position: "relative",
+        // Horizontal connector line for subitems
+        ...(level > 1 && drawerOpen && {
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            left: "-8px",
+            top: "50%",
+            width: "8px",
+            height: "1px",
+            bgcolor: "divider",
+          },
+        }),
         "&:hover": {
           color: "brand.dark",
-          bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
+          bgcolor: "brand.lighter",
         },
         "&.Mui-selected": {
           color: "brand.dark",
-          bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
+          bgcolor: "brand.lighter",
           "&:hover": {
-            bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
+            bgcolor: "brand.lighter",
           },
         },
-        ...(level > 1 && drawerOpen && { pl: 3.5 }),
+        ...(level > 1 && drawerOpen && { pl: 1.5 }),
       }}
       selected={isSelected}
       onClick={handleClick}
     >
-      {/* Icon or bullet */}
-      <ListItemIcon
-        sx={{
-          minWidth: item.icon ? 36 : 20,
-          color: isSelected ? "brand.main" : "inherit",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: item.icon ? "flex-start" : "center",
-        }}
-      >
-        {itemIcon}
-      </ListItemIcon>
+      {/* Icon or bullet — hide dot for subitems */}
+      {(item.icon || level === 1) && (
+        <ListItemIcon
+          sx={{
+            minWidth: item.icon ? 36 : 20,
+            color: isSelected ? "brand.main" : "inherit",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: item.icon ? "flex-start" : "center",
+          }}
+        >
+          {itemIcon}
+        </ListItemIcon>
+      )}
 
       <ListItemText
         primary={

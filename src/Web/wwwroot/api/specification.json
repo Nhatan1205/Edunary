@@ -3531,6 +3531,11 @@
           "completedLectures": {
             "type": "integer",
             "format": "int32"
+          },
+          "userRating": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         }
       },
@@ -3889,6 +3894,9 @@
             "type": "integer",
             "format": "int32"
           },
+          "isEnrolled": {
+            "type": "boolean"
+          },
           "instructorName": {
             "type": "string",
             "nullable": true
@@ -4059,6 +4067,9 @@
           "instructorName": {
             "type": "string",
             "nullable": true
+          },
+          "isEnrolled": {
+            "type": "boolean"
           }
         }
       },
@@ -4139,6 +4150,9 @@
           "totalStudents": {
             "type": "integer",
             "format": "int32"
+          },
+          "isEnrolled": {
+            "type": "boolean"
           },
           "content": {
             "type": "string",

@@ -55,5 +55,7 @@ const AdminMiniDrawerStyled = styled(Drawer, {
   }),
 }));
 
+const HEADER_HEIGHT = 64;
+
 export default AdminMiniDrawerStyled;
-export { drawerWidth, miniWidth };
+export { drawerWidth, miniWidth, HEADER_HEIGHT };

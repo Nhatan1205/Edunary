@@ -1,5 +1,4 @@
-import { useEffect, useState, memo } from "react";
-import { matchPath, useLocation } from "react-router";
+import { memo } from "react";
 
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
@@ -9,54 +8,10 @@ import AdminNavCollapse from "./AdminNavCollapse";
 import AdminNavItem from "./AdminNavItem";
 import { useAdminDrawer } from "./AdminDrawerContext";
 
-function AdminNavGroup({ item, setSelectedID, selectedID }) {
-  const { pathname } = useLocation();
+function AdminNavGroup({ item }) {
   const { drawerOpen } = useAdminDrawer();
 
-  const [currentItem] = useState(item);
-
-  const checkOpenForParent = (child, id) => {
-    child.forEach((ele) => {
-      if (ele.children?.length) {
-        checkOpenForParent(ele.children, currentItem.id);
-      }
-      if (
-        ele?.url &&
-        !!matchPath({ path: ele.url, end: true }, pathname)
-      ) {
-        setSelectedID(id);
-      }
-    });
-  };
-
-  const checkSelectedOnload = (data) => {
-    const children = data.children ? data.children : [];
-    children.forEach((itemCheck) => {
-      if (itemCheck?.children?.length) {
-        checkOpenForParent(itemCheck.children, currentItem.id);
-      }
-      if (
-        itemCheck?.url &&
-        !!matchPath({ path: itemCheck.url, end: true }, pathname)
-      ) {
-        setSelectedID(currentItem.id);
-      }
-    });
-
-    if (
-      data?.url &&
-      !!matchPath({ path: data.url, end: true }, pathname)
-    ) {
-      setSelectedID(currentItem.id);
-    }
-  };
-
-  useEffect(() => {
-    checkSelectedOnload(currentItem);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, currentItem]);
-
-  const items = currentItem.children?.map((menu) => {
+  const items = item.children?.map((menu) => {
     switch (menu?.type) {
       case "collapse":
         return (
@@ -64,7 +19,6 @@ function AdminNavGroup({ item, setSelectedID, selectedID }) {
             key={menu.id}
             menu={menu}
             level={1}
-            parentId={currentItem.id}
           />
         );
       case "item":
@@ -88,7 +42,7 @@ function AdminNavGroup({ item, setSelectedID, selectedID }) {
       <List
         disablePadding={!drawerOpen}
         subheader={
-          currentItem.title &&
+          item.title &&
           drawerOpen && (
             <Typography
               variant="caption"
@@ -104,7 +58,7 @@ function AdminNavGroup({ item, setSelectedID, selectedID }) {
                 marginTop: 1.25,
               }}
             >
-              {currentItem.title}
+              {item.title}
             </Typography>
           )
         }

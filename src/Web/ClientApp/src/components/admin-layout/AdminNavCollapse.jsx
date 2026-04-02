@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState, useCallback, useMemo, memo } from "react";
 import { useLocation, matchPath } from "react-router";
 
 import Collapse from "@mui/material/Collapse";
@@ -14,7 +14,6 @@ import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Grow from "@mui/material/Grow";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
@@ -23,7 +22,7 @@ import { useAdminDrawer } from "./AdminDrawerContext";
 
 const borderRadius = 8;
 
-function AdminNavCollapse({ menu, level, parentId }) {
+function AdminNavCollapse({ menu, level }) {
   const { pathname } = useLocation();
   const { drawerOpen } = useAdminDrawer();
 
@@ -52,11 +51,9 @@ function AdminNavCollapse({ menu, level, parentId }) {
 
   const handleClosePopper = useCallback(() => {
     setOpen(false);
-    if (!openMini && !menu.url) {
-      setSelected(null);
-    }
+    setSelected(null);
     setAnchorEl(null);
-  }, [openMini, menu.url]);
+  }, []);
 
   // Auto-expand if any child route is active
   useEffect(() => {
@@ -77,37 +74,44 @@ function AdminNavCollapse({ menu, level, parentId }) {
     if (checkChildren(menu.children)) {
       setOpen(true);
       setSelected(menu.id);
+    } else {
+      setOpen(false);
+      setSelected(null);
     }
   }, [pathname, menu]);
 
-  const menus = menu.children?.map((item) => {
-    switch (item.type) {
-      case "collapse":
-        return (
-          <AdminNavCollapse
-            key={item.id}
-            menu={item}
-            level={level + 1}
-            parentId={parentId}
-          />
-        );
-      case "item":
-        return (
-          <AdminNavItem key={item.id} item={item} level={level + 1} />
-        );
-      default:
-        return (
-          <Typography
-            key={item.id}
-            variant="h6"
-            align="center"
-            sx={{ color: "error.main" }}
-          >
-            Menu Items Error
-          </Typography>
-        );
-    }
-  });
+  const menus = useMemo(
+    () =>
+      menu.children?.map((item) => {
+        switch (item.type) {
+          case "collapse":
+            return (
+              <AdminNavCollapse
+                key={item.id}
+                menu={item}
+                level={level + 1}
+                parentId={parentId}
+              />
+            );
+          case "item":
+            return (
+              <AdminNavItem key={item.id} item={item} level={level + 1} />
+            );
+          default:
+            return (
+              <Typography
+                key={item.id}
+                variant="h6"
+                align="center"
+                sx={{ color: "error.main" }}
+              >
+                Menu Items Error
+              </Typography>
+            );
+        }
+      }),
+    [menu.children, level]
+  );
 
   const isSelected = selected === menu.id;
 
@@ -124,14 +128,14 @@ function AdminNavCollapse({ menu, level, parentId }) {
     />
   );
 
-  // Arrow icon matching the reference: small v / ^ chevron
+  // Arrow icon: ChevronRight when closed, KeyboardArrowDown when open
   const arrowIcon =
     openMini || open ? (
-      <KeyboardArrowUpIcon
+      <KeyboardArrowDownIcon
         sx={{ fontSize: 18, color: "text.disabled" }}
       />
     ) : (
-      <KeyboardArrowDownIcon
+      <ChevronRightIcon
         sx={{ fontSize: 18, color: "text.disabled" }}
       />
     );
@@ -156,7 +160,7 @@ function AdminNavCollapse({ menu, level, parentId }) {
           ...(drawerOpen && { py: 1 }),
           "&:hover": {
             color: "brand.dark",
-            bgcolor: level === 1 && drawerOpen ? "brand.lighter" : !drawerOpen && level === 1 ? "brand.lighter" : "transparent",
+            bgcolor: level === 1 ? "brand.lighter" : "transparent",
           },
           "&.Mui-selected": {
             color: "brand.dark",
@@ -271,14 +275,28 @@ function AdminNavCollapse({ menu, level, parentId }) {
         )}
       </ListItemButton>
 
-      {/* Expanded sidebar: inline collapse — clean list with dash bullets, NO tree line */}
+      {/* Expanded sidebar: inline collapse with subtree lines */}
       {drawerOpen && (
         <Collapse in={open} timeout="auto" unmountOnExit>
-          {open && (
-            <List disablePadding sx={{ pl: 2 }}>
+          <Box
+            sx={{
+              position: "relative",
+              pl: "28px",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: "20px",
+                top: 0,
+                bottom: 8,
+                width: "1px",
+                bgcolor: "divider",
+              },
+            }}
+          >
+            <List disablePadding>
               {menus}
             </List>
-          )}
+          </Box>
         </Collapse>
       )}
     </>

@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect, memo } from "react";
+import { useState, useCallback, memo } from "react";
 
-import useMediaQuery from "@mui/material/useMediaQuery";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -16,8 +15,7 @@ import AdminSearchDialog from "./AdminSearchDialog";
 import AdminAccountPanel from "./AdminAccountPanel";
 
 function AdminHeader() {
-  const downMD = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const { toggleDrawer } = useAdminDrawer();
+  const { toggleDrawer, downMD } = useAdminDrawer();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -26,13 +24,6 @@ function AdminHeader() {
   const handleCloseSearch = useCallback(() => setSearchOpen(false), []);
   const handleOpenAccount = useCallback(() => setAccountOpen(true), []);
   const handleCloseAccount = useCallback(() => setAccountOpen(false), []);
-
-  // Listen for Ctrl+K from layout
-  useEffect(() => {
-    const handler = () => setSearchOpen(true);
-    window.addEventListener("admin-open-search", handler);
-    return () => window.removeEventListener("admin-open-search", handler);
-  }, []);
 
   return (
     <>
@@ -88,36 +79,17 @@ function AdminHeader() {
             sx={{ fontSize: 20, color: "text.disabled" }}
           />
           {!downMD && (
-            <>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "text.disabled",
-                  flexGrow: 1,
-                  userSelect: "none",
-                  fontSize: "0.85rem",
-                }}
-              >
-                Search...
-              </Typography>
-              <Typography
-                component="span"
-                sx={{
-                  fontSize: "0.7rem",
-                  fontWeight: 600,
-                  color: "text.disabled",
-                  bgcolor: "background.paper",
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: "4px",
-                  px: 0.6,
-                  py: 0.15,
-                  lineHeight: 1.4,
-                }}
-              >
-                ⌘K
-              </Typography>
-            </>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.disabled",
+                flexGrow: 1,
+                userSelect: "none",
+                fontSize: "0.85rem",
+              }}
+            >
+              Search...
+            </Typography>
           )}
         </Box>
 

@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -9,19 +9,11 @@ import { useAdminDrawer } from "./AdminDrawerContext";
 
 function AdminMenuList() {
   const { drawerOpen } = useAdminDrawer();
-  const [selectedID, setSelectedID] = useState("");
 
   const navItems = adminMenuConfig.items.map((item) => {
     switch (item.type) {
       case "group":
-        return (
-          <AdminNavGroup
-            key={item.id}
-            setSelectedID={setSelectedID}
-            selectedID={selectedID}
-            item={item}
-          />
-        );
+        return <AdminNavGroup key={item.id} item={item} />;
       default:
         return (
           <Typography

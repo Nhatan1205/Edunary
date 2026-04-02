@@ -49,20 +49,6 @@ function AdminSearchDialog({ open, onClose }) {
     if (open) setSearch("");
   }, [open]);
 
-  // Ctrl+K keyboard shortcut
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        if (!open) {
-          // This will be handled by the parent, but we handle close from inside
-        }
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open]);
-
   const filteredItems = useMemo(() => {
     if (!search.trim()) return allItems;
     const query = search.toLowerCase();

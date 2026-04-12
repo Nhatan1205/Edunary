@@ -4668,6 +4668,7 @@ export class EnrolledCoursesDto implements IEnrolledCoursesDto {
     ratings?: number;
     totalLectures?: number;
     completedLectures?: number;
+    userRating?: number | undefined;
 
     constructor(data?: IEnrolledCoursesDto) {
         if (data) {
@@ -4693,6 +4694,7 @@ export class EnrolledCoursesDto implements IEnrolledCoursesDto {
             this.ratings = _data["ratings"];
             this.totalLectures = _data["totalLectures"];
             this.completedLectures = _data["completedLectures"];
+            this.userRating = _data["userRating"];
         }
     }
 
@@ -4718,6 +4720,7 @@ export class EnrolledCoursesDto implements IEnrolledCoursesDto {
         data["ratings"] = this.ratings;
         data["totalLectures"] = this.totalLectures;
         data["completedLectures"] = this.completedLectures;
+        data["userRating"] = this.userRating;
         return data;
     }
 }
@@ -4736,6 +4739,7 @@ export interface IEnrolledCoursesDto {
     ratings?: number;
     totalLectures?: number;
     completedLectures?: number;
+    userRating?: number | undefined;
 }
 
 export class GetCourseByIdDto implements IGetCourseByIdDto {
@@ -5277,6 +5281,7 @@ export class GetCourseDto implements IGetCourseDto {
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    isEnrolled?: boolean;
     instructorName?: string | undefined;
     createdBy?: string | undefined;
     created?: string | undefined;
@@ -5303,6 +5308,7 @@ export class GetCourseDto implements IGetCourseDto {
             this.topic = _data["topic"];
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
+            this.isEnrolled = _data["isEnrolled"];
             this.instructorName = _data["instructorName"];
             this.createdBy = _data["createdBy"];
             this.created = _data["created"];
@@ -5329,6 +5335,7 @@ export class GetCourseDto implements IGetCourseDto {
         data["topic"] = this.topic;
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
+        data["isEnrolled"] = this.isEnrolled;
         data["instructorName"] = this.instructorName;
         data["createdBy"] = this.createdBy;
         data["created"] = this.created;
@@ -5348,6 +5355,7 @@ export interface IGetCourseDto {
     topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    isEnrolled?: boolean;
     instructorName?: string | undefined;
     createdBy?: string | undefined;
     created?: string | undefined;
@@ -5552,6 +5560,7 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
     totalStudents?: number;
     createdBy?: string | undefined;
     instructorName?: string | undefined;
+    isEnrolled?: boolean;
 
     constructor(data?: IGetHomepageCoursesDto) {
         if (data) {
@@ -5579,6 +5588,7 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
             this.totalStudents = _data["totalStudents"];
             this.createdBy = _data["createdBy"];
             this.instructorName = _data["instructorName"];
+            this.isEnrolled = _data["isEnrolled"];
         }
     }
 
@@ -5606,6 +5616,7 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
         data["totalStudents"] = this.totalStudents;
         data["createdBy"] = this.createdBy;
         data["instructorName"] = this.instructorName;
+        data["isEnrolled"] = this.isEnrolled;
         return data;
     }
 }
@@ -5626,6 +5637,7 @@ export interface IGetHomepageCoursesDto {
     totalStudents?: number;
     createdBy?: string | undefined;
     instructorName?: string | undefined;
+    isEnrolled?: boolean;
 }
 
 export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
@@ -5648,6 +5660,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     categoryTitle?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    isEnrolled?: boolean;
     content?: string | undefined;
     lastModified?: Date;
     instructor?: InstructorDto | undefined;
@@ -5682,6 +5695,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.categoryTitle = _data["categoryTitle"];
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
+            this.isEnrolled = _data["isEnrolled"];
             this.content = _data["content"];
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
             this.instructor = _data["instructor"] ? InstructorDto.fromJS(_data["instructor"]) : <any>undefined;
@@ -5716,6 +5730,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["categoryTitle"] = this.categoryTitle;
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
+        data["isEnrolled"] = this.isEnrolled;
         data["content"] = this.content;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
         data["instructor"] = this.instructor ? this.instructor.toJSON() : <any>undefined;
@@ -5743,6 +5758,7 @@ export interface IGetPublicCourseByIdDto {
     categoryTitle?: string | undefined;
     ratings?: number;
     totalStudents?: number;
+    isEnrolled?: boolean;
     content?: string | undefined;
     lastModified?: Date;
     instructor?: InstructorDto | undefined;

@@ -48,8 +48,32 @@ import CareerPathOverviewPage from "./features/guest/career-paths-overview-page/
 import CareerPathPage from "./features/guest/career-paths-page/CareerPathPage";
 import RoadMapsPage from "./features/instructor/courses-management/roadmaps-page/RoadMapsPage";
 import RoadmapEditPage from "./features/instructor/courses-management/roadmap-edit-page/RoadmapEditPage";
+import AdminLayout from "./layouts/AdminLayout";
+import AdminDashboard from "./features/admin/Dashboard";
 
 const router = createBrowserRouter([
+  {
+    path: "/admin",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/admin/dashboard" replace />,
+      },
+      {
+        path: "dashboard",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "user/profile",
+        element: <AdminDashboard />,
+      }
+    ],
+  },
   {
     element: <UserLayout />,
     children: [

@@ -144,6 +144,8 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateUser,
+        isAdmin: isAuthenticated && tokenService.isAdmin(),
+        role: isAuthenticated ? tokenService.getUserRole() : null,
       }}
     >
       {children}

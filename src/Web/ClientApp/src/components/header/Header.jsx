@@ -35,7 +35,7 @@ function Header() {
   const navigate = useNavigate();
 
   // Get auth state from context
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isAdmin } = useAuth();
   const { data: userInfo } = useGetBasicUserInfo();
   const { cartItems } = useCart();
 
@@ -208,6 +208,27 @@ function Header() {
                       onClick={() => navigate("/my-learning")}
                     >
                       My Learning
+                    </Button>
+                  )}
+
+                  {isAdmin && (
+                    <Button
+                      sx={{
+                        color: "text.primary",
+                        textTransform: "none",
+                        padding: "10px 24px",
+                        fontSize: "16px",
+                        fontWeight: "500",
+                        borderRadius: "8px",
+                        whiteSpace: "nowrap",
+                        "&:hover": {
+                          backgroundColor: "background.muted",
+                          color: "text.secondary",
+                        },
+                      }}
+                      onClick={() => navigate("/admin/dashboard")}
+                    >
+                      Admin Dashboard
                     </Button>
                   )}
 

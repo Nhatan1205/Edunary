@@ -7,6 +7,7 @@ import {
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useNavigate, useLocation } from "react-router";
 import queryClient from "../../configs/reactQuery.js";
+import { tokenService } from "../../utils/tokenService.js";
 
 const useLogin = () => {
   const authClient = new AuthClient();
@@ -30,8 +31,15 @@ const useLogin = () => {
         login(data.token);
         toast.success("Login successful! Welcome back!");
         queryClient.invalidateQueries(["userInfo"]);
-        const from = location.state?.from?.pathname || "/";
-        navigate(from, { replace: true });
+        
+        // Check if user is admin
+        const isAdmin = tokenService.isAdmin();
+        if (isAdmin) {
+          navigate("/admin/dashboard", { replace: true });
+        } else {
+          const from = location.state?.from?.pathname || "/";
+          navigate(from, { replace: true });
+        }
       }
     },
     onError: (error) => {

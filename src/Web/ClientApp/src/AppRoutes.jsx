@@ -8,6 +8,7 @@ import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import GuestRoute from "./components/GuestRoute";
 import InstructorLayout from "./layouts/InstructorLayout";
 import CourseOverview from "./features/guest/course-overview/CourseOverview";
@@ -55,9 +56,9 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <ProtectedRoute>
+      <AdminRoute>
         <AdminLayout />
-      </ProtectedRoute>
+      </AdminRoute>
     ),
     children: [
       {

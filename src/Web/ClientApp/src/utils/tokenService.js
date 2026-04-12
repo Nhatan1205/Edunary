@@ -138,4 +138,27 @@ export const tokenService = {
   isTokenExpired(token) {
     return this.getTimeUntilExpiry(token) <= 0;
   },
+
+  // Get user role from token
+  getUserRole() {
+    const token = this.getToken();
+    if (!token) return null;
+    
+    const decoded = this.decodeToken(token);
+    // JWT claims có thể chứa role dưới tên: role, roles, 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+    return decoded?.role || decoded?.roles || decoded?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+  },
+
+  // Check if user is admin
+  isAdmin() {
+    const role = this.getUserRole();
+    if (!role) return false;
+    
+    // Handle both string and array roles
+    if (Array.isArray(role)) {
+      return role.some(r => r?.toLowerCase() === 'admin' || r?.toLowerCase() === 'administrator');
+    }
+    
+    return role.toLowerCase() === 'admin' || role.toLowerCase() === 'administrator';
+  },
 };

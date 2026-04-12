@@ -32,11 +32,6 @@ function AdminAccountPanel({ open, onClose }) {
     [navigate, onClose]
   );
 
-  const handleLogout = useCallback(() => {
-    // Logout logic placeholder
-    onClose();
-  }, [onClose]);
-
   return (
     <Drawer
       anchor="right"
@@ -188,7 +183,6 @@ function AdminAccountPanel({ open, onClose }) {
           <Button
             fullWidth
             variant="outlined"
-            onClick={handleLogout}
             startIcon={<LogoutOutlinedIcon />}
             sx={{
               borderRadius: "10px",

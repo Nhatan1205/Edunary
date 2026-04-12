@@ -18,12 +18,6 @@ const accountMenuConfig = [
     url: "/user/profile",
   },
   {
-    id: "subscription",
-    title: "Subscription",
-    icon: CardMembershipOutlinedIcon,
-    url: "/admin/subscription",
-  },
-  {
     id: "security",
     title: "Security",
     icon: SecurityOutlinedIcon,

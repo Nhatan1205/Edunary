@@ -27,7 +27,6 @@ function AdminNavCollapse({ menu, level }) {
   const { drawerOpen } = useAdminDrawer();
 
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClickMini = useCallback(
@@ -35,12 +34,11 @@ function AdminNavCollapse({ menu, level }) {
       setAnchorEl(null);
       if (drawerOpen) {
         setOpen((prev) => !prev);
-        setSelected((prev) => (!prev ? menu.id : null));
       } else {
         setAnchorEl(event?.currentTarget);
       }
     },
-    [drawerOpen, menu.id]
+    [drawerOpen]
   );
 
   const openMini = Boolean(anchorEl);
@@ -50,8 +48,6 @@ function AdminNavCollapse({ menu, level }) {
   }, []);
 
   const handleClosePopper = useCallback(() => {
-    setOpen(false);
-    setSelected(null);
     setAnchorEl(null);
   }, []);
 
@@ -73,10 +69,8 @@ function AdminNavCollapse({ menu, level }) {
 
     if (checkChildren(menu.children)) {
       setOpen(true);
-      setSelected(menu.id);
     } else {
       setOpen(false);
-      setSelected(null);
     }
   }, [pathname, menu]);
 
@@ -90,7 +84,6 @@ function AdminNavCollapse({ menu, level }) {
                 key={item.id}
                 menu={item}
                 level={level + 1}
-                parentId={parentId}
               />
             );
           case "item":
@@ -113,7 +106,7 @@ function AdminNavCollapse({ menu, level }) {
     [menu.children, level]
   );
 
-  const isSelected = selected === menu.id;
+  const isSelected = open;
 
   const Icon = menu.icon;
   const menuIcon = menu.icon ? (

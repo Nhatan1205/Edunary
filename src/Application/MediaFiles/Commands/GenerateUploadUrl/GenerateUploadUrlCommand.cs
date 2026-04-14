@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Application.SystemSettings.Queries.GetSystemSettingValuesQuery;
 using Edunary.Domain.Common;
+using Edunary.Domain.Constants;
 using Microsoft.Extensions.Options;
 
 namespace Edunary.Application.MediaFiles.Commands.GenerateUploadUrl;
@@ -19,18 +17,21 @@ public class GenerateUploadUrlCommandHandler : IRequestHandler<GenerateUploadUrl
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUploadFileService _uploadFileService;
-    private readonly DigitalOceanSettings _spacesSettings;
+    private readonly IMediator _mediator;
+    private readonly DigitalOceanSettings _fallbackDO;
 
     public GenerateUploadUrlCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
         IUploadFileService uploadFileService,
+        IMediator mediator,
         IOptions<DigitalOceanSettings> spacesOptions)
     {
         _context = context;
         _currentUserService = currentUserService;
         _uploadFileService = uploadFileService;
-        _spacesSettings = spacesOptions.Value;
+        _mediator = mediator;
+        _fallbackDO = spacesOptions.Value;
     }
 
     public async Task<ReturnResult<GenerateUploadUrlDto>> Handle(GenerateUploadUrlCommand request, CancellationToken cancellationToken)
@@ -51,7 +52,8 @@ public class GenerateUploadUrlCommandHandler : IRequestHandler<GenerateUploadUrl
             newFileName = $"{baseFileName}({count}){extension}";
             count++;
         }
-        var presignedUrl = _uploadFileService.GeneratePresignedUrl(newFileName, request.ContentType);
+
+        var presignedUrl = await _uploadFileService.GeneratePresignedUrl(newFileName, request.ContentType);
         if (string.IsNullOrEmpty(presignedUrl))
         {
             result.Message = "Failed to generate presigned URL.";
@@ -59,8 +61,16 @@ public class GenerateUploadUrlCommandHandler : IRequestHandler<GenerateUploadUrl
         }
         else
         {
+            var dbValues = await _mediator.Send(new GetSystemSettingValuesQuery
+            {
+                Keys = new() { SettingKey.DigitalOcean_CDNEndpoint }
+            });
+
+            var cdnEndpoint = dbValues.GetValueOrDefault(SettingKey.DigitalOcean_CDNEndpoint, string.Empty);
+            if (string.IsNullOrEmpty(cdnEndpoint)) cdnEndpoint = _fallbackDO.CDNEndpoint;
+
             var folder = $"courses/{userId}";
-            var fileUrl = $"{_spacesSettings.CDNEndpoint}/{folder}/{newFileName}";
+            var fileUrl = $"{cdnEndpoint}/{folder}/{newFileName}";
             result.Result = new GenerateUploadUrlDto
             {
                 UploadUrl = presignedUrl,

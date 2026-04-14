@@ -1,4 +1,4 @@
-﻿using Edunary.Domain.Entities;
+using Edunary.Domain.Entities;
 
 namespace Edunary.Application.Common.Interfaces;
 public interface IApplicationDbContext
@@ -32,6 +32,7 @@ public interface IApplicationDbContext
     public DbSet<Roadmap> Roadmaps { get; }
     public DbSet<RoadmapTopic> RoadmapTopics { get; }
 
+    public DbSet<SystemSetting> SystemSettings { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

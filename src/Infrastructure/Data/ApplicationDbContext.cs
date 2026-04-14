@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Entities;
 using Edunary.Infrastructure.Identity;
@@ -39,6 +39,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<Roadmap> Roadmaps => Set<Roadmap>();
     public DbSet<RoadmapTopic> RoadmapTopics => Set<RoadmapTopic>();
+
+    public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {        

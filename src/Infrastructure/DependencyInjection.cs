@@ -42,19 +42,19 @@ public static class DependencyInjection
 
         services.Configure<DigitalOceanSettings>(configuration.GetSection("DigitalOceanSettings"));
         services.Configure<AccountToAccessHangfireDashboard>(configuration.GetSection("AccountToAccessHangfireDashboard"));
-        services.AddSingleton<IAmazonS3>(sp =>
-        {
-            var settings = sp.GetRequiredService<IOptions<DigitalOceanSettings>>().Value;
+        //services.AddSingleton<IAmazonS3>(sp =>
+        //{
+        //    var settings = sp.GetRequiredService<IOptions<DigitalOceanSettings>>().Value;
 
-            return new AmazonS3Client(
-                settings.AccessKey,
-                settings.SecretKey,
-                new AmazonS3Config
-                {
-                    ServiceURL = settings.Endpoint,
-                    ForcePathStyle = true
-                });
-        });
+        //    return new AmazonS3Client(
+        //        settings.AccessKey,
+        //        settings.SecretKey,
+        //        new AmazonS3Config
+        //        {
+        //            ServiceURL = settings.Endpoint,
+        //            ForcePathStyle = true
+        //        });
+        //});
 
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
@@ -78,7 +78,13 @@ public static class DependencyInjection
         services.AddScoped<IProcessMediaFileJobService, ProcessMediaFileJobService>();
 
         services.AddAuthorization(options =>
-            options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));
+        {
+            options.AddPolicy(Policies.CanPurge, policy =>
+                policy.RequireRole(Roles.Administrator));
+
+            options.AddPolicy(Policies.SuperAdmin, policy =>
+                policy.RequireRole(Roles.Administrator));
+        });
 
         var appSettingsSection = configuration.GetSection("AppSettings");
         services.Configure<AppSettings>(appSettingsSection);

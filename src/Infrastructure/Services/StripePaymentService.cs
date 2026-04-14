@@ -1,9 +1,12 @@
 using Stripe;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
-using Microsoft.Extensions.Configuration;
+using Edunary.Application.SystemSettings.Queries.GetSystemSettingValuesQuery;
 using Edunary.Domain.Common;
+using Edunary.Domain.Constants;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using MediatR;
 
 namespace Edunary.Infrastructure.Services;
 
@@ -12,14 +15,26 @@ public class StripePaymentService : IPaymentService
     private readonly PaymentIntentService _paymentIntentService; // Stripe service
     private readonly IConfiguration _configuration;
     private readonly AppSettings _appSettings;
+    private readonly IMediator _mediator;
 
-    public StripePaymentService(IConfiguration configuration, IOptions<AppSettings> appSettings)
+    public StripePaymentService(IConfiguration configuration, IOptions<AppSettings> appSettings, IMediator mediator)
     {
         _configuration = configuration;
         _appSettings = appSettings.Value;
-
-        StripeConfiguration.ApiKey = _appSettings.StripeSecretKey;
+        _mediator = mediator;
         _paymentIntentService = new PaymentIntentService();
+    }
+
+    // Set Stripe API key, Db then fallback to appsettings
+    private async Task SetStripeApiKeyAsync()
+    {
+        var dbValues = await _mediator.Send(new GetSystemSettingValuesQuery
+        {
+            Keys = new() { SettingKey.Stripe_SecretKey }
+        });
+
+        var dbKey = dbValues.GetValueOrDefault(SettingKey.Stripe_SecretKey, string.Empty);
+        StripeConfiguration.ApiKey = !string.IsNullOrEmpty(dbKey) ? dbKey : _appSettings.StripeSecretKey;
     }
 
     public async Task<CreatePaymentIntentDto> CreatePaymentIntentAsync(
@@ -27,6 +42,8 @@ public class StripePaymentService : IPaymentService
         string userEmail, 
         CancellationToken cancellationToken = default)
     {
+        await SetStripeApiKeyAsync();
+
         var totalAmount = courses.Sum(c => c.Price);
         var amountInCents = (long)(totalAmount * 100); // Stripe requires amount in cents
 
@@ -79,3 +96,4 @@ public class StripePaymentService : IPaymentService
         }
     }
 }
+

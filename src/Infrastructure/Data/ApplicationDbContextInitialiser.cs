@@ -145,5 +145,19 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
+        if (!_context.SystemSettings.Any())
+        {
+            var allKeys = SettingKey.GetAllKeys();
+            foreach (var key in allKeys)
+            {
+                _context.SystemSettings.Add(new SystemSetting
+                {
+                    Key = key,
+                    Value = null
+                });
+            }
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

@@ -4,6 +4,7 @@ using Edunary.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Edunary.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413095116_AddSystemSettingSchemas")]
+    partial class AddSystemSettingSchemas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("CoursesId");
 
-                    b.ToTable("AnnouncementCourse", (string)null);
+                    b.ToTable("AnnouncementCourse");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Announcement", b =>
@@ -71,7 +74,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Announcements", (string)null);
+                    b.ToTable("Announcements");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Cart", b =>
@@ -109,7 +112,7 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Carts_CourseId_CustomerId");
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Category", b =>
@@ -137,7 +140,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Course", b =>
@@ -221,7 +224,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Courses", (string)null);
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.CourseProgress", b =>
@@ -257,7 +260,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("CourseProgress", (string)null);
+                    b.ToTable("CourseProgress");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Enrollment", b =>
@@ -294,7 +297,7 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Enrollments_CourseId_StudentId");
 
-                    b.ToTable("Enrollments", (string)null);
+                    b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.MediaFile", b =>
@@ -380,7 +383,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("MediaFiles", (string)null);
+                    b.ToTable("MediaFiles");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Notification", b =>
@@ -426,7 +429,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.NotificationUser", b =>
@@ -462,7 +465,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("NotificationId");
 
-                    b.ToTable("NotificationUsers", (string)null);
+                    b.ToTable("NotificationUsers");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Order", b =>
@@ -515,7 +518,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.OrderItem", b =>
@@ -546,7 +549,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Payment", b =>
@@ -597,7 +600,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
@@ -640,7 +643,7 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_RatingCourses_CourseId_UserId");
 
-                    b.ToTable("RatingCourses", (string)null);
+                    b.ToTable("RatingCourses");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Roadmap", b =>
@@ -691,7 +694,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("RoadmapTopicId");
 
-                    b.ToTable("Roadmaps", (string)null);
+                    b.ToTable("Roadmaps");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.RoadmapTopic", b =>
@@ -719,7 +722,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoadmapTopics", (string)null);
+                    b.ToTable("RoadmapTopics");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.SystemSetting", b =>
@@ -757,7 +760,7 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_SystemSettings_Key");
 
-                    b.ToTable("SystemSettings", (string)null);
+                    b.ToTable("SystemSettings");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
@@ -804,7 +807,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("ListId");
 
-                    b.ToTable("TodoItems", (string)null);
+                    b.ToTable("TodoItems");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.TodoList", b =>
@@ -834,7 +837,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TodoLists", (string)null);
+                    b.ToTable("TodoLists");
                 });
 
             modelBuilder.Entity("Edunary.Infrastructure.Identity.ApplicationRole", b =>
@@ -1187,7 +1190,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                             b1.HasKey("TodoListId");
 
-                            b1.ToTable("TodoLists", (string)null);
+                            b1.ToTable("TodoLists");
 
                             b1.WithOwner()
                                 .HasForeignKey("TodoListId");

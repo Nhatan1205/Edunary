@@ -7,7 +7,10 @@ import {
   Tab,
   TextField,
   Button,
-  Divider,
+  Paper,
+  InputAdornment,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
@@ -16,6 +19,10 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import CloudOutlinedIcon from "@mui/icons-material/CloudOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
+import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import PageTitle from "../../../components/PageTitle";
 import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs";
 import useGetSystemSettings from "../../../hooks/system-settings-hooks/useGetSystemSettings";
@@ -67,8 +74,6 @@ const TABS = [
   },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 const formatLabel = (key) => {
   const withoutPrefix = key.includes("_") ? key.substring(key.indexOf("_") + 1) : key;
   return withoutPrefix
@@ -78,9 +83,34 @@ const formatLabel = (key) => {
     .replace(/\s+/g, " ");
 };
 
+// Detect sensitive fields by key name — no hardcoded list
+const isSensitiveKey = (key) => {
+  const lower = key.toLowerCase();
+  return lower.includes("key") || lower.includes("secret") || lower.includes("password");
+};
+
 function SettingRow({ setting, isEditing, register }) {
+  const [showValue, setShowValue] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const isSensitive = isSensitiveKey(setting.key);
+
+  const handleCopy = () => {
+    if (!setting.value) return;
+    navigator.clipboard.writeText(setting.value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <Box sx={{ display: "flex", alignItems: "center", py: 2, gap: 3 }}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        px: 2.5,
+        py: 2,
+        gap: 3,
+      }}
+    >
       {/* Label */}
       <Typography
         variant="body2"
@@ -91,10 +121,10 @@ function SettingRow({ setting, isEditing, register }) {
         {formatLabel(setting.key)}
       </Typography>
 
-      {/* Input — plain text, no masking */}
+      {/* Input */}
       <TextField
         size="small"
-        type="text"
+        type={isSensitive && !showValue ? "password" : "text"}
         placeholder="Not configured"
         {...(isEditing
           ? register(setting.key)
@@ -104,6 +134,48 @@ function SettingRow({ setting, isEditing, register }) {
           htmlInput: {
             readOnly: !isEditing,
             autoComplete: "off",
+          },
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                {/* Eye toggle — only for sensitive fields */}
+                {isSensitive && (
+                  <Tooltip title={showValue ? "Hide" : "Show"} placement="top">
+                    <IconButton
+                      size="small"
+                      onClick={() => setShowValue((p) => !p)}
+                      tabIndex={-1}
+                      sx={{ color: "text.disabled", "&:hover": { color: "text.secondary" } }}
+                    >
+                      {showValue
+                        ? <VisibilityOffOutlinedIcon sx={{ fontSize: 16 }} />
+                        : <VisibilityOutlinedIcon sx={{ fontSize: 16 }} />
+                      }
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                {/* Copy button — all fields */}
+                <Tooltip title={copied ? "Copied!" : "Copy"} placement="top">
+                  <IconButton
+                    size="small"
+                    onClick={handleCopy}
+                    tabIndex={-1}
+                    edge="end"
+                    sx={{
+                      color: copied ? "brand.main" : "text.disabled",
+                      "&:hover": { color: copied ? "brand.dark" : "text.secondary" },
+                      transition: "color 0.2s",
+                    }}
+                  >
+                    {copied
+                      ? <CheckOutlinedIcon sx={{ fontSize: 16 }} />
+                      : <ContentCopyOutlinedIcon sx={{ fontSize: 16 }} />
+                    }
+                  </IconButton>
+                </Tooltip>
+              </InputAdornment>
+            ),
           },
         }}
         sx={{
@@ -132,11 +204,11 @@ function SettingRow({ setting, isEditing, register }) {
         }}
       />
 
-      {/* Last modified — fills remaining space */}
+      {/* Last modified */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
         {setting.lastModified && (
           <Typography variant="caption" color="text.secondary" noWrap>
-            {`Update at ${formatDate(setting.lastModified)}`}
+            {`Updated at ${formatDate(setting.lastModified)}`}
           </Typography>
         )}
       </Box>
@@ -282,24 +354,42 @@ function SystemSettingsPage() {
         {/* ── Tab Content ── */}
         <Box sx={{ pt: 2, pb: 4 }}>
           {currentTab.sections.map((section, sIdx) => (
-            <Box key={sIdx} sx={{ mb: 3 }}>
-              <Typography variant="subtitle1" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
+            <Box key={sIdx} sx={{ mb: 3.5 }}>
+              {/* Section header */}
+              <Typography
+                variant="subtitle1"
+                fontWeight={700}
+                color="text.primary"
+                sx={{ mb: 1.5 }}
+              >
                 {section.header}
               </Typography>
-              <Divider sx={{ mb: 0.5 }} />
 
-              {section.keys.map((key) => {
-                const setting = settingMap[key];
-                if (!setting) return null;
-                return (
-                  <SettingRow
-                    key={key}
-                    setting={setting}
-                    isEditing={isEditing}
-                    register={register}
-                  />
-                );
-              })}
+              {/* Card wrapping rows */}
+              <Paper
+                elevation={0}
+                sx={{
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                  "& > :last-child": { borderBottom: "none" },
+                }}
+              >
+                {section.keys.map((key) => {
+                  const setting = settingMap[key];
+                  if (!setting) return null;
+                  return (
+                    <SettingRow
+                      key={key}
+                      setting={setting}
+                      isEditing={isEditing}
+                      register={register}
+                    />
+                  );
+                })}
+              </Paper>
             </Box>
           ))}
         </Box>

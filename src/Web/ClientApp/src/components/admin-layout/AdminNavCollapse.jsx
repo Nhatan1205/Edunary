@@ -150,7 +150,7 @@ function AdminNavCollapse({ menu, level }) {
             px: 0.5,
           }),
           // Expanded
-          ...(drawerOpen && { py: 1 }),
+          ...(drawerOpen && { py: 1, px: 1 }),
           "&:hover": {
             color: "brand.dark",
             bgcolor: level === 1 ? "brand.lighter" : "transparent",

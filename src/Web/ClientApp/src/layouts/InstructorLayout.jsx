@@ -6,13 +6,11 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
-import { Container } from "reactstrap";
 
 import InstructorHeader from "../components/instructor-layout/InstructorHeader";
 import InstructorSidebar from "../components/instructor-layout/InstructorSidebar";
 import MainContentStyled from "../components/instructor-layout/MainContentStyled";
 import DrawerContext from "../components/instructor-layout/DrawerContext";
-import CustomBreadcrumbs from "../components/breadcrumb/CustomBreadcrumbs";
 
 function InstructorLayout() {
   const theme = useTheme();

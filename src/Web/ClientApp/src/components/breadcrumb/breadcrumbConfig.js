@@ -1,4 +1,8 @@
 const breadcrumbConfig = {
+  // Admin
+  "/admin": "Dashboard",
+  "/admin/dashboard": "Dashboard",
+  "/admin/system-settings": "System Settings",
   // Instructors
   "/instructor": "Home",
   "/instructor/courses": "Courses",

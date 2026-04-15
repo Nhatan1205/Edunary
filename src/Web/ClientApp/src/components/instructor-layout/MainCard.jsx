@@ -10,11 +10,13 @@ export default function MainCard({ children }) {
             borderRadius: 3,
             minHeight: "80vh"
         }}>
-            <CustomBreadcrumbs />
+            <div className='px-4'>
+                <CustomBreadcrumbs />
+            </div>
             <Divider />
             <CardContent sx={{ px: 3 }}>
                 {children}
             </CardContent>
-        </Card>
+        </Card >
     );
 }

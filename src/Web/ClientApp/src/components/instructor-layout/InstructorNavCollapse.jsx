@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, memo } from "react";
 import { useLocation, matchPath } from "react-router-dom";
+import { alpha } from "@mui/material/styles";
 
-import { useTheme } from "@mui/material/styles";
 import Collapse from "@mui/material/Collapse";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -23,23 +23,20 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import InstructorNavItem from "./InstructorNavItem";
 import { useDrawer } from "./DrawerContext";
 
-export default function InstructorNavCollapse({ menu, level, parentId }) {
-  const theme = useTheme();
+const borderRadius = 8;
+
+function InstructorNavCollapse({ menu, level, parentId }) {
   const ref = useRef(null);
   const { pathname } = useLocation();
   const { drawerOpen } = useDrawer();
 
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const borderRadius = 8;
 
   const handleClickMini = (event) => {
     setAnchorEl(null);
     if (drawerOpen) {
-      setOpen(!open);
-      setSelected(!selected ? menu.id : null);
+      setOpen((prev) => !prev);
     } else {
       setAnchorEl(event?.currentTarget);
     }
@@ -53,16 +50,11 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
 
   const handleClosePopper = () => {
     setOpen(false);
-    if (!openMini) {
-      if (!menu.url) {
-        setSelected(null);
-      }
-    }
     setAnchorEl(null);
   };
 
-  // Check if any child is active to auto-expand
-  useEffect(() => {
+  // Check if any child route is active
+  const hasActiveChild = useMemo(() => {
     const checkChildren = (children) => {
       if (!children) return false;
       return children.some((child) => {
@@ -76,12 +68,17 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
         return false;
       });
     };
-
-    if (checkChildren(menu.children)) {
-      setOpen(true);
-      setSelected(menu.id);
-    }
+    return checkChildren(menu.children);
   }, [pathname, menu]);
+
+  // Auto-expand if any child route is active
+  useEffect(() => {
+    if (hasActiveChild) {
+      setOpen(true);
+    } else {
+      setOpen(false);
+    }
+  }, [hasActiveChild]);
 
   const [hoverStatus, setHover] = useState(false);
 
@@ -126,7 +123,8 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
     }
   });
 
-  const isSelected = selected === menu.id;
+  // isSelected = true only when a child is actively matching the route
+  const isSelected = hasActiveChild;
 
   const Icon = menu.icon;
   const menuIcon = menu.icon ? (
@@ -143,11 +141,11 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
 
   const collapseIcon = drawerOpen ? (
     <ExpandLessIcon
-      sx={{ fontSize: "16px", mt: "auto", mb: "auto" }}
+      sx={{ fontSize: "16px", mt: "auto", mb: "auto", color: "inherit" }}
     />
   ) : (
     <ChevronRightIcon
-      sx={{ fontSize: "16px", mt: "auto", mb: "auto" }}
+      sx={{ fontSize: "16px", mt: "auto", mb: "auto", color: "inherit" }}
     />
   );
 
@@ -158,20 +156,18 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
           zIndex: 1201,
           borderRadius: `${borderRadius}px`,
           mb: 0.5,
-          color: "text.tertiary",
-          "&:hover": {
-            color: "brand.dark",
-            bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
-          },
+          // Default: text.secondary. Active (has active child): brand.main.
+          color: isSelected ? "brand.main" : "text.secondary",
+          // Hover: MUI default gray, no custom color change
+          "&:hover": {},
           "&.Mui-selected": {
-            color: "brand.dark",
-            bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
+            color: "brand.main",
+            bgcolor: (theme) => alpha(theme.palette.brand.main, 0.08),
             "&:hover": {
-              bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
+              bgcolor: (theme) => alpha(theme.palette.brand.main, 0.16),
             },
           },
-          ...(drawerOpen &&
-            level !== 1 && { ml: `${level * 18}px` }),
+          ...(drawerOpen && level !== 1 && { ml: `${level * 18}px` }),
           ...(!drawerOpen && { pl: 1.25 }),
           ...((!drawerOpen || level !== 1) && {
             py: level === 1 ? 0 : 1,
@@ -189,7 +185,7 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
           <ListItemIcon
             sx={{
               minWidth: level === 1 ? 36 : 18,
-              color: isSelected ? "brand.main" : "inherit",
+              color: "inherit",
               ...(!drawerOpen &&
                 level === 1 && {
                   borderRadius: `${borderRadius}px`,
@@ -197,17 +193,13 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
                   height: 46,
                   alignItems: "center",
                   justifyContent: "center",
-                  "&:hover": { bgcolor: "brand.lighter" },
-                  ...((isSelected || anchorEl) && {
-                    bgcolor: "brand.lighter",
-                    "&:hover": { bgcolor: "brand.lighter" },
-                  }),
                 }),
             }}
           >
             {menuIcon}
           </ListItemIcon>
         )}
+
         {(drawerOpen || (!drawerOpen && level !== 1)) && (
           <Tooltip title={menu.title} disableHoverListener={!hoverStatus}>
             <ListItemText
@@ -221,7 +213,8 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     width: 120,
-                    fontWeight: isSelected || anchorEl ? 600 : 400,
+                    // Bold when open (whether active child or not)
+                    fontWeight: open || anchorEl ? 600 : 400,
                   }}
                 >
                   {menu.title}
@@ -235,7 +228,7 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
           collapseIcon
         ) : (
           <ExpandMoreIcon
-            sx={{ fontSize: "16px", mt: "auto", mb: "auto" }}
+            sx={{ fontSize: "16px", mt: "auto", mb: "auto", color: "inherit" }}
           />
         )}
 
@@ -260,7 +253,7 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
               <Paper
                 sx={{
                   overflow: "hidden",
-                  boxShadow: theme.shadows[8],
+                  boxShadow: 8,
                   backgroundImage: "none",
                 }}
               >
@@ -272,6 +265,7 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
           </Popper>
         )}
       </ListItemButton>
+
       {drawerOpen && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           {open && (
@@ -299,3 +293,5 @@ export default function InstructorNavCollapse({ menu, level, parentId }) {
     </>
   );
 }
+
+export default memo(InstructorNavCollapse);

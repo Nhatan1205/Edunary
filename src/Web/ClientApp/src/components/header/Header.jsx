@@ -156,11 +156,9 @@ function Header() {
                     fontWeight: "500",
                     borderRadius: "8px",
                     "&:hover": {
-                      color: "text.secondary",
                       backgroundColor: "background.muted",
                     },
                     ...(isOpenMenu && {
-                      color: "text.secondary",
                       backgroundColor: "background.muted",
                     }),
                   }}
@@ -201,7 +199,7 @@ function Header() {
                         borderRadius: "8px",
                         whiteSpace: "nowrap",
                         "&:hover": {
-                          color: "text.secondary",
+                          // color: "text.secondary",
                           backgroundColor: "background.muted",
                         },
                       }}
@@ -223,7 +221,7 @@ function Header() {
                         whiteSpace: "nowrap",
                         "&:hover": {
                           backgroundColor: "background.muted",
-                          color: "text.secondary",
+                          // color: "text.secondary",
                         },
                       }}
                       onClick={() => navigate("/admin/dashboard")}

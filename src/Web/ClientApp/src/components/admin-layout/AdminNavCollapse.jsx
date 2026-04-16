@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, memo } from "react";
+import { alpha } from "@mui/material/styles";
 import { useLocation, matchPath } from "react-router";
 
 import Collapse from "@mui/material/Collapse";
@@ -51,8 +52,8 @@ function AdminNavCollapse({ menu, level }) {
     setAnchorEl(null);
   }, []);
 
-  // Auto-expand if any child route is active
-  useEffect(() => {
+  // Check if any child route is active
+  const hasActiveChild = useMemo(() => {
     const checkChildren = (children) => {
       if (!children) return false;
       return children.some((child) => {
@@ -66,13 +67,17 @@ function AdminNavCollapse({ menu, level }) {
         return false;
       });
     };
+    return checkChildren(menu.children);
+  }, [pathname, menu]);
 
-    if (checkChildren(menu.children)) {
+  // Auto-expand if any child route is active
+  useEffect(() => {
+    if (hasActiveChild) {
       setOpen(true);
     } else {
       setOpen(false);
     }
-  }, [pathname, menu]);
+  }, [hasActiveChild]);
 
   const menus = useMemo(
     () =>
@@ -106,7 +111,8 @@ function AdminNavCollapse({ menu, level }) {
     [menu.children, level]
   );
 
-  const isSelected = open;
+  // isSelected = true only when a child is actively matching the route
+  const isSelected = hasActiveChild;
 
   const Icon = menu.icon;
   const menuIcon = menu.icon ? (
@@ -125,11 +131,11 @@ function AdminNavCollapse({ menu, level }) {
   const arrowIcon =
     openMini || open ? (
       <KeyboardArrowDownIcon
-        sx={{ fontSize: 18, color: "text.disabled" }}
+        sx={{ fontSize: 18, color: "inherit" }}
       />
     ) : (
       <ChevronRightIcon
-        sx={{ fontSize: 18, color: "text.disabled" }}
+        sx={{ fontSize: 18, color: "inherit" }}
       />
     );
 
@@ -140,7 +146,9 @@ function AdminNavCollapse({ menu, level }) {
           zIndex: 1201,
           borderRadius: `${borderRadius}px`,
           mb: 0.5,
-          color: "text.tertiary",
+          // Default: text.secondary. When open but no active child: gray + bold (handled via fontWeight in text).
+          // When active child exists: brand.main.
+          color: isSelected ? "brand.main" : "text.secondary",
           // Collapsed level 1: column layout — icon top, label below
           ...(!drawerOpen && level === 1 && {
             flexDirection: "column",
@@ -151,15 +159,13 @@ function AdminNavCollapse({ menu, level }) {
           }),
           // Expanded
           ...(drawerOpen && { py: 1, px: 1 }),
-          "&:hover": {
-            color: "brand.dark",
-            bgcolor: level === 1 ? "brand.lighter" : "transparent",
-          },
+          // Hover: MUI default gray, no custom color change
+          "&:hover": {},
           "&.Mui-selected": {
-            color: "brand.dark",
-            bgcolor: level === 1 ? "brand.lighter" : "transparent",
+            color: "brand.main",
+            bgcolor: (theme) => alpha(theme.palette.brand.main, 0.08),
             "&:hover": {
-              bgcolor: level === 1 ? "brand.lighter" : "transparent",
+              bgcolor: (theme) => alpha(theme.palette.brand.main, 0.16),
             },
           },
         }}
@@ -194,7 +200,8 @@ function AdminNavCollapse({ menu, level }) {
             noWrap
             sx={{
               fontSize: "0.65rem",
-              fontWeight: isSelected || anchorEl ? 600 : 400,
+              // Bold when open (either active child or just expanded)
+              fontWeight: open || anchorEl ? 600 : 400,
               color: "inherit",
               lineHeight: 1.2,
               width: "100%",
@@ -220,7 +227,8 @@ function AdminNavCollapse({ menu, level }) {
                     color: "inherit",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    fontWeight: isSelected || anchorEl ? 600 : 400,
+                    // Bold when open (whether active child or not)
+                    fontWeight: open || anchorEl ? 600 : 400,
                     fontSize: "0.9rem",
                   }}
                 >

@@ -54,7 +54,7 @@ function Register() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "90vh",
         // background:
         //   "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 25%, #FEF3C7 50%, #FED7AA 75%, #FECACA 100%)",
         backgroundSize: "400% 400%",
@@ -74,7 +74,7 @@ function Register() {
           height: "600px",
           borderRadius: "50%",
           background:
-            "radial-gradient(circle, rgba(63, 204, 178, 0.3) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(0, 167, 111, 0.3) 0%, transparent 70%)",
           top: "-200px",
           left: "-200px",
           animation: "float 8s ease-in-out infinite",
@@ -102,12 +102,13 @@ function Register() {
           <Card
             elevation={0}
             sx={{
+              mt: "40px",
               borderRadius: 5,
               overflow: "hidden",
               backgroundColor: "rgba(255, 255, 255, 0.95)",
               backdropFilter: "blur(20px)",
               boxShadow:
-                "0 32px 64px rgba(63, 204, 178, 0.2), 0 16px 32px rgba(255, 107, 107, 0.15)",
+                "0 32px 64px rgba(0, 167, 111, 0.2), 0 16px 32px rgba(255, 107, 107, 0.15)",
               border: "2px solid",
               borderColor: "rgba(255, 255, 255, 0.5)",
               position: "relative",
@@ -119,7 +120,7 @@ function Register() {
                 right: 0,
                 height: "4px",
                 background:
-                  "linear-gradient(90deg, #3FCCB2 0%, #FFD93D 25%, #FF6B6B 50%, #A8E6CF 75%, #3FCCB2 100%)",
+                  "linear-gradient(90deg, #00A76F 0%, #FFD93D 25%, #FF6B6B 50%, #A8E6CF 75%, #00A76F 100%)",
                 backgroundSize: "200% 100%",
                 animation: "shimmer 3s linear infinite",
               },
@@ -153,7 +154,7 @@ function Register() {
                           mb: 2,
                           fontSize: "2.5rem",
                           background:
-                            "linear-gradient(135deg, #3FCCB2 0%, #FF6B6B 50%, #FFD93D 100%)",
+                            "linear-gradient(135deg, #00A76F 0%, #FF6B6B 50%, #FFD93D 100%)",
                           backgroundSize: "200% auto",
                           backgroundClip: "text",
                           WebkitBackgroundClip: "text",
@@ -203,7 +204,7 @@ function Register() {
                                     sx={{
                                       color: "transparent",
                                       background:
-                                        "linear-gradient(135deg, #3FCCB2 0%, #FF6B6B 100%)",
+                                        "linear-gradient(135deg, #00A76F 0%, #FF6B6B 100%)",
                                       backgroundClip: "text",
                                       WebkitBackgroundClip: "text",
                                       fontSize: 20,
@@ -221,16 +222,16 @@ function Register() {
                               "&:hover": {
                                 transform: "translateY(-2px)",
                                 boxShadow:
-                                  "0 4px 12px rgba(63, 204, 178, 0.15)",
+                                  "0 4px 12px rgba(0, 167, 111, 0.15)",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#3FCCB2",
+                                  borderColor: "#00A76F",
                                 },
                               },
                               "&.Mui-focused": {
                                 transform: "translateY(-2px)",
-                                boxShadow: "0 6px 16px rgba(63, 204, 178, 0.2)",
+                                boxShadow: "0 6px 16px rgba(0, 167, 111, 0.2)",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#3FCCB2",
+                                  borderColor: "#00A76F",
                                   borderWidth: "2px",
                                 },
                               },
@@ -321,7 +322,7 @@ function Register() {
                                     sx={{
                                       color: "transparent",
                                       background:
-                                        "linear-gradient(135deg, #A8E6CF 0%, #3FCCB2 100%)",
+                                        "linear-gradient(135deg, #A8E6CF 0%, #00A76F 100%)",
                                       backgroundClip: "text",
                                       WebkitBackgroundClip: "text",
                                       fontSize: 20,
@@ -339,17 +340,17 @@ function Register() {
                               "&:hover": {
                                 transform: "translateY(-2px)",
                                 boxShadow:
-                                  "0 4px 12px rgba(168, 230, 207, 0.15)",
+                                  "0 4px 12px rgba(0, 167, 111, 0.15)",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#A8E6CF",
+                                  borderColor: "#00A76F",
                                 },
                               },
                               "&.Mui-focused": {
                                 transform: "translateY(-2px)",
                                 boxShadow:
-                                  "0 6px 16px rgba(168, 230, 207, 0.2)",
+                                  "0 6px 16px rgba(0, 167, 111, 0.2)",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#A8E6CF",
+                                  borderColor: "#00A76F",
                                   borderWidth: "2px",
                                 },
                               },
@@ -467,16 +468,16 @@ function Register() {
                             py: 1.5,
                             borderRadius: 2,
                             background:
-                              "linear-gradient(135deg, #3FCCB2 0%, #49BBBD 50%, #FF6B6B 100%)",
+                              "linear-gradient(135deg, #00A76F 0%, #49BBBD 50%, #FF6B6B 100%)",
                             backgroundSize: "200% auto",
-                            boxShadow: "0 4px 16px rgba(63, 204, 178, 0.3)",
+                            boxShadow: "0 4px 16px rgba(0, 167, 111, 0.3)",
                             fontSize: "0.95rem",
                             fontWeight: 700,
                             textTransform: "none",
                             transition: "all 0.3s ease",
                             "&:hover": {
                               transform: "translateY(-2px)",
-                              boxShadow: "0 6px 20px rgba(63, 204, 178, 0.4)",
+                              boxShadow: "0 6px 20px rgba(0, 167, 111, 0.4)",
                               backgroundPosition: "right center",
                             },
                             "&:active": {
@@ -631,7 +632,7 @@ function Register() {
                             to="/login"
                             style={{
                               background:
-                                "linear-gradient(135deg, #3FCCB2 0%, #FF6B6B 100%)",
+                                "linear-gradient(135deg, #00A76F 0%, #FF6B6B 100%)",
                               backgroundClip: "text",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent",
@@ -642,7 +643,7 @@ function Register() {
                             }}
                             onMouseOver={(e) => {
                               e.target.style.textDecoration = "underline";
-                              e.target.style.textDecorationColor = "#3FCCB2";
+                              e.target.style.textDecorationColor = "#00A76F";
                             }}
                             onMouseOut={(e) => {
                               e.target.style.textDecoration = "none";
@@ -696,7 +697,7 @@ function Register() {
                       right: 0,
                       bottom: 0,
                       background:
-                        "linear-gradient(135deg, rgba(63, 204, 178, 0.4) 0%, rgba(255, 107, 107, 0.3) 50%, rgba(255, 217, 61, 0.3) 100%)",
+                        "linear-gradient(135deg, rgba(0, 167, 111, 0.4) 0%, rgba(255, 107, 107, 0.3) 50%, rgba(255, 217, 61, 0.3) 100%)",
                       mixBlendMode: "multiply",
                     }}
                   />
@@ -762,7 +763,7 @@ function Register() {
                       variant="h5"
                       sx={{
                         background:
-                          "linear-gradient(135deg, #3FCCB2 0%, #FF6B6B 50%, #FFD93D 100%)",
+                          "linear-gradient(135deg, #00A76F 0%, #FF6B6B 50%, #FFD93D 100%)",
                         backgroundClip: "text",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",

@@ -5,11 +5,11 @@ const theme = createTheme({
     mode: "light",
 
     brand: {
-      lighter: "#E9FAF7",
-      light: "#7edbc9",
-      main: "#3FCCB2",
-      dark: "#00b190",
-      darker: "#009272",
+      lighter: "#C8FAD6",
+      light: "#5BE49B",
+      main: "#00A76F",
+      dark: "#007867",
+      darker: "#004B50",
     },
 
     secondaryBrand: {
@@ -29,16 +29,16 @@ const theme = createTheme({
       // Background 4 - alt (alternate section backgrounds)
       alt: "#fbf9fa", // use to separate sections, sidebars
       // muted surfaces - for subtle grouping (forms, footers)
-      muted: "#EFF7F6",
+      muted: "#eff7f0ff",
     },
 
     text: {
       // Text 1 - primary copy
-      primary: "#0F2B2A", // high contrast for body and headings
+      primary: "#1C252E", // high contrast for body and headings
       // Text 2 - secondary metadata / labels
-      secondary: "#2F6D6A",
+      secondary: "#637381",
       // Tertiary / helper text
-      tertiary: "#5C8683",
+      tertiary: "#5c8662ff",
       // Muted / placeholder
       disabled: "#9CB8B6",
       // Inverse text for colored backgrounds

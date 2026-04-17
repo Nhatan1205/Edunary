@@ -2,6 +2,7 @@ import { CircularProgress, Typography } from "@mui/material";
 import { Controller } from "react-hook-form";
 import { Container, FormGroup, Input } from "reactstrap";
 import useGetCategories from "../../../../../hooks/category-hooks/useGetCategories";
+import theme from "../../../../../theme/theme";
 
 function StepCourseCategory({ control, errors }) {
   const { data, isLoading } = useGetCategories(1, 20);
@@ -38,7 +39,7 @@ function StepCourseCategory({ control, errors }) {
                 id="category-select"
                 {...field}
                 style={{
-                  borderColor: "#3FCCB2",
+                  borderColor: theme.palette.secondaryBrand.main,
                   borderWidth: field.value ? "2px" : "1px",
                   color: "#212529",
                   textAlign: "left",

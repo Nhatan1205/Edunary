@@ -1,4 +1,5 @@
 import { Box, CircularProgress, keyframes } from '@mui/material';
+import theme from '../theme/theme';
 
 // Pulse animation for the rings
 const pulse = keyframes`
@@ -25,10 +26,10 @@ const rotate = keyframes`
 // Glow animation
 const glow = keyframes`
   0%, 100% {
-    box-shadow: 0 0 20px rgba(63, 204, 178, 0.4), 0 0 40px rgba(73, 187, 189, 0.3);
+    box-shadow: 0 0 20px ${theme.palette.brand.main}66, 0 0 40px ${theme.palette.brand.light}4D;
   }
   50% {
-    box-shadow: 0 0 30px rgba(63, 204, 178, 0.6), 0 0 60px rgba(73, 187, 189, 0.5);
+    box-shadow: 0 0 30px ${theme.palette.brand.main}99, 0 0 60px ${theme.palette.brand.light}80;
   }
 `;
 
@@ -54,7 +55,7 @@ function LoadingSpinner({ size = 60, fullScreen = false, message = '' }) {
           animation: `${pulse} 2s ease-in-out infinite`,
         }}
       />
-      
+
       {/* Middle pulsing ring */}
       <Box
         sx={{
@@ -90,9 +91,9 @@ function LoadingSpinner({ size = 60, fullScreen = false, message = '' }) {
           width: size * 0.3,
           height: size * 0.3,
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #3FCCB2 0%, #49BBBD 100%)',
+          background: `linear-gradient(135deg, ${theme.palette.brand.main} 0%, ${theme.palette.brand.light} 100%)`,
           animation: `${rotate} 3s linear infinite, ${glow} 2s ease-in-out infinite`,
-          boxShadow: '0 0 20px rgba(63, 204, 178, 0.6)',
+          boxShadow: `0 0 20px ${theme.palette.brand.main}99`,
         }}
       />
 

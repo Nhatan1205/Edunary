@@ -1,4 +1,5 @@
 import { memo, useCallback } from "react";
+import { alpha } from "@mui/material/styles";
 import { Link, matchPath, useLocation } from "react-router";
 
 import ListItemButton from "@mui/material/ListItemButton";
@@ -57,22 +58,21 @@ function AdminNavItem({ item, level }) {
           mb: 0.5,
           py: 1,
           px: 0.5,
-          color: isSelected ? "brand.dark" : "text.tertiary",
+          color: isSelected ? "brand.main" : "text.secondary",
           "&:hover": {
-            color: "brand.dark",
-            bgcolor: "brand.lighter",
+            // MUI default hover (gray), text/icon color unchanged
           },
           "&.Mui-selected": {
-            color: "brand.dark",
-            bgcolor: "brand.lighter",
-            "&:hover": { bgcolor: "brand.lighter" },
+            color: "brand.main",
+            bgcolor: (theme) => alpha(theme.palette.brand.main, 0.08),
+            "&:hover": { bgcolor: (theme) => alpha(theme.palette.brand.main, 0.16) },
           },
         }}
       >
         {/* Icon */}
         <Box
           sx={{
-            color: isSelected ? "brand.main" : "inherit",
+            color: "inherit",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -104,6 +104,10 @@ function AdminNavItem({ item, level }) {
   }
 
   // Expanded sidebar OR sub-item
+  // level === 1 → standalone item (no parent collapse)
+  // level > 1  → child inside a collapse
+  const isSubItem = level > 1;
+
   return (
     <ListItemButton
       component={Link}
@@ -113,10 +117,15 @@ function AdminNavItem({ item, level }) {
         borderRadius: `${borderRadius}px`,
         mb: 0.3,
         py: 0.8,
-        color: isSelected ? "brand.dark" : "text.tertiary",
+        // Default color
+        color: isSelected
+          ? isSubItem
+            ? "text.primary"   // sub-item active → inherit text (bold via fontWeight)
+            : "brand.main"     // top-level active → brand
+          : "text.secondary",
         position: "relative",
         // Horizontal connector line for subitems
-        ...(level > 1 && drawerOpen && {
+        ...(isSubItem && drawerOpen && {
           "&::before": {
             content: '""',
             position: "absolute",
@@ -127,18 +136,22 @@ function AdminNavItem({ item, level }) {
             bgcolor: "divider",
           },
         }),
-        "&:hover": {
-          color: "brand.dark",
-          bgcolor: "brand.lighter",
-        },
-        "&.Mui-selected": {
-          color: "brand.dark",
-          bgcolor: "brand.lighter",
-          "&:hover": {
-            bgcolor: "brand.lighter",
-          },
-        },
-        ...(level > 1 && drawerOpen && { pl: 1.5 }),
+        // Hover: MUI default gray, no custom color
+        "&:hover": {},
+        "&.Mui-selected": isSubItem
+          ? {
+              // Sub-item active: bold text + MUI action.selected bg
+              fontWeight: 700,
+              bgcolor: "action.selected",
+              "&:hover": { bgcolor: "action.selected" },
+            }
+          : {
+              // Top-level active: brand.main text + 8% opacity bg
+              color: "brand.main",
+              bgcolor: (theme) => alpha(theme.palette.brand.main, 0.08),
+              "&:hover": { bgcolor: (theme) => alpha(theme.palette.brand.main, 0.16) },
+            },
+        ...(isSubItem && drawerOpen && { pl: 1.5 }),
       }}
       selected={isSelected}
       onClick={handleClick}
@@ -148,7 +161,7 @@ function AdminNavItem({ item, level }) {
         <ListItemIcon
           sx={{
             minWidth: item.icon ? 36 : 20,
-            color: isSelected ? "brand.main" : "inherit",
+            color: "inherit",
             display: "flex",
             alignItems: "center",
             justifyContent: item.icon ? "flex-start" : "center",
@@ -165,7 +178,7 @@ function AdminNavItem({ item, level }) {
             variant="body2"
             sx={{
               color: "inherit",
-              fontWeight: isSelected ? 600 : 400,
+              fontWeight: isSelected ? 700 : 400,
               fontSize: "0.9rem",
             }}
           >

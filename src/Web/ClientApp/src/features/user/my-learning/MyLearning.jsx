@@ -17,11 +17,11 @@ function MyLearning() {
 
   return (
     <Box component={"main"} sx={{ bgcolor: "background.default", minHeight: '100vh' }}>
-      <Box sx={{ 
-          background: 'linear-gradient(135deg, #00b190 0%, #3FCCB2 50%, #49BBBD 100%)',
-          color: 'white', 
-          pt: 4,
-        }}>
+      <Box sx={(theme) => ({
+        background: `linear-gradient(135deg, ${theme.palette.brand.dark} 0%, ${theme.palette.brand.main} 50%, ${theme.palette.brand.light} 100%)`,
+        color: 'white',
+        pt: 4,
+      })}>
         <Container className="my-4">
           <Typography variant="h4"
             component="h2"
@@ -32,8 +32,8 @@ function MyLearning() {
             }}>
             My learning
           </Typography>
-          <Tabs 
-            value={activeTab} 
+          <Tabs
+            value={activeTab}
             onChange={handleTabChange}
             sx={{
               '& .MuiTab-root': {

@@ -1,29 +1,30 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback, memo } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
+import { alpha } from "@mui/material/styles";
 
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import ButtonBase from "@mui/material/ButtonBase";
+import Box from "@mui/material/Box";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 import { useDrawer } from "./DrawerContext";
 
-export default function InstructorNavItem({ item, level }) {
-  const theme = useTheme();
-  const downMD = useMediaQuery(theme.breakpoints.down("md"));
+const borderRadius = 8;
+
+function InstructorNavItem({ item, level }) {
   const ref = useRef(null);
   const { pathname } = useLocation();
-  const { drawerOpen, toggleDrawer } = useDrawer();
+  const { drawerOpen, toggleDrawer, downMD } = useDrawer();
 
   const isSelected = !!matchPath(
     { path: item.url, end: false },
     pathname
   );
+
+  const isSubItem = level > 1;
 
   const [hoverStatus, setHover] = useState(false);
 
@@ -56,71 +57,112 @@ export default function InstructorNavItem({ item, level }) {
     />
   );
 
-  const itemHandler = () => {
+  const handleClick = useCallback(() => {
     if (downMD) toggleDrawer();
-  };
+  }, [downMD, toggleDrawer]);
 
-  const borderRadius = 8;
+  // Collapsed level 1 with icon: icon-only button
+  if (!drawerOpen && level === 1 && item.icon) {
+    return (
+      <ListItemButton
+        component={Link}
+        to={item.url}
+        disabled={item.disabled}
+        onClick={handleClick}
+        selected={isSelected}
+        sx={{
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: `${borderRadius}px`,
+          mb: 0.5,
+          py: 1,
+          px: 0.5,
+          color: isSelected ? "brand.main" : "text.secondary",
+          "&:hover": {},
+          "&.Mui-selected": {
+            color: "brand.main",
+            bgcolor: (theme) => alpha(theme.palette.brand.main, 0.08),
+            "&:hover": { bgcolor: (theme) => alpha(theme.palette.brand.main, 0.16) },
+          },
+        }}
+      >
+        <Box
+          sx={{
+            color: "inherit",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 0.4,
+          }}
+        >
+          {itemIcon}
+        </Box>
+        <Typography
+          noWrap
+          sx={{
+            fontSize: "0.65rem",
+            fontWeight: isSelected ? 600 : 400,
+            color: "inherit",
+            lineHeight: 1.2,
+            width: "100%",
+            textAlign: "center",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {item.title}
+        </Typography>
+      </ListItemButton>
+    );
+  }
 
+  // Expanded sidebar OR sub-item
   return (
     <ListItemButton
       component={Link}
       to={item.url}
       disabled={item.disabled}
-      disableRipple={!drawerOpen}
       sx={{
         zIndex: 1201,
         borderRadius: `${borderRadius}px`,
         mb: 0.5,
-        color: "text.tertiary",
-        "&:hover": {
-          color: "brand.dark",
-          bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
-        },
-        "&.Mui-selected": {
-          color: "brand.dark",
-          bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
-          "&:hover": {
-            bgcolor: level === 1 && drawerOpen ? "brand.lighter" : "transparent",
+        color: isSelected
+          ? isSubItem
+            ? "text.primary"   // sub-item active → text.primary (bold via fontWeight)
+            : "brand.main"     // top-level active → brand
+          : "text.secondary",
+        // Hover: MUI default gray, no custom color
+        "&:hover": {},
+        "&.Mui-selected": isSubItem
+          ? {
+            fontWeight: 700,
+            bgcolor: "action.selected",
+            "&:hover": { bgcolor: "action.selected" },
+          }
+          : {
+            color: "brand.main",
+            bgcolor: (theme) => alpha(theme.palette.brand.main, 0.08),
+            "&:hover": { bgcolor: (theme) => alpha(theme.palette.brand.main, 0.16) },
           },
-        },
-        ...(drawerOpen &&
-          level !== 1 && { ml: `${level * 18}px` }),
+        ...(drawerOpen && level !== 1 && { ml: `${level * 18}px` }),
         ...(!drawerOpen && { pl: 1.25 }),
         ...((!drawerOpen || level !== 1) && {
           py: level === 1 ? 0 : 1,
         }),
       }}
       selected={isSelected}
-      onClick={itemHandler}
+      onClick={handleClick}
     >
-      <ButtonBase
-        aria-label="nav-icon"
-        sx={{ borderRadius: `${borderRadius}px` }}
-        disableRipple={drawerOpen}
+      <ListItemIcon
+        sx={{
+          minWidth: level === 1 ? 36 : 18,
+          color: "inherit",
+        }}
       >
-        <ListItemIcon
-          sx={{
-            minWidth: level === 1 ? 36 : 18,
-            color: isSelected ? "brand.main" : "inherit",
-            ...(!drawerOpen &&
-              level === 1 && {
-                borderRadius: `${borderRadius}px`,
-                width: 46,
-                height: 46,
-                alignItems: "center",
-                justifyContent: "center",
-                "&:hover": { bgcolor: "brand.lighter" },
-                ...(isSelected && {
-                  bgcolor: "brand.lighter",
-                  "&:hover": { bgcolor: "brand.lighter" },
-                }),
-              }),
-          }}
-        >
-          {itemIcon}
-        </ListItemIcon>
-      </ButtonBase>
+        {itemIcon}
+      </ListItemIcon>
 
       {(drawerOpen || (!drawerOpen && level !== 1)) && (
         <Tooltip title={item.title} disableHoverListener={!hoverStatus}>
@@ -135,7 +177,7 @@ export default function InstructorNavItem({ item, level }) {
                   textOverflow: "ellipsis",
                   width: 120,
                   color: "inherit",
-                  fontWeight: isSelected ? 600 : 400,
+                  fontWeight: isSelected ? 700 : 400,
                 }}
               >
                 {item.title}
@@ -147,3 +189,5 @@ export default function InstructorNavItem({ item, level }) {
     </ListItemButton>
   );
 }
+
+export default memo(InstructorNavItem);

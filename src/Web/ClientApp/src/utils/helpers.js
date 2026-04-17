@@ -42,6 +42,17 @@ export function formatTimeAgo(date) {
   }
 }
 
+export function formatDate(date) {
+  if (!date) return null;
+  return new Date(date).toLocaleString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export function formatMonthYear(dateString) {
   const date = new Date(dateString);
   const month = (date.getMonth() + 1).toString().padStart(2, '0'); // getMonth() trả về 0-11

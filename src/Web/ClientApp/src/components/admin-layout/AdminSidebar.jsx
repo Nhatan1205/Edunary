@@ -129,7 +129,7 @@ function AdminSidebar() {
             border: "1px solid",
             borderColor: "divider",
             bgcolor: "background.paper",
-            color: "text.tertiary",
+            color: "text.secondary",
             boxShadow: "0 1px 6px rgba(0,0,0,0.15)",
             transition: "left 0.4s ease",
             "&:hover": {

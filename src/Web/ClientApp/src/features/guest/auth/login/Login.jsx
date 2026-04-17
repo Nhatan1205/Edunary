@@ -56,7 +56,7 @@ function Login() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "90vh",
         // background:
         //   "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 25%, #FEF3C7 50%, #FED7AA 75%, #FECACA 100%)",
         backgroundSize: "400% 400%",
@@ -76,7 +76,7 @@ function Login() {
           height: "600px",
           borderRadius: "50%",
           background:
-            "radial-gradient(circle, rgba(63, 204, 178, 0.3) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(0, 167, 111, 0.3) 0%, transparent 70%)",
           top: "-200px",
           left: "-200px",
           animation: "float 8s ease-in-out infinite",
@@ -104,12 +104,13 @@ function Login() {
           <Card
             elevation={0}
             sx={{
+              mt: "40px",
               borderRadius: 5,
               overflow: "hidden",
               backgroundColor: "rgba(255, 255, 255, 0.95)",
               backdropFilter: "blur(20px)",
               boxShadow:
-                "0 32px 64px rgba(63, 204, 178, 0.2), 0 16px 32px rgba(255, 107, 107, 0.15)",
+                "0 32px 64px rgba(0, 167, 111, 0.2), 0 16px 32px rgba(255, 107, 107, 0.15)",
               border: "2px solid",
               borderColor: "rgba(255, 255, 255, 0.5)",
               position: "relative",
@@ -121,7 +122,7 @@ function Login() {
                 right: 0,
                 height: "4px",
                 background:
-                  "linear-gradient(90deg, #3FCCB2 0%, #FFD93D 25%, #FF6B6B 50%, #A8E6CF 75%, #3FCCB2 100%)",
+                  "linear-gradient(90deg, #00A76F 0%, #FFD93D 25%, #FF6B6B 50%, #A8E6CF 75%, #00A76F 100%)",
                 backgroundSize: "200% 100%",
                 animation: "shimmer 3s linear infinite",
               },
@@ -237,7 +238,7 @@ function Login() {
                       variant="h5"
                       sx={{
                         background:
-                          "linear-gradient(135deg, #3FCCB2 0%, #FF6B6B 50%, #FFD93D 100%)",
+                          "linear-gradient(135deg, #00A76F 0%, #FF6B6B 50%, #FFD93D 100%)",
                         backgroundClip: "text",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
@@ -287,7 +288,7 @@ function Login() {
                           mb: 2,
                           fontSize: "2.5rem",
                           background:
-                            "linear-gradient(135deg, #3FCCB2 0%, #FF6B6B 50%, #FFD93D 100%)",
+                            "linear-gradient(135deg, #00A76F 0%, #FF6B6B 50%, #FFD93D 100%)",
                           backgroundSize: "200% auto",
                           backgroundClip: "text",
                           WebkitBackgroundClip: "text",
@@ -342,7 +343,7 @@ function Login() {
                                     sx={{
                                       color: "transparent",
                                       background:
-                                        "linear-gradient(135deg, #3FCCB2 0%, #FF6B6B 100%)",
+                                        "linear-gradient(135deg, #00A76F 0%, #FF6B6B 100%)",
                                       backgroundClip: "text",
                                       WebkitBackgroundClip: "text",
                                       fontSize: 20,
@@ -360,16 +361,16 @@ function Login() {
                               "&:hover": {
                                 transform: "translateY(-2px)",
                                 boxShadow:
-                                  "0 4px 12px rgba(63, 204, 178, 0.15)",
+                                  "0 4px 12px rgba(0, 167, 111, 0.15)",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#3FCCB2",
+                                  borderColor: "#00A76F",
                                 },
                               },
                               "&.Mui-focused": {
                                 transform: "translateY(-2px)",
-                                boxShadow: "0 6px 16px rgba(63, 204, 178, 0.2)",
+                                boxShadow: "0 6px 16px rgba(0, 167, 111, 0.2)",
                                 "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#3FCCB2",
+                                  borderColor: "#00A76F",
                                   borderWidth: "2px",
                                 },
                               },
@@ -540,16 +541,16 @@ function Login() {
                             py: 1.5,
                             borderRadius: 2,
                             background:
-                              "linear-gradient(135deg, #3FCCB2 0%, #49BBBD 50%, #FF6B6B 100%)",
+                              "linear-gradient(135deg, #00A76F 0%, #49BBBD 50%, #FF6B6B 100%)",
                             backgroundSize: "200% auto",
-                            boxShadow: "0 4px 16px rgba(63, 204, 178, 0.3)",
+                            boxShadow: "0 4px 16px rgba(0, 167, 111, 0.3)",
                             fontSize: "0.95rem",
                             fontWeight: 700,
                             textTransform: "none",
                             transition: "all 0.3s ease",
                             "&:hover": {
                               transform: "translateY(-2px)",
-                              boxShadow: "0 6px 20px rgba(63, 204, 178, 0.4)",
+                              boxShadow: "0 6px 20px rgba(0, 167, 111, 0.4)",
                               backgroundPosition: "right center",
                             },
                             "&:active": {
@@ -705,7 +706,7 @@ function Login() {
                             to="/register"
                             style={{
                               background:
-                                "linear-gradient(135deg, #3FCCB2 0%, #FF6B6B 100%)",
+                                "linear-gradient(135deg, #00A76F 0%, #FF6B6B 100%)",
                               backgroundClip: "text",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent",
@@ -716,7 +717,7 @@ function Login() {
                             }}
                             onMouseOver={(e) => {
                               e.target.style.textDecoration = "underline";
-                              e.target.style.textDecorationColor = "#3FCCB2";
+                              e.target.style.textDecorationColor = "#00A76F";
                             }}
                             onMouseOut={(e) => {
                               e.target.style.textDecoration = "none";

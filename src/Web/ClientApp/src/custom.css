@@ -1,4 +1,4 @@
-﻿/* Provide sufficient contrast against white background */
+/* Provide sufficient contrast against white background */
 
 a {
   color: #0366d6;
@@ -23,24 +23,41 @@ code {
 }
 
 .Toastify__toast {
-    font-size: 18px; 
-    padding: 20px; 
-    min-height: 80px; 
+  font-size: 18px;
+  padding: 20px;
+  min-height: 80px;
+}
+
+.Toastify__toast--success {
+  background-color: #22C55E !important;
+}
+
+.Toastify__toast--error {
+  background-color: #FF3B3B !important;
+}
+
+.Toastify__toast--info {
+  background-color: #1890FF !important;
+}
+
+.Toastify__toast--warning {
+  background-color: #FFC107 !important;
 }
 
 .Toastify__toast-body {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 .Toastify__close-button {
-    width: 30px;
-    height: 30px;
+  width: 30px;
+  height: 30px;
 }
 
 .jodit-dialog__box .jodit-button {
-  background-color: #3FCCB2 important;
+  background-color: #00A76F important;
 }
+
 .jodit-wysiwyg {
   overflow-wrap: break-word !important;
-  word-break: break-word !important; 
+  word-break: break-word !important;
 }

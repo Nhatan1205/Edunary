@@ -2459,6 +2459,98 @@ export class RoadmapsClient {
     }
 }
 
+export class SystemSettingsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getSystemSettings(query: GetSystemSettingsQuery | undefined): Promise<SystemSettingDto[]> {
+        let url_ = this.baseUrl + "/api/SystemSettings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetSystemSettings(_response);
+        });
+    }
+
+    protected processGetSystemSettings(response: Response): Promise<SystemSettingDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SystemSettingDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SystemSettingDto[]>(null as any);
+    }
+
+    updateSystemSettings(command: UpdateSystemSettingsCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/SystemSettings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateSystemSettings(_response);
+        });
+    }
+
+    protected processUpdateSystemSettings(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class TodoItemsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -8174,6 +8266,186 @@ export interface IRelatedRoadmapDto {
     description?: string | undefined;
     topicTitle?: string | undefined;
     courseCount?: number;
+}
+
+export class SystemSettingDto implements ISystemSettingDto {
+    id?: number;
+    key?: string | undefined;
+    value?: string | undefined;
+    lastModified?: Date;
+    lastModifiedBy?: string | undefined;
+
+    constructor(data?: ISystemSettingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.key = _data["key"];
+            this.value = _data["value"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.lastModifiedBy = _data["lastModifiedBy"];
+        }
+    }
+
+    static fromJS(data: any): SystemSettingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SystemSettingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["key"] = this.key;
+        data["value"] = this.value;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["lastModifiedBy"] = this.lastModifiedBy;
+        return data;
+    }
+}
+
+export interface ISystemSettingDto {
+    id?: number;
+    key?: string | undefined;
+    value?: string | undefined;
+    lastModified?: Date;
+    lastModifiedBy?: string | undefined;
+}
+
+export class GetSystemSettingsQuery implements IGetSystemSettingsQuery {
+    keys?: string[] | undefined;
+
+    constructor(data?: IGetSystemSettingsQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["keys"])) {
+                this.keys = [] as any;
+                for (let item of _data["keys"])
+                    this.keys!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetSystemSettingsQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetSystemSettingsQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.keys)) {
+            data["keys"] = [];
+            for (let item of this.keys)
+                data["keys"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IGetSystemSettingsQuery {
+    keys?: string[] | undefined;
+}
+
+export class UpdateSystemSettingsCommand implements IUpdateSystemSettingsCommand {
+    settings?: UpdateSettingItem[] | undefined;
+
+    constructor(data?: IUpdateSystemSettingsCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["settings"])) {
+                this.settings = [] as any;
+                for (let item of _data["settings"])
+                    this.settings!.push(UpdateSettingItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateSystemSettingsCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSystemSettingsCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.settings)) {
+            data["settings"] = [];
+            for (let item of this.settings)
+                data["settings"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IUpdateSystemSettingsCommand {
+    settings?: UpdateSettingItem[] | undefined;
+}
+
+export class UpdateSettingItem implements IUpdateSettingItem {
+    key?: string | undefined;
+    value?: string | undefined;
+
+    constructor(data?: IUpdateSettingItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): UpdateSettingItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSettingItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IUpdateSettingItem {
+    key?: string | undefined;
+    value?: string | undefined;
 }
 
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {

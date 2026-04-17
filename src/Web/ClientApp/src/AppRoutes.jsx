@@ -51,6 +51,7 @@ import RoadMapsPage from "./features/instructor/courses-management/roadmaps-page
 import RoadmapEditPage from "./features/instructor/courses-management/roadmap-edit-page/RoadmapEditPage";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./features/admin/Dashboard";
+import SystemSettingsPage from "./features/admin/system-settings/SystemSettingsPage";
 
 const router = createBrowserRouter([
   {
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
       {
         path: "user/profile",
         element: <AdminDashboard />,
+      },
+      {
+        path: "system-settings",
+        element: <SystemSettingsPage />,
       }
     ],
   },

@@ -10,14 +10,14 @@ import { Link as RouterLink } from "react-router";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const decorativeCircles = [
-  { color: "#7edbc9", size: 14, lgSize: 18, position: { top: "40px", right: "140px" } },
-  { color: "#3FCCB2", size: 14, lgSize: 18, position: { top: "80px", right: "180px" } },
-  { color: "#49BBBD", size: 14, lgSize: 18, position: { bottom: "80px", left: "140px" } },
-  { color: "#7edbc9", size: 10, lgSize: 14, position: { top: "120px", left: "60px" } },
-  { color: "#3FCCB2", size: 8, lgSize: 12, position: { bottom: "140px", right: "80px" } },
-  { color: "#49BBBD", size: 12, lgSize: 16, position: { top: "200px", right: "60px" } },
-  { color: "#7edbc9", size: 10, lgSize: 14, position: { bottom: "50px", right: "220px" } },
-  { color: "#3FCCB2", size: 8, lgSize: 10, position: { top: "50px", left: "220px" } },
+  { color: "#81db7eff", size: 14, lgSize: 18, position: { top: "40px", right: "140px" } },
+  { color: "#3fcc4bff", size: 14, lgSize: 18, position: { top: "80px", right: "180px" } },
+  { color: "#49bd5cff", size: 14, lgSize: 18, position: { bottom: "80px", left: "140px" } },
+  { color: "#7edbacff", size: 10, lgSize: 14, position: { top: "120px", left: "60px" } },
+  { color: "#5bcc3fff", size: 8, lgSize: 12, position: { bottom: "140px", right: "80px" } },
+  { color: "#49bd62ff", size: 12, lgSize: 16, position: { top: "200px", right: "60px" } },
+  { color: "#98db7eff", size: 10, lgSize: 14, position: { bottom: "50px", right: "220px" } },
+  { color: "#7ecc3fff", size: 8, lgSize: 10, position: { top: "50px", left: "220px" } },
 ];
 
 function HeroSection() {
@@ -30,7 +30,7 @@ function HeroSection() {
       style={{
         position: "relative",
         minHeight: "clamp(60vh, 70vh, 100vh)",
-        background: "linear-gradient(135deg, #E9FAF7 0%, #EFF7F6 50%, #FCFFFE 100%)",
+        background: "linear-gradient(135deg, #e9faeaff 0%, #EFF7F6 50%, #FCFFFE 100%)",
         overflow: "hidden",
         marginTop: "0",
         padding: 0,

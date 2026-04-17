@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { Container, Row, Col } from "reactstrap";
 import useScrollAnimation from "../../../../hooks/common/useScrollAnimation";
+import theme from "../../../../theme/theme";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import RouteIcon from "@mui/icons-material/Route";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -81,7 +82,7 @@ function WhyChooseUsSection() {
           {/* Animated underline */}
           <span
             className="title-underline"
-            style={{ backgroundColor: "#3FCCB2" }}
+            style={{ backgroundColor: theme.palette.secondaryBrand.main }}
           />
         </Box>
 

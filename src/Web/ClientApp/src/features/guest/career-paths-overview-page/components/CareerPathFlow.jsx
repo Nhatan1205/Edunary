@@ -9,6 +9,7 @@ import '@xyflow/react/dist/style.css';
 import { Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CourseNode from '../../../../components/roadmap/CourseNode';
+import theme from '../../../../theme/theme';
 
 function CourseFlowNode({ data }) {
     const navigate = useNavigate();
@@ -24,7 +25,7 @@ function CourseFlowNode({ data }) {
             <Handle
                 type="target"
                 position={Position.Top}
-                style={{ background: '#3FCCB2', width: 10, height: 10, border: '2px solid #fff' }}
+                style={{ background: theme.palette.secondaryBrand.main, width: 10, height: 10, border: '2px solid #fff' }}
             />
             <Box onClick={handleClick} sx={{ cursor: 'pointer' }}>
                 <CourseNode course={data.course} />
@@ -32,7 +33,7 @@ function CourseFlowNode({ data }) {
             <Handle
                 type="source"
                 position={Position.Bottom}
-                style={{ background: '#3FCCB2', width: 10, height: 10, border: '2px solid #fff' }}
+                style={{ background: theme.palette.secondaryBrand.main, width: 10, height: 10, border: '2px solid #fff' }}
             />
         </>
     );

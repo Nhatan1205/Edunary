@@ -34,7 +34,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("CoursesId");
 
-                    b.ToTable("AnnouncementCourse");
+                    b.ToTable("AnnouncementCourse", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Announcement", b =>
@@ -71,7 +71,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Announcements");
+                    b.ToTable("Announcements", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Cart", b =>
@@ -109,7 +109,7 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Carts_CourseId_CustomerId");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Category", b =>
@@ -137,7 +137,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Course", b =>
@@ -221,7 +221,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.CourseProgress", b =>
@@ -257,7 +257,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("CourseProgress");
+                    b.ToTable("CourseProgress", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Enrollment", b =>
@@ -294,7 +294,7 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Enrollments_CourseId_StudentId");
 
-                    b.ToTable("Enrollments");
+                    b.ToTable("Enrollments", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.MediaFile", b =>
@@ -380,7 +380,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("MediaFiles");
+                    b.ToTable("MediaFiles", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Notification", b =>
@@ -426,7 +426,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.NotificationUser", b =>
@@ -462,7 +462,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("NotificationId");
 
-                    b.ToTable("NotificationUsers");
+                    b.ToTable("NotificationUsers", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Order", b =>
@@ -515,7 +515,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.OrderItem", b =>
@@ -546,7 +546,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Payment", b =>
@@ -597,7 +597,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
@@ -640,7 +640,7 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_RatingCourses_CourseId_UserId");
 
-                    b.ToTable("RatingCourses");
+                    b.ToTable("RatingCourses", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Roadmap", b =>
@@ -691,7 +691,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("RoadmapTopicId");
 
-                    b.ToTable("Roadmaps");
+                    b.ToTable("Roadmaps", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.RoadmapTopic", b =>
@@ -719,7 +719,45 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoadmapTopics");
+                    b.ToTable("RoadmapTopics", (string)null);
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.SystemSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Value")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SystemSettings_Key");
+
+                    b.ToTable("SystemSettings", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.TodoItem", b =>
@@ -766,7 +804,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasIndex("ListId");
 
-                    b.ToTable("TodoItems");
+                    b.ToTable("TodoItems", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.TodoList", b =>
@@ -796,7 +834,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TodoLists");
+                    b.ToTable("TodoLists", (string)null);
                 });
 
             modelBuilder.Entity("Edunary.Infrastructure.Identity.ApplicationRole", b =>
@@ -1149,7 +1187,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                             b1.HasKey("TodoListId");
 
-                            b1.ToTable("TodoLists");
+                            b1.ToTable("TodoLists", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("TodoListId");

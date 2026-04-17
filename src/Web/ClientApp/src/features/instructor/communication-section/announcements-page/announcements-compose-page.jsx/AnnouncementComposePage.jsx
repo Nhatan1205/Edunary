@@ -168,9 +168,16 @@ function AnnouncementComposePage() {
                                 fullWidth
                                 placeholder="Search for courses"
                                 variant="outlined"
-                                sx={{ mb: 2 }}
                                 value={searchValue}
                                 onChange={handleInputChange}
+                                sx={{
+                                    mb: 2,
+                                    '& .MuiOutlinedInput-root': {
+                                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'brand.main' },
+                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'brand.main' },
+                                    },
+                                    '& .MuiInputLabel-root.Mui-focused': { color: 'brand.main' },
+                                }}
                             />
                             <CustomDataGrid
                                 rows={coursesData?.items || []}
@@ -179,6 +186,14 @@ function AnnouncementComposePage() {
                                 checkboxSelection={true}
                                 onSelectionChange={handleSelectionChange}
                                 height={384}
+                                sx={{
+                                    '& .MuiDataGrid-row.Mui-selected': {
+                                        backgroundColor: 'grey.100',
+                                        '&:hover': { backgroundColor: 'grey.200' },
+                                    },
+                                    '& .MuiCheckbox-root.Mui-checked': { color: 'success.main' },
+                                    '& .MuiDataGrid-row.Mui-selected .MuiCheckbox-root': { color: 'success.main' },
+                                }}
                             />
                             {coursesData && coursesData.totalPages > 1 && (
                                 <div className="d-flex justify-content-center mt-4">
@@ -230,6 +245,13 @@ function AnnouncementComposePage() {
                                     error={!!errors.subject}
                                     slotProps={{
                                         htmlInput: { maxLength: 55 }
+                                    }}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'brand.main' },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'brand.main' },
+                                        },
+                                        '& .MuiInputLabel-root.Mui-focused': { color: 'brand.main' },
                                     }}
                                 />
 

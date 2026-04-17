@@ -12,6 +12,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import BuildIcon from '@mui/icons-material/Build';
 import NoResult from '../../../components/NoResult';
 import emptyFaqImg from '../../../assets/images/empty-faq.png';
+import theme from '../../../theme/theme';
 
 const categories = [
   {
@@ -181,8 +182,8 @@ function FAQPage() {
             <Box mb={3} textAlign="center">
               <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
                 {submittedQuery
-                  ? <>Search results for <span style={{ color: '#3FCCB2', fontWeight: 700 }}>"{submittedQuery}"</span></>
-                  : <>Common questions about <span style={{ color: '#3FCCB2', fontWeight: 700 }}>{categories.find(c => c.id === activeTab)?.label}</span></>
+                  ? <>Search results for <span style={{ color: theme.palette.secondaryBrand.main, fontWeight: 700 }}>"{submittedQuery}"</span></>
+                  : <>Common questions about <span style={{ color: theme.palette.secondaryBrand.main, fontWeight: 700 }}>{categories.find(c => c.id === activeTab)?.label}</span></>
                 }
               </Typography>
             </Box>

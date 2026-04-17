@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import theme from "../../../../theme/theme";
 import {
     ReactFlow,
     Background,
@@ -18,7 +19,7 @@ import CourseNode from "../../../../components/roadmap/CourseNode";
 import { useRoadmapEditor } from "../../../../context/RoadmapEditorContext";
 
 const handleStyle = {
-    background: "#3FCCB2",
+    background: theme.palette.brand.main,
     width: 10,
     height: 10,
     border: "2px solid #fff",
@@ -85,7 +86,7 @@ function CourseFlowNode({ data }) {
 const nodeTypes = { courseNode: CourseFlowNode };
 
 const defaultEdgeOptions = {
-    style: { stroke: "#3FCCB2", strokeWidth: 2 },
+    style: { stroke: theme.palette.brand.main, strokeWidth: 2 },
 };
 
 export default function RoadmapCanvas() {
@@ -181,7 +182,7 @@ export default function RoadmapCanvas() {
                     }}
                 />
                 <MiniMap
-                    nodeColor="#3FCCB2"
+                    nodeColor={theme.palette.brand.main}
                     maskColor="rgba(244,247,246,0.7)"
                     style={{
                         borderRadius: 10,

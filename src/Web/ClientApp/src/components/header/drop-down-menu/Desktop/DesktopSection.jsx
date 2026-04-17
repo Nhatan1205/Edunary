@@ -34,7 +34,7 @@ function DesktopSection({
               borderRadius: "6px",
               color: "text.primary",
               "&:hover": {
-                color: "text.secondary",
+                // color: "text.secondary",
                 backgroundColor: "background.muted",
               },
               padding: "10px 16px",
@@ -63,7 +63,7 @@ function DesktopSection({
               fontWeight: 500,
               color: "text.primary",
               "&:hover": {
-                color: "text.secondary",
+                // color: "text.secondary",
                 backgroundColor: "background.muted",
               },
               padding: "8px",

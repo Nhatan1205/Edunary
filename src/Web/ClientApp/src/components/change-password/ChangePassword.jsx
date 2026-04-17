@@ -81,15 +81,15 @@ function ChangePassword({ open, onClose, isFirstLogin = false, defaultPassword =
     >
       {/* Header */}
       <DialogTitle
-        sx={{
-          background: "linear-gradient(135deg, #3FCCB2 0%, #00b190 100%)",
+        sx={(theme) => ({
+          background: `linear-gradient(135deg, ${theme.palette.brand.dark} 0%, ${theme.palette.brand.main} 100%)`,
           color: "text.inverse",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           py: 2.5,
           px: 3,
-        }}
+        })}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
           <Box

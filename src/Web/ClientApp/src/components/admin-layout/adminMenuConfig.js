@@ -9,6 +9,7 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 const adminMenuConfig = {
   items: [
@@ -188,6 +189,20 @@ const adminMenuConfig = {
               url: "/admin/invoice/details",
             },
           ],
+        },
+      ],
+    },
+    {
+      id: "settings-group",
+      title: "Settings",
+      type: "group",
+      children: [
+        {
+          id: "system-settings",
+          title: "System Settings",
+          type: "item",
+          url: "/admin/system-settings",
+          icon: SettingsOutlinedIcon,
         },
       ],
     },

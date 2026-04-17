@@ -330,7 +330,7 @@ function Header() {
                       "&:hover": {
                         borderColor: "brand.dark",
                         color: "brand.dark",
-                        backgroundColor: "background.muted",
+                        bgcolor: "brand.lighter",
                       },
                     }}
                   >

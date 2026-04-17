@@ -6,7 +6,15 @@ export default function BillingAddress({ country, setCountry }) {
       <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: "text.primary" }}>
         Billing Address
       </Typography>
-      <FormControl fullWidth>
+      <FormControl fullWidth sx={{
+        '& .MuiOutlinedInput-root': {
+          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'brand.main' },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'brand.main' },
+        },
+        '& .MuiInputLabel-root.Mui-focused': { color: 'brand.main' },
+        '& .MuiMenuItem-root.Mui-selected': { bgcolor: 'brand.lighter' },
+        '& .MuiMenuItem-root:hover': { bgcolor: 'background.muted' },
+      }}>
         <InputLabel>Country</InputLabel>
         <Select
           value={country}

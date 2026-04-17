@@ -9,6 +9,7 @@ function CustomDataGrid({
   onSelectionChange = null,
   onRowClick = null,
   height = 400,
+  sx = {},
 }) {
 
   return (
@@ -72,7 +73,8 @@ function CustomDataGrid({
           },
           "& .MuiDataGrid-columnHeader:focus": {
             outline: "none",
-          }
+          },
+          ...sx,
         }}
       />
     </Paper>

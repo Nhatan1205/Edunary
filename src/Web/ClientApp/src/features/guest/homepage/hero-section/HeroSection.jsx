@@ -17,7 +17,7 @@ const decorativeCircles = [
   { color: "#5bcc3fff", size: 8, lgSize: 12, position: { bottom: "140px", right: "80px" } },
   { color: "#49bd62ff", size: 12, lgSize: 16, position: { top: "200px", right: "60px" } },
   { color: "#98db7eff", size: 10, lgSize: 14, position: { bottom: "50px", right: "220px" } },
-  { color: "#3FCCB2", size: 8, lgSize: 10, position: { top: "50px", left: "220px" } },
+  { color: "#7ecc3fff", size: 8, lgSize: 10, position: { top: "50px", left: "220px" } },
 ];
 
 function HeroSection() {

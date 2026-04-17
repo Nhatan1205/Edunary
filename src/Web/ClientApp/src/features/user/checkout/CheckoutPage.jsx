@@ -10,6 +10,7 @@ import CheckoutForm from "./components/CheckoutForm"
 import OrderSummary from "./components/OrderSummary"
 import LoadingSpinner from "../../../components/LoadingSpinner"
 import Key from "../../../configs/sso_key.json";
+import theme from "../../../theme/theme";
 
 
 // Initialize Stripe
@@ -91,7 +92,7 @@ export default function CheckoutPage() {
     appearance: {
       theme: 'stripe',
       variables: {
-        colorPrimary: '#3FCCB2',
+        colorPrimary: theme.palette.brand.main,
       }
     }
   }

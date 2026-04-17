@@ -13,35 +13,75 @@ const theme = createTheme({
     },
 
     secondaryBrand: {
-      lighter: "#b3e1e3",
-      light: "#80cfd1",
-      main: "#49BBBD",
-      dark: "#007f7c",
+      lighter: "#EBD6FD",
+      light: "#C684FF",
+      main: "#8E33FF",
+      dark: "#5119B7",
+      darker: "#27097A",
+    },
+
+    success: {
+      lighter: "#D3FCD2",
+      light: "#77ED8B",
+      main: "#22C55E",
+      dark: "#118D57",
+      darker: "#065E49",
+      contrastText: "#FFFFFF",
+    },
+
+    info: {
+      lighter: "#D0F2FF",
+      light: "#74CAFF",
+      main: "#1890FF",
+      dark: "#0C53B7",
+      darker: "#04297A",
+      contrastText: "#FFFFFF",
+    },
+
+    warning: {
+      lighter: "#FFF7CD",
+      light: "#FFE16A",
+      main: "#FFC107",
+      dark: "#B78103",
+      darker: "#7A4F01",
+      contrastText: "#1C252E",
+    },
+
+    error: {
+      lighter: "#FFE9E9",
+      light: "#FF7A7A",
+      main: "#FF3B3B",
+      dark: "#B71D18",
+      darker: "#7A0916",
+      contrastText: "#FFFFFF",
+    },
+
+    grey: {
+      0: "#FFFFFF",
+      100: "#F9FAFB",
+      200: "#F4F6F8",
+      300: "#DFE3E8",
+      400: "#C4CDD5",
+      500: "#919EAB",
+      600: "#637381",
+      700: "#454F5B",
+      800: "#212B36",
+      900: "#161C24",
     },
 
     background: {
-      // Background 1 - global page background
-      default: "#FFFFFF", // very light green/teal tint; use for full page background
-      // Background 2 - surface / section background
-      surface: "#FCFFFE", // slightly different from default for sections
-      // Background 3 - paper/card
-      paper: "#FFFFFF", // use for cards, dialogs, menus
-      // Background 4 - alt (alternate section backgrounds)
-      alt: "#fbf9fa", // use to separate sections, sidebars
-      // muted surfaces - for subtle grouping (forms, footers)
+      default: "#FFFFFF",
+      surface: "#FCFFFE",
+      paper: "#FFFFFF",
+      alt: "#fbf9fa",
       muted: "#eff7f0ff",
     },
 
     text: {
-      // Text 1 - primary copy
-      primary: "#1C252E", // high contrast for body and headings
-      // Text 2 - secondary metadata / labels
+      primary: "#1C252E",
       secondary: "#637381",
-      // Tertiary / helper text
       tertiary: "#5c8662ff",
-      // Muted / placeholder
       disabled: "#9CB8B6",
-      // Inverse text for colored backgrounds
       inverse: "#F7FBFA",
     },
 

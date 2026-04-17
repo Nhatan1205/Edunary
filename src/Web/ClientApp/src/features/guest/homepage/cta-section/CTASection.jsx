@@ -10,75 +10,79 @@ function CTASection() {
     <Box
       component="section"
       ref={sectionRef}
-      sx={{
-        background: "linear-gradient(135deg, #3FCCB2 0%, #00b190 50%, #009272 100%)",
+      sx={(theme) => ({
+        background: `linear-gradient(135deg, ${theme.palette.brand.dark} 0%, ${theme.palette.brand.main} 50%, ${theme.palette.brand.light} 100%)`,
         py: { xs: 7, md: 10 },
         position: "relative",
         overflow: "hidden",
-      }}
+      })}
     >
       {/* Large blurred blobs */}
       <Box
         className="blob-drift-1"
-        sx={{
+        sx={(theme) => ({
           position: "absolute",
           top: "-15%",
           left: "-10%",
           width: 280,
           height: 280,
           borderRadius: "50%",
-          background: "rgba(255,255,255,0.08)",
+          background: theme.palette.brand.lighter,
+          opacity: 0.25,
           filter: "blur(40px)",
           pointerEvents: "none",
-        }}
+        })}
       />
       <Box
         className="blob-drift-2"
-        sx={{
+        sx={(theme) => ({
           position: "absolute",
           bottom: "-20%",
           right: "-8%",
           width: 350,
           height: 350,
           borderRadius: "50%",
-          background: "rgba(255,255,255,0.06)",
+          background: theme.palette.secondaryBrand.main,
+          opacity: 0.18,
           filter: "blur(50px)",
           pointerEvents: "none",
-        }}
+        })}
       />
       <Box
         className="blob-drift-1"
-        sx={{
+        sx={(theme) => ({
           position: "absolute",
           top: "20%",
           right: "5%",
           width: 180,
           height: 180,
           borderRadius: "50%",
-          background: "rgba(255,255,255,0.05)",
+          background: theme.palette.brand.light,
+          opacity: 0.15,
           filter: "blur(35px)",
           pointerEvents: "none",
-        }}
+        })}
       />
 
       {/* Small floating dots */}
       {[
-        { color: "rgba(255,255,255,0.25)", size: 12, top: "15%", left: "8%", delay: "0s" },
-        { color: "rgba(255,255,255,0.18)", size: 16, top: "25%", right: "12%", delay: "1s" },
-        { color: "rgba(255,255,255,0.22)", size: 10, bottom: "20%", left: "15%", delay: "2s" },
-        { color: "rgba(255,255,255,0.15)", size: 14, bottom: "30%", right: "6%", delay: "0.5s" },
-        { color: "rgba(255,255,255,0.20)", size: 8, top: "60%", left: "5%", delay: "1.5s" },
-        { color: "rgba(255,255,255,0.12)", size: 18, top: "10%", right: "25%", delay: "2.5s" },
+        { colorKey: "brand.lighter", opacity: 0.5, size: 12, top: "15%", left: "8%", delay: "0s" },
+        { colorKey: "brand.main", opacity: 0.4, size: 16, top: "25%", right: "12%", delay: "1s" },
+        { colorKey: "brand.light", opacity: 0.45, size: 10, bottom: "20%", left: "15%", delay: "2s" },
+        { colorKey: "brand.darker", opacity: 0.35, size: 14, bottom: "30%", right: "6%", delay: "0.5s" },
+        { colorKey: "brand.lighter", opacity: 0.4, size: 8, top: "60%", left: "5%", delay: "1.5s" },
+        { colorKey: "brand.main", opacity: 0.3, size: 18, top: "10%", right: "25%", delay: "2.5s" },
       ].map((dot, i) => (
         <Box
           key={i}
           className="float-y"
-          sx={{
+          sx={(theme) => ({
             position: "absolute",
             width: dot.size,
             height: dot.size,
             borderRadius: "50%",
-            bgcolor: dot.color,
+            bgcolor: dot.colorKey.split(".").reduce((obj, k) => obj?.[k], theme.palette),
+            opacity: dot.opacity,
             top: dot.top,
             bottom: dot.bottom,
             left: dot.left,
@@ -86,7 +90,7 @@ function CTASection() {
             animationDelay: dot.delay,
             pointerEvents: "none",
             display: { xs: "none", sm: "block" },
-          }}
+          })}
         />
       ))}
 
@@ -135,7 +139,7 @@ function CTASection() {
             to="/course/search"
             size="large"
             sx={{
-              bgcolor: "#FFFFFF",
+              bgcolor: "background.paper",
               color: "brand.darker",
               fontWeight: 700,
               fontSize: "1.1rem",
@@ -146,7 +150,7 @@ function CTASection() {
               boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
               transition: "all 0.3s ease",
               "&:hover": {
-                bgcolor: "#F0FAF8",
+                bgcolor: "background.muted",
                 transform: "translateY(-2px)",
                 boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
               },

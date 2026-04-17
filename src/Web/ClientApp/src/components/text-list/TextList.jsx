@@ -15,14 +15,15 @@ import { Button, IconButton, TextField, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from '@mui/icons-material/Add';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import theme from '../../theme/theme';
 
-export default function TextList({ items: initialItems = [], onChange, minItemLength = 4,maxLength = null }) {
-  const items = initialItems.length > 0 
-  ? initialItems.map((text, index) => ({
+export default function TextList({ items: initialItems = [], onChange, minItemLength = 4, maxLength = null }) {
+  const items = initialItems.length > 0
+    ? initialItems.map((text, index) => ({
       id: index + 1,
       text,
     }))
-  : Array.from({ length: minItemLength }, (_, index) => ({
+    : Array.from({ length: minItemLength }, (_, index) => ({
       id: index + 1,
       text: "",
     }));
@@ -40,7 +41,7 @@ export default function TextList({ items: initialItems = [], onChange, minItemLe
     const oldIndex = items.findIndex((i) => i.id === active.id);
     const newIndex = items.findIndex((i) => i.id === over.id);
     const reorderedItems = arrayMove(items, oldIndex, newIndex);
-    
+
     onChange(reorderedItems.map((item) => item.text));
   };
 
@@ -48,7 +49,7 @@ export default function TextList({ items: initialItems = [], onChange, minItemLe
     const newItems = items.map((item) =>
       item.id === id ? { ...item, text: newText } : item
     );
-    
+
     onChange(newItems.map((item) => item.text));
   };
 
@@ -108,7 +109,7 @@ export default function TextList({ items: initialItems = [], onChange, minItemLe
                       endAdornment: maxLength ? (
                         <Typography
                           variant="caption"
-                          sx={{ color: "text.secondary",display: "flex", alignItems: "center", lineHeight: 1, }}
+                          sx={{ color: "text.secondary", display: "flex", alignItems: "center", lineHeight: 1, }}
                         >
                           {item.text?.length || 0}/{maxLength}
                         </Typography>
@@ -124,7 +125,7 @@ export default function TextList({ items: initialItems = [], onChange, minItemLe
                     },
                   }}
                   onFocus={(e) =>
-                    (e.target.closest(".sortable-item").style.borderColor = "#3FCCB2")
+                    (e.target.closest(".sortable-item").style.borderColor = theme.palette.secondaryBrand.main)
                   }
                   onBlur={(e) =>
                     (e.target.closest(".sortable-item").style.borderColor = "#e0e0e0")

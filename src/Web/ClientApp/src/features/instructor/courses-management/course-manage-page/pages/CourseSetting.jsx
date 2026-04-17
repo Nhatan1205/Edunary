@@ -101,7 +101,7 @@ function CourseSetting() {
                   py: 1,
                   "&:hover": {
                     borderColor: "brand.dark",
-                    backgroundColor: "background.muted",
+                    bgcolor: "brand.lighter",
                   },
                 }}
               >
@@ -143,7 +143,7 @@ function CourseSetting() {
                   py: 1,
                   "&:hover": {
                     borderColor: "brand.dark",
-                    backgroundColor: "background.muted",
+                    bgcolor: "brand.lighter",
                   },
                 }}
               >

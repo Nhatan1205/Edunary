@@ -52,6 +52,7 @@ import RoadmapEditPage from "./features/instructor/courses-management/roadmap-ed
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./features/admin/Dashboard";
 import SystemSettingsPage from "./features/admin/system-settings/SystemSettingsPage";
+import CategoryPage from "./features/admin/course-section/category-page/CategoryPage";
 
 const router = createBrowserRouter([
   {
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
       {
         path: "system-settings",
         element: <SystemSettingsPage />,
+      },
+      {
+        path: "course/category",
+        element: <CategoryPage />,
       }
     ],
   },

@@ -517,6 +517,203 @@ export class CategoriesClient {
         }
         return Promise.resolve<PaginatedListOfCategoryDto>(null as any);
     }
+
+    adminGetCategoryStats(): Promise<CategoryStatsDto> {
+        let url_ = this.baseUrl + "/api/Categories/admin/stats";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminGetCategoryStats(_response);
+        });
+    }
+
+    protected processAdminGetCategoryStats(response: Response): Promise<CategoryStatsDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CategoryStatsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CategoryStatsDto>(null as any);
+    }
+
+    adminGetCategories(searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfAdminCategoryDto> {
+        let url_ = this.baseUrl + "/api/Categories/admin?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminGetCategories(_response);
+        });
+    }
+
+    protected processAdminGetCategories(response: Response): Promise<PaginatedListOfAdminCategoryDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfAdminCategoryDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfAdminCategoryDto>(null as any);
+    }
+
+    adminCreateCategory(command: CreateCategoryCommand | undefined): Promise<ReturnResultOfCreatedCategoryDto> {
+        let url_ = this.baseUrl + "/api/Categories/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminCreateCategory(_response);
+        });
+    }
+
+    protected processAdminCreateCategory(response: Response): Promise<ReturnResultOfCreatedCategoryDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCreatedCategoryDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCreatedCategoryDto>(null as any);
+    }
+
+    adminUpdateCategory(command: UpdateCategoryCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Categories/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminUpdateCategory(_response);
+        });
+    }
+
+    protected processAdminUpdateCategory(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    adminDeleteCategory(command: DeleteCategoryCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Categories/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminDeleteCategory(_response);
+        });
+    }
+
+    protected processAdminDeleteCategory(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
 }
 
 export class CourseProgressClient {
@@ -3958,6 +4155,478 @@ export class CategoryDto implements ICategoryDto {
 export interface ICategoryDto {
     id?: number;
     title?: string | undefined;
+}
+
+export class CategoryStatsDto implements ICategoryStatsDto {
+    totalCategories?: number;
+    activeCategories?: number;
+    emptyCategories?: number;
+    avgCoursesPerCategory?: number;
+    categoriesComparison?: CategoryComparisonItemDto[] | undefined;
+
+    constructor(data?: ICategoryStatsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalCategories = _data["totalCategories"];
+            this.activeCategories = _data["activeCategories"];
+            this.emptyCategories = _data["emptyCategories"];
+            this.avgCoursesPerCategory = _data["avgCoursesPerCategory"];
+            if (Array.isArray(_data["categoriesComparison"])) {
+                this.categoriesComparison = [] as any;
+                for (let item of _data["categoriesComparison"])
+                    this.categoriesComparison!.push(CategoryComparisonItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CategoryStatsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CategoryStatsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalCategories"] = this.totalCategories;
+        data["activeCategories"] = this.activeCategories;
+        data["emptyCategories"] = this.emptyCategories;
+        data["avgCoursesPerCategory"] = this.avgCoursesPerCategory;
+        if (Array.isArray(this.categoriesComparison)) {
+            data["categoriesComparison"] = [];
+            for (let item of this.categoriesComparison)
+                data["categoriesComparison"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICategoryStatsDto {
+    totalCategories?: number;
+    activeCategories?: number;
+    emptyCategories?: number;
+    avgCoursesPerCategory?: number;
+    categoriesComparison?: CategoryComparisonItemDto[] | undefined;
+}
+
+export class CategoryComparisonItemDto implements ICategoryComparisonItemDto {
+    categoryId?: number;
+    title?: string | undefined;
+    courseCount?: number;
+    enrollmentCount?: number;
+
+    constructor(data?: ICategoryComparisonItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.categoryId = _data["categoryId"];
+            this.title = _data["title"];
+            this.courseCount = _data["courseCount"];
+            this.enrollmentCount = _data["enrollmentCount"];
+        }
+    }
+
+    static fromJS(data: any): CategoryComparisonItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CategoryComparisonItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["categoryId"] = this.categoryId;
+        data["title"] = this.title;
+        data["courseCount"] = this.courseCount;
+        data["enrollmentCount"] = this.enrollmentCount;
+        return data;
+    }
+}
+
+export interface ICategoryComparisonItemDto {
+    categoryId?: number;
+    title?: string | undefined;
+    courseCount?: number;
+    enrollmentCount?: number;
+}
+
+export class PaginatedListOfAdminCategoryDto implements IPaginatedListOfAdminCategoryDto {
+    items?: AdminCategoryDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfAdminCategoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(AdminCategoryDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfAdminCategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfAdminCategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfAdminCategoryDto {
+    items?: AdminCategoryDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class AdminCategoryDto implements IAdminCategoryDto {
+    id?: number;
+    title?: string | undefined;
+    courseCount?: number;
+    enrollmentCount?: number;
+    created?: Date;
+
+    constructor(data?: IAdminCategoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.courseCount = _data["courseCount"];
+            this.enrollmentCount = _data["enrollmentCount"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AdminCategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminCategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["courseCount"] = this.courseCount;
+        data["enrollmentCount"] = this.enrollmentCount;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IAdminCategoryDto {
+    id?: number;
+    title?: string | undefined;
+    courseCount?: number;
+    enrollmentCount?: number;
+    created?: Date;
+}
+
+export class ReturnResultOfCreatedCategoryDto implements IReturnResultOfCreatedCategoryDto {
+    result?: CreatedCategoryDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCreatedCategoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CreatedCategoryDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCreatedCategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCreatedCategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCreatedCategoryDto {
+    result?: CreatedCategoryDto | undefined;
+    message?: string | undefined;
+}
+
+export class CreatedCategoryDto implements ICreatedCategoryDto {
+    id?: number;
+    title?: string | undefined;
+
+    constructor(data?: ICreatedCategoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+        }
+    }
+
+    static fromJS(data: any): CreatedCategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatedCategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        return data;
+    }
+}
+
+export interface ICreatedCategoryDto {
+    id?: number;
+    title?: string | undefined;
+}
+
+export class CreateCategoryCommand implements ICreateCategoryCommand {
+    title?: string | undefined;
+
+    constructor(data?: ICreateCategoryCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+        }
+    }
+
+    static fromJS(data: any): CreateCategoryCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCategoryCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        return data;
+    }
+}
+
+export interface ICreateCategoryCommand {
+    title?: string | undefined;
+}
+
+export class Result implements IResult {
+    succeeded?: boolean;
+    message?: string | undefined;
+    data?: any | undefined;
+    errors?: string[] | undefined;
+
+    constructor(data?: IResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.succeeded = _data["succeeded"];
+            this.message = _data["message"];
+            this.data = _data["data"];
+            if (Array.isArray(_data["errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["errors"])
+                    this.errors!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): Result {
+        data = typeof data === 'object' ? data : {};
+        let result = new Result();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["succeeded"] = this.succeeded;
+        data["message"] = this.message;
+        data["data"] = this.data;
+        if (Array.isArray(this.errors)) {
+            data["errors"] = [];
+            for (let item of this.errors)
+                data["errors"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IResult {
+    succeeded?: boolean;
+    message?: string | undefined;
+    data?: any | undefined;
+    errors?: string[] | undefined;
+}
+
+export class UpdateCategoryCommand implements IUpdateCategoryCommand {
+    id?: number;
+    title?: string | undefined;
+
+    constructor(data?: IUpdateCategoryCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCategoryCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCategoryCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        return data;
+    }
+}
+
+export interface IUpdateCategoryCommand {
+    id?: number;
+    title?: string | undefined;
+}
+
+export class DeleteCategoryCommand implements IDeleteCategoryCommand {
+    id?: number;
+
+    constructor(data?: IDeleteCategoryCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): DeleteCategoryCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteCategoryCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IDeleteCategoryCommand {
+    id?: number;
 }
 
 export class CourseProgressDto implements ICourseProgressDto {

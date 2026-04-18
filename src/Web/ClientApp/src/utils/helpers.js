@@ -53,11 +53,38 @@ export function formatDate(date) {
   });
 };
 
+/**
+ * Format a date as short readable form.
+ * e.g. "Nov 17 2024"
+ */
+export function formatShortDate(date) {
+  if (!date) return null;
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(date));
+};
+
 export function formatMonthYear(dateString) {
   const date = new Date(dateString);
   const month = (date.getMonth() + 1).toString().padStart(2, '0'); // getMonth() trả về 0-11
   const year = date.getFullYear();
   return `${month}/${year}`;
+}
+
+/**
+ * Format a number as USD currency string.
+ * e.g. 12500 → "$12,500"  |  12500.5 → "$12,500.50"
+ */
+export function formatCurrency(value) {
+  if (value == null) return "$0";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
 export function getLevelLabel(value) {

@@ -60,13 +60,6 @@ const adminMenuConfig = {
           url: "/admin/file",
           icon: InsertDriveFileOutlinedIcon,
         },
-        {
-          id: "course",
-          title: "Course",
-          type: "item",
-          url: "/admin/course",
-          icon: SchoolOutlinedIcon,
-        },
       ],
     },
     {
@@ -119,29 +112,17 @@ const adminMenuConfig = {
           ],
         },
         {
-          id: "product",
-          title: "Product",
+          id: "course",
+          title: "Course",
           type: "collapse",
-          icon: Inventory2OutlinedIcon,
+          icon: SchoolOutlinedIcon,
           children: [
             {
-              id: "product-list",
-              title: "List",
+              id: "category",
+              title: "Category",
               type: "item",
-              url: "/admin/product/list",
-            },
-            {
-              id: "product-create",
-              title: "Create",
-              type: "item",
-              url: "/admin/product/create",
-            },
-            {
-              id: "product-edit",
-              title: "Edit",
-              type: "item",
-              url: "/admin/product/edit",
-            },
+              url: "/admin/course/category",
+            }
           ],
         },
         {

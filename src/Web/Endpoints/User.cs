@@ -1,11 +1,22 @@
+
+using Edunary.Application.Common.Models;
+using Edunary.Application.Users.Commands.BanUserCommand;
 using Edunary.Application.Users.Commands.ChangePasswordCommand;
+using Edunary.Application.Users.Commands.ChangeUserRoleCommand;
 using Edunary.Application.Users.Commands.CreateUserCommand;
+using Edunary.Application.Users.Commands.SuspendUserCommand;
+using Edunary.Application.Users.Commands.UnbanUserCommand;
 using Edunary.Application.Users.Commands.UpdateUserAvatarCommand;
 using Edunary.Application.Users.Commands.UpdateUserInfoCommand;
+using Edunary.Application.Users.Queries.GetAdminUserDetailQuery;
+using Edunary.Application.Users.Queries.GetAdminUsersWithPaginationQuery;
+using Edunary.Application.Users.Queries.GetAdminUserStatusCountsQuery;
 using Edunary.Application.Users.Queries.GetBasicUserInfoQuery;
 using Edunary.Application.Users.Queries.GetPublicUserInfoQuery;
 using Edunary.Application.Users.Queries.GetTopInstructorsQuery;
+using Edunary.Domain.Constants;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Edunary.Web.Endpoints;
@@ -21,20 +32,27 @@ public class User : EndpointGroupBase
             .MapPut(UpdateUserAvatar, "avatar")
             .MapGet(GetBasicInfo, "basic-info")
             .MapPost(ChangePassword, "change-password");
-        //public endpoint
+
         app.MapGroup(this)
             .MapGet(GetPublicUserInfo)
             .MapGet(GetTopInstructors, "top-instructors");
 
+        app.MapGroup(this)
+            .RequireAuthorization(Policies.SuperAdmin)
+            .MapGet(AdminGetUsers, "admin")
+            .MapGet(AdminGetUserStatusCounts, "admin/status-counts")
+            .MapGet(AdminGetUserDetail, "admin/{userId}")
+            .MapPut(AdminBanUser, "admin/ban")
+            .MapPut(AdminSuspendUser, "admin/suspend")
+            .MapPut(AdminUnbanUser, "admin/unban")
+            .MapPut(AdminChangeUserRole, "admin/change-role");
     }
+
     public async Task<IResult> Create(ISender sender, CreateUserCommand command)
     {
         var result = await sender.Send(command);
-
         if (!result.Succeeded)
-        {
             return Results.BadRequest(result);
-        }
         return Results.Ok(result);
     }
 
@@ -42,37 +60,28 @@ public class User : EndpointGroupBase
     {
         var result = await sender.Send(command);
         if (!result.Succeeded)
-        {
             return Results.BadRequest(result);
-        }
         return Results.Ok(result);
     }
+
     public async Task<IResult> UpdateUserAvatar(ISender sender, UpdateUserAvatarCommand command)
     {
         var result = await sender.Send(command);
         if (!result.Succeeded)
-        {
             return Results.BadRequest(result);
-        }
         return Results.Ok(result);
     }
 
-
     public async Task<UserVm> GetBasicInfo(ISender sender)
     {
-        var query = new GetBasicUserInfoQuery();
-        var result = await sender.Send(query);
-        return result;
+        return await sender.Send(new GetBasicUserInfoQuery());
     }
 
     public async Task<IResult> ChangePassword(ISender sender, ChangePasswordCommand command)
     {
         var result = await sender.Send(command);
-
         if (!result.Succeeded)
-        {
             return Results.BadRequest(result);
-        }
         return Results.Ok(result);
     }
 
@@ -84,5 +93,47 @@ public class User : EndpointGroupBase
     public async Task<List<TopInstructorDto>> GetTopInstructors(ISender sender, [AsParameters] GetTopInstructorsQuery query)
     {
         return await sender.Send(query);
+    }
+
+    public async Task<PaginatedList<AdminUserListItemDto>> AdminGetUsers(ISender sender, [AsParameters] GetAdminUsersWithPaginationQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<AdminUserStatusCountsDto> AdminGetUserStatusCounts(ISender sender)
+    {
+        return await sender.Send(new GetAdminUserStatusCountsQuery());
+    }
+
+    public async Task<IResult> AdminGetUserDetail(ISender sender, string userId)
+    {
+        var result = await sender.Send(new GetAdminUserDetailQuery { UserId = userId });
+        if (result == null)
+            return Results.NotFound();
+        return Results.Ok(result);
+    }
+
+    public async Task<Result> AdminBanUser(ISender sender, [FromBody] BanUserCommand command)
+    {
+        return await sender.Send(command);
+    }
+
+    public async Task<Result> AdminSuspendUser(ISender sender, [FromBody] SuspendUserCommand command)
+    {
+        return await sender.Send(command);
+
+    }
+
+    public async Task<Result> AdminUnbanUser(ISender sender, [FromBody] UnbanUserCommand command)
+    {
+        return await sender.Send(command);
+    }
+
+    public async Task<IResult> AdminChangeUserRole(ISender sender, [FromBody] ChangeUserRoleCommand command)
+    {
+        var result = await sender.Send(command);
+        if (!result.Succeeded)
+            return Results.BadRequest(result);
+        return Results.Ok(result);
     }
 }

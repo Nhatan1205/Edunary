@@ -3381,6 +3381,278 @@ export class UserClient {
         }
         return Promise.resolve<TopInstructorDto[]>(null as any);
     }
+
+    adminGetUsers(searchText: string | null | undefined, roleFilter: string | null | undefined, statusFilter: string | null | undefined, sortBy: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfAdminUserListItemDto> {
+        let url_ = this.baseUrl + "/api/User/admin?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (roleFilter !== undefined && roleFilter !== null)
+            url_ += "RoleFilter=" + encodeURIComponent("" + roleFilter) + "&";
+        if (statusFilter !== undefined && statusFilter !== null)
+            url_ += "StatusFilter=" + encodeURIComponent("" + statusFilter) + "&";
+        if (sortBy !== undefined && sortBy !== null)
+            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminGetUsers(_response);
+        });
+    }
+
+    protected processAdminGetUsers(response: Response): Promise<PaginatedListOfAdminUserListItemDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfAdminUserListItemDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfAdminUserListItemDto>(null as any);
+    }
+
+    adminGetUserStatusCounts(): Promise<AdminUserStatusCountsDto> {
+        let url_ = this.baseUrl + "/api/User/admin/status-counts";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminGetUserStatusCounts(_response);
+        });
+    }
+
+    protected processAdminGetUserStatusCounts(response: Response): Promise<AdminUserStatusCountsDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminUserStatusCountsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AdminUserStatusCountsDto>(null as any);
+    }
+
+    adminGetUserDetail(userId: string | null): Promise<void> {
+        let url_ = this.baseUrl + "/api/User/admin/{userId}";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminGetUserDetail(_response);
+        });
+    }
+
+    protected processAdminGetUserDetail(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    adminBanUser(command: BanUserCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/User/admin/ban";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminBanUser(_response);
+        });
+    }
+
+    protected processAdminBanUser(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    adminSuspendUser(command: SuspendUserCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/User/admin/suspend";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminSuspendUser(_response);
+        });
+    }
+
+    protected processAdminSuspendUser(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    adminUnbanUser(command: UnbanUserCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/User/admin/unban";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminUnbanUser(_response);
+        });
+    }
+
+    protected processAdminUnbanUser(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    adminChangeUserRole(command: ChangeUserRoleCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/User/admin/change-role";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminChangeUserRole(_response);
+        });
+    }
+
+    protected processAdminChangeUserRole(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
 }
 
 export class WeatherForecastsClient {
@@ -10074,6 +10346,366 @@ export interface ITopInstructorDto {
     headline?: string | undefined;
     totalLearners?: number;
     totalCourses?: number;
+}
+
+export class PaginatedListOfAdminUserListItemDto implements IPaginatedListOfAdminUserListItemDto {
+    items?: AdminUserListItemDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfAdminUserListItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(AdminUserListItemDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfAdminUserListItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfAdminUserListItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfAdminUserListItemDto {
+    items?: AdminUserListItemDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class AdminUserListItemDto implements IAdminUserListItemDto {
+    id?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    avatar?: string | undefined;
+    roles?: string[] | undefined;
+    status?: string | undefined;
+    lastLoginTime?: Date | undefined;
+    createdAt?: Date | undefined;
+    enrolledCourseCount?: number;
+    createdCourseCount?: number;
+    isOnline?: boolean;
+
+    constructor(data?: IAdminUserListItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.avatar = _data["avatar"];
+            if (Array.isArray(_data["roles"])) {
+                this.roles = [] as any;
+                for (let item of _data["roles"])
+                    this.roles!.push(item);
+            }
+            this.status = _data["status"];
+            this.lastLoginTime = _data["lastLoginTime"] ? new Date(_data["lastLoginTime"].toString()) : <any>undefined;
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.enrolledCourseCount = _data["enrolledCourseCount"];
+            this.createdCourseCount = _data["createdCourseCount"];
+            this.isOnline = _data["isOnline"];
+        }
+    }
+
+    static fromJS(data: any): AdminUserListItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminUserListItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["avatar"] = this.avatar;
+        if (Array.isArray(this.roles)) {
+            data["roles"] = [];
+            for (let item of this.roles)
+                data["roles"].push(item);
+        }
+        data["status"] = this.status;
+        data["lastLoginTime"] = this.lastLoginTime ? this.lastLoginTime.toISOString() : <any>undefined;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["enrolledCourseCount"] = this.enrolledCourseCount;
+        data["createdCourseCount"] = this.createdCourseCount;
+        data["isOnline"] = this.isOnline;
+        return data;
+    }
+}
+
+export interface IAdminUserListItemDto {
+    id?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    avatar?: string | undefined;
+    roles?: string[] | undefined;
+    status?: string | undefined;
+    lastLoginTime?: Date | undefined;
+    createdAt?: Date | undefined;
+    enrolledCourseCount?: number;
+    createdCourseCount?: number;
+    isOnline?: boolean;
+}
+
+export class AdminUserStatusCountsDto implements IAdminUserStatusCountsDto {
+    total?: number;
+    active?: number;
+    inactive?: number;
+    suspended?: number;
+    banned?: number;
+
+    constructor(data?: IAdminUserStatusCountsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.active = _data["active"];
+            this.inactive = _data["inactive"];
+            this.suspended = _data["suspended"];
+            this.banned = _data["banned"];
+        }
+    }
+
+    static fromJS(data: any): AdminUserStatusCountsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminUserStatusCountsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["active"] = this.active;
+        data["inactive"] = this.inactive;
+        data["suspended"] = this.suspended;
+        data["banned"] = this.banned;
+        return data;
+    }
+}
+
+export interface IAdminUserStatusCountsDto {
+    total?: number;
+    active?: number;
+    inactive?: number;
+    suspended?: number;
+    banned?: number;
+}
+
+export class BanUserCommand implements IBanUserCommand {
+    userId?: string | undefined;
+    reason?: string | undefined;
+
+    constructor(data?: IBanUserCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.reason = _data["reason"];
+        }
+    }
+
+    static fromJS(data: any): BanUserCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new BanUserCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["reason"] = this.reason;
+        return data;
+    }
+}
+
+export interface IBanUserCommand {
+    userId?: string | undefined;
+    reason?: string | undefined;
+}
+
+export class SuspendUserCommand implements ISuspendUserCommand {
+    userId?: string | undefined;
+    durationDays?: number;
+    reason?: string | undefined;
+
+    constructor(data?: ISuspendUserCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.durationDays = _data["durationDays"];
+            this.reason = _data["reason"];
+        }
+    }
+
+    static fromJS(data: any): SuspendUserCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SuspendUserCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["durationDays"] = this.durationDays;
+        data["reason"] = this.reason;
+        return data;
+    }
+}
+
+export interface ISuspendUserCommand {
+    userId?: string | undefined;
+    durationDays?: number;
+    reason?: string | undefined;
+}
+
+export class UnbanUserCommand implements IUnbanUserCommand {
+    userId?: string | undefined;
+
+    constructor(data?: IUnbanUserCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+        }
+    }
+
+    static fromJS(data: any): UnbanUserCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UnbanUserCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        return data;
+    }
+}
+
+export interface IUnbanUserCommand {
+    userId?: string | undefined;
+}
+
+export class ChangeUserRoleCommand implements IChangeUserRoleCommand {
+    userId?: string | undefined;
+    newRole?: string | undefined;
+
+    constructor(data?: IChangeUserRoleCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.newRole = _data["newRole"];
+        }
+    }
+
+    static fromJS(data: any): ChangeUserRoleCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeUserRoleCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["newRole"] = this.newRole;
+        return data;
+    }
+}
+
+export interface IChangeUserRoleCommand {
+    userId?: string | undefined;
+    newRole?: string | undefined;
 }
 
 export class WeatherForecast implements IWeatherForecast {

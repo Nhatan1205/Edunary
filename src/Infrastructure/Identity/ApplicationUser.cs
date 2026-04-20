@@ -1,4 +1,5 @@
-﻿using Edunary.Domain.Entities;
+using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace Edunary.Infrastructure.Identity;
@@ -9,6 +10,7 @@ public class ApplicationUser : IdentityUser
     public string Headline { get; set; }
     public string Description { get; set; }
     public string Links { get; set; }
-    public virtual DateTime? LastLoginTime {  get; set; }
-
+    public virtual DateTime? LastLoginTime { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public UserStatus Status { get; set; } = UserStatus.Active;
 }

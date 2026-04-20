@@ -53,6 +53,8 @@ import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./features/admin/Dashboard";
 import SystemSettingsPage from "./features/admin/system-settings/SystemSettingsPage";
 import CategoryPage from "./features/admin/course-section/category-page/CategoryPage";
+import UserPage from "./features/admin/user-section/user-page/UserPage";
+import UserDetailPage from "./features/admin/user-section/user-detail-page/UserDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -82,6 +84,14 @@ const router = createBrowserRouter([
       {
         path: "course/category",
         element: <CategoryPage />,
+      },
+      {
+        path: "user/list",
+        element: <UserPage />
+      },
+      {
+        path: "user/:userId",
+        element: <UserDetailPage />
       }
     ],
   },

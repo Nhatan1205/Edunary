@@ -1,4 +1,6 @@
-﻿using Edunary.Application.Common.Models;
+using Edunary.Application.Common.Models;
+using Edunary.Application.Users;
+using Edunary.Application.Users.Queries.GetAdminUserStatusCountsQuery;
 using Edunary.Domain.Common;
 using Edunary.Domain.Enums;
 
@@ -39,4 +41,31 @@ public interface IIdentityService
 
     Task<Result> ChangePassword(string userId, string newPassword);
     Task<string> GetUserAvatarAsync(string userId);
+
+    // return number of users based on status (Active/Inactive/Suspended/Banned).
+    Task<AdminUserStatusCountsDto> GetUserStatusCountsAsync();
+
+    /// <summary>
+    /// Trả về danh sách users đã filter/sort/paginate + roles.
+    /// KHÔNG chứa Enrollment/Course/Order data — Application layer sẽ batch query riêng.
+    /// </summary>
+    Task<(IReadOnlyList<UserIdentityDto> Users, int TotalCount)> GetFilteredUsersAsync(
+        string searchText, string roleFilter, string statusFilter,
+        string sortBy, int pageNumber, int pageSize);
+
+    /// <summary>
+    /// Trả về Identity data của 1 user theo Id.
+    /// KHÔNG chứa Enrollment/Course/Order data.
+    /// </summary>
+    Task<UserIdentityDto> GetUserIdentityByIdAsync(string userId);
+
+    Task<Result> AddUserAsync(string email, string fullName, string password);
+
+    Task<Result> BanUserAsync(string userId, string currentAdminId);
+
+    Task<Result> SuspendUserAsync(string userId, string currentAdminId, int durationDays);
+
+    Task<Result> UnbanUserAsync(string userId);
+
+    Task<Result> ChangeUserRoleAsync(string userId, string newRole, string currentAdminId);
 }

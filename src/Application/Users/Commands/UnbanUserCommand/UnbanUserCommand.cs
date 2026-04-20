@@ -1,0 +1,31 @@
+using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Models;
+
+namespace Edunary.Application.Users.Commands.UnbanUserCommand;
+
+public record UnbanUserCommand : IRequest<Result>
+{
+    public string UserId { get; init; }
+}
+
+public class UnbanUserCommandHandler : IRequestHandler<UnbanUserCommand, Result>
+{
+    private readonly IIdentityService _identityService;
+
+    public UnbanUserCommandHandler(IIdentityService identityService)
+    {
+        _identityService = identityService;
+    }
+
+    public async Task<Result> Handle(UnbanUserCommand request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _identityService.UnbanUserAsync(request.UserId);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+}

@@ -15,14 +15,11 @@ public class GetCategoryStatsQueryHandler : IRequestHandler<GetCategoryStatsQuer
 
     public async Task<CategoryStatsDto> Handle(GetCategoryStatsQuery request, CancellationToken cancellationToken)
     {
-        // Query 1: SELECT COUNT(*) FROM Categories
         var totalCategories = await _context.Categories.CountAsync(cancellationToken);
 
-        // Query 2: SELECT COUNT(*) FROM Categories WHERE EXISTS (SELECT 1 FROM Courses WHERE CategoryId = c.Id)
         var activeCategories = await _context.Categories.CountAsync(c => c.Courses.Any(), cancellationToken);
         var emptyCategories = totalCategories - activeCategories;
 
-        // Query 3: SELECT COUNT(*) FROM Courses
         var totalCourseCount = await _context.Courses.CountAsync(cancellationToken);
         var avgCoursesPerCategory = totalCategories > 0
             ? Math.Round((double)totalCourseCount / totalCategories, 1)

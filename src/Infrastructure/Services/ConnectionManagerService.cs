@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Edunary.Application.Common.Interfaces;
 
 namespace Edunary.Infrastructure.Services;
@@ -51,5 +51,14 @@ public class ConnectionManagerService : IConnectionManagerService
         return Array.Empty<string>();
     }
 
+    public IReadOnlyList<string> GetAllOnlineUserIds()
+    {
+        return _userConnections.Keys.ToList().AsReadOnly();
+    }
+
+    public int GetOnlineCount()
+    {
+        return _userConnections.Count;
+    }
     
 }

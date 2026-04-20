@@ -4,7 +4,10 @@ using System.Security.Claims;
 using System.Text;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Application.Users;
+using Edunary.Application.Users.Queries.GetAdminUserStatusCountsQuery;
 using Edunary.Domain.Common;
+using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Edunary.Domain.Helpers;
 using Edunary.Infrastructure.Data;
@@ -228,15 +231,8 @@ public class IdentityService : IIdentityService
                     Links = user.Links
                 };
 
-                if (!user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.Now)
-                {
-                    userModel.Disable = true;
-                }
-                else
-                {
-                    userModel.Disable = false;
+                userModel.Disable = user.Status == UserStatus.Banned || user.Status == UserStatus.Suspended;
 
-                }
 
             }
         }
@@ -314,8 +310,34 @@ public class IdentityService : IIdentityService
                 }
                 if (isLogin)
                 {
+                    // Block banned/suspended users from logging in
+                    if (user.Status == UserStatus.Banned)
+                    {
+                        rs = Result.Failure("Your account has been banned.");
+                        isLogin = false;
+                    }
+                    else if (user.Status == UserStatus.Suspended)
+                    {
+                        if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                        {
+                            rs = Result.Failure($"Your account is suspended until {user.LockoutEnd.Value:yyyy-MM-dd}.");
+                            isLogin = false;
+                        }
+                        else
+                        {
+                            // Suspension expired → reactivate
+                            user.Status = UserStatus.Active;
+                            user.LockoutEnd = null;
+                        }
+                    }
+                }
+                if (isLogin)
+                {
                     bool isFirstLogin = forceFirstLogin ?? (user.LastLoginTime == null);
                     user.LastLoginTime = DateTime.Now;
+                    // Reset Inactive → Active on login
+                    if (user.Status == UserStatus.Inactive)
+                        user.Status = UserStatus.Active;
                     await _userManager.UpdateAsync(user);
                     string accessToken = await CreateToken(user, TokenType.AccessToken, false, accountType, isFirstLogin, defaultPassword);
                     string refreshToken = await CreateToken(user, TokenType.RefreshToken);
@@ -794,5 +816,282 @@ public class IdentityService : IIdentityService
         }
     }
 
-    
+    public async Task<AdminUserStatusCountsDto> GetUserStatusCountsAsync()
+    {
+        try
+        {
+            // 1 query GROUP BY duy nhất — không filter gì, trả về count thực tế trong DB
+            // SQL: SELECT Status, COUNT(*) FROM AspNetUsers GROUP BY Status
+            var groups = await _context.Users
+                .GroupBy(u => u.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var dict = groups.ToDictionary(x => x.Status, x => x.Count);
+
+            return new AdminUserStatusCountsDto
+            {
+                Total     = dict.Values.Sum(),
+                Active    = dict.GetValueOrDefault(UserStatus.Active,    0),
+                Inactive  = dict.GetValueOrDefault(UserStatus.Inactive,  0),
+                Suspended = dict.GetValueOrDefault(UserStatus.Suspended, 0),
+                Banned    = dict.GetValueOrDefault(UserStatus.Banned,    0),
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetUserStatusCountsAsync. Ex: {0}", ex.Message);
+            return new AdminUserStatusCountsDto();
+        }
+    }
+
+    public async Task<(IReadOnlyList<UserIdentityDto> Users, int TotalCount)> GetFilteredUsersAsync(
+        string searchText, string roleFilter, string statusFilter,
+        string sortBy, int pageNumber, int pageSize)
+    {
+        try
+        {
+            var query = _context.Users.AsQueryable();
+
+            // ── Filter: Search theo tên hoặc email ───────────────────────────────
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                var search = searchText.Trim().ToLower();
+                query = query.Where(u =>
+                    (u.FullName != null && u.FullName.ToLower().Contains(search)) ||
+                    (u.Email != null && u.Email.ToLower().Contains(search)));
+            }
+
+            // ── Filter: Status — query trực tiếp column, không computed ──────────
+            if (!string.IsNullOrWhiteSpace(statusFilter)
+                && Enum.TryParse<UserStatus>(statusFilter, out var parsedStatus))
+            {
+                query = query.Where(u => u.Status == parsedStatus);
+            }
+
+            // ── Filter: Role — subquery vào AspNetUserRoles (1 query, không N+1) ─
+            if (!string.IsNullOrWhiteSpace(roleFilter))
+            {
+                var roleId = await _context.Roles
+                    .Where(r => r.Name == roleFilter)
+                    .Select(r => r.Id)
+                    .FirstOrDefaultAsync();
+
+                if (roleId != null)
+                {
+                    // EF Core translate thành: WHERE Id IN (SELECT UserId FROM AspNetUserRoles WHERE RoleId = @roleId)
+                    var userIdsWithRole = _context.UserRoles
+                        .Where(ur => ur.RoleId == roleId)
+                        .Select(ur => ur.UserId);
+                    query = query.Where(u => userIdsWithRole.Contains(u.Id));
+                }
+            }
+
+            // ── Sort ─────────────────────────────────────────────────────────────
+            query = sortBy switch
+            {
+                "name" => query.OrderBy(u => u.FullName),
+                "lastLogin" => query.OrderByDescending(u => u.LastLoginTime),
+                _ => query.OrderByDescending(u => u.CreatedAt)
+            };
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!users.Any())
+                return (Array.Empty<UserIdentityDto>(), totalCount);
+
+            // ── Batch fetch Roles: 1 JOIN query cho TẤT CẢ users trong trang ─────
+            // Thay vì N lần GetRolesAsync → chỉ 1 query với WHERE IN (...)
+            var userIds = users.Select(u => u.Id).ToList();
+            var userRolePairs = await _context.UserRoles
+                .Where(ur => userIds.Contains(ur.UserId))
+                .Join(_context.Roles,
+                    ur => ur.RoleId,
+                    r => r.Id,
+                    (ur, r) => new { ur.UserId, RoleName = r.Name })
+                .ToListAsync();
+
+            // Group theo userId → Dictionary cho O(1) lookup
+            var rolesDict = userRolePairs
+                .GroupBy(x => x.UserId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName).ToList());
+
+            // ── Map sang UserIdentityDto — Application layer sẽ ghép business data
+            var result = users.Select(u => new UserIdentityDto
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                Email = u.Email,
+                Avatar = u.Avatar,
+                Headline = u.Headline,
+                PhoneNumber = u.PhoneNumber,
+                Roles = rolesDict.TryGetValue(u.Id, out var roles) ? roles : new List<string>(),
+                Status = u.Status,
+                LockoutEnd = u.LockoutEnd,
+                LastLoginTime = u.LastLoginTime,
+                CreatedAt = u.CreatedAt,
+            }).ToList();
+
+            return (result.AsReadOnly(), totalCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetFilteredUsersAsync. Ex: {0}", ex.Message);
+            return (Array.Empty<UserIdentityDto>(), 0);
+        }
+    }
+
+    public async Task<UserIdentityDto> GetUserIdentityByIdAsync(string userId)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            // Single user → GetRolesAsync là đủ, không cần batch
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new UserIdentityDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Avatar = user.Avatar,
+                Headline = user.Headline,
+                PhoneNumber = user.PhoneNumber,
+                Roles = roles.ToList(),
+                Status = user.Status,
+                LockoutEnd = user.LockoutEnd,
+                LastLoginTime = user.LastLoginTime,
+                CreatedAt = user.CreatedAt,
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetUserIdentityByIdAsync. Ex: {0}", ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<Result> AddUserAsync(string email, string fullName, string password)
+    {
+        try
+        {
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+                return Result.Failure("An account with this email already exists.");
+
+            return await Register(email, null, email, password, fullName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at AddUserAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<Result> BanUserAsync(string userId, string currentAdminId)
+    {
+        try
+        {
+            if (userId == currentAdminId)
+                return Result.Failure("Cannot ban your own account.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Result.Failure("User not found.");
+
+            user.Status = UserStatus.Banned;
+            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+            return Result.Success("User has been banned successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at BanUserAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<Result> SuspendUserAsync(string userId, string currentAdminId, int durationDays)
+    {
+        try
+        {
+            if (userId == currentAdminId)
+                return Result.Failure("Cannot suspend your own account.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Result.Failure("User not found.");
+
+            user.Status = UserStatus.Suspended;
+            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddDays(durationDays));
+            return Result.Success($"User has been suspended for {durationDays} day(s).");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at SuspendUserAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<Result> UnbanUserAsync(string userId)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Result.Failure("User not found.");
+
+            user.Status = UserStatus.Active;
+            await _userManager.SetLockoutEndDateAsync(user, null);
+            return Result.Success("User has been unbanned successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at UnbanUserAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<Result> ChangeUserRoleAsync(string userId, string newRole, string currentAdminId)
+    {
+        try
+        {
+            if (userId == currentAdminId)
+                return Result.Failure("Cannot change your own role.");
+
+            if (newRole != Roles.User && newRole != Roles.Administrator)
+                return Result.Failure("Invalid role. Must be 'User' or 'Administrator'.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Result.Failure("User not found.");
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            if (currentRoles.Contains(newRole))
+                return Result.Failure($"User already has role '{newRole}'.");
+
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            if (!removeResult.Succeeded)
+                return Result.Failure("Failed to remove current roles.");
+
+            var addResult = await _userManager.AddToRoleAsync(user, newRole);
+            if (!addResult.Succeeded)
+                return Result.Failure(addResult.Errors.First().Description);
+
+            return Result.Success($"User role changed to '{newRole}' successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at ChangeUserRoleAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
 }

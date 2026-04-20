@@ -19,6 +19,7 @@ function DataGridToolbar({
   showSearch = true,
   onBulkDelete = null,
   filterDropdowns = null,
+  customRightAction = null,
 }) {
   return (
     <Toolbar
@@ -108,18 +109,20 @@ function DataGridToolbar({
           </Tooltip>
         )
       ) : (
-        <Tooltip title="Filter">
-          <IconButton
-            size="small"
-            sx={{
-              color: "grey.500",
-              borderRadius: "8px",
-              "&:hover": { bgcolor: "grey.100", color: "text.primary" },
-            }}
-          >
-            <FilterListIcon sx={{ fontSize: 20 }} />
-          </IconButton>
-        </Tooltip>
+        customRightAction ?? (
+          <Tooltip title="Filter">
+            <IconButton
+              size="small"
+              sx={{
+                color: "grey.500",
+                borderRadius: "8px",
+                "&:hover": { bgcolor: "grey.100", color: "text.primary" },
+              }}
+            >
+              <FilterListIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+          </Tooltip>
+        )
       )}
     </Toolbar>
   );

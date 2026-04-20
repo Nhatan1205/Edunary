@@ -145,10 +145,13 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.SystemSettings.Any())
+        var allKeys = SettingKey.GetAllKeys();
+        var existingKeys = _context.SystemSettings.Select(s => s.Key).ToHashSet();
+        var missingKeys = allKeys.Where(k => !existingKeys.Contains(k)).ToList();
+
+        if (missingKeys.Count > 0)
         {
-            var allKeys = SettingKey.GetAllKeys();
-            foreach (var key in allKeys)
+            foreach (var key in missingKeys)
             {
                 _context.SystemSettings.Add(new SystemSetting
                 {

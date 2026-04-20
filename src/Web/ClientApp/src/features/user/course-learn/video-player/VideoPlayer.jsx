@@ -10,6 +10,10 @@ import LoadingSpinner from "../../../../components/LoadingSpinner";
 import useGetCPByItemId from "../../../../hooks/course-progress-hooks/useGetCPByItemId";
 import useUpdateCPByItemId from "../../../../hooks/course-progress-hooks/useUpdateCPByItemId";
 
+import { useHls } from "../../../../hooks/media-file-hooks/useHls";
+import ControlsOverlay from "./ControlsOverlay";
+import ArticleContent from "./ArticleContent";
+
 function VideoPlayer() {
   const { courseId, contentId } = useParams();
   const navigate = useNavigate();
@@ -17,12 +21,26 @@ function VideoPlayer() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [countdown, setCountdown] = useState(5);
 
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+
   const timerRef = useRef(null);
   const videoRef = useRef(null);
   const lastSaveTimeRef = useRef(0);
   const hasProcessedEndRef = useRef(false);
   const overlayTriggerItemRef = useRef(null);
   const updateProgressMutation = useUpdateCPByItemId();
+
+  // Current item definition moved up here.
+  const currentItem = itemData?.currentItem;
+
+  const videoId = currentItem?.contentType === 'video' ? currentItem.videoId : null;
+  const { qualityLevels, currentLevel, changeQuality } = useHls(videoId, videoRef);
 
   useEffect(() => {
     setShowOverlay(false);
@@ -32,8 +50,8 @@ function VideoPlayer() {
     if (timerRef.current) clearInterval(timerRef.current);
   }, [contentId]);
 
-  const currentItem = itemData?.currentItem;
-
+  // Use currentItem from above instead of redefining it.
+  
   useEffect(() => {
     if (currentItem && videoRef.current && currentItem.lastPosition > 0) {
       const restoreTime = () => {
@@ -41,6 +59,7 @@ function VideoPlayer() {
           if (videoRef.current.currentTime < 2) {
             videoRef.current.currentTime = currentItem.lastPosition;
           }
+          videoRef.current.playbackRate = playbackRate;
         }
       };
 
@@ -50,7 +69,59 @@ function VideoPlayer() {
         videoRef.current.addEventListener('loadedmetadata', restoreTime, { once: true });
       }
     }
-  }, [contentId, currentItem]);
+  }, [contentId, currentItem, playbackRate]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Prevent running if user is typing in form inputs (like comments)
+      const tagName = document.activeElement.tagName.toLowerCase();
+      if (tagName === 'input' || tagName === 'textarea' || document.activeElement.isContentEditable) return;
+      if (!videoRef.current || currentItem?.contentType !== 'video' || showOverlay) return;
+
+      switch(e.code) {
+        case 'Space':
+          e.preventDefault();
+          if (videoRef.current.paused) {
+            videoRef.current.play();
+            setIsPlaying(true);
+          } else {
+            videoRef.current.pause();
+            setIsPlaying(false);
+          }
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
+          setCurrentTime(videoRef.current.currentTime);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          videoRef.current.currentTime = Math.min(videoRef.current.duration, videoRef.current.currentTime + 10);
+          setCurrentTime(videoRef.current.currentTime);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          {
+            const newVol = Math.min(1, volume + 0.1);
+            setVolume(newVol);
+            videoRef.current.volume = newVol;
+            if (newVol > 0) setIsMuted(false);
+          }
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          {
+            const newVol = Math.max(0, volume - 0.1);
+            setVolume(newVol);
+            videoRef.current.volume = newVol;
+            if (newVol === 0) setIsMuted(true);
+          }
+          break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [volume, currentItem, showOverlay]);
 
   const handleNavigateNext = useCallback(() => {
     const nextItem = itemData?.navigation?.next;
@@ -115,10 +186,16 @@ function VideoPlayer() {
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
+  const handleTimeUpdatePlayer = () => {
+    if (!videoRef.current) return;
+    setCurrentTime(videoRef.current.currentTime);
+    handleTimeUpdate();
+  };
+
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const now = Date.now();
-    if (now - lastSaveTimeRef.current > 5000) {
+    if (now - lastSaveTimeRef.current > 10000) {
       saveProgress(videoRef.current.currentTime);
       lastSaveTimeRef.current = now;
     }
@@ -145,13 +222,23 @@ function VideoPlayer() {
 
   const handleArticleInteraction = async () => {
     if (currentItem?.contentType === 'article' && !currentItem?.isCompleted) {
+      try {
+        await updateProgressMutation.mutateAsync({
+          courseId,
+          itemId: contentId,
+          isCompleted: true,
+          lastPosition: 0
+        });
 
-      await updateProgressMutation.mutateAsync({
-        courseId,
-        itemId: contentId,
-        isCompleted: true,
-        lastPosition: 0
-      });
+        // Nếu có bài tiếp theo, hiển thị màn hình đếm ngược (như khi xem xong video)
+        if (itemData?.navigation?.next) {
+          overlayTriggerItemRef.current = contentId;
+          setShowOverlay(true);
+          startCountdown();
+        }
+      } catch (error) {
+        console.error("Error updating article progress:", error);
+      }
     }
   };
 
@@ -190,26 +277,60 @@ function VideoPlayer() {
         }}
       >
         {currentItem.contentType === 'video' ? (
-          <video
-            ref={videoRef}
-            key={currentItem.itemId}
-            controls={!showOverlay}
-            width="100%"
-            height="100%"
-            autoPlay
-            src={currentItem.content}
-            onEnded={handleVideoEnded}
-            onTimeUpdate={handleTimeUpdate}
-            onPause={handlePause}
-            style={{ display: showOverlay ? 'none' : 'block' }}
+          <Box 
+            sx={{ position: 'relative', width: '100%', height: '100%', display: showOverlay ? 'none' : 'block' }}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
           >
-            Your browser does not support the video tag.
-          </video>
-        ) : (
-          <Box sx={{ p: 4, bgcolor: '#fff', color: '#000', width: '100%', height: '100%', overflow: 'auto' }} onClick={handleArticleInteraction}>
-            <Typography variant="h4" gutterBottom>{currentItem.title}</Typography>
-            <div dangerouslySetInnerHTML={{ __html: currentItem.content }} />
+            <video
+              ref={videoRef}
+              key={currentItem.itemId}
+              width="100%"
+              height="100%"
+              autoPlay
+              onEnded={handleVideoEnded}
+              onTimeUpdate={handleTimeUpdatePlayer}
+              onLoadedMetadata={() => setDuration(videoRef.current.duration)}
+              onPlay={() => setIsPlaying(true)}
+              onPause={(e) => {
+                setIsPlaying(false);
+                handlePause(e);
+              }}
+              onClick={() => {
+                  isPlaying ? videoRef.current.pause() : videoRef.current.play();
+              }}
+              style={{ width: '100%', height: '100%', display: 'block', backgroundColor: 'black' }}
+            >
+              Your browser does not support the video tag.
+            </video>
+            
+            {!showOverlay && (
+                <ControlsOverlay 
+                    showControls={isHovering || !isPlaying}
+                    isPlaying={isPlaying}
+                    isMuted={isMuted}
+                    volume={volume}
+                    currentTime={currentTime}
+                    duration={duration}
+                    togglePlay={() => isPlaying ? videoRef.current.pause() : videoRef.current.play()}
+                    toggleMute={() => setIsMuted(!isMuted)}
+                    handleVolumeChange={(e, newValue) => { setVolume(newValue); videoRef.current.volume = newValue; setIsMuted(newValue === 0); }}
+                    handleSeek={(e, newValue) => { videoRef.current.currentTime = newValue; setCurrentTime(newValue); }}
+                    toggleFullscreen={() => { videoRef.current.requestFullscreen(); }}
+                    formatTime={(seconds) => new Date((seconds || 0) * 1000).toISOString().slice(14, 19)}
+                    qualities={qualityLevels}
+                    currentQuality={currentLevel}
+                    onQualityChange={changeQuality}
+                    playbackRate={playbackRate}
+                    onPlaybackRateChange={(rate) => setPlaybackRate(rate)}
+                />
+            )}
           </Box>
+        ) : (
+          <ArticleContent 
+            item={currentItem} 
+            onMarkAsComplete={handleArticleInteraction} 
+          />
         )}
 
         {showOverlay && nextItemInfo && (

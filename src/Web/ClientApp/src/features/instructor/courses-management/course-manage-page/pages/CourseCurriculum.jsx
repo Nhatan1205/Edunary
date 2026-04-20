@@ -25,7 +25,7 @@ import SortableSection from "../course-section/SortableSection";
 import SortableCurriculumItem from "../course-section/SortableCurriculumItem";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import useSetCourseIdForContent from "../../../../../hooks/media-file-hooks/useSetCourseIdForContent";
-import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById";
+import useGetCourseCurriculumById from "../../../../../hooks/course-draft-hooks/useGetCourseCurriculumById";
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 import { useBlocker } from "react-router-dom";
 import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/SaveChangesDialog";
@@ -33,7 +33,7 @@ import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/Save
 function CourseCurriculum() {
   const { courseId } = useParams();
   const setCourseIdForContent = useSetCourseIdForContent();
-  const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseById(courseId);
+  const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseCurriculumById(courseId);
   const updatecourseMutation = useUpdateCourse();
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
   const [sections, setSections] = useState([]);
@@ -469,7 +469,7 @@ function CourseCurriculum() {
         if (item.videoDuration) {
           const parts = item.videoDuration.split(":").map(Number);
           let seconds = 0;
-          
+
           if (parts.length === 3) {
             // "hh:mm:ss" format
             seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
@@ -480,16 +480,16 @@ function CourseCurriculum() {
             // Just seconds
             seconds = parts[0];
           }
-          
+
           totalSeconds += seconds;
         }
       });
     });
-    
+
     const hours = Math.floor(totalSeconds / 3600);
     const remainingSeconds = totalSeconds % 3600;
     const minutes = Math.floor(remainingSeconds / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
@@ -497,7 +497,7 @@ function CourseCurriculum() {
       return `${minutes}m`;
     }
     return `${totalSeconds}s`;
-    
+
     // OLD CODE - Format mm:ss only (không hỗ trợ hh:mm:ss)
     // let totalSeconds = 0;
     // sections.forEach(section => {
@@ -546,12 +546,26 @@ function CourseCurriculum() {
           mb: 2.75,
         }}
       >
-        <Typography
-          variant="h5"
-          fontWeight={600}
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 1,
+          }}
         >
-          Curriculum
-        </Typography>
+          <Box
+            sx={{
+              width: 4,
+              height: 22,
+              borderRadius: "4px",
+              background: "linear-gradient(180deg, #3FCCB2 0%, #49BBBD 100%)",
+              flexShrink: 0,
+            }}
+          />
+          <Typography variant="h5" fontWeight={600}>
+            Curriculum
+          </Typography>
+        </Box>
 
         <Button
           variant="contained"

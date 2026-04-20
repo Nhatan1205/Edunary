@@ -127,8 +127,19 @@ function CourseLearnSidebar({ onClose }) {
     const completedItems = section.items.filter(item => item.isCompleted).length;
     const totalDuration = section.items.reduce((acc, item) => {
       if (item.videoDuration && item.contentType === 'video') {
-        const [minutes, seconds] = item.videoDuration.split(':').map(Number);
-        return acc + (minutes * 60) + seconds;
+        const parts = item.videoDuration.replace(/\\"/g, '').split(':').map(Number);
+        
+        let seconds = 0;
+        if (parts.length === 3) {
+          // HH:MM:SS
+          seconds = (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+        } else if (parts.length === 2) {
+          // MM:SS
+          seconds = (parts[0] * 60) + parts[1];
+        } else if (parts.length === 1) {
+          seconds = parts[0];
+        }
+        return acc + seconds;
       }
       return acc;
     }, 0);

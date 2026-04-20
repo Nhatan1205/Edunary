@@ -2,7 +2,6 @@ import {
   Box,
   Typography,
   useMediaQuery,
-  useTheme,
   Divider,
   Button,
   Skeleton,
@@ -19,9 +18,8 @@ import { useEffect, useState } from "react";
 
 function CourseLearnHeader() {
   const { courseId } = useParams();
-  const theme = useTheme();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery("(max-width:900px)");
   const { data: learningHeaderData, isLoading } = useGetLearningHeader(courseId);
   const [courseTitle, setCourseTitle] = useState("");
   const [progressData, setProgressData] = useState({ total: 0, completed: 0 });
@@ -50,17 +48,71 @@ function CourseLearnHeader() {
   return (
     <Box
       sx={{
-        height: "64px",
-        bgcolor: "#2d2f31",
-        color: "white",
+        height: { xs: "64px", md: "72px" },
+        bgcolor: "background.default",
+        color: "text.primary",
         display: "flex",
         alignItems: "center",
         px: 2,
-        borderBottom: "1px solid #3e4143",
+        borderBottom: "1px solid",
+        borderColor: "divider",
+        boxShadow: 3,
         justifyContent: "space-between",
+        position: "relative",
+        overflow: "hidden",
+        "@keyframes headerFloatOne": {
+          "0%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+          "100%": { transform: "translateY(0px)" },
+        },
+        "@keyframes headerFloatTwo": {
+          "0%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(8px)" },
+          "100%": { transform: "translateY(0px)" },
+        },
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", overflow: "hidden" }}>
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          bgcolor: "brand.main",
+          opacity: 0.12,
+          pointerEvents: "none",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          top: "-60%",
+          right: "-10%",
+          width: { xs: "260px", md: "360px" },
+          height: { xs: "260px", md: "360px" },
+          borderRadius: "50%",
+          bgcolor: "brand.main",
+          opacity: 0.2,
+          filter: "blur(8px)",
+          animation: "headerFloatOne 6s ease-in-out infinite",
+          pointerEvents: "none",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: "-70%",
+          left: "-12%",
+          width: { xs: "240px", md: "340px" },
+          height: { xs: "240px", md: "340px" },
+          borderRadius: "50%",
+          bgcolor: "brand.dark",
+          opacity: 0.18,
+          filter: "blur(8px)",
+          animation: "headerFloatTwo 7s ease-in-out infinite",
+          pointerEvents: "none",
+        }}
+      />
+
+      <Box sx={{ display: "flex", alignItems: "center", overflow: "hidden", zIndex: 1 }}>
         <Box
           component={RouterLink}
           to="/"
@@ -78,16 +130,22 @@ function CourseLearnHeader() {
               width: 32,
               height: 32,
               borderRadius: "8px",
+              bgcolor: "brand.lighter",
+              p: "4px",
             }}
           />
           {!isMobile && (
             <Typography
               variant="h4"
               sx={{
-                fontSize: "24px",
-                fontWeight: "bold",
-                color: "white",
+                fontSize: "22px",
+                fontWeight: 800,
+                color: "brand.main",
                 ml: 1,
+                letterSpacing: "0.2px",
+                lineHeight: 1,
+                display: "flex",
+                alignItems: "center",
               }}
             >
               Edunary
@@ -100,7 +158,7 @@ function CourseLearnHeader() {
             orientation="vertical"
             flexItem
             sx={{
-              bgcolor: "#6a6f73",
+              bgcolor: "divider",
               my: 1.5,
               mr: 2,
             }}
@@ -113,7 +171,7 @@ function CourseLearnHeader() {
               variant="text"
               width={isMobile ? 100 : 400}
               height={30}
-              sx={{ bgcolor: "rgba(255,255,255,0.1)" }}
+              sx={{ bgcolor: "action.hover" }}
             />
           ) : (
             <Typography
@@ -121,9 +179,12 @@ function CourseLearnHeader() {
               noWrap
               sx={{
                 fontSize: "16px",
-                color: "#f7f9fa",
-                fontWeight: 400,
+                color: "text.main",
+                fontWeight: 600,
                 maxWidth: { sm: "300px", md: "500px", lg: "700px" },
+                lineHeight: 1.2,
+                display: "flex",
+                alignItems: "center",
               }}
             >
               {courseTitle}
@@ -132,15 +193,15 @@ function CourseLearnHeader() {
         </Box>
       </Box>
 
-      <Box sx={{ flexShrink: 0 }}>
+      <Box sx={{ flexShrink: 0, zIndex: 1 }}>
         {isLoading ? (
           <Skeleton
             variant="rectangular"
             width={isMobile ? 40 : 140}
             height={40}
             sx={{
-              bgcolor: "rgba(255,255,255,0.1)",
-              borderRadius: isMobile ? "50%" : 1,
+              bgcolor: "action.hover",
+              borderRadius: isMobile ? "50%" : "999px",
             }}
           />
         ) : (
@@ -148,10 +209,16 @@ function CourseLearnHeader() {
             <Button
               sx={{
                 textTransform: "none",
-                color: "#d1d7dc",
+                color: "text.inverse",
+                bgcolor: "brand.main",
+                borderRadius: "12px",
+                px: 2,
+                py: 0.8,
+                boxShadow: 2,
                 "&:hover": {
-                  color: "white",
-                  bgcolor: "rgba(255,255,255,0.1)"
+                  color: "text.inverse",
+                  bgcolor: "brand.dark",
+                  boxShadow: 3,
                 }
               }}
               startIcon={<Star />}
@@ -176,10 +243,17 @@ function CourseLearnHeader() {
               onClick={handleClickProgress}
               sx={{
                 textTransform: "none",
-                color: "#d1d7dc",
+                color: "text.primary",
+                ml: 1,
+                borderRadius: "12px",
+                px: 1.6,
+                py: 0.6,
+                border: "1px solid",
+                borderColor: "divider",
+                bgcolor: "background.paper",
                 "&:hover": {
-                  color: "white",
-                  bgcolor: "rgba(255,255,255,0.1)",
+                  color: "text.primary",
+                  bgcolor: "action.hover",
                 },
               }}
             >
@@ -188,10 +262,13 @@ function CourseLearnHeader() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  border: "2px solid #d1d7dc",
+                  bgcolor: "brand.lighter",
+                  color: "brand.dark",
+                  border: "1px solid",
+                  borderColor: "divider",
                   borderRadius: "50%",
-                  width: 32,
-                  height: 32,
+                  width: 30,
+                  height: 30,
                   mr: 1,
                 }}
               >
@@ -225,10 +302,11 @@ function CourseLearnHeader() {
                 paper: {
                   sx: {
                     mt: 1.5,
-                    boxShadow: "0 2px 4px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.08)",
-                    borderRadius: 0,
-                    border: "1px solid #d1d7dc",
-                    minWidth: "250px"
+                    boxShadow: 6,
+                    borderRadius: 2,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    minWidth: "250px",
                   }
                 }
               }}
@@ -239,7 +317,7 @@ function CourseLearnHeader() {
                   sx={{
                     fontWeight: 700,
                     fontSize: "1.2rem",
-                    color: "#2d2f31",
+                    color: "text.primary",
                     mb: 0.5
                   }}
                 >
@@ -249,7 +327,7 @@ function CourseLearnHeader() {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "#6a6f73",
+                    color: "text.secondary",
                     fontSize: "0.9rem"
                   }}
                 >

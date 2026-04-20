@@ -5,7 +5,7 @@ namespace Edunary.Application.Common.Models;
 
 public class UploadSessionDto
 {
-    public string SessionId { get; set; }
+    public int SessionId { get; set; }
     public string FileName { get; set; }
     public long FileSize { get; set; }
     public int ChunkSize { get; set; }

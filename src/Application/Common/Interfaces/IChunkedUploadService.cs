@@ -10,5 +10,5 @@ public interface IChunkedUploadService
 {
     Task<UploadSessionDto> InitiateUpload(InitiateUploadRequest request);
     Task<UploadSessionDto> UploadChunk(Stream chunkStream, ChunkUploadRequest request);
-    Task<UploadSessionDto> GetUploadStatus(string sessionId);
+    Task<UploadSessionDto> GetUploadStatus(int sessionId);
 }

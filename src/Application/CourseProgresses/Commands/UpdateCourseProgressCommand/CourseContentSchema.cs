@@ -68,6 +68,8 @@ public class ItemSchema
     public bool IsCompleted { get; set; } = false;
     [JsonPropertyName("lastPosition")]
     public double LastPosition { get; set; } = 0;
+    [JsonPropertyName("thumbnailUrl")]
+    public string ThumbnailUrl { get; set; } = String.Empty;
 }
 
 public class ResourseSchema

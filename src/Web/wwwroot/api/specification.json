@@ -409,6 +409,43 @@
         }
       }
     },
+    "/api/CourseDrafts/{id}": {
+      "get": {
+        "tags": [
+          "CourseDrafts"
+        ],
+        "operationId": "GetCourseCurriculumById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCourseByIdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/CourseProgress": {
       "get": {
         "tags": [
@@ -1408,6 +1445,46 @@
         ]
       }
     },
+    "/api/MediaFile/hls/{videoId}": {
+      "get": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "GetHlsStream",
+        "parameters": [
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "fileName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/MediaFile/chunks/initiate": {
       "post": {
         "tags": [
@@ -1454,9 +1531,10 @@
           {
             "name": "sessionId",
             "in": "query",
+            "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "integer",
+              "format": "int32"
             },
             "x-position": 1
           },
@@ -1527,8 +1605,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "integer",
+              "format": "int32"
             },
             "x-position": 1
           }
@@ -3082,6 +3160,106 @@
           }
         }
       },
+      "GetCourseByIdDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "level": {
+            "$ref": "#/components/schemas/CourseLevel"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseStatus"
+          },
+          "topic": {
+            "type": "string",
+            "nullable": true
+          },
+          "learningObjectives": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirements": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetAudience": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "welcomeMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "congratulationsMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "float"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CourseLevel": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Beginner",
+          "Intermediate",
+          "Advanced",
+          "All"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "CourseStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Draft",
+          "Public"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
       "CourseProgressDto": {
         "type": "object",
         "additionalProperties": false,
@@ -3184,6 +3362,11 @@
           },
           "type": {
             "type": "string",
+            "nullable": true
+          },
+          "videoId": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "lastPosition": {
@@ -3410,18 +3593,6 @@
           }
         }
       },
-      "CourseStatus": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Draft",
-          "Public"
-        ],
-        "enum": [
-          0,
-          1
-        ]
-      },
       "CourseManagementSortBy": {
         "type": "integer",
         "description": "",
@@ -3534,94 +3705,6 @@
             "nullable": true
           }
         }
-      },
-      "GetCourseByIdDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "subtitle": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "level": {
-            "$ref": "#/components/schemas/CourseLevel"
-          },
-          "status": {
-            "$ref": "#/components/schemas/CourseStatus"
-          },
-          "topic": {
-            "type": "string",
-            "nullable": true
-          },
-          "learningObjectives": {
-            "type": "string",
-            "nullable": true
-          },
-          "requirements": {
-            "type": "string",
-            "nullable": true
-          },
-          "targetAudience": {
-            "type": "string",
-            "nullable": true
-          },
-          "imageUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "welcomeMessage": {
-            "type": "string",
-            "nullable": true
-          },
-          "congratulationsMessage": {
-            "type": "string",
-            "nullable": true
-          },
-          "price": {
-            "type": "number",
-            "format": "float"
-          },
-          "categoryId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "content": {
-            "type": "string",
-            "nullable": true
-          },
-          "totalStudents": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "CourseLevel": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Beginner",
-          "Intermediate",
-          "Advanced",
-          "All"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ]
       },
       "CourseStatsVM": {
         "type": "object",
@@ -4434,8 +4517,8 @@
         "additionalProperties": false,
         "properties": {
           "sessionId": {
-            "type": "string",
-            "nullable": true
+            "type": "integer",
+            "format": "int32"
           },
           "fileName": {
             "type": "string",

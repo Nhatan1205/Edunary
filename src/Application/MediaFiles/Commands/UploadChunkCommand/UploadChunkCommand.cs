@@ -9,7 +9,7 @@ namespace Edunary.Application.MediaFiles.Commands.UploadChunkCommand;
 
 public class UploadChunkCommand : IRequest<UploadSessionDto>
 {
-    public string SessionId { get; set; }
+    public int SessionId { get; set; }
     public int ChunkNumber { get; set; }
     public Stream ChunkStream { get; set; }
     public string ChunkHash { get; set; }

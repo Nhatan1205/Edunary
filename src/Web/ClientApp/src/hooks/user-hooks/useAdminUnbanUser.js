@@ -14,6 +14,7 @@ const useAdminUnbanUser = () => {
         onSuccess: (_, { fullName }) => {
             toast.success(`${fullName ?? "User"} has been unbanned.`);
             queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+            queryClient.invalidateQueries({ queryKey: ["admin-user-detail"] });
             queryClient.invalidateQueries({ queryKey: ["admin-user-status-counts"] });
         },
         onError: (err) => toast.error(err?.message || "Failed to unban user."),

@@ -13,6 +13,7 @@ const useAdminChangeUserRole = () => {
         onSuccess: (_, { fullName, newRole }) => {
             toast.success(`${fullName ?? "User"}'s role changed to ${newRole}.`);
             queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+            queryClient.invalidateQueries({ queryKey: ["admin-user-detail"] });
         },
         onError: (err) => toast.error(err?.message || "Failed to change role."),
     });

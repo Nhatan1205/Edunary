@@ -963,6 +963,8 @@ public class IdentityService : IIdentityService
                 Email = user.Email,
                 Avatar = user.Avatar,
                 Headline = user.Headline,
+                Description = user.Description,
+                Links = user.Links,
                 PhoneNumber = user.PhoneNumber,
                 Roles = roles.ToList(),
                 Status = user.Status,
@@ -995,46 +997,33 @@ public class IdentityService : IIdentityService
         }
     }
 
-    public async Task<Result> BanUserAsync(string userId, string currentAdminId)
+    public async Task<Result> RestrictUserAsync(string userId, string currentAdminId, int? durationDays)
     {
         try
         {
             if (userId == currentAdminId)
-                return Result.Failure("Cannot ban your own account.");
+                return Result.Failure("Cannot restrict your own account.");
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return Result.Failure("User not found.");
 
-            user.Status = UserStatus.Banned;
-            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
-            return Result.Success("User has been banned successfully.");
+            if (durationDays.HasValue)
+            {
+                user.Status = UserStatus.Suspended;
+                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddDays(durationDays.Value));
+                return Result.Success($"User has been suspended for {durationDays.Value} day(s).");
+            }
+            else
+            {
+                user.Status = UserStatus.Banned;
+                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+                return Result.Success("User has been permanently banned.");
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError("Exception at BanUserAsync. Ex: {0}", ex.Message);
-            return Result.Failure($"An unexpected error occurred: {ex.Message}");
-        }
-    }
-
-    public async Task<Result> SuspendUserAsync(string userId, string currentAdminId, int durationDays)
-    {
-        try
-        {
-            if (userId == currentAdminId)
-                return Result.Failure("Cannot suspend your own account.");
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                return Result.Failure("User not found.");
-
-            user.Status = UserStatus.Suspended;
-            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddDays(durationDays));
-            return Result.Success($"User has been suspended for {durationDays} day(s).");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Exception at SuspendUserAsync. Ex: {0}", ex.Message);
+            _logger.LogError("Exception at RestrictUserAsync. Ex: {0}", ex.Message);
             return Result.Failure($"An unexpected error occurred: {ex.Message}");
         }
     }

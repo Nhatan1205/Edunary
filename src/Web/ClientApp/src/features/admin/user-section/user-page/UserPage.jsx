@@ -8,14 +8,14 @@ import useDebounce from "../../../../hooks/common/useDebounce";
 import useAdminGetUsers from "../../../../hooks/user-hooks/useAdminGetUsers";
 import useAdminGetUserStatusCounts from "../../../../hooks/user-hooks/useAdminGetUserStatusCounts";
 import useAdminAddUser from "../../../../hooks/user-hooks/useAdminAddUser";
-import useAdminBanUser from "../../../../hooks/user-hooks/useAdminBanUser";
-import useAdminSuspendUser from "../../../../hooks/user-hooks/useAdminSuspendUser";
+import useAdminRestrictUser from "../../../../hooks/user-hooks/useAdminRestrictUser";
 import useAdminUnbanUser from "../../../../hooks/user-hooks/useAdminUnbanUser";
 import useAdminChangeUserRole from "../../../../hooks/user-hooks/useAdminChangeUserRole";
 import UserDataGrid from "./components/UserDataGrid";
 import AddUserDialog from "./components/AddUserDialog";
 import ChangeRoleDialog from "./components/ChangeRoleDialog";
 import ConfirmDialog from "../../../../components/ConfirmDialogPopup/ConfirmDialog";
+import RestrictUserDialog from "../components/RestrictUserDialog";
 
 // ── Shared styles ──────────────────────────────────────────────────────────────
 
@@ -84,16 +84,19 @@ function UserPage() {
     const { mutate: addUser, isPending: isAdding } = useAdminAddUser();
 
     // ── Mutations ─────────────────────────────────────────────────────────────
-    const { mutate: banUser } = useAdminBanUser();
-    const { mutate: suspendUser } = useAdminSuspendUser();
+    const { mutate: restrictUser, isPending: isRestricting } = useAdminRestrictUser();
     const { mutate: unbanUser } = useAdminUnbanUser();
     const { mutate: changeRole, isPending: isChangingRole } = useAdminChangeUserRole();
+
+    // ── Restrict dialog ─────────────────────────────────────────────────────────
+    const [restrictDialogOpen, setRestrictDialogOpen] = useState(false);
+    const [selectedUserForRestrict, setSelectedUserForRestrict] = useState(null);
 
     // ── Change Role dialog ──────────────────────────────────────────────────────
     const [roleDialogOpen, setRoleDialogOpen] = useState(false);
     const [selectedUserForRole, setSelectedUserForRole] = useState(null);
 
-    // ── Confirm dialog (dùng chung cho ban / unban / suspend) ──────────────────
+    // ── Confirm dialog (dùng cho unban) ────────────────────────────────────────
     const [confirmDialog, setConfirmDialog] = useState({ open: false, title: "", message: "", action: null });
     const openConfirm = useCallback((title, message, action) => {
         setConfirmDialog({ open: true, title, message, action });
@@ -107,29 +110,18 @@ function UserPage() {
     }, [confirmDialog, closeConfirm]);
 
     // ── Action handlers ─────────────────────────────────────────────────────────────
-    const handleBan = useCallback((row) => {
-        openConfirm(
-            "Ban User",
-            `Are you sure you want to ban "${row.fullName}"? They will no longer be able to log in.`,
-            () => banUser({ userId: row.id, fullName: row.fullName })
-        );
-    }, [banUser, openConfirm]);
+    const handleRestrict = useCallback((row) => {
+        setSelectedUserForRestrict(row);
+        setRestrictDialogOpen(true);
+    }, []);
 
     const handleUnban = useCallback((row) => {
         openConfirm(
-            "Unban User",
-            `Are you sure you want to unban "${row.fullName}"? Their account will be restored.`,
-            () => unbanUser({ userId: row.id, fullName: row.fullName })
+            "Lift Restriction",
+            `Are you sure you want to restore "${row.fullName}"'s account? They will be able to log in again.`,
+            () => unbanUser({ userId: row.id })
         );
     }, [unbanUser, openConfirm]);
-
-    const handleSuspend = useCallback((row) => {
-        openConfirm(
-            "Suspend User",
-            `Are you sure you want to suspend "${row.fullName}" for 7 days?`,
-            () => suspendUser({ userId: row.id, fullName: row.fullName, durationDays: 7 })
-        );
-    }, [suspendUser, openConfirm]);
 
     const handleChangeRole = useCallback((row) => {
         setSelectedUserForRole(row);
@@ -205,9 +197,8 @@ function UserPage() {
                 onSortChange={handleSortChange}
 
                 // Actions
-                onBan={handleBan}
+                onRestrict={handleRestrict}
                 onUnban={handleUnban}
-                onSuspend={handleSuspend}
                 onChangeRole={handleChangeRole}
                 onViewDetail={handleViewDetail}
             />
@@ -231,7 +222,21 @@ function UserPage() {
                 isSaving={isAdding}
             />
 
-            {/* ── Confirm Dialog (ban / unban / suspend) ── */}
+            {/* ── Restrict Dialog ── */}
+            <RestrictUserDialog
+                open={restrictDialogOpen}
+                onClose={() => setRestrictDialogOpen(false)}
+                user={selectedUserForRestrict}
+                isSaving={isRestricting}
+                onConfirm={({ durationDays }) => {
+                    restrictUser(
+                        { userId: selectedUserForRestrict?.id, durationDays },
+                        { onSuccess: () => setRestrictDialogOpen(false) }
+                    );
+                }}
+            />
+
+            {/* ── Confirm Dialog (unban) ── */}
             <ConfirmDialog
                 open={confirmDialog.open}
                 title={confirmDialog.title}

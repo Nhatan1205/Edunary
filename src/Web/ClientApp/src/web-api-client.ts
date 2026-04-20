@@ -3468,7 +3468,7 @@ export class UserClient {
         return Promise.resolve<AdminUserStatusCountsDto>(null as any);
     }
 
-    adminGetUserDetail(userId: string | null): Promise<void> {
+    adminGetUserDetail(userId: string | null): Promise<AdminUserDetailDto> {
         let url_ = this.baseUrl + "/api/User/admin/{userId}";
         if (userId === undefined || userId === null)
             throw new Error("The parameter 'userId' must be defined.");
@@ -3478,6 +3478,7 @@ export class UserClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                "Accept": "application/json"
             }
         };
 
@@ -3486,43 +3487,7 @@ export class UserClient {
         });
     }
 
-    protected processAdminGetUserDetail(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    adminBanUser(command: BanUserCommand | undefined): Promise<Result> {
-        let url_ = this.baseUrl + "/api/User/admin/ban";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAdminBanUser(_response);
-        });
-    }
-
-    protected processAdminBanUser(response: Response): Promise<Result> {
+    protected processAdminGetUserDetail(response: Response): Promise<AdminUserDetailDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -3530,7 +3495,7 @@ export class UserClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
+            result200 = AdminUserDetailDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -3538,11 +3503,11 @@ export class UserClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Result>(null as any);
+        return Promise.resolve<AdminUserDetailDto>(null as any);
     }
 
-    adminSuspendUser(command: SuspendUserCommand | undefined): Promise<Result> {
-        let url_ = this.baseUrl + "/api/User/admin/suspend";
+    adminRestrictUser(command: RestrictUserCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/User/admin/restrict";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -3557,11 +3522,11 @@ export class UserClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAdminSuspendUser(_response);
+            return this.processAdminRestrictUser(_response);
         });
     }
 
-    protected processAdminSuspendUser(response: Response): Promise<Result> {
+    protected processAdminRestrictUser(response: Response): Promise<Result> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -10548,11 +10513,25 @@ export interface IAdminUserStatusCountsDto {
     banned?: number;
 }
 
-export class BanUserCommand implements IBanUserCommand {
-    userId?: string | undefined;
-    reason?: string | undefined;
+export class AdminUserDetailDto implements IAdminUserDetailDto {
+    id?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: string | undefined;
+    roles?: string[] | undefined;
+    status?: string | undefined;
+    lastLoginTime?: Date | undefined;
+    createdAt?: Date | undefined;
+    isOnline?: boolean;
+    stats?: AdminUserStatsDto | undefined;
+    enrolledCourses?: AdminEnrolledCourseDto[] | undefined;
+    createdCourses?: AdminCreatedCourseDto[] | undefined;
 
-    constructor(data?: IBanUserCommand) {
+    constructor(data?: IAdminUserDetailDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -10563,37 +10542,267 @@ export class BanUserCommand implements IBanUserCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
-            this.reason = _data["reason"];
+            this.id = _data["id"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.avatar = _data["avatar"];
+            this.headline = _data["headline"];
+            this.description = _data["description"];
+            this.links = _data["links"];
+            if (Array.isArray(_data["roles"])) {
+                this.roles = [] as any;
+                for (let item of _data["roles"])
+                    this.roles!.push(item);
+            }
+            this.status = _data["status"];
+            this.lastLoginTime = _data["lastLoginTime"] ? new Date(_data["lastLoginTime"].toString()) : <any>undefined;
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.isOnline = _data["isOnline"];
+            this.stats = _data["stats"] ? AdminUserStatsDto.fromJS(_data["stats"]) : <any>undefined;
+            if (Array.isArray(_data["enrolledCourses"])) {
+                this.enrolledCourses = [] as any;
+                for (let item of _data["enrolledCourses"])
+                    this.enrolledCourses!.push(AdminEnrolledCourseDto.fromJS(item));
+            }
+            if (Array.isArray(_data["createdCourses"])) {
+                this.createdCourses = [] as any;
+                for (let item of _data["createdCourses"])
+                    this.createdCourses!.push(AdminCreatedCourseDto.fromJS(item));
+            }
         }
     }
 
-    static fromJS(data: any): BanUserCommand {
+    static fromJS(data: any): AdminUserDetailDto {
         data = typeof data === 'object' ? data : {};
-        let result = new BanUserCommand();
+        let result = new AdminUserDetailDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
-        data["reason"] = this.reason;
+        data["id"] = this.id;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["avatar"] = this.avatar;
+        data["headline"] = this.headline;
+        data["description"] = this.description;
+        data["links"] = this.links;
+        if (Array.isArray(this.roles)) {
+            data["roles"] = [];
+            for (let item of this.roles)
+                data["roles"].push(item);
+        }
+        data["status"] = this.status;
+        data["lastLoginTime"] = this.lastLoginTime ? this.lastLoginTime.toISOString() : <any>undefined;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["isOnline"] = this.isOnline;
+        data["stats"] = this.stats ? this.stats.toJSON() : <any>undefined;
+        if (Array.isArray(this.enrolledCourses)) {
+            data["enrolledCourses"] = [];
+            for (let item of this.enrolledCourses)
+                data["enrolledCourses"].push(item.toJSON());
+        }
+        if (Array.isArray(this.createdCourses)) {
+            data["createdCourses"] = [];
+            for (let item of this.createdCourses)
+                data["createdCourses"].push(item.toJSON());
+        }
         return data;
     }
 }
 
-export interface IBanUserCommand {
-    userId?: string | undefined;
-    reason?: string | undefined;
+export interface IAdminUserDetailDto {
+    id?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: string | undefined;
+    roles?: string[] | undefined;
+    status?: string | undefined;
+    lastLoginTime?: Date | undefined;
+    createdAt?: Date | undefined;
+    isOnline?: boolean;
+    stats?: AdminUserStatsDto | undefined;
+    enrolledCourses?: AdminEnrolledCourseDto[] | undefined;
+    createdCourses?: AdminCreatedCourseDto[] | undefined;
 }
 
-export class SuspendUserCommand implements ISuspendUserCommand {
+export class AdminUserStatsDto implements IAdminUserStatsDto {
+    enrolledCourseCount?: number;
+    createdCourseCount?: number;
+    totalSpent?: number;
+    totalEarned?: number;
+    totalLearners?: number;
+    avgRating?: number;
+
+    constructor(data?: IAdminUserStatsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.enrolledCourseCount = _data["enrolledCourseCount"];
+            this.createdCourseCount = _data["createdCourseCount"];
+            this.totalSpent = _data["totalSpent"];
+            this.totalEarned = _data["totalEarned"];
+            this.totalLearners = _data["totalLearners"];
+            this.avgRating = _data["avgRating"];
+        }
+    }
+
+    static fromJS(data: any): AdminUserStatsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminUserStatsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["enrolledCourseCount"] = this.enrolledCourseCount;
+        data["createdCourseCount"] = this.createdCourseCount;
+        data["totalSpent"] = this.totalSpent;
+        data["totalEarned"] = this.totalEarned;
+        data["totalLearners"] = this.totalLearners;
+        data["avgRating"] = this.avgRating;
+        return data;
+    }
+}
+
+export interface IAdminUserStatsDto {
+    enrolledCourseCount?: number;
+    createdCourseCount?: number;
+    totalSpent?: number;
+    totalEarned?: number;
+    totalLearners?: number;
+    avgRating?: number;
+}
+
+export class AdminEnrolledCourseDto implements IAdminEnrolledCourseDto {
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseImage?: string | undefined;
+    enrolledDate?: Date;
+    progressPercentage?: number;
+
+    constructor(data?: IAdminEnrolledCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.courseTitle = _data["courseTitle"];
+            this.courseImage = _data["courseImage"];
+            this.enrolledDate = _data["enrolledDate"] ? new Date(_data["enrolledDate"].toString()) : <any>undefined;
+            this.progressPercentage = _data["progressPercentage"];
+        }
+    }
+
+    static fromJS(data: any): AdminEnrolledCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminEnrolledCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["courseTitle"] = this.courseTitle;
+        data["courseImage"] = this.courseImage;
+        data["enrolledDate"] = this.enrolledDate ? this.enrolledDate.toISOString() : <any>undefined;
+        data["progressPercentage"] = this.progressPercentage;
+        return data;
+    }
+}
+
+export interface IAdminEnrolledCourseDto {
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseImage?: string | undefined;
+    enrolledDate?: Date;
+    progressPercentage?: number;
+}
+
+export class AdminCreatedCourseDto implements IAdminCreatedCourseDto {
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseImage?: string | undefined;
+    status?: string | undefined;
+    totalStudents?: number;
+    ratings?: number;
+
+    constructor(data?: IAdminCreatedCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.courseTitle = _data["courseTitle"];
+            this.courseImage = _data["courseImage"];
+            this.status = _data["status"];
+            this.totalStudents = _data["totalStudents"];
+            this.ratings = _data["ratings"];
+        }
+    }
+
+    static fromJS(data: any): AdminCreatedCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminCreatedCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["courseTitle"] = this.courseTitle;
+        data["courseImage"] = this.courseImage;
+        data["status"] = this.status;
+        data["totalStudents"] = this.totalStudents;
+        data["ratings"] = this.ratings;
+        return data;
+    }
+}
+
+export interface IAdminCreatedCourseDto {
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseImage?: string | undefined;
+    status?: string | undefined;
+    totalStudents?: number;
+    ratings?: number;
+}
+
+export class RestrictUserCommand implements IRestrictUserCommand {
     userId?: string | undefined;
-    durationDays?: number;
+    durationDays?: number | undefined;
     reason?: string | undefined;
 
-    constructor(data?: ISuspendUserCommand) {
+    constructor(data?: IRestrictUserCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -10610,9 +10819,9 @@ export class SuspendUserCommand implements ISuspendUserCommand {
         }
     }
 
-    static fromJS(data: any): SuspendUserCommand {
+    static fromJS(data: any): RestrictUserCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new SuspendUserCommand();
+        let result = new RestrictUserCommand();
         result.init(data);
         return result;
     }
@@ -10626,9 +10835,9 @@ export class SuspendUserCommand implements ISuspendUserCommand {
     }
 }
 
-export interface ISuspendUserCommand {
+export interface IRestrictUserCommand {
     userId?: string | undefined;
-    durationDays?: number;
+    durationDays?: number | undefined;
     reason?: string | undefined;
 }
 

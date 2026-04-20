@@ -1,10 +1,9 @@
 
 using Edunary.Application.Common.Models;
-using Edunary.Application.Users.Commands.BanUserCommand;
 using Edunary.Application.Users.Commands.ChangePasswordCommand;
 using Edunary.Application.Users.Commands.ChangeUserRoleCommand;
 using Edunary.Application.Users.Commands.CreateUserCommand;
-using Edunary.Application.Users.Commands.SuspendUserCommand;
+using Edunary.Application.Users.Commands.RestrictUserCommand;
 using Edunary.Application.Users.Commands.UnbanUserCommand;
 using Edunary.Application.Users.Commands.UpdateUserAvatarCommand;
 using Edunary.Application.Users.Commands.UpdateUserInfoCommand;
@@ -42,8 +41,7 @@ public class User : EndpointGroupBase
             .MapGet(AdminGetUsers, "admin")
             .MapGet(AdminGetUserStatusCounts, "admin/status-counts")
             .MapGet(AdminGetUserDetail, "admin/{userId}")
-            .MapPut(AdminBanUser, "admin/ban")
-            .MapPut(AdminSuspendUser, "admin/suspend")
+            .MapPut(AdminRestrictUser, "admin/restrict")
             .MapPut(AdminUnbanUser, "admin/unban")
             .MapPut(AdminChangeUserRole, "admin/change-role");
     }
@@ -105,23 +103,14 @@ public class User : EndpointGroupBase
         return await sender.Send(new GetAdminUserStatusCountsQuery());
     }
 
-    public async Task<IResult> AdminGetUserDetail(ISender sender, string userId)
+    public async Task<AdminUserDetailDto> AdminGetUserDetail(ISender sender, [AsParameters] GetAdminUserDetailQuery query)
     {
-        var result = await sender.Send(new GetAdminUserDetailQuery { UserId = userId });
-        if (result == null)
-            return Results.NotFound();
-        return Results.Ok(result);
+        return await sender.Send(query);
     }
 
-    public async Task<Result> AdminBanUser(ISender sender, [FromBody] BanUserCommand command)
+    public async Task<Result> AdminRestrictUser(ISender sender, [FromBody] RestrictUserCommand command)
     {
         return await sender.Send(command);
-    }
-
-    public async Task<Result> AdminSuspendUser(ISender sender, [FromBody] SuspendUserCommand command)
-    {
-        return await sender.Send(command);
-
     }
 
     public async Task<Result> AdminUnbanUser(ISender sender, [FromBody] UnbanUserCommand command)

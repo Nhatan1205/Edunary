@@ -13,9 +13,11 @@ import AvatarImage from "../../assets/images/avatar.jpg";
 import { useAdminDrawer } from "./AdminDrawerContext";
 import AdminSearchDialog from "./AdminSearchDialog";
 import AdminAccountPanel from "./AdminAccountPanel";
+import useGetBasicUserInfo from "../../hooks/auth-hooks/useGetBasicUserInfor";
 
 function AdminHeader() {
   const { toggleDrawer, downMD } = useAdminDrawer();
+  const { data: userInfo } = useGetBasicUserInfo();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -122,12 +124,9 @@ function AdminHeader() {
           }}
         >
           <Avatar
-            alt="Admin User"
-            src={AvatarImage}
-            sx={{
-              width: 36,
-              height: 36,
-            }}
+            alt={userInfo?.fullName || "Admin"}
+            src={userInfo?.avatar || undefined}
+            sx={{ width: 36, height: 36 }}
           />
         </IconButton>
       </Box>

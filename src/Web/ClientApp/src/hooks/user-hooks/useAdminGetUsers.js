@@ -1,23 +1,12 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { UserClient } from "../../web-api-client.ts";
 
-/**
- * Hook lấy danh sách users cho admin (có filter, sort, pagination).
- *
- * @param {string}   searchText   - Tìm theo tên hoặc email
- * @param {string}   roleFilter   - "User" | "Administrator" | null
- * @param {string}   statusFilter - "Active" | "Inactive" | "Suspended" | "Banned" | null
- * @param {string}   sortBy       - "name" | "lastLogin" | "newest"
- * @param {number}   pageNumber   - 1-indexed (MUI TablePagination dùng 0-indexed, phải +1 khi truyền vào)
- * @param {number}   pageSize     - Số items mỗi trang
- */
 const useAdminGetUsers = (searchText, roleFilter, statusFilter, sortBy, pageNumber, pageSize) => {
     return useQuery({
         queryKey: ["admin-users", searchText, roleFilter, statusFilter, sortBy, pageNumber, pageSize],
         queryFn: async () => {
             const client = new UserClient();
 
-            // Gọi endpoint GET /api/User/admin với các params filter/sort/paginate
             const result = await client.adminGetUsers(
                 searchText || null,
                 roleFilter || null,

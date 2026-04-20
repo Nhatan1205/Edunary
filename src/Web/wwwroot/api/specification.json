@@ -3089,40 +3089,11 @@
         ],
         "responses": {
           "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/User/admin/ban": {
-      "put": {
-        "tags": [
-          "User"
-        ],
-        "operationId": "AdminBanUser",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BanUserCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Result"
+                  "$ref": "#/components/schemas/AdminUserDetailDto"
                 }
               }
             }
@@ -3135,18 +3106,18 @@
         ]
       }
     },
-    "/api/User/admin/suspend": {
+    "/api/User/admin/restrict": {
       "put": {
         "tags": [
           "User"
         ],
-        "operationId": "AdminSuspendUser",
+        "operationId": "AdminRestrictUser",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SuspendUserCommand"
+                "$ref": "#/components/schemas/RestrictUserCommand"
               }
             }
           },
@@ -6703,21 +6674,177 @@
           }
         }
       },
-      "BanUserCommand": {
+      "AdminUserDetailDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userId": {
+          "id": {
             "type": "string",
             "nullable": true
           },
-          "reason": {
+          "fullName": {
             "type": "string",
             "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "links": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastLoginTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isOnline": {
+            "type": "boolean"
+          },
+          "stats": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AdminUserStatsDto"
+              }
+            ]
+          },
+          "enrolledCourses": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AdminEnrolledCourseDto"
+            }
+          },
+          "createdCourses": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AdminCreatedCourseDto"
+            }
           }
         }
       },
-      "SuspendUserCommand": {
+      "AdminUserStatsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enrolledCourseCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdCourseCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalSpent": {
+            "type": "number",
+            "format": "float"
+          },
+          "totalEarned": {
+            "type": "number",
+            "format": "float"
+          },
+          "totalLearners": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "avgRating": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "AdminEnrolledCourseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseImage": {
+            "type": "string",
+            "nullable": true
+          },
+          "enrolledDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "progressPercentage": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "AdminCreatedCourseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseImage": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ratings": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "RestrictUserCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -6727,7 +6854,8 @@
           },
           "durationDays": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "reason": {
             "type": "string",

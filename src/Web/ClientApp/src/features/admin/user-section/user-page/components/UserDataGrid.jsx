@@ -330,9 +330,8 @@ function UserDataGrid({
     onSortChange,
 
     // Actions
-    onBan,
+    onRestrict,
     onUnban,
-    onSuspend,
     onChangeRole,
     onViewDetail,
 }) {
@@ -365,25 +364,17 @@ function UserDataGrid({
         { label: "View Detail", icon: <PersonIcon sx={{ fontSize: 16 }} />, onClick: () => navigate(`/admin/user/${row.id}`) },
         ...(isSanctioned(row)
             ? [{
-                label: "Unban User",
+                label: "Lift Restriction",
                 icon: <LockOpenIcon sx={{ fontSize: 16 }} />,
                 onClick: () => onUnban?.(row),
                 color: "warning.main",
             }]
-            : [
-                {
-                    label: "Ban User",
-                    icon: <BlockIcon sx={{ fontSize: 16 }} />,
-                    onClick: () => onBan?.(row),
-                    color: "error.main",
-                },
-                {
-                    label: "Suspend 7 days",
-                    icon: <ManageAccountsIcon sx={{ fontSize: 16 }} />,
-                    onClick: () => onSuspend?.(row),
-                    color: "warning.main",
-                },
-            ]
+            : [{
+                label: "Restrict User",
+                icon: <BlockIcon sx={{ fontSize: 16 }} />,
+                onClick: () => onRestrict?.(row),
+                color: "error.main",
+            }]
         ),
         { label: "Change Role", icon: <ManageAccountsIcon sx={{ fontSize: 16 }} />, onClick: () => onChangeRole?.(row) },
     ];

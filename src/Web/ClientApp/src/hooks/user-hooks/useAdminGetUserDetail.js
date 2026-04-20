@@ -6,7 +6,9 @@ const useAdminGetUserDetail = (userId) => {
         queryKey: ["admin-user-detail", userId],
         queryFn: async () => {
             const client = new UserClient();
-            return await client.adminGetUserDetail(userId);
+            const result = await client.adminGetUserDetail(userId);
+            if (!result) throw new Error("Failed to fetch user detail");
+            return result;
         },
         enabled: !!userId,
     });

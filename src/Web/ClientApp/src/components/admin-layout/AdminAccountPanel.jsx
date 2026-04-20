@@ -17,12 +17,14 @@ import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 import AvatarImage from "../../assets/images/avatar.jpg";
 import accountMenuConfig from "./accountMenuConfig";
+import useGetBasicUserInfo from "../../hooks/auth-hooks/useGetBasicUserInfor";
 
 const panelWidth = 320;
 
 function AdminAccountPanel({ open, onClose }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { data: userInfo } = useGetBasicUserInfo();
 
   const handleNavigate = useCallback(
     (url) => {
@@ -91,8 +93,8 @@ function AdminAccountPanel({ open, onClose }) {
           }}
         >
           <Avatar
-            alt="Admin User"
-            src={AvatarImage}
+            alt={userInfo?.fullName || "Admin"}
+            src={userInfo?.avatar || AvatarImage}
             sx={{
               width: 96,
               height: 96,
@@ -104,23 +106,15 @@ function AdminAccountPanel({ open, onClose }) {
           />
           <Typography
             variant="h6"
-            sx={{
-              fontWeight: 700,
-              color: "text.primary",
-              textAlign: "center",
-            }}
+            sx={{ fontWeight: 700, color: "text.primary", textAlign: "center" }}
           >
-            Jaydon Frankie
+            {userInfo?.fullName || "Admin"}
           </Typography>
           <Typography
             variant="body2"
-            sx={{
-              color: "text.disabled",
-              textAlign: "center",
-              mt: 0.5,
-            }}
+            sx={{ color: "text.disabled", textAlign: "center", mt: 0.5 }}
           >
-            demo@edunary.cc
+            {userInfo?.email || ""}
           </Typography>
         </Box>
 

@@ -50,7 +50,7 @@ public class ChunkedUploadService : IChunkedUploadService
             {
                 return new UploadSessionDto
                 {
-                    SessionId = existedSesssion.Id.ToString(),
+                    SessionId = existedSesssion.Id,
                     FileName = existedSesssion.FileName,
                     FileSize = existedSesssion.FileSize,
                     ChunkSize = existedSesssion.ChunkSize,
@@ -116,7 +116,7 @@ public class ChunkedUploadService : IChunkedUploadService
         }
         return new UploadSessionDto
         {
-            SessionId = newSession.Id.ToString(),
+            SessionId = newSession.Id,
             FileName = newSession.FileName,
             FileSize = newSession.FileSize,
             ChunkSize = newSession.ChunkSize,
@@ -138,7 +138,7 @@ public class ChunkedUploadService : IChunkedUploadService
         
         // 1. Validate session exists
         var uploadSession = _context.MediaFiles
-            .FirstOrDefault(cc => cc.Id.ToString() == request.SessionId);
+            .FirstOrDefault(cc => cc.Id == request.SessionId);
         
         if (uploadSession == null)
             throw new Exception($"Upload session not found with ID: {request.SessionId}");
@@ -224,7 +224,7 @@ public class ChunkedUploadService : IChunkedUploadService
         
         return new UploadSessionDto
         {
-            SessionId = uploadSession.Id.ToString(),
+            SessionId = uploadSession.Id,
             FileName = uploadSession.FileName,
             // FileSize = uploadSession.FileSize,
             ChunkSize = uploadSession.ChunkSize,
@@ -296,10 +296,10 @@ public class ChunkedUploadService : IChunkedUploadService
     }
 
 
-    public async Task<UploadSessionDto> GetUploadStatus(string sessionId)
+    public async Task<UploadSessionDto> GetUploadStatus(int sessionId)
     {
         var uploadSession = await _context.MediaFiles
-        .FirstOrDefaultAsync(cc => cc.Id.ToString() == sessionId);
+        .FirstOrDefaultAsync(cc => cc.Id == sessionId);
     
         if (uploadSession == null)
             throw new Exception($"Upload session not found with ID: {sessionId}");
@@ -309,7 +309,7 @@ public class ChunkedUploadService : IChunkedUploadService
         
         return new UploadSessionDto
         {
-            SessionId = uploadSession.Id.ToString(),
+            SessionId = uploadSession.Id,
             FileName = uploadSession.FileName,
             FileSize = uploadSession.FileSize,
             ChunkSize = uploadSession.ChunkSize,

@@ -14,6 +14,9 @@ using Edunary.Application.MediaFiles.Commands.UploadChunkCommand;
 using Edunary.Application.MediaFiles.Queries.GetMediaFileByUserIdQuery;
 using Edunary.Application.MediaFiles.Queries.GetUploadStatusQuery;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Edunary.Application.MediaFiles.Queries.CheckMediaFileAccessQuery;
 
 namespace Edunary.Web.Endpoints;
 
@@ -28,7 +31,8 @@ public class MediaFile : EndpointGroupBase
             .MapPost(CheckFileExists, "/exists")
             .MapPost(SetCourseIdForContent, "/set-course-id")
             .MapPost(AddLinkToMediaFile, "/add-link")
-            .MapPost(GenerateUploadUrl, "/generate-upload-url");
+            .MapPost(GenerateUploadUrl, "/generate-upload-url")
+            .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}");
 
         app.MapGroup(this)
             .RequireAuthorization()
@@ -133,7 +137,7 @@ public class MediaFile : EndpointGroupBase
 
     [DisableRequestSizeLimit]
     [RequestFormLimits(MultipartBodyLengthLimit = 524288000, ValueLengthLimit = int.MaxValue)]
-    public async Task<UploadSessionDto> UploadChunk(ISender sender, [FromForm] IFormFile chunkFile, [FromForm] string sessionId, [FromForm] int chunkNumber, [FromForm] string chunkHash)
+    public async Task<UploadSessionDto> UploadChunk(ISender sender, [FromForm] IFormFile chunkFile, [FromForm] int sessionId, [FromForm] int chunkNumber, [FromForm] string chunkHash)
     {
         if (chunkFile == null || chunkFile.Length == 0)
         {
@@ -153,7 +157,7 @@ public class MediaFile : EndpointGroupBase
         return result;
     }
 
-    public async Task<UploadSessionDto> GetUploadStatus(ISender sender, string sessionId)
+    public async Task<UploadSessionDto> GetUploadStatus(ISender sender, int sessionId)
     {
         var query = new GetUploadStatusQuery
         {
@@ -162,5 +166,46 @@ public class MediaFile : EndpointGroupBase
 
         var result = await sender.Send(query);
         return result;
+    }
+
+    public async Task<IResult> GetHlsStream(ISender sender, [FromRoute] string videoId, [FromRoute] string fileName, IWebHostEnvironment env)
+    {
+        if (!int.TryParse(videoId, out int parsedVideoId))
+        {
+            return Results.BadRequest("Invalid video request.");
+        }
+
+        var hasAccess = await sender.Send(new CheckMediaFileAccessQuery 
+        { 
+            VideoId = parsedVideoId 
+        });
+
+        if (!hasAccess) 
+        {
+            return Results.Forbid();
+        }
+
+        var rootPath = env.WebRootPath;
+        if (string.IsNullOrEmpty(rootPath)) return Results.NotFound();
+
+        var physicalPath = Path.Combine(rootPath, "hls", videoId, fileName);
+        
+        var fullPath = Path.GetFullPath(physicalPath);
+        if (!fullPath.StartsWith(Path.Combine(rootPath, "hls"), StringComparison.OrdinalIgnoreCase))
+        {
+            return Results.Forbid();
+        }
+
+        if (!File.Exists(fullPath))
+        {
+            return Results.NotFound();
+        }
+
+        // Determine content type
+        string contentType = fileName.EndsWith(".m3u8", StringComparison.OrdinalIgnoreCase) 
+            ? "application/vnd.apple.mpegurl" 
+            : (fileName.EndsWith(".ts", StringComparison.OrdinalIgnoreCase) ? "video/MP2T" : "application/octet-stream");
+
+        return Results.File(fullPath, contentType);
     }
 }

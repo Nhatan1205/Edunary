@@ -52,7 +52,6 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const deleteCourseContent = useDeleteMediaFileById();
   const setCourseIdForContent = useSetCourseIdForContent();
   const { data: courseContents, isLoading: isLoadingCourseContents } = useGetMediaFile();
-  console.log("items: ", item);
   // Format date helper
   const formatDate = (date) => {
     const d = new Date(date);
@@ -67,20 +66,6 @@ function VideoContent({ item, onUpdate, onCancel }) {
     content.contentType?.startsWith('video/') &&
     content.fileName.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
-
-  const handleVideoMetadataLoad = (e) => {
-    // const video = e.target;
-    // const duration = video.duration;
-    // const minutes = Math.floor(duration / 60);
-    // const seconds = Math.floor(duration % 60);
-    // const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    // setVideoDuration(formattedDuration);
-    // if (onUpdate) {
-    //   onUpdate(item.itemId, {
-    //     videoDuration: formattedDuration
-    //   });
-    // }
-  };
 
   const handleUploadFile = async (file, override = false) => {
     if (item.videoId) {
@@ -255,7 +240,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
         content: null,
         contentType: null,
         videoId: null,
-        videoDuration: null
+        videoDuration: null,
+        thumbnailUrl: null
       });
     }
     if (onCancel) {
@@ -308,7 +294,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
           content: content.fileName,
           downloadable: false,
           videoId: content.id,
-          videoDuration: content.duration
+          videoDuration: content.duration,
+          thumbnailUrl: content.thumbnailUrl
         });
         setVideoDuration(content.duration);
       }
@@ -465,18 +452,31 @@ function VideoContent({ item, onUpdate, onCancel }) {
                 position: "relative",
               }}
             >
-              <video
-                src={uploadedContent}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}
-                preload="metadata"
-                onLoadedMetadata={handleVideoMetadataLoad}
-                onContextMenu={(e) => e.preventDefault()}
-                controlsList="nodownload"
-              />
+              {item.thumbnailUrl ? (
+                <img
+                  src={item.thumbnailUrl}
+                  alt="Video Thumbnail"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                  onContextMenu={(e) => e.preventDefault()}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    color: "text.secondary",
+                  }}
+                >
+                  <Typography variant="caption">Processing...</Typography>
+                </Box>
+              )}
             </Box>
 
             {/* Video Info */}

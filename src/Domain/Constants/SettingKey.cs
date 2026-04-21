@@ -35,6 +35,9 @@ public static class SettingKey
     public const string Email_FromName = "Email_FromName";
     public const string Email_FromAddress = "Email_FromAddress";
 
+    // === Chatbot ===
+    public const string Chatbot_ServiceUrl = "Chatbot_ServiceUrl";
+
     public static IReadOnlyList<string> GetAllKeys()
     {
         return typeof(SettingKey)

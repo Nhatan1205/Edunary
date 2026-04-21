@@ -56,7 +56,9 @@ public class GetCPByItemIdQueryHandler : IRequestHandler<GetCPByItemIdQuery, Cou
                     Type = currentItemData.Type,
                     VideoId = currentItemData.VideoId,
                     LastPosition = currentItemData.LastPosition,
-                    IsCompleted = currentItemData.IsCompleted
+                    IsCompleted = currentItemData.IsCompleted,
+                    Downloadable = currentItemData.Downloadable
+
                 },
                 Navigation = new NavigationDto
                 {

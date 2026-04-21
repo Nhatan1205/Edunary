@@ -1517,6 +1517,43 @@
         ]
       }
     },
+    "/api/MediaFile/{id}/download-url": {
+      "get": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "GetDownloadUrl",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadUrlDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/MediaFile/hls/{videoId}": {
       "get": {
         "tags": [
@@ -3508,6 +3545,9 @@
           },
           "isCompleted": {
             "type": "boolean"
+          },
+          "downloadable": {
+            "type": "boolean"
           }
         }
       },
@@ -4728,6 +4768,16 @@
             "nullable": true
           },
           "uploadId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DownloadUrlDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
             "type": "string",
             "nullable": true
           }

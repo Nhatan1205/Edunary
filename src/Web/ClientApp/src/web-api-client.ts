@@ -1664,6 +1664,84 @@ export class MediaFileClient {
         return Promise.resolve<ReturnResultOfGenerateUploadUrlDto>(null as any);
     }
 
+    startMultipartUpload(command: StartMultipartUploadCommand | undefined): Promise<ReturnResultOfStartMultipartUploadDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/multipart/start";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processStartMultipartUpload(_response);
+        });
+    }
+
+    protected processStartMultipartUpload(response: Response): Promise<ReturnResultOfStartMultipartUploadDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfStartMultipartUploadDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfStartMultipartUploadDto>(null as any);
+    }
+
+    completeMultipartUpload(command: CompleteMultipartUploadCommand | undefined): Promise<ReturnResultOfBoolean> {
+        let url_ = this.baseUrl + "/api/MediaFile/multipart/complete";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCompleteMultipartUpload(_response);
+        });
+    }
+
+    protected processCompleteMultipartUpload(response: Response): Promise<ReturnResultOfBoolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfBoolean.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfBoolean>(null as any);
+    }
+
     getHlsStream(videoId: string | null, fileName: string | null): Promise<void> {
         let url_ = this.baseUrl + "/api/MediaFile/hls/{videoId}";
         if (videoId === undefined || videoId === null)
@@ -6494,6 +6572,226 @@ export class GenerateUploadUrlCommand implements IGenerateUploadUrlCommand {
 export interface IGenerateUploadUrlCommand {
     fileName?: string | undefined;
     contentType?: string | undefined;
+}
+
+export class ReturnResultOfStartMultipartUploadDto implements IReturnResultOfStartMultipartUploadDto {
+    result?: StartMultipartUploadDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfStartMultipartUploadDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? StartMultipartUploadDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfStartMultipartUploadDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfStartMultipartUploadDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfStartMultipartUploadDto {
+    result?: StartMultipartUploadDto | undefined;
+    message?: string | undefined;
+}
+
+export class StartMultipartUploadDto implements IStartMultipartUploadDto {
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    uploadId?: string | undefined;
+    presignedUrls?: string[] | undefined;
+
+    constructor(data?: IStartMultipartUploadDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.fileUrl = _data["fileUrl"];
+            this.uploadId = _data["uploadId"];
+            if (Array.isArray(_data["presignedUrls"])) {
+                this.presignedUrls = [] as any;
+                for (let item of _data["presignedUrls"])
+                    this.presignedUrls!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): StartMultipartUploadDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StartMultipartUploadDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["fileUrl"] = this.fileUrl;
+        data["uploadId"] = this.uploadId;
+        if (Array.isArray(this.presignedUrls)) {
+            data["presignedUrls"] = [];
+            for (let item of this.presignedUrls)
+                data["presignedUrls"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IStartMultipartUploadDto {
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    uploadId?: string | undefined;
+    presignedUrls?: string[] | undefined;
+}
+
+export class StartMultipartUploadCommand implements IStartMultipartUploadCommand {
+    fileName?: string | undefined;
+    contentType?: string | undefined;
+    partsCount?: number;
+
+    constructor(data?: IStartMultipartUploadCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.contentType = _data["contentType"];
+            this.partsCount = _data["partsCount"];
+        }
+    }
+
+    static fromJS(data: any): StartMultipartUploadCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new StartMultipartUploadCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["contentType"] = this.contentType;
+        data["partsCount"] = this.partsCount;
+        return data;
+    }
+}
+
+export interface IStartMultipartUploadCommand {
+    fileName?: string | undefined;
+    contentType?: string | undefined;
+    partsCount?: number;
+}
+
+export class ReturnResultOfBoolean implements IReturnResultOfBoolean {
+    result?: boolean;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfBoolean) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfBoolean {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfBoolean();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfBoolean {
+    result?: boolean;
+    message?: string | undefined;
+}
+
+export class CompleteMultipartUploadCommand implements ICompleteMultipartUploadCommand {
+    fileName?: string | undefined;
+    uploadId?: string | undefined;
+
+    constructor(data?: ICompleteMultipartUploadCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.uploadId = _data["uploadId"];
+        }
+    }
+
+    static fromJS(data: any): CompleteMultipartUploadCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompleteMultipartUploadCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["uploadId"] = this.uploadId;
+        return data;
+    }
+}
+
+export interface ICompleteMultipartUploadCommand {
+    fileName?: string | undefined;
+    uploadId?: string | undefined;
 }
 
 export class UploadSessionDto implements IUploadSessionDto {

@@ -64,6 +64,8 @@ public class ItemSchema
     public int VideoId { get; set; }
     [JsonPropertyName("videoDuration")]
     public string VideoDuration { get; set; } = "1 minute";
+    [JsonPropertyName("isFreePreview")]
+    public bool IsFreePreview { get; set; } = false;
     [JsonPropertyName("isCompleted")]
     public bool IsCompleted { get; set; } = false;
     [JsonPropertyName("lastPosition")]

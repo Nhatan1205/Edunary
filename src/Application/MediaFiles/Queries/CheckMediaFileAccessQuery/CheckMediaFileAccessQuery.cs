@@ -1,4 +1,5 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -24,16 +25,16 @@ public class CheckMediaFileAccessQueryHandler : IRequestHandler<CheckMediaFileAc
 
     public async Task<bool> Handle(CheckMediaFileAccessQuery request, CancellationToken cancellationToken)
     {
-        var userId = _user.Id;
-        if (string.IsNullOrEmpty(userId)) return false;
-
         var mediaFile = await _context.MediaFiles
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.Id == request.VideoId, cancellationToken);
 
-        if (mediaFile == null) return false;
+        if (mediaFile == null || mediaFile.HlsStatus != VideoStatus.READY || mediaFile.Status != UploadStatus.COMPLETED) return false;
 
-        if (mediaFile.UserId == userId) return true;
+        var userId = _user.Id;
+
+        // Check ownership
+        if (!string.IsNullOrEmpty(userId) && mediaFile.UserId == userId) return true;
 
         if (mediaFile.CourseId.HasValue)
         {
@@ -41,13 +42,47 @@ public class CheckMediaFileAccessQueryHandler : IRequestHandler<CheckMediaFileAc
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == mediaFile.CourseId.Value, cancellationToken);
             
-            if (course != null && course.CreatedBy == userId) return true;
+            if (course != null)
+            {
+                // check if the course owner is the current user
+                if (!string.IsNullOrEmpty(userId) && course.CreatedBy == userId) return true;
 
-            var isEnrolled = await _context.Enrollments
-                .AsNoTracking()
-                .AnyAsync(e => e.CourseId == mediaFile.CourseId.Value && e.StudentId == userId, cancellationToken);
+                // check if the item is a free preview
+                if (!string.IsNullOrEmpty(course.Content))
+                {
+                    // A quick check via string contains or parsing the JSON
+                    if (course.Content.Contains($"\"videoId\":{request.VideoId}") && course.Content.Contains("\"isFreePreview\":true"))
+                    {
+                        try
+                        {
+                            var contentObj = System.Text.Json.JsonSerializer.Deserialize<Edunary.Application.CourseProgresses.Commands.UpdateCourseProgressCommand.CourseContentSchema>(course.Content);
+                            if (contentObj != null && contentObj.Contents != null)
+                            {
+                                foreach (var section in contentObj.Contents)
+                                {
+                                    foreach (var item in section.Items)
+                                    {
+                                        if (item.VideoId == request.VideoId && item.IsFreePreview)
+                                        {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch { /* ignore json parse errors */ }
+                    }
+                }
+            }
 
-            if (isEnrolled) return true;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var isEnrolled = await _context.Enrollments
+                    .AsNoTracking()
+                    .AnyAsync(e => e.CourseId == mediaFile.CourseId.Value && e.StudentId == userId, cancellationToken);
+
+                if (isEnrolled) return true;
+            }
         }
 
         return false;

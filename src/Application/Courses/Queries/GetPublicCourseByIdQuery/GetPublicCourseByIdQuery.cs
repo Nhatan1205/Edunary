@@ -62,7 +62,9 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
                     {
                         Title = item.Title,
                         ContentType = item.ContentType,
-                        VideoDuration = item.VideoDuration ?? "0 seconds"
+                        VideoDuration = item.VideoDuration ?? "0 seconds",
+                        IsFreePreview = item.IsFreePreview,
+                        VideoId = item.IsFreePreview ? item.VideoId : 0
                     }).ToList()
                 }).ToList()
             };

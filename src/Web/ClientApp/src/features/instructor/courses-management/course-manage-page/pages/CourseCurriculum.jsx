@@ -76,6 +76,21 @@ function CourseCurriculum() {
     }
   }, [courseData]);
 
+  // Broadcast data dynamically to any listening preview tab
+  useEffect(() => {
+    const channel = new BroadcastChannel(`preview_channel_${courseId}`);
+    
+    channel.onmessage = (event) => {
+      if (event.data.type === 'REQUEST_DATA') {
+        channel.postMessage({ type: 'SEND_DATA', payload: sections });
+      }
+    };
+    
+    // channel.postMessage({ type: 'SEND_DATA', payload: sections }); // real time
+
+    return () => channel.close();
+  }, [sections, courseId]);
+
   const getGlobalIndex = (sectionIndex, itemIndex) => {
     let count = 1;
     for (let i = 0; i < sectionIndex; i++) {
@@ -567,29 +582,56 @@ function CourseCurriculum() {
           </Typography>
         </Box>
 
-        <Button
-          variant="contained"
-          size="large"
-          onClick={handleUpdateCourse}
-          disabled={isCourseDataLoading || isUpdating || !hasUnsavedChanges}
-          sx={{
-            bgcolor: "brand.main",
-            "&:hover": {
-              backgroundColor: "brand.dark",
-            },
-            position: "relative",
-            fontWeight: 600,
-          }}
-        >
-          {isUpdating ? (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <LoadingSpinner size={24} />
-              <span>Saving...</span>
-            </Box>
-          ) : (
-            "Save"
-          )}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="outlined"
+            size="large"
+            onClick={(e) => {
+              e.preventDefault();
+              // const channel = new BroadcastChannel(`preview_channel_${courseId}`);
+              // channel.postMessage({ type: 'SEND_DATA', payload: sections });
+              window.open(`/instructor/course-preview/${courseId}`, '_blank');
+              // channel.close();
+            }}
+            sx={{
+              borderColor: "brand.main",
+              color: "brand.main",
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                borderColor: "brand.dark",
+                bgcolor: "background.alt"
+              }
+            }}
+          >
+            Preview
+          </Button>
+
+          <Button
+            variant="contained"
+            size="large"
+            onClick={handleUpdateCourse}
+            disabled={isCourseDataLoading || isUpdating || !hasUnsavedChanges}
+            sx={{
+              bgcolor: "brand.main",
+              "&:hover": {
+                backgroundColor: "brand.dark",
+              },
+              position: "relative",
+              fontWeight: 600,
+            }}
+          >
+            {isUpdating ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <LoadingSpinner size={24} />
+                <span>Saving...</span>
+              </Box>
+            ) : (
+              "Save"
+            )}
+          </Button>
+        </Box>
       </Box>
       <Divider />
 

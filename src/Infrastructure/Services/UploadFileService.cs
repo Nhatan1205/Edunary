@@ -59,7 +59,8 @@ public class UploadFileService : IUploadFileService
                 SettingKey.DigitalOcean_SecretKey,
                 SettingKey.DigitalOcean_Endpoint,
                 SettingKey.DigitalOcean_SpaceName,
-                SettingKey.DigitalOcean_CDNEndpoint
+                SettingKey.DigitalOcean_CDNEndpoint,
+                SettingKey.DigitalOcean_SpacesRegion,
             }
         });
 
@@ -70,10 +71,16 @@ public class UploadFileService : IUploadFileService
             Endpoint = GetOrFallback(dbValues, SettingKey.DigitalOcean_Endpoint, _fallbackDigitalOceanSettings.Endpoint),
             SpaceName = GetOrFallback(dbValues, SettingKey.DigitalOcean_SpaceName, _fallbackDigitalOceanSettings.SpaceName),
             CDNEndpoint = GetOrFallback(dbValues, SettingKey.DigitalOcean_CDNEndpoint, _fallbackDigitalOceanSettings.CDNEndpoint),
+            SpacesRegion = GetOrFallback(dbValues, SettingKey.DigitalOcean_SpacesRegion, _fallbackDigitalOceanSettings.SpacesRegion)
         };
 
         var client = new AmazonS3Client(settings.AccessKey, settings.SecretKey,
-            new AmazonS3Config { ServiceURL = settings.Endpoint, ForcePathStyle = true });
+            new AmazonS3Config 
+            { 
+                ServiceURL = settings.Endpoint, 
+                ForcePathStyle = true,
+                AuthenticationRegion = settings.SpacesRegion
+            });
 
         return (client, settings);
     }
@@ -137,7 +144,7 @@ public class UploadFileService : IUploadFileService
 
         if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
         {
-            return $"{spacesSettings.CDNEndpoint}/{folder}/{fileName}";
+            return $"{spacesSettings.CDNEndpoint}/{spacesSettings.SpaceName}/{folder}/{fileName}";
         }
         return null;
     }
@@ -175,6 +182,78 @@ public class UploadFileService : IUploadFileService
         request.Parameters.Add("x-amz-acl", "public-read");
         string url = s3Client.GetPreSignedURL(request);
         return url;
+    }
+
+    public async Task<(string UploadId, List<string> PresignedUrls)> StartMultipartUploadAsync(string fileName, string contentType, int partsCount)
+    {
+        var (s3Client, spacesSettings) = await GetS3ClientAsync();
+        var userId = _currentUserService?.UserId;
+        var folder = $"courses/{userId}";
+        var key = $"{folder}/{fileName}";
+
+        var initiateRequest = new InitiateMultipartUploadRequest
+        {
+            BucketName = spacesSettings.SpaceName,
+            Key = key,
+            // ContentType = contentType,
+            CannedACL = S3CannedACL.PublicRead
+        };
+        var initResponse = await s3Client.InitiateMultipartUploadAsync(initiateRequest);
+        var uploadId = initResponse.UploadId;
+
+        var urls = new List<string>();
+        // Sử dụng thời hạn 60 phút để upload hoàn tất các phần
+        for (int i = 1; i <= partsCount; i++)
+        {
+            var presignRequest = new GetPreSignedUrlRequest
+            {
+                BucketName = spacesSettings.SpaceName,
+                Key = key,
+                Verb = HttpVerb.PUT,
+                Expires = DateTime.UtcNow.AddMinutes(60),
+                UploadId = uploadId,
+                PartNumber = i
+            };
+            string url = s3Client.GetPreSignedURL(presignRequest);
+            urls.Add(url);
+        }
+
+        return (uploadId, urls);
+    }
+
+    public async Task<bool> CompleteMultipartUploadAsync(string fileName, string uploadId)
+    {
+        var (s3Client, spacesSettings) = await GetS3ClientAsync();
+        var userId = _currentUserService?.UserId;
+        var folder = $"courses/{userId}";
+        var key = $"{folder}/{fileName}";
+
+        var listPartsRequest = new ListPartsRequest
+        {
+            BucketName = spacesSettings.SpaceName,
+            Key = key,
+            UploadId = uploadId
+        };
+        var listPartsResponse = await s3Client.ListPartsAsync(listPartsRequest);
+        var fetchedParts = listPartsResponse.Parts.Select(p => new PartETag(p.PartNumber.GetValueOrDefault(), p.ETag)).ToList();
+
+        var completeRequest = new CompleteMultipartUploadRequest
+        {
+            BucketName = spacesSettings.SpaceName,
+            Key = key,
+            UploadId = uploadId,
+            PartETags = fetchedParts
+        };
+
+        try
+        {
+            var response = await s3Client.CompleteMultipartUploadAsync(completeRequest);
+            return response.HttpStatusCode == System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }
 

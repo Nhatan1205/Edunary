@@ -17,8 +17,6 @@ import ChangeRoleDialog from "./components/ChangeRoleDialog";
 import ConfirmDialog from "../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import RestrictUserDialog from "../components/RestrictUserDialog";
 
-// ── Shared styles ──────────────────────────────────────────────────────────────
-
 const addBtnSx = {
     bgcolor: "brand.main",
     color: "#fff",
@@ -32,7 +30,6 @@ const addBtnSx = {
     "&:hover": { bgcolor: "brand.dark", boxShadow: "none" },
 };
 
-// ── Component ──────────────────────────────────────────────────────────────────
 
 function UserPage() {
     //search states
@@ -50,7 +47,7 @@ function UserPage() {
     const [sortBy, setSortBy] = useState("newest");      // "newest" | "name" | "lastLogin"
 
 
-    const { data, isLoading, isError } = useAdminGetUsers(
+    const { data, isLoading, isError, isFetching, refetch } = useAdminGetUsers(
         debouncedSearch,
         roleFilter || null,
         activeTab === "All" ? null : activeTab,
@@ -59,9 +56,6 @@ function UserPage() {
         rowsPerPage
     );
 
-    // ── Counts ổn định cho Status Tabs ────────────────────────────────────────
-    // Hook riêng, không phụ thuộc vào search/filter
-    // Chỉ re-fetch khi ban/unban/add user (invalidate queryKey "admin-user-status-counts")
     const { data: statusCountsData } = useAdminGetUserStatusCounts();
 
     const handleSearchChange = useCallback((value) => {
@@ -201,6 +195,8 @@ function UserPage() {
                 onUnban={handleUnban}
                 onChangeRole={handleChangeRole}
                 onViewDetail={handleViewDetail}
+                onRefresh={refetch}
+                isRefreshing={isFetching && !isLoading}
             />
 
             <Box sx={{ height: 80 }} />

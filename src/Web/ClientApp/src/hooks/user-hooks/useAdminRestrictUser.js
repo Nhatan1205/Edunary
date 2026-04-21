@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { UserClient } from "../../web-api-client.ts";
 import queryClient from "../../configs/reactQuery.js";
 
-// durationDays = null → permanent ban, có giá trị → suspend tạm thời
 const useAdminRestrictUser = () => {
     const client = new UserClient();
     return useMutation({

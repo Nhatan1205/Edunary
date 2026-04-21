@@ -53,7 +53,7 @@ function CategoryPage() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
 
-    const { data, isLoading } = useAdminGetCategories(
+    const { data, isLoading, isFetching, refetch } = useAdminGetCategories(
         debouncedSearch || null,
         page + 1,
         rowsPerPage
@@ -159,6 +159,8 @@ function CategoryPage() {
                 onChangeRowsPerPage={handleChangeRowsPerPage}
                 data={data}
                 isLoading={isLoading}
+                onRefresh={refetch}
+                isRefreshing={isFetching && !isLoading}
             />
 
             {/* ── Dialog (shared for create & edit) ── */}

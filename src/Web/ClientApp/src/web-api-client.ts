@@ -3506,6 +3506,117 @@ export class UserClient {
         return Promise.resolve<AdminUserDetailDto>(null as any);
     }
 
+    adminGetOverviewSummary(): Promise<AdminOverviewSummaryDto> {
+        let url_ = this.baseUrl + "/api/User/admin/overview/summary";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminGetOverviewSummary(_response);
+        });
+    }
+
+    protected processAdminGetOverviewSummary(response: Response): Promise<AdminOverviewSummaryDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminOverviewSummaryDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AdminOverviewSummaryDto>(null as any);
+    }
+
+    adminGetRegistrationTrend(range: string | null | undefined): Promise<RegistrationTrendDto> {
+        let url_ = this.baseUrl + "/api/User/admin/overview/registration-trend?";
+        if (range !== undefined && range !== null)
+            url_ += "Range=" + encodeURIComponent("" + range) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminGetRegistrationTrend(_response);
+        });
+    }
+
+    protected processAdminGetRegistrationTrend(response: Response): Promise<RegistrationTrendDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RegistrationTrendDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RegistrationTrendDto>(null as any);
+    }
+
+    adminGetNewVsReturning(year: number): Promise<NewVsReturningDto> {
+        let url_ = this.baseUrl + "/api/User/admin/overview/new-vs-returning?";
+        if (year === undefined || year === null)
+            throw new Error("The parameter 'year' must be defined and cannot be null.");
+        else
+            url_ += "Year=" + encodeURIComponent("" + year) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminGetNewVsReturning(_response);
+        });
+    }
+
+    protected processAdminGetNewVsReturning(response: Response): Promise<NewVsReturningDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = NewVsReturningDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<NewVsReturningDto>(null as any);
+    }
+
     adminRestrictUser(command: RestrictUserCommand | undefined): Promise<Result> {
         let url_ = this.baseUrl + "/api/User/admin/restrict";
         url_ = url_.replace(/[?&]$/, "");
@@ -10795,6 +10906,270 @@ export interface IAdminCreatedCourseDto {
     status?: string | undefined;
     totalStudents?: number;
     ratings?: number;
+}
+
+export class AdminOverviewSummaryDto implements IAdminOverviewSummaryDto {
+    activeUsers?: number;
+    activeUsersTrend?: number;
+    newUsers30d?: number;
+    newUsersTrend?: number;
+    onlineNow?: number;
+    statusActive?: number;
+    statusInactive?: number;
+    statusSuspended?: number;
+    statusBanned?: number;
+    topActiveUsers?: TopActiveUserDto[] | undefined;
+
+    constructor(data?: IAdminOverviewSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.activeUsers = _data["activeUsers"];
+            this.activeUsersTrend = _data["activeUsersTrend"];
+            this.newUsers30d = _data["newUsers30d"];
+            this.newUsersTrend = _data["newUsersTrend"];
+            this.onlineNow = _data["onlineNow"];
+            this.statusActive = _data["statusActive"];
+            this.statusInactive = _data["statusInactive"];
+            this.statusSuspended = _data["statusSuspended"];
+            this.statusBanned = _data["statusBanned"];
+            if (Array.isArray(_data["topActiveUsers"])) {
+                this.topActiveUsers = [] as any;
+                for (let item of _data["topActiveUsers"])
+                    this.topActiveUsers!.push(TopActiveUserDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AdminOverviewSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminOverviewSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["activeUsers"] = this.activeUsers;
+        data["activeUsersTrend"] = this.activeUsersTrend;
+        data["newUsers30d"] = this.newUsers30d;
+        data["newUsersTrend"] = this.newUsersTrend;
+        data["onlineNow"] = this.onlineNow;
+        data["statusActive"] = this.statusActive;
+        data["statusInactive"] = this.statusInactive;
+        data["statusSuspended"] = this.statusSuspended;
+        data["statusBanned"] = this.statusBanned;
+        if (Array.isArray(this.topActiveUsers)) {
+            data["topActiveUsers"] = [];
+            for (let item of this.topActiveUsers)
+                data["topActiveUsers"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAdminOverviewSummaryDto {
+    activeUsers?: number;
+    activeUsersTrend?: number;
+    newUsers30d?: number;
+    newUsersTrend?: number;
+    onlineNow?: number;
+    statusActive?: number;
+    statusInactive?: number;
+    statusSuspended?: number;
+    statusBanned?: number;
+    topActiveUsers?: TopActiveUserDto[] | undefined;
+}
+
+export class TopActiveUserDto implements ITopActiveUserDto {
+    id?: string | undefined;
+    fullName?: string | undefined;
+    avatar?: string | undefined;
+    enrolledCount?: number;
+    lastLogin?: string | undefined;
+
+    constructor(data?: ITopActiveUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fullName = _data["fullName"];
+            this.avatar = _data["avatar"];
+            this.enrolledCount = _data["enrolledCount"];
+            this.lastLogin = _data["lastLogin"];
+        }
+    }
+
+    static fromJS(data: any): TopActiveUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TopActiveUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fullName"] = this.fullName;
+        data["avatar"] = this.avatar;
+        data["enrolledCount"] = this.enrolledCount;
+        data["lastLogin"] = this.lastLogin;
+        return data;
+    }
+}
+
+export interface ITopActiveUserDto {
+    id?: string | undefined;
+    fullName?: string | undefined;
+    avatar?: string | undefined;
+    enrolledCount?: number;
+    lastLogin?: string | undefined;
+}
+
+export class RegistrationTrendDto implements IRegistrationTrendDto {
+    period?: string | undefined;
+    labels?: string[] | undefined;
+    data?: number[] | undefined;
+
+    constructor(data?: IRegistrationTrendDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.period = _data["period"];
+            if (Array.isArray(_data["labels"])) {
+                this.labels = [] as any;
+                for (let item of _data["labels"])
+                    this.labels!.push(item);
+            }
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): RegistrationTrendDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegistrationTrendDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["period"] = this.period;
+        if (Array.isArray(this.labels)) {
+            data["labels"] = [];
+            for (let item of this.labels)
+                data["labels"].push(item);
+        }
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IRegistrationTrendDto {
+    period?: string | undefined;
+    labels?: string[] | undefined;
+    data?: number[] | undefined;
+}
+
+export class NewVsReturningDto implements INewVsReturningDto {
+    year?: number;
+    labels?: string[] | undefined;
+    newUsers?: number[] | undefined;
+    returningUsers?: number[] | undefined;
+
+    constructor(data?: INewVsReturningDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.year = _data["year"];
+            if (Array.isArray(_data["labels"])) {
+                this.labels = [] as any;
+                for (let item of _data["labels"])
+                    this.labels!.push(item);
+            }
+            if (Array.isArray(_data["newUsers"])) {
+                this.newUsers = [] as any;
+                for (let item of _data["newUsers"])
+                    this.newUsers!.push(item);
+            }
+            if (Array.isArray(_data["returningUsers"])) {
+                this.returningUsers = [] as any;
+                for (let item of _data["returningUsers"])
+                    this.returningUsers!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): NewVsReturningDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new NewVsReturningDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["year"] = this.year;
+        if (Array.isArray(this.labels)) {
+            data["labels"] = [];
+            for (let item of this.labels)
+                data["labels"].push(item);
+        }
+        if (Array.isArray(this.newUsers)) {
+            data["newUsers"] = [];
+            for (let item of this.newUsers)
+                data["newUsers"].push(item);
+        }
+        if (Array.isArray(this.returningUsers)) {
+            data["returningUsers"] = [];
+            for (let item of this.returningUsers)
+                data["returningUsers"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface INewVsReturningDto {
+    year?: number;
+    labels?: string[] | undefined;
+    newUsers?: number[] | undefined;
+    returningUsers?: number[] | undefined;
 }
 
 export class RestrictUserCommand implements IRestrictUserCommand {

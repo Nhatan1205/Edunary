@@ -74,40 +74,16 @@ const adminMenuConfig = {
           icon: PersonOutlineOutlinedIcon,
           children: [
             {
-              id: "user-profile",
-              title: "Profile",
+              id: "user-overview",
+              title: "Overview",
               type: "item",
-              url: "/admin/user/profile",
-            },
-            {
-              id: "user-cards",
-              title: "Cards",
-              type: "item",
-              url: "/admin/user/cards",
+              url: "/admin/user/overview",
             },
             {
               id: "user-list",
               title: "List",
               type: "item",
               url: "/admin/user/list",
-            },
-            {
-              id: "user-create",
-              title: "Create",
-              type: "item",
-              url: "/admin/user/create",
-            },
-            {
-              id: "user-edit",
-              title: "Edit",
-              type: "item",
-              url: "/admin/user/edit",
-            },
-            {
-              id: "user-account",
-              title: "Account",
-              type: "item",
-              url: "/admin/user/account",
             },
           ],
         },

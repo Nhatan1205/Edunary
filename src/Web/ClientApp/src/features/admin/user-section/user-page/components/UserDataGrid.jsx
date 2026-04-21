@@ -334,6 +334,8 @@ function UserDataGrid({
     onUnban,
     onChangeRole,
     onViewDetail,
+    onRefresh,
+    isRefreshing = false,
 }) {
     const table = useDataGrid({ defaultOrderBy: "fullName" });
 
@@ -397,6 +399,8 @@ function UserDataGrid({
                 customRightAction={
                     <SortPopover sortBy={sortBy} onChange={onSortChange} />
                 }
+                onRefresh={onRefresh}
+                isRefreshing={isRefreshing}
             />
 
             <TableContainer sx={{ maxHeight: 580, overflowY: "auto", overflowX: "auto" }}>

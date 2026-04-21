@@ -48,7 +48,7 @@ export function ChartLoading({ type, sx }) {
  * @param {object} sx       - MUI sx for the wrapper Box
  * @param {object} slotProps - { loading: sx }
  */
-export function Chart({ type, series, options, sx, slotProps, ...rest }) {
+function Chart({ type, series, options, sx, slotProps, ...rest }) {
   return (
     <Box
       sx={{
@@ -72,3 +72,5 @@ export function Chart({ type, series, options, sx, slotProps, ...rest }) {
     </Box>
   );
 }
+
+export default Chart;

@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Globalization;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
@@ -6,6 +7,9 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.Users;
 using Edunary.Application.Users.Queries.GetAdminUserStatusCountsQuery;
+using Edunary.Application.Users.Queries.GetAdminOverviewSummaryQuery;
+using Edunary.Application.Users.Queries.GetRegistrationTrendQuery;
+using Edunary.Application.Users.Queries.GetNewVsReturningQuery;
 using Edunary.Domain.Common;
 using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
@@ -980,6 +984,34 @@ public class IdentityService : IIdentityService
         }
     }
 
+    public async Task<List<UserIdentityDto>> GetUserIdentitiesByIdsAsync(
+        List<string> ids, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var users = await _context.Users
+                .Where(u => ids.Contains(u.Id))
+                .Select(u => new UserIdentityDto
+                {
+                    Id            = u.Id,
+                    FullName      = u.FullName,
+                    Email         = u.Email,
+                    Avatar        = u.Avatar,
+                    Status        = u.Status,
+                    LastLoginTime = u.LastLoginTime,
+                    CreatedAt     = u.CreatedAt,
+                })
+                .ToListAsync(cancellationToken);
+
+            return users;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetUserIdentitiesByIdsAsync. Ex: {0}", ex.Message);
+            return new List<UserIdentityDto>();
+        }
+    }
+
     public async Task<Result> AddUserAsync(string email, string fullName, string password)
     {
         try
@@ -1080,6 +1112,179 @@ public class IdentityService : IIdentityService
         {
             _logger.LogError("Exception at ChangeUserRoleAsync. Ex: {0}", ex.Message);
             return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<OverviewStatsResult> GetOverviewStatsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var now = DateTime.UtcNow;
+            var sevenDaysAgo = now.AddDays(-7);
+            var thirtyDaysAgo = now.AddDays(-30);
+            var sixtyDaysAgo = now.AddDays(-60);
+
+            //1. get status counts, group by status
+            var groups = await _context.Users
+                .GroupBy(u => u.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync(cancellationToken);
+
+            var dict = groups.ToDictionary(x => x.Status, x => x.Count);
+
+            var statusActive    = dict.GetValueOrDefault(UserStatus.Active,    0);
+            var statusInactive  = dict.GetValueOrDefault(UserStatus.Inactive,  0);
+            var statusSuspended = dict.GetValueOrDefault(UserStatus.Suspended, 0);
+            var statusBanned    = dict.GetValueOrDefault(UserStatus.Banned,    0);
+
+            //2. trend counts
+            var trends = await _context.Users
+                .GroupBy(_ => 1)
+                .Select(g => new
+                {
+                    ActiveBefore7d  = g.Count(u => u.Status == UserStatus.Active && u.CreatedAt <= sevenDaysAgo),
+                    New30d          = g.Count(u => u.CreatedAt >= thirtyDaysAgo),
+                    NewPrev30d      = g.Count(u => u.CreatedAt >= sixtyDaysAgo && u.CreatedAt < thirtyDaysAgo),
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            // % trend: (current - previous) / previous * 100, rounded to 1 decimal
+            static double CalcTrend(int current, int previous)
+                => previous == 0 ? 0 : Math.Round((double)(current - previous) / previous * 100, 1);
+
+            return new OverviewStatsResult
+            {
+                ActiveUsers      = statusActive,
+                ActiveUsersTrend = CalcTrend(statusActive, trends?.ActiveBefore7d ?? 0),
+                NewUsers30d      = trends?.New30d ?? 0,
+                NewUsersTrend    = CalcTrend(trends?.New30d ?? 0, trends?.NewPrev30d ?? 0),
+
+                StatusActive    = statusActive,
+                StatusInactive  = statusInactive,
+                StatusSuspended = statusSuspended,
+                StatusBanned    = statusBanned,
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetOverviewStatsAsync. Ex: {0}", ex.Message);
+            return new OverviewStatsResult();
+        }
+    }
+
+    public async Task<RegistrationTrendDto> GetRegistrationTrendAsync(
+        string range, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var now = DateTime.UtcNow;
+            bool groupByDay;
+            DateTime startDate;
+
+            switch (range)
+            {
+                case "7d":  startDate = now.AddDays(-7);    groupByDay = true;  break;
+                case "3m":  startDate = now.AddMonths(-3);  groupByDay = false; break;
+                case "12m": startDate = now.AddMonths(-12); groupByDay = false; break;
+                default:    startDate = now.AddDays(-30);   groupByDay = true;  break; 
+            }
+
+            if (groupByDay)
+            {
+                // GROUP BY date — fill missing dates with 0
+                var raw = await _context.Users
+                    .Where(u => u.CreatedAt >= startDate)
+                    .GroupBy(u => u.CreatedAt.Date)
+                    .Select(g => new { Date = g.Key, Count = g.Count() })
+                    .OrderBy(x => x.Date)
+                    .ToListAsync(cancellationToken);
+
+                var dict = raw.ToDictionary(x => x.Date, x => x.Count);
+                var labels = new List<string>();
+                var data   = new List<int>();
+
+                for (var d = startDate.Date; d <= now.Date; d = d.AddDays(1))
+                {
+                    labels.Add(d.ToString("MMM d", CultureInfo.InvariantCulture));
+                    data.Add(dict.GetValueOrDefault(d, 0));
+                }
+
+                return new RegistrationTrendDto { Period = range, Labels = labels, Data = data };
+            }
+            else
+            {
+                // GROUP BY month
+                var raw = await _context.Users
+                    .Where(u => u.CreatedAt >= startDate)
+                    .GroupBy(u => new { u.CreatedAt.Year, u.CreatedAt.Month })
+                    .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
+                    .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                    .ToListAsync(cancellationToken);
+
+                var dict   = raw.ToDictionary(x => new DateTime(x.Year, x.Month, 1), x => x.Count);
+                var labels = new List<string>();
+                var data   = new List<int>();
+
+                var cursor = new DateTime(startDate.Year, startDate.Month, 1);
+                var end    = new DateTime(now.Year, now.Month, 1);
+                while (cursor <= end)
+                {
+                    labels.Add(cursor.ToString("MMM", CultureInfo.InvariantCulture));
+                    data.Add(dict.GetValueOrDefault(cursor, 0));
+                    cursor = cursor.AddMonths(1);
+                }
+
+                return new RegistrationTrendDto { Period = range, Labels = labels, Data = data };
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetRegistrationTrendAsync. Ex: {0}", ex.Message);
+            return new RegistrationTrendDto { Period = range };
+        }
+    }
+
+    public async Task<NewVsReturningDto> GetNewVsReturningAsync(
+        int year, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var currentMonth = DateTime.UtcNow.Year == year ? DateTime.UtcNow.Month : 12;
+
+            var raw = await _context.Users
+                .Where(u => u.CreatedAt.Year == year)
+                .GroupBy(u => u.CreatedAt.Month)
+                .Select(g => new { Month = g.Key, Count = g.Count() })
+                .ToListAsync(cancellationToken);
+
+            var dict   = raw.ToDictionary(x => x.Month, x => x.Count);
+            var labels  = new List<string>();
+            var newUsers = new List<int>();
+
+            for (int m = 1; m <= currentMonth; m++)
+            {
+                labels.Add(new DateTime(year, m, 1).ToString("MMM", CultureInfo.InvariantCulture));
+                newUsers.Add(dict.GetValueOrDefault(m, 0));
+            }
+
+            // #TODO: ReturningUsers requires LoginHistory table.
+            // LastLoginTime only stores the LAST login — cannot determine per-month returning users.
+            // Returning 0 as placeholder. Future: Add LoginHistory entity, then:
+            // COUNT DISTINCT UserId WHERE CreatedAt < month_start AND MONTH(LoginDate) = m AND YEAR = year
+            var returningUsers = Enumerable.Repeat(0, labels.Count).ToList();
+
+            return new NewVsReturningDto
+            {
+                Year           = year,
+                Labels         = labels,
+                NewUsers       = newUsers,
+                ReturningUsers = returningUsers,
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetNewVsReturningAsync. Ex: {0}", ex.Message);
+            return new NewVsReturningDto { Year = year };
         }
     }
 

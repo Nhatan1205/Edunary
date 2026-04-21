@@ -3,13 +3,14 @@ import {
     Box, Typography, Card, MenuItem, Select, FormControl, Skeleton,
 } from "@mui/material";
 
-import { Chart, useChart } from "../../../../../components/charts";
 import useAdminGetCategoryStats from "../../../../../hooks/category-hooks/useAdminGetCategoryStats";
 
 import imgTotalCategories from "../../../../../assets/images/card_total_categories.png";
 import imgActiveCategories from "../../../../../assets/images/card_active_categories.png";
 import imgEmptyCategories from "../../../../../assets/images/card_empty_categories.png";
 import imgAvgCourses from "../../../../../assets/images/card_avg_courses.png";
+import { useChart } from "../../../../../hooks/common/useChart";
+import Chart from "../../../../../components/charts/Chart";
 
 const METRICS = [
     { value: "courses", label: "Courses" },

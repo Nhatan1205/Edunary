@@ -31,7 +31,7 @@ const HEAD_LABEL = [
     { id: "created", label: "Created Date", align: "center", width: 180 },
 ];
 
-function CategoryDataGrid({ onEdit, onDelete, searchText, onSearchChange, page, rowsPerPage, onChangePage, onChangeRowsPerPage, data, isLoading }) {
+function CategoryDataGrid({ onEdit, onDelete, searchText, onSearchChange, page, rowsPerPage, onChangePage, onChangeRowsPerPage, data, isLoading, onRefresh, isRefreshing }) {
     const table = useDataGrid({ defaultOrderBy: "title" });
 
     const items = data?.items ?? [];
@@ -59,6 +59,8 @@ function CategoryDataGrid({ onEdit, onDelete, searchText, onSearchChange, page, 
                 filterName={searchText}
                 onFilterName={(e) => { onSearchChange(e.target.value); }}
                 searchPlaceholder="Search category..."
+                onRefresh={onRefresh}
+                isRefreshing={isRefreshing}
             />
 
             <TableContainer sx={{ maxHeight: 500, overflow: "auto" }}>

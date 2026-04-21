@@ -55,6 +55,7 @@ import SystemSettingsPage from "./features/admin/system-settings/SystemSettingsP
 import CategoryPage from "./features/admin/course-section/category-page/CategoryPage";
 import UserPage from "./features/admin/user-section/user-page/UserPage";
 import UserDetailPage from "./features/admin/user-section/user-detail-page/UserDetailPage";
+import UserOverviewPage from "./features/admin/user-section/user-overview-page/UserOverviewPage";
 
 const router = createBrowserRouter([
   {
@@ -74,10 +75,6 @@ const router = createBrowserRouter([
         element: <AdminDashboard />,
       },
       {
-        path: "user/profile",
-        element: <AdminDashboard />,
-      },
-      {
         path: "system-settings",
         element: <SystemSettingsPage />,
       },
@@ -86,12 +83,29 @@ const router = createBrowserRouter([
         element: <CategoryPage />,
       },
       {
-        path: "user/list",
-        element: <UserPage />
-      },
-      {
-        path: "user/:userId",
-        element: <UserDetailPage />
+        path: "user",
+        children: [
+          {
+            index: true,
+            element: <Navigate to="overview" replace />,
+          },
+          {
+            path: "overview",
+            element: <UserOverviewPage />,
+          },
+          {
+            path: "profile",
+            element: <AdminDashboard />,
+          },
+          {
+            path: "list",
+            element: <UserPage />,
+          },
+          {
+            path: ":userId",
+            element: <UserDetailPage />,
+          },
+        ],
       }
     ],
   },

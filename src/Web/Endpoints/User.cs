@@ -10,6 +10,9 @@ using Edunary.Application.Users.Commands.UpdateUserInfoCommand;
 using Edunary.Application.Users.Queries.GetAdminUserDetailQuery;
 using Edunary.Application.Users.Queries.GetAdminUsersWithPaginationQuery;
 using Edunary.Application.Users.Queries.GetAdminUserStatusCountsQuery;
+using Edunary.Application.Users.Queries.GetAdminOverviewSummaryQuery;
+using Edunary.Application.Users.Queries.GetRegistrationTrendQuery;
+using Edunary.Application.Users.Queries.GetNewVsReturningQuery;
 using Edunary.Application.Users.Queries.GetBasicUserInfoQuery;
 using Edunary.Application.Users.Queries.GetPublicUserInfoQuery;
 using Edunary.Application.Users.Queries.GetTopInstructorsQuery;
@@ -41,6 +44,9 @@ public class User : EndpointGroupBase
             .MapGet(AdminGetUsers, "admin")
             .MapGet(AdminGetUserStatusCounts, "admin/status-counts")
             .MapGet(AdminGetUserDetail, "admin/{userId}")
+            .MapGet(AdminGetOverviewSummary, "admin/overview/summary")
+            .MapGet(AdminGetRegistrationTrend, "admin/overview/registration-trend")
+            .MapGet(AdminGetNewVsReturning, "admin/overview/new-vs-returning")
             .MapPut(AdminRestrictUser, "admin/restrict")
             .MapPut(AdminUnbanUser, "admin/unban")
             .MapPut(AdminChangeUserRole, "admin/change-role");
@@ -124,5 +130,22 @@ public class User : EndpointGroupBase
         if (!result.Succeeded)
             return Results.BadRequest(result);
         return Results.Ok(result);
+    }
+
+    public async Task<AdminOverviewSummaryDto> AdminGetOverviewSummary(ISender sender)
+    {
+        return await sender.Send(new GetAdminOverviewSummaryQuery());
+    }
+
+    public async Task<RegistrationTrendDto> AdminGetRegistrationTrend(
+        ISender sender, [AsParameters] GetRegistrationTrendQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<NewVsReturningDto> AdminGetNewVsReturning(
+        ISender sender, [AsParameters] GetNewVsReturningQuery query)
+    {
+        return await sender.Send(query);
     }
 }

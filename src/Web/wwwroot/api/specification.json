@@ -3106,6 +3106,104 @@
         ]
       }
     },
+    "/api/User/admin/overview/summary": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "AdminGetOverviewSummary",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOverviewSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/User/admin/overview/registration-trend": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "AdminGetRegistrationTrend",
+        "parameters": [
+          {
+            "name": "Range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationTrendDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/User/admin/overview/new-vs-returning": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "AdminGetNewVsReturning",
+        "parameters": [
+          {
+            "name": "Year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewVsReturningDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/User/admin/restrict": {
       "put": {
         "tags": [
@@ -6841,6 +6939,139 @@
           "ratings": {
             "type": "number",
             "format": "float"
+          }
+        }
+      },
+      "AdminOverviewSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "activeUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeUsersTrend": {
+            "type": "number",
+            "format": "double"
+          },
+          "newUsers30d": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newUsersTrend": {
+            "type": "number",
+            "format": "double"
+          },
+          "onlineNow": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "statusActive": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "statusInactive": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "statusSuspended": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "statusBanned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "topActiveUsers": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TopActiveUserDto"
+            }
+          }
+        }
+      },
+      "TopActiveUserDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "enrolledCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastLogin": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RegistrationTrendDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "period": {
+            "type": "string",
+            "nullable": true
+          },
+          "labels": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "NewVsReturningDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "labels": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "newUsers": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "returningUsers": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       },

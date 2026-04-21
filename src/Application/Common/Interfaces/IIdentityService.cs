@@ -1,6 +1,9 @@
 using Edunary.Application.Common.Models;
 using Edunary.Application.Users;
 using Edunary.Application.Users.Queries.GetAdminUserStatusCountsQuery;
+using Edunary.Application.Users.Queries.GetAdminOverviewSummaryQuery;
+using Edunary.Application.Users.Queries.GetRegistrationTrendQuery;
+using Edunary.Application.Users.Queries.GetNewVsReturningQuery;
 using Edunary.Domain.Common;
 using Edunary.Domain.Enums;
 
@@ -50,6 +53,8 @@ public interface IIdentityService
 
     Task<UserIdentityDto> GetUserIdentityByIdAsync(string userId);
 
+    Task<List<UserIdentityDto>> GetUserIdentitiesByIdsAsync(List<string> ids, CancellationToken cancellationToken);
+
     Task<Result> AddUserAsync(string email, string fullName, string password);
 
     Task<Result> RestrictUserAsync(string userId, string currentAdminId, int? durationDays);
@@ -57,4 +62,23 @@ public interface IIdentityService
     Task<Result> UnbanUserAsync(string userId);
 
     Task<Result> ChangeUserRoleAsync(string userId, string newRole, string currentAdminId);
+
+
+    /// <summary>
+    /// Returns status-based counts + trend percentages for the overview stat cards.
+    /// Executes 2 lightweight aggregate queries on AspNetUsers.
+    /// </summary>
+    Task<OverviewStatsResult> GetOverviewStatsAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns per-day or per-month registration counts for the Area chart.
+    /// Range: "7d" | "30d" | "3m" | "12m"
+    /// </summary>
+    Task<RegistrationTrendDto> GetRegistrationTrendAsync(string range, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns new users per month for a given year.
+    /// ReturningUsers is always 0 until LoginHistory table is added.
+    /// </summary>
+    Task<NewVsReturningDto> GetNewVsReturningAsync(int year, CancellationToken cancellationToken);
 }

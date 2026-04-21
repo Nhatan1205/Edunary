@@ -10,6 +10,8 @@ using Edunary.Application.MediaFiles.Commands.DeleteMediaFileCommand;
 using Edunary.Application.MediaFiles.Commands.GenerateUploadUrl;
 using Edunary.Application.MediaFiles.Commands.InitiateChunkedUploadCommand;
 using Edunary.Application.MediaFiles.Commands.SetCourseIdForContentCommand;
+using Edunary.Application.MediaFiles.Commands.StartMultipartUpload;
+using Edunary.Application.MediaFiles.Commands.CompleteMultipartUpload;
 using Edunary.Application.MediaFiles.Commands.UploadChunkCommand;
 using Edunary.Application.MediaFiles.Queries.GetMediaFileByUserIdQuery;
 using Edunary.Application.MediaFiles.Queries.GetUploadStatusQuery;
@@ -17,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Edunary.Application.MediaFiles.Queries.CheckMediaFileAccessQuery;
+using Edunary.Application.MediaFiles.Queries.GetHlsStreamQuery;
 
 namespace Edunary.Web.Endpoints;
 
@@ -32,6 +35,10 @@ public class MediaFile : EndpointGroupBase
             .MapPost(SetCourseIdForContent, "/set-course-id")
             .MapPost(AddLinkToMediaFile, "/add-link")
             .MapPost(GenerateUploadUrl, "/generate-upload-url")
+            .MapPost(StartMultipartUpload, "/multipart/start")
+            .MapPost(CompleteMultipartUpload, "/multipart/complete");
+
+        app.MapGroup(this)
             .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}");
 
         app.MapGroup(this)
@@ -129,6 +136,18 @@ public class MediaFile : EndpointGroupBase
         return result;
     }
 
+    public async Task<ReturnResult<StartMultipartUploadDto>> StartMultipartUpload(ISender sender, StartMultipartUploadCommand command)
+    {
+        var result = await sender.Send(command);
+        return result;
+    }
+
+    public async Task<ReturnResult<bool>> CompleteMultipartUpload(ISender sender, CompleteMultipartUploadCommand command)
+    {
+        var result = await sender.Send(command);
+        return result;
+    }
+
     public async Task<UploadSessionDto> InitiateChunkedUpload(ISender sender, InitiateChunkedUploadCommand command)
     {
         var result = await sender.Send(command);
@@ -170,42 +189,17 @@ public class MediaFile : EndpointGroupBase
 
     public async Task<IResult> GetHlsStream(ISender sender, [FromRoute] string videoId, [FromRoute] string fileName, IWebHostEnvironment env)
     {
-        if (!int.TryParse(videoId, out int parsedVideoId))
+        var result = await sender.Send(new GetHlsStreamQuery
         {
-            return Results.BadRequest("Invalid video request.");
-        }
-
-        var hasAccess = await sender.Send(new CheckMediaFileAccessQuery 
-        { 
-            VideoId = parsedVideoId 
+            VideoId = videoId,
+            FileName = fileName,
+            RootPath = env.WebRootPath
         });
 
-        if (!hasAccess) 
-        {
-            return Results.Forbid();
-        }
+        if (result.ErrorType == "BadRequest") return Results.BadRequest(result.ErrorMessage);
+        if (result.ErrorType == "Forbid") return Results.Forbid();
+        if (result.ErrorType == "NotFound") return Results.NotFound();
 
-        var rootPath = env.WebRootPath;
-        if (string.IsNullOrEmpty(rootPath)) return Results.NotFound();
-
-        var physicalPath = Path.Combine(rootPath, "hls", videoId, fileName);
-        
-        var fullPath = Path.GetFullPath(physicalPath);
-        if (!fullPath.StartsWith(Path.Combine(rootPath, "hls"), StringComparison.OrdinalIgnoreCase))
-        {
-            return Results.Forbid();
-        }
-
-        if (!File.Exists(fullPath))
-        {
-            return Results.NotFound();
-        }
-
-        // Determine content type
-        string contentType = fileName.EndsWith(".m3u8", StringComparison.OrdinalIgnoreCase) 
-            ? "application/vnd.apple.mpegurl" 
-            : (fileName.EndsWith(".ts", StringComparison.OrdinalIgnoreCase) ? "video/MP2T" : "application/octet-stream");
-
-        return Results.File(fullPath, contentType);
+        return Results.File(result.FilePath!, result.ContentType);
     }
 }

@@ -31,5 +31,11 @@ public class ItemDto
     public string Type { get; set; } = string.Empty;
     [JsonPropertyName("videoDuration")]
     public string VideoDuration { get; set; } = string.Empty;
+    [JsonPropertyName("content")]
+    public string Content { get; set; } = string.Empty;
+    [JsonPropertyName("isFreePreview")]
+    public bool IsFreePreview { get; set; } = false;
+    [JsonPropertyName("videoId")]
+    public int VideoId { get; set; }
 }
 

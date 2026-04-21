@@ -34,12 +34,15 @@ export const useHls = (videoId, videoRef) => {
                     height: level.height,
                     bitrate: level.bitrate,
                 }));
-                const sortedLevels = levels.sort((a, b) => b.height - a.height);
-                setQualityLevels(sortedLevels);
+                setQualityLevels(levels);
             });
 
             hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
-                setCurrentLevel(data.level);
+                if (hls.autoLevelEnabled || data.level === -1) {
+                    setCurrentLevel(-1);
+                } else {
+                    setCurrentLevel(data.level);
+                }
             });
 
             return () => {

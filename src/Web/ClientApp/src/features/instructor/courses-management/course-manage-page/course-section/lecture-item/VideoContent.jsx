@@ -40,7 +40,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const [overrideChecked, setOverrideChecked] = useState(false);
   const [uploadedContent, setUploadedContent] = useState(item.content || null);
   const [isDownloadable, setIsDownloadable] = useState(item.downloadable || false);
-  const [videoDuration, setVideoDuration] = useState(item.videoDuration || "00:00");
+  const [isFreePreview, setIsFreePreview] = useState(item.isFreePreview || false);
+  const [videoDuration, setVideoDuration] = useState(item.videoDuration || "00:00:00");
   const [searchQuery, setSearchQuery] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pendingDeleteContent, setPendingDeleteContent] = useState(null);
@@ -94,15 +95,17 @@ function VideoContent({ item, onUpdate, onCancel }) {
         // Update with uploaded content
         setUploadedContent(result.fileName || file.name);
         setIsDownloadable(false);
+        setIsFreePreview(false);
         // Use duration from backend response (HH:MM:SS format)
-        setVideoDuration(result.duration || "00:00");
+        setVideoDuration(result.duration || "00:00:00");
 
         if (onUpdate) {
           onUpdate(item.itemId, {
             content: result.fileName || file.name,
             downloadable: false,
+            isFreePreview: false,
             videoId: result.sessionId,
-            videoDuration: result.duration || "00:00"
+            videoDuration: result.duration || "00:00:00"
           });
         }
       }
@@ -224,6 +227,14 @@ function VideoContent({ item, onUpdate, onCancel }) {
     }
   };
 
+  const handleFreePreviewChange = (checked) => {
+    setIsFreePreview(checked);
+
+    if (onUpdate) {
+      onUpdate(item.itemId, { isFreePreview: checked });
+    }
+  };
+
   const handleEditContent = () => {
     setShowVideoUploadForm(true);
   };
@@ -293,6 +304,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
         onUpdate(item.itemId, {
           content: content.fileName,
           downloadable: false,
+          isFreePreview: false,
           videoId: content.id,
           videoDuration: content.duration,
           thumbnailUrl: content.thumbnailUrl
@@ -546,23 +558,47 @@ function VideoContent({ item, onUpdate, onCancel }) {
               </Box>
             </Box>
 
-            {/* Downloadable Toggle */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
-              <Typography variant="body2" sx={{ fontSize: "0.875rem", color: "text.primary" }}>
-                Downloadable:
-              </Typography>
-              <Switch
-                checked={isDownloadable}
-                onChange={(e) => handleDownloadableChange(e.target.checked)}
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "brand.main",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    bgcolor: "brand.main",
-                  },
-                }}
-              />
+            {/* Content Toggles */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, flexShrink: 0, ml: "auto" }}>
+              {/* Downloadable Toggle */}
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                <Typography variant="body2" sx={{ fontSize: "0.875rem", color: "text.primary" }}>
+                  Downloadable
+                </Typography>
+                <Switch
+                  checked={isDownloadable}
+                  onChange={(e) => handleDownloadableChange(e.target.checked)}
+                  size="small"
+                  sx={{
+                    "& .MuiSwitch-switchBase.Mui-checked": {
+                      color: "brand.main",
+                    },
+                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                      bgcolor: "brand.main",
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Free Preview Toggle */}
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                <Typography variant="body2" sx={{ fontSize: "0.875rem", color: "text.primary" }}>
+                  Free Preview
+                </Typography>
+                <Switch
+                  checked={isFreePreview}
+                  onChange={(e) => handleFreePreviewChange(e.target.checked)}
+                  size="small"
+                  sx={{
+                    "& .MuiSwitch-switchBase.Mui-checked": {
+                      color: "brand.main",
+                    },
+                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                      bgcolor: "brand.main",
+                    },
+                  }}
+                />
+              </Box>
             </Box>
           </Box>
         </Box>

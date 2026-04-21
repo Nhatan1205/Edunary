@@ -31,6 +31,7 @@ function VideoPlayer() {
 
   const timerRef = useRef(null);
   const videoRef = useRef(null);
+  const containerRef = useRef(null);
   const lastSaveTimeRef = useRef(0);
   const hasProcessedEndRef = useRef(false);
   const overlayTriggerItemRef = useRef(null);
@@ -40,6 +41,7 @@ function VideoPlayer() {
   const currentItem = itemData?.currentItem;
 
   const videoId = currentItem?.contentType === 'video' ? currentItem.videoId : null;
+  const [isLoadingVideo, setIsLoadingVideo] = useState(false);
   const { qualityLevels, currentLevel, changeQuality } = useHls(videoId, videoRef);
 
   useEffect(() => {
@@ -73,9 +75,9 @@ function VideoPlayer() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Prevent running if user is typing in form inputs (like comments)
-      const tagName = document.activeElement.tagName.toLowerCase();
-      if (tagName === 'input' || tagName === 'textarea' || document.activeElement.isContentEditable) return;
+      // // Prevent running if user is typing in form inputs (like comments)
+      // const tagName = document.activeElement.tagName.toLowerCase();
+      // if (tagName === 'input' || tagName === 'textarea' || document.activeElement.isContentEditable) return;
       if (!videoRef.current || currentItem?.contentType !== 'video' || showOverlay) return;
 
       switch(e.code) {
@@ -116,6 +118,8 @@ function VideoPlayer() {
             videoRef.current.volume = newVol;
             if (newVol === 0) setIsMuted(true);
           }
+          break;
+        default:
           break;
       }
     };
@@ -264,6 +268,7 @@ function VideoPlayer() {
   return (
     <Box>
       <Box
+        ref={containerRef}
         sx={{
           width: "100%",
           height: "500px",
@@ -282,12 +287,26 @@ function VideoPlayer() {
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
+            {isLoadingVideo && (
+              <Box 
+                sx={{ 
+                  position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  bgcolor: 'rgba(0,0,0,0.5)', zIndex: 1 
+                }}
+              >
+                <CircularProgress sx={{ color: 'brand.main' }} />
+              </Box>
+            )}
             <video
               ref={videoRef}
               key={currentItem.itemId}
               width="100%"
               height="100%"
               autoPlay
+              onWaiting={() => setIsLoadingVideo(true)}
+              onPlaying={() => setIsLoadingVideo(false)}
+              onCanPlay={() => setIsLoadingVideo(false)}
               onEnded={handleVideoEnded}
               onTimeUpdate={handleTimeUpdatePlayer}
               onLoadedMetadata={() => setDuration(videoRef.current.duration)}
@@ -316,7 +335,17 @@ function VideoPlayer() {
                     toggleMute={() => setIsMuted(!isMuted)}
                     handleVolumeChange={(e, newValue) => { setVolume(newValue); videoRef.current.volume = newValue; setIsMuted(newValue === 0); }}
                     handleSeek={(e, newValue) => { videoRef.current.currentTime = newValue; setCurrentTime(newValue); }}
-                    toggleFullscreen={() => { videoRef.current.requestFullscreen(); }}
+                    toggleFullscreen={() => { 
+                      if (!document.fullscreenElement) {
+                        if (containerRef.current?.requestFullscreen) {
+                          containerRef.current.requestFullscreen();
+                        }
+                      } else {
+                        if (document.exitFullscreen) {
+                          document.exitFullscreen();
+                        }
+                      }
+                    }}
                     formatTime={(seconds) => new Date((seconds || 0) * 1000).toISOString().slice(14, 19)}
                     qualities={qualityLevels}
                     currentQuality={currentLevel}

@@ -18,4 +18,6 @@ public class ItemSummaryDto
     public string Title { get; set; }
     public string ContentType { get; set; }
     public string VideoDuration { get; set; }
+    public bool IsFreePreview { get; set; }
+    public int VideoId { get; set; }
 }

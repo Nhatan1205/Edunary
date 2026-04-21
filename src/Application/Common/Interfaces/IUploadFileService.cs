@@ -11,4 +11,6 @@ public interface IUploadFileService
     Task<string> UploadFileToSpacesAsync(Stream fileStream, string fileName, string contentType);
     Task<bool> DeleteFileFromSpacesAsync(string fileName);
     Task<string> GeneratePresignedUrl(string fileName, string contentType);
+    Task<(string UploadId, List<string> PresignedUrls)> StartMultipartUploadAsync(string fileName, string contentType, int partsCount);
+    Task<bool> CompleteMultipartUploadAsync(string fileName, string uploadId);
 }

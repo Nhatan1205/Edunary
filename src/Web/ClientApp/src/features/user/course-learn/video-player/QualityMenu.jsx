@@ -32,6 +32,7 @@ const QualityMenu = ({ qualities, currentQuality, onQualityChange, playbackRate,
         open={isOpen}
         anchorEl={anchorEl}
         onClose={handleClose}
+        disablePortal
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         transformOrigin={{ vertical: "bottom", horizontal: "center" }}
         PaperProps={{ sx: { bgcolor: "rgba(0,0,0,0.85)", color: "white", minWidth: 220, backdropFilter: 'blur(8px)' } }}

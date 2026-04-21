@@ -11,7 +11,11 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Chip
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton
 } from '@mui/material'
 import {
   ExpandMore,
@@ -19,16 +23,23 @@ import {
   Assignment,
   Quiz,
   Check,
+  Close as CloseIcon
 } from '@mui/icons-material'
 import DOMPurify from "dompurify";
 import { Container } from 'reactstrap';
 import { useParams } from "react-router-dom";
 import RatingTab from '../../../../components/rating-tab/RatingTab';
+import PreviewVideoPlayer from './PreviewVideoPlayer';
 
 const CourseTabs = ({ courseData, reviews }) => {
   const [activeTab, setActiveTab] = useState(0)
+  const [previewVideo, setPreviewVideo] = useState(null)
   const { id } = useParams();
   const courseId = id;
+
+  const closePreview = () => {
+    setPreviewVideo(null);
+  };
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue)
@@ -136,7 +147,9 @@ const CourseTabs = ({ courseData, reviews }) => {
       lessons: section.Items?.map((item) => ({
         title: item.Title,
         duration: item.VideoDuration || undefined,
-        type: item.ContentType
+        type: item.ContentType,
+        isFreePreview: item.IsFreePreview,
+        videoId: item.VideoId
       })) || [],
     })) || [];
 
@@ -247,6 +260,19 @@ const CourseTabs = ({ courseData, reviews }) => {
                         }}
                       />
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {lesson.isFreePreview && lesson.videoId && (
+                          <Chip
+                            label="Preview"
+                            size="small"
+                            color="success"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreviewVideo(lesson);
+                            }}
+                            icon={<PlayCircleOutline sx={{ fontSize: 16 }} />}
+                            sx={{ mr: 1, cursor: 'pointer', '&:hover': { opacity: 0.8 } }}
+                          />
+                        )}
                         {lesson.duration && (
                           <Typography variant="body2" color="text.secondary">
                             {lesson.duration}
@@ -411,6 +437,81 @@ const CourseTabs = ({ courseData, reviews }) => {
         {activeTab === 2 && renderReviews(courseId)}
       </Box>
     </Box>
+    <Dialog
+      open={Boolean(previewVideo)}
+      onClose={closePreview}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: { 
+          bgcolor: 'background.paper', 
+          backgroundImage: 'none',
+          borderRadius: 2,
+          overflow: 'hidden'
+        }
+      }}
+    >
+      <DialogTitle 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          p: 2,
+          px: 3,
+          bgcolor: 'brand.main',
+          color: 'white',
+          borderBottom: '1px solid',
+          borderColor: 'divider'
+        }}
+      >
+        <Box>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'rgba(255,255,255,0.7)', 
+              fontWeight: 600, 
+              textTransform: 'uppercase', 
+              letterSpacing: 1, 
+              display: 'block', 
+              mb: 0.5 
+            }}
+          >
+            Course Preview
+          </Typography>
+          <Typography 
+            variant="h6" 
+            component="div" 
+            sx={{ 
+              fontWeight: 700, 
+              color: 'white', 
+              lineHeight: 1.2 
+            }}
+          >
+            {previewVideo?.title}
+          </Typography>
+        </Box>
+        <IconButton 
+          onClick={closePreview} 
+          size="small"
+          sx={{
+            color: 'white',
+            bgcolor: 'rgba(255,255,255,0.1)',
+            '&:hover': {
+              bgcolor: 'rgba(255,255,255,0.2)',
+            }
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ p: 0, bgcolor: 'black', outline: 'none' }}>
+        {previewVideo?.videoId && (
+          <PreviewVideoPlayer
+            contentId={previewVideo.videoId}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
     </>
   )
 }

@@ -15,8 +15,9 @@ import useAddLinkToMF from "../../../../../../hooks/media-file-hooks/useAddLinkT
 import useGetMediaFile from "../../../../../../hooks/media-file-hooks/useGetMediaFile";
 import useDeleteMediaFileById from "../../../../../../hooks/media-file-hooks/useDeleteMediaFileById";
 import useSetCourseIdForContent from "../../../../../../hooks/media-file-hooks/useSetCourseIdForContent";
-import useGenerateUploadUrl from "../../../../../../hooks/media-file-hooks/useGenerateUploadUrl";
 import useUploadToSpaces from "../../../../../../hooks/media-file-hooks/useUploadToSpaces";
+import useStartMultipartUpload from "../../../../../../hooks/media-file-hooks/useStartMultipartUpload";
+import useCompleteMultipartUpload from "../../../../../../hooks/media-file-hooks/useCompleteMultipartUpload";
 import FileOverrideDialog from "../FileOverrideDialog";
 import FileUploadSection from "../FileUploadSection";
 import FileLibraryTable from "../FileLibraryTable";
@@ -47,7 +48,8 @@ function ResourceContent({ item, onUpdate, onClose }) {
   const deleteMediaFile = useDeleteMediaFileById();
   const setCourseIdForContent = useSetCourseIdForContent();
   const { data: courseContents, isLoading: isLoadingCourseContents } = useGetMediaFile();
-  const generateUploadUrl = useGenerateUploadUrl();
+  const startMultipartUpload = useStartMultipartUpload();
+  const completeMultipartUpload = useCompleteMultipartUpload();
   const uploadToSpaces = useUploadToSpaces();
 
   // Format date helper
@@ -69,17 +71,41 @@ function ResourceContent({ item, onUpdate, onClose }) {
 
     const fileSize = file.size;
     const maxSize = 5 * 1024 * 1024;
+    const CHUNK_SIZE = 5 * 1024 * 1024;
     if (fileSize > maxSize) {
-      const data = await generateUploadUrl.mutateAsync({
+      const partsCount = Math.ceil(fileSize / CHUNK_SIZE);
+      const data = await startMultipartUpload.mutateAsync({
         fileName: file.name,
-        contentType: file.type
+        contentType: file.type,
+        partsCount: partsCount
       });
-      const { uploadUrl, fileName, fileUrl } = data.result;
-      const uploadResult = await uploadToSpaces.mutateAsync({ uploadUrl, file });
+      const { uploadId, fileName, fileUrl, presignedUrls } = data.result;
+      
+      const uploadResult = await uploadToSpaces.mutateAsync({ 
+        presignedUrls, 
+        file,
+        onProgress: (progress) => {
+          setFileUploadInfo(prev => prev ? { ...prev, progressPercentage: progress, status: "IN_PROGRESS" } : null);
+        }
+      });
+      
       if (!uploadResult.ok) {
-        setFileUploadInfo(prev => prev ? { ...prev, status: "Upload failed" } : null);
+        setFileUploadInfo(prev => prev ? { ...prev, status: "FAILED" } : null);
         return;
       }
+      
+      setFileUploadInfo(prev => prev ? { ...prev, status: "COMPLETED" } : null);
+
+      const completeData = await completeMultipartUpload.mutateAsync({
+        fileName: fileName,
+        uploadId: uploadId
+      });
+      
+      if (!completeData.result) {
+        setFileUploadInfo(prev => prev ? { ...prev, status: "FAILED" } : null);
+        return;
+      }
+
       const result = await addLinkToMF.mutateAsync({
         title: fileName,
         url: fileUrl,
@@ -142,8 +168,9 @@ function ResourceContent({ item, onUpdate, onClose }) {
         fileSize: file.size,
         fileType: file.type,
         uploadDate: formatDate(new Date()),
-        status: "Uploading...",
+        status: "INITIATED",
         showProgress: true,
+        progressPercentage: 0,
         override: false,
       });
 
@@ -170,6 +197,8 @@ function ResourceContent({ item, onUpdate, onClose }) {
 
   const handleOverrideConfirm = async () => {
     if (pendingFile) {
+      setShowOverrideDialog(false);
+
       setSelectedFile(pendingFile);
       setFileUploadInfo({
         fileName: pendingFile.name,
@@ -177,19 +206,22 @@ function ResourceContent({ item, onUpdate, onClose }) {
         fileSize: pendingFile.size,
         fileType: pendingFile.type,
         uploadDate: formatDate(new Date()),
-        status: "Uploading...",
+        status: "INITIATED",
         showProgress: true,
+        progressPercentage: 0,
         override: overrideChecked,
       });
 
       await handleUploadFile(pendingFile, overrideChecked);
+
+      setPendingFile(null);
+      setOverrideChecked(false);
     } else if (pendingLink) {
+      setShowOverrideDialog(false);
       await handleSaveLink(pendingLink.title, pendingLink.url, overrideChecked);
+      setPendingLink(null);
+      setOverrideChecked(false);
     }
-    setShowOverrideDialog(false);
-    setPendingFile(null);
-    setPendingLink(null);
-    setOverrideChecked(false);
   };
 
   const handleOverrideCancel = () => {

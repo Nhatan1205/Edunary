@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Edunary.Application.MediaFiles.Queries.CheckMediaFileAccessQuery;
 using Edunary.Application.MediaFiles.Queries.GetHlsStreamQuery;
+using Edunary.Application.MediaFiles.Queries.GetDownloadUrlQuery;
 
 namespace Edunary.Web.Endpoints;
 
@@ -36,7 +37,8 @@ public class MediaFile : EndpointGroupBase
             .MapPost(AddLinkToMediaFile, "/add-link")
             .MapPost(GenerateUploadUrl, "/generate-upload-url")
             .MapPost(StartMultipartUpload, "/multipart/start")
-            .MapPost(CompleteMultipartUpload, "/multipart/complete");
+            .MapPost(CompleteMultipartUpload, "/multipart/complete")
+            .MapGet(GetDownloadUrl, "/{id}/download-url");
 
         app.MapGroup(this)
             .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}");
@@ -60,6 +62,13 @@ public class MediaFile : EndpointGroupBase
         var query = new GetMediaFileByUserId();
         var result = await sender.Send(query);
         return result;
+    }
+
+    public async Task<DownloadUrlDto> GetDownloadUrl(ISender sender, int id)
+    {
+        var query = new GetDownloadUrlQuery { MediaFileId = id };
+        var url = await sender.Send(query);
+        return url;
     }
 
     [DisableRequestSizeLimit]

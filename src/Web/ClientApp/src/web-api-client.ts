@@ -1742,6 +1742,44 @@ export class MediaFileClient {
         return Promise.resolve<ReturnResultOfBoolean>(null as any);
     }
 
+    getDownloadUrl(id: number): Promise<DownloadUrlDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/{id}/download-url";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDownloadUrl(_response);
+        });
+    }
+
+    protected processGetDownloadUrl(response: Response): Promise<DownloadUrlDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DownloadUrlDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DownloadUrlDto>(null as any);
+    }
+
     getHlsStream(videoId: string | null, fileName: string | null): Promise<void> {
         let url_ = this.baseUrl + "/api/MediaFile/hls/{videoId}";
         if (videoId === undefined || videoId === null)
@@ -4468,6 +4506,7 @@ export class ItemDetailDto implements IItemDetailDto {
     videoId?: number | undefined;
     lastPosition?: number;
     isCompleted?: boolean;
+    downloadable?: boolean;
 
     constructor(data?: IItemDetailDto) {
         if (data) {
@@ -4489,6 +4528,7 @@ export class ItemDetailDto implements IItemDetailDto {
             this.videoId = _data["videoId"];
             this.lastPosition = _data["lastPosition"];
             this.isCompleted = _data["isCompleted"];
+            this.downloadable = _data["downloadable"];
         }
     }
 
@@ -4510,6 +4550,7 @@ export class ItemDetailDto implements IItemDetailDto {
         data["videoId"] = this.videoId;
         data["lastPosition"] = this.lastPosition;
         data["isCompleted"] = this.isCompleted;
+        data["downloadable"] = this.downloadable;
         return data;
     }
 }
@@ -4524,6 +4565,7 @@ export interface IItemDetailDto {
     videoId?: number | undefined;
     lastPosition?: number;
     isCompleted?: boolean;
+    downloadable?: boolean;
 }
 
 export class NavigationDto implements INavigationDto {
@@ -6840,6 +6882,42 @@ export class CompleteMultipartUploadCommand implements ICompleteMultipartUploadC
 export interface ICompleteMultipartUploadCommand {
     fileName?: string | undefined;
     uploadId?: string | undefined;
+}
+
+export class DownloadUrlDto implements IDownloadUrlDto {
+    url?: string | undefined;
+
+    constructor(data?: IDownloadUrlDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.url = _data["url"];
+        }
+    }
+
+    static fromJS(data: any): DownloadUrlDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DownloadUrlDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["url"] = this.url;
+        return data;
+    }
+}
+
+export interface IDownloadUrlDto {
+    url?: string | undefined;
 }
 
 export class UploadSessionDto implements IUploadSessionDto {

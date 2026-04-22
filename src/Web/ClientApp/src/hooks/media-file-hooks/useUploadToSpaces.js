@@ -20,7 +20,6 @@ const useUploadToSpaces = () => {
             const start = i * CHUNK_SIZE;
             const end = Math.min(file.size, start + CHUNK_SIZE);
             const chunk = file.slice(start, end);
-            console.log("called: ", i);
             const response = await fetch(url, {
               method: "PUT",
               body: chunk

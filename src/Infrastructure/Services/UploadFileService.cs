@@ -75,9 +75,9 @@ public class UploadFileService : IUploadFileService
         };
 
         var client = new AmazonS3Client(settings.AccessKey, settings.SecretKey,
-            new AmazonS3Config 
-            { 
-                ServiceURL = settings.Endpoint, 
+            new AmazonS3Config
+            {
+                ServiceURL = settings.Endpoint,
                 ForcePathStyle = true,
                 AuthenticationRegion = settings.SpacesRegion
             });
@@ -127,11 +127,13 @@ public class UploadFileService : IUploadFileService
         return true;
     }
 
-    public async Task<string> UploadFileToSpacesAsync(Stream fileStream, string fileName, string contentType)
+    public async Task<string> UploadFileToSpacesAsync(Stream fileStream, string fileName, string contentType, string folderPath = null)
     {
         var (s3Client, spacesSettings) = await GetS3ClientAsync();
-        var userId = _currentUserService?.UserId;
-        var folder = $"courses/{userId}";
+        
+        var folder = !string.IsNullOrEmpty(folderPath) 
+            ? folderPath 
+            : $"courses/{_currentUserService?.UserId}";
         var request = new PutObjectRequest
         {
             BucketName = spacesSettings.SpaceName,
@@ -182,6 +184,24 @@ public class UploadFileService : IUploadFileService
         request.Parameters.Add("x-amz-acl", "public-read");
         string url = s3Client.GetPreSignedURL(request);
         return url;
+    }
+
+    public async Task<string> GeneratePresignedDownloadUrlAsync(string key, string displayFileName)
+    {
+        var (s3Client, spacesSettings) = await GetS3ClientAsync();
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = spacesSettings.SpaceName,
+            Key = key,
+            Verb = HttpVerb.GET,
+            Expires = DateTime.UtcNow.AddMinutes(60),
+            ResponseHeaderOverrides = new ResponseHeaderOverrides
+            {
+                ContentDisposition = $"attachment; filename=\"{displayFileName}\""
+            }
+        };
+
+        return s3Client.GetPreSignedURL(request);
     }
 
     public async Task<(string UploadId, List<string> PresignedUrls)> StartMultipartUploadAsync(string fileName, string contentType, int partsCount)

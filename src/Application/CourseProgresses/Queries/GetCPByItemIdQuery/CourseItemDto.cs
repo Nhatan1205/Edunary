@@ -42,6 +42,8 @@ public class ItemDetailDto
 
     [JsonPropertyName("isCompleted")]
     public bool IsCompleted { get; set; }
+    [JsonPropertyName("downloadable")]
+    public bool Downloadable {get; set;}
 }
 
 public class NavigationDto

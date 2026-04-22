@@ -19,19 +19,22 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<ProcessMediaFileJobService> _logger;
     private readonly INotifyService _notifyService;
+    private readonly IUploadFileService _uploadFileService;
 
     public ProcessMediaFileJobService(
         IApplicationDbContext context,
         IVideoProcessorService videoProcessorService,
         IWebHostEnvironment env,
         ILogger<ProcessMediaFileJobService> logger,
-        INotifyService notifyService)
+        INotifyService notifyService,
+        IUploadFileService uploadFileService)
     {
         _context = context;
         _videoProcessorService = videoProcessorService;
         _env = env;
         _logger = logger;
         _notifyService = notifyService;
+        _uploadFileService = uploadFileService;
     }
 
     public void EnqueueVideoProcessing(int mediaFileId)
@@ -61,7 +64,7 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
 
         // Prepare paths
         string inputMp4Path = Path.Combine(_env.ContentRootPath, mediaFile.FileUrl.TrimStart('/')); // Assuming FileUrl is somewhat relative like "wwwroot/temp/uploads/..."
-        
+
         if (!File.Exists(inputMp4Path))
         {
             _logger.LogError("Input MP4 file not found at path: {Path}", inputMp4Path);
@@ -82,8 +85,8 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
         {
             // Execute transcoding!
             int exitCode = await _videoProcessorService.ConvertToAdaptiveHlsAsync(
-                inputMp4Path, 
-                outputBaseDir, 
+                inputMp4Path,
+                outputBaseDir,
                 thumbnailOutputFile
             );
 
@@ -97,7 +100,7 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
             int hrs = (int)(durationSeconds / 3600);
             int mins = (int)((durationSeconds % 3600) / 60);
             int secs = (int)(durationSeconds % 60);
-            
+
             // Update entity
             mediaFile.Duration = $"{hrs:D2}:{mins:D2}:{secs:D2}";
             mediaFile.ThumbnailUrl = $"/{thumbnailRelativePath}";
@@ -106,11 +109,39 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
 
             await _context.SaveChangesAsync(default);
 
+            // Upload original Mp4 to Digital Ocean Spaces before deleting local version
+            try
+            {
+                _logger.LogInformation("Uploading original MP4 to Spaces: {Path}", inputMp4Path);
+                using (var fs = new FileStream(inputMp4Path, FileMode.Open, FileAccess.Read))
+                {
+                    string targetFolder = $"courses/{mediaFile.UserId}";
+                    string spacesUrl = await _uploadFileService.UploadFileToSpacesAsync(fs, mediaFile.FileName, mediaFile.ContentType, targetFolder);
+                    if (!string.IsNullOrEmpty(spacesUrl))
+                    {
+                        mediaFile.FileUrl = spacesUrl;
+                        await _context.SaveChangesAsync(default);
+                        _logger.LogInformation("Successfully uploaded original MP4 to Spaces. Url: {Url}", spacesUrl);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to upload MP4 to Spaces (returns null or empty URL).");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Exception while uploading original MP4 to Spaces: {Path}", inputMp4Path);
+            }
+
             // Clean up old mp4 to save disk space
-            try 
+            try
             {
                 File.Delete(inputMp4Path);
                 _logger.LogInformation("Deleted original MP4 file: {Path}", inputMp4Path);
+                string tempDir = Path.GetDirectoryName(inputMp4Path);
+                string uploadsPath = Path.Combine(_env.WebRootPath, "temp", "uploads");
+                CleanupEmptyDirectories(tempDir, uploadsPath);
             }
             catch (Exception ex)
             {
@@ -124,7 +155,7 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to generate HLS for MediaFile {Id}", mediaFileId);
-            
+
             mediaFile.HlsStatus = VideoStatus.ERROR;
             await _context.SaveChangesAsync(default);
 
@@ -145,7 +176,7 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
 
         try
         {
-            var payload = new 
+            var payload = new
             {
                 Title = title,
                 Body = message,
@@ -165,6 +196,27 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Could not send combined notification to User ID {UserId}", userId);
+        }
+    }
+    private void CleanupEmptyDirectories(string path, string uploadsPath)
+    {
+        try
+        {
+            if (path == uploadsPath || !Directory.Exists(path))
+                return;
+
+            if (!Directory.EnumerateFileSystemEntries(path).Any())
+            {
+                Directory.Delete(path);
+                _logger.LogInformation("Deleted empty directory: {Path}", path);
+
+                string parentDir = Path.GetDirectoryName(path);
+                CleanupEmptyDirectories(parentDir, uploadsPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to cleanup directory: {Path}", path);
         }
     }
 }

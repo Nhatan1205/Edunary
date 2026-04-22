@@ -79,18 +79,12 @@ function CourseCurriculum() {
   // Broadcast data dynamically to any listening preview tab
   useEffect(() => {
     const channel = new BroadcastChannel(`preview_channel_${courseId}`);
-    
     channel.onmessage = (event) => {
       if (event.data.type === 'REQUEST_DATA') {
         channel.postMessage({ type: 'SEND_DATA', payload: sections });
       }
     };
-    
-    // channel.postMessage({ type: 'SEND_DATA', payload: sections }); // real time
-
-    return () => channel.close();
   }, [sections, courseId]);
-
   const getGlobalIndex = (sectionIndex, itemIndex) => {
     let count = 1;
     for (let i = 0; i < sectionIndex; i++) {
@@ -481,7 +475,7 @@ function CourseCurriculum() {
     let totalSeconds = 0;
     sections.forEach(section => {
       section.items.forEach(item => {
-        if (item.videoDuration) {
+        if (item.contentType === 'video' && item.videoDuration) {
           const parts = item.videoDuration.split(":").map(Number);
           let seconds = 0;
 
@@ -491,12 +485,14 @@ function CourseCurriculum() {
           } else if (parts.length === 2) {
             // "mm:ss" format
             seconds = parts[0] * 60 + parts[1];
-          } else if (parts.length === 1) {
+          } else if (parts.length === 1 && !isNaN(parts[0])) {
             // Just seconds
             seconds = parts[0];
           }
 
-          totalSeconds += seconds;
+          if (!isNaN(seconds)) {
+            totalSeconds += seconds;
+          }
         }
       });
     });

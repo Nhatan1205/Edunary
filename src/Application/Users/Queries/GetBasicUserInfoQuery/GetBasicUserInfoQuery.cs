@@ -46,6 +46,9 @@ public class GetBasicUserInfoQueryHandler : IRequestHandler<GetBasicUserInfoQuer
                 FullName = user.FullName,
                 PhoneNumber = user.PhoneNumber,
                 Avatar = user.Avatar,
+                Bank = user.Bank,
+                BankNumber = user.BankNumber,
+                BankAccountHolder = user.BankAccountHolder,
                 Headline = user.Headline,
                 Description = user.Description,
                 Links = UserLink

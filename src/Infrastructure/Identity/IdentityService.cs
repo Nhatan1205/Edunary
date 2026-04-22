@@ -236,7 +236,10 @@ public class IdentityService : IIdentityService
                     Roles = listRoleUser,
                     Description = user.Description,
                     Headline = user.Headline,
-                    Links = user.Links
+                    Links = user.Links,
+                    BankAccountHolder = user.BankAccountHolder,
+                    Bank = user.Bank,
+                    BankNumber = user.BankNumber
                 };
 
                 userModel.Disable = user.Status == UserStatus.Banned || user.Status == UserStatus.Suspended;
@@ -272,6 +275,27 @@ public class IdentityService : IIdentityService
             return Result.Success("User updated successfully.");
         }
         return Result.Failure("Update user failed");
+    }
+
+    public async Task<Result> UpdatePayoutAccountAsync(string userId, string bank, string bankNumber, string bankAccountHolder)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return Result.Failure("User not found.");
+        }
+
+        user.Bank = bank;
+        user.BankNumber = bankNumber;
+        user.BankAccountHolder = bankAccountHolder;
+
+        var updateResult = await _userManager.UpdateAsync(user);
+        if (updateResult.Succeeded)
+        {
+            return Result.Success("Payout account updated successfully.");
+        }
+
+        return Result.Failure("Update payout account failed");
     }
 
     public async Task<Result> UpdateUserAvatarAsync(string avatarUrl, string userId)

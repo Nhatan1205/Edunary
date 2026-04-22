@@ -24,6 +24,8 @@ public interface IIdentityService
 
     Task<Result> UpdateUserAsync(UserModel model);
 
+    Task<Result> UpdatePayoutAccountAsync(string userId, string bank, string bankNumber, string bankAccountHolder);
+
     Task<Result> UpdateUserAvatarAsync(string avatarUrl, string userId);
 
     Task<Result> Register(string userName, string phoneNumber, string email, string password, string fullName, string avatar = null);

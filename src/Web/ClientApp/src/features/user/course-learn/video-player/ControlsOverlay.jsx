@@ -1,11 +1,12 @@
-import { Box, IconButton, Slider, Typography, Stack } from "@mui/material";
-import { PlayArrow, Pause, VolumeUp, VolumeOff, Fullscreen } from "@mui/icons-material";
+import { Box, IconButton, Slider, Typography, Stack, Tooltip } from "@mui/material";
+import { PlayArrow, Pause, VolumeUp, VolumeOff, Fullscreen, Download } from "@mui/icons-material";
 import QualityMenu from "./QualityMenu";
 
 const ControlsOverlay = ({
   showControls, isPlaying, isMuted, volume, currentTime, duration,
   togglePlay, toggleMute, handleVolumeChange, handleSeek, toggleFullscreen, formatTime,
-  qualities, currentQuality, onQualityChange, playbackRate, onPlaybackRateChange
+  qualities, currentQuality, onQualityChange, playbackRate, onPlaybackRateChange,
+  isDownloadable, onDownload
 }) => {
   return (
     <Box
@@ -54,6 +55,13 @@ const ControlsOverlay = ({
         </Stack>
 
         <Stack direction="row" alignItems="center" spacing={1}>
+          {isDownloadable && onDownload && (
+            <Tooltip title="Download Video" placement="top">
+              <IconButton onClick={onDownload} sx={{ color: "white" }}>
+                <Download />
+              </IconButton>
+            </Tooltip>
+          )}
           <QualityMenu 
             qualities={qualities} 
             currentQuality={currentQuality} 

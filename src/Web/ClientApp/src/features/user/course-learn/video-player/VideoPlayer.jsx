@@ -11,6 +11,7 @@ import useGetCPByItemId from "../../../../hooks/course-progress-hooks/useGetCPBy
 import useUpdateCPByItemId from "../../../../hooks/course-progress-hooks/useUpdateCPByItemId";
 
 import { useHls } from "../../../../hooks/media-file-hooks/useHls";
+import useGetDownloadUrl from "../../../../hooks/media-file-hooks/useGetDownloadUrl";
 import ControlsOverlay from "./ControlsOverlay";
 import ArticleContent from "./ArticleContent";
 
@@ -43,6 +44,25 @@ function VideoPlayer() {
   const videoId = currentItem?.contentType === 'video' ? currentItem.videoId : null;
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
   const { qualityLevels, currentLevel, changeQuality } = useHls(videoId, videoRef);
+  const getDownloadUrlMutation = useGetDownloadUrl();
+
+  const handleVideoDownload = async () => {
+    if (currentItem?.videoId) {
+      try {
+        const result = await getDownloadUrlMutation.mutateAsync(currentItem.videoId);
+        if (result) {
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = result.url;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      } catch (e) {
+        console.error("Failed to download video", e);
+      }
+    }
+  };
 
   useEffect(() => {
     setShowOverlay(false);
@@ -352,6 +372,8 @@ function VideoPlayer() {
                     onQualityChange={changeQuality}
                     playbackRate={playbackRate}
                     onPlaybackRateChange={(rate) => setPlaybackRate(rate)}
+                    isDownloadable={currentItem.downloadable}
+                    onDownload={handleVideoDownload}
                 />
             )}
           </Box>

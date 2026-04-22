@@ -19,4 +19,7 @@ public class UserModel
     public string Password { get; set; }
     public List<string> Roles { get; set; }
     public bool Disable { get; set; }
+    public string Bank { get; set; }
+    public string BankNumber { get; set; }
+    public string BankAccountHolder { get; set; }
 }

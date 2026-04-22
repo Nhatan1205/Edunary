@@ -4,6 +4,7 @@ using Edunary.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Edunary.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260420155614_EDN65_InstructorWalletWithdrawal")]
+    partial class EDN65_InstructorWalletWithdrawal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,51 +38,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.HasIndex("CoursesId");
 
                     b.ToTable("AnnouncementCourse");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.ActivityLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ActivityType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActivityType")
-                        .HasDatabaseName("IX_ActivityLogs_ActivityType");
-
-                    b.HasIndex("Created")
-                        .HasDatabaseName("IX_ActivityLogs_Created");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("IX_ActivityLogs_UserId");
-
-                    b.ToTable("ActivityLogs");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Announcement", b =>
@@ -967,51 +925,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("TodoLists");
                 });
 
-            modelBuilder.Entity("Edunary.Domain.Entities.VideoCaption", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("FileUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Language")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MediaFileId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MediaFileId");
-
-                    b.ToTable("VideoCaptions");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.WithdrawalRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -1123,9 +1036,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -1173,9 +1083,6 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -1457,17 +1364,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Colour");
                 });
 
-            modelBuilder.Entity("Edunary.Domain.Entities.VideoCaption", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.MediaFile", "MediaFile")
-                        .WithMany("VideoCaptions")
-                        .HasForeignKey("MediaFileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MediaFile");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.WithdrawalRequest", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.InstructorWallet", "InstructorWallet")
@@ -1544,11 +1440,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Progresses");
 
                     b.Navigation("RatingCourses");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.MediaFile", b =>
-                {
-                    b.Navigation("VideoCaptions");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.InstructorWallet", b =>

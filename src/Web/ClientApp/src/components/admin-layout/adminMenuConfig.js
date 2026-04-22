@@ -145,6 +145,12 @@ const adminMenuConfig = {
               type: "item",
               url: "/admin/invoice/details",
             },
+            {
+              id: "withdrawal-requests",
+              title: "Withdrawal Requests",
+              type: "item",
+              url: "/admin/invoice/withdrawal-requests",
+            },
           ],
         },
       ],

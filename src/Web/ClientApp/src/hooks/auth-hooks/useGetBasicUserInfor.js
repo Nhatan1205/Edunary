@@ -28,6 +28,9 @@ const useGetBasicUserInfo = () => {
         headline: result.headline ?? '',
         description: result.description ?? '',
         links: result.links ?? {},
+        bank: result.bank ?? '',
+        bankNumber: result.bankNumber ?? '',
+        bankAccountHolder: result.bankAccountHolder ?? '',
       };
       return userData;
     },

@@ -5,6 +5,7 @@ using Edunary.Application.Users.Commands.ChangeUserRoleCommand;
 using Edunary.Application.Users.Commands.CreateUserCommand;
 using Edunary.Application.Users.Commands.RestrictUserCommand;
 using Edunary.Application.Users.Commands.UnbanUserCommand;
+using Edunary.Application.Users.Commands.UpdatePayoutAccountCommand;
 using Edunary.Application.Users.Commands.UpdateUserAvatarCommand;
 using Edunary.Application.Users.Commands.UpdateUserInfoCommand;
 using Edunary.Application.Users.Queries.GetAdminUserDetailQuery;
@@ -31,6 +32,7 @@ public class User : EndpointGroupBase
             .RequireAuthorization()
             .MapPost(Create, "create")
             .MapPut(UpdateUserInfo)
+            .MapPut(UpdatePayoutAccount, "payout-account")
             .MapPut(UpdateUserAvatar, "avatar")
             .MapGet(GetBasicInfo, "basic-info")
             .MapPost(ChangePassword, "change-password");
@@ -68,6 +70,15 @@ public class User : EndpointGroupBase
         return Results.Ok(result);
     }
 
+    public async Task<IResult> UpdatePayoutAccount(ISender sender, UpdatePayoutAccountCommand command)
+    {
+        var result = await sender.Send(command);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
     public async Task<IResult> UpdateUserAvatar(ISender sender, UpdateUserAvatarCommand command)
     {
         var result = await sender.Send(command);

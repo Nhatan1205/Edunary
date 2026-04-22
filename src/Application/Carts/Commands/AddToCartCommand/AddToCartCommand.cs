@@ -6,7 +6,7 @@ namespace Edunary.Application.Carts.Commands.AddToCartCommand;
 
 public record AddToCartCommand : IRequest<Result>
 {
-    public string CourseId { get; init; }
+    public int CourseId { get; init; }
 }
 
 public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
@@ -33,15 +33,14 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
                 return Result.Failure("User not authenticated");
             }
 
-            // Parse CourseId to int for enrollment check
-            if (!int.TryParse(request.CourseId, out int courseIdInt))
+            if (request.CourseId <= 0)
             {
                 return Result.Failure("Invalid course ID");
             }
 
             // Check if course exists and if the user is the creator
             var course = await _context.Courses
-                .FirstOrDefaultAsync(c => c.Id == courseIdInt, cancellationToken);
+                .FirstOrDefaultAsync(c => c.Id == request.CourseId, cancellationToken);
 
             if (course == null)
             {
@@ -64,7 +63,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result>
 
             // Check if already enrolled
             var existingEnrollment = await _context.Enrollments
-                .FirstOrDefaultAsync(e => e.CourseId == courseIdInt && e.StudentId == userId, 
+                .FirstOrDefaultAsync(e => e.CourseId == request.CourseId && e.StudentId == userId, 
                     cancellationToken);
 
             if (existingEnrollment != null)

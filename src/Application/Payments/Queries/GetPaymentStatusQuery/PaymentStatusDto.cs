@@ -12,7 +12,7 @@ public class PaymentStatusDto
 
 public class OrderItemDto
 {
-    public string CourseId { get; set; }
+    public int CourseId { get; set; }
     public string CourseName { get; set; }
     public decimal Price { get; set; }
 }

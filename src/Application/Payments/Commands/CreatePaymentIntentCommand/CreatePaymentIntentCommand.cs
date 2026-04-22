@@ -10,7 +10,7 @@ namespace Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
 
 public record CreatePaymentIntentCommand : IRequest<ReturnResult<CreatePaymentIntentDto>>
 {
-    public List<string> CourseIds { get; init; }
+    public List<int> CourseIds { get; init; }
 }
 
 public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIntentCommand, ReturnResult<CreatePaymentIntentDto>>
@@ -81,7 +81,7 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
 
             // Fetch actual course data from database
             var courses = await _context.Courses
-                .Where(c => request.CourseIds.Contains(c.Id.ToString()))
+                .Where(c => request.CourseIds.Contains(c.Id))
                 .ToListAsync(cancellationToken);
 
             if (!courses.Any())
@@ -142,7 +142,7 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
 
                 orderItems.Add(new OrderItem
                 {
-                    CourseId = course.Id.ToString(),
+                    CourseId = course.Id,
                     CourseName = course.Title,
                     Price = course.Price
                 });

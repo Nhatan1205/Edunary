@@ -39,10 +39,10 @@ public class GetCartItemsQueryHandler : IRequestHandler<GetCartItemsQuery, List<
             return new List<CartItemDto>();
         }
 
-        // Parse course IDs
         var courseIds = carts
-            .Select(c => int.TryParse(c.CourseId, out var id) ? id : 0)
+            .Select(c => c.CourseId)
             .Where(id => id > 0)
+            .Distinct()
             .ToList();
 
         if (!courseIds.Any())
@@ -72,7 +72,7 @@ public class GetCartItemsQueryHandler : IRequestHandler<GetCartItemsQuery, List<
         // Join in memory
         var cartItems = carts
             .Join(courses,
-                cart => int.TryParse(cart.CourseId, out var id) ? id : 0,
+                cart => cart.CourseId,
                 course => course.Id,
                 (cart, course) => new CartItemDto
                 {

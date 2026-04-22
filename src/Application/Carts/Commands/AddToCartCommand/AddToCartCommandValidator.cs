@@ -5,7 +5,7 @@ public class AddToCartCommandValidator : AbstractValidator<AddToCartCommand>
     public AddToCartCommandValidator()
     {
         RuleFor(x => x.CourseId)
-            .NotEmpty()
-            .WithMessage("Course ID is required");
+            .GreaterThan(0)
+            .WithMessage("Course ID must be greater than 0");
     }
 }

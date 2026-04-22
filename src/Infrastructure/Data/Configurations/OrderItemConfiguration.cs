@@ -9,7 +9,6 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
     public void Configure(EntityTypeBuilder<OrderItem> builder)
     {
         builder.Property(t => t.CourseId)
-            .HasMaxLength(200)
             .IsRequired();
 
         builder.Property(t => t.CourseName)

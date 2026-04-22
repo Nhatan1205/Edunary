@@ -61,16 +61,13 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
             await _sender.Send(unsetCommand, cancellationToken);
 
             // Remove all carts containing this course
-            var courseIdAsString = request.Id.ToString();
             var cartsToRemove = await _context.Carts
-                .Where(c => c.CourseId == courseIdAsString)
+                .Where(c => c.CourseId == request.Id)
                 .ToListAsync(cancellationToken);
 
-            int cartsRemovedCount = 0;
             if (cartsToRemove.Any())
             {
                 _context.Carts.RemoveRange(cartsToRemove);
-                cartsRemovedCount = cartsToRemove.Count;
             }
 
             _context.Courses.Remove(entity);

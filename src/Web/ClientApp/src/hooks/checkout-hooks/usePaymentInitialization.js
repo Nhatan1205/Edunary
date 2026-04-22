@@ -24,7 +24,9 @@ export default function usePaymentInitialization(courses = []) {
     const init = async () => {
       try {
         setLoading(true)
-        const courseIds = courses.map((c) => String(c.id || c.courseId))
+        const courseIds = courses
+          .map((c) => Number(c.id || c.courseId))
+          .filter((id) => Number.isFinite(id) && id > 0)
 
         const response = await createPaymentIntent({ courseIds })
         if (!response?.result) {

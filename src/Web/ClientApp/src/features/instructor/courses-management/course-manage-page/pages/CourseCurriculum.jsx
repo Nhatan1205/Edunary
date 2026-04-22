@@ -79,18 +79,12 @@ function CourseCurriculum() {
   // Broadcast data dynamically to any listening preview tab
   useEffect(() => {
     const channel = new BroadcastChannel(`preview_channel_${courseId}`);
-
     channel.onmessage = (event) => {
       if (event.data.type === 'REQUEST_DATA') {
         channel.postMessage({ type: 'SEND_DATA', payload: sections });
       }
     };
-
-    // channel.postMessage({ type: 'SEND_DATA', payload: sections }); // real time
-
-    return () => channel.close();
   }, [sections, courseId]);
-
   const getGlobalIndex = (sectionIndex, itemIndex) => {
     let count = 1;
     for (let i = 0; i < sectionIndex; i++) {

@@ -38,6 +38,22 @@ public static class SettingKey
     // === Chatbot ===
     public const string Chatbot_ServiceUrl = "Chatbot_ServiceUrl";
 
+    // use for whitelist key
+    private static readonly HashSet<string> _publicKeys = new()
+    {
+        Chatbot_ServiceUrl, 
+    };
+
+    public static bool IsPublicKey(string key)
+    {
+        return _publicKeys.Contains(key);
+    }
+
+    public static IReadOnlyList<string> GetPublicKeys()
+    {
+        return _publicKeys.ToList();
+    }
+
     public static IReadOnlyList<string> GetAllKeys()
     {
         return typeof(SettingKey)

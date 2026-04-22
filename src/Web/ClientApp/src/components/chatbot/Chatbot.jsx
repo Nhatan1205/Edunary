@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import './Chatbot.css';
-import useGetSystemSettings from '../../hooks/system-settings-hooks/useGetSystemSettings';
+import useGetPublicSystemSettings from '../../hooks/system-settings-hooks/useGetPublicSystemSettings';
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const iframeRef = useRef(null);
-  const { data: settings } = useGetSystemSettings(["Chatbot_ServiceUrl"]);
-  const chatbotUrl = settings?.[0]?.value || "http://127.0.0.1:8000/";
+  const { data: settings } = useGetPublicSystemSettings(["Chatbot_ServiceUrl"]);
+  const chatbotUrl = settings?.["Chatbot_ServiceUrl"] || "nothing";
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);

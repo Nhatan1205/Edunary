@@ -2424,6 +2424,40 @@
         ]
       }
     },
+    "/api/SystemSettings/Public": {
+      "post": {
+        "tags": [
+          "SystemSettings"
+        ],
+        "operationId": "GetPublicSystemSettings",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetPublicSystemSettingsQuery"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/TodoItems": {
       "get": {
         "tags": [
@@ -5762,6 +5796,19 @@
           "value": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "GetPublicSystemSettingsQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "keys": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

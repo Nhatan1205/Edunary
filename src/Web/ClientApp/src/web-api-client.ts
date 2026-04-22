@@ -2753,6 +2753,54 @@ export class SystemSettingsClient {
         }
         return Promise.resolve<void>(null as any);
     }
+
+    getPublicSystemSettings(query: GetPublicSystemSettingsQuery | undefined): Promise<{ [key: string]: string; }> {
+        let url_ = this.baseUrl + "/api/SystemSettings/Public";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPublicSystemSettings(_response);
+        });
+    }
+
+    protected processGetPublicSystemSettings(response: Response): Promise<{ [key: string]: string; }> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        (<any>result200)![key] = resultData200[key] !== undefined ? resultData200[key] : <any>null;
+                }
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<{ [key: string]: string; }>(null as any);
+    }
 }
 
 export class TodoItemsClient {
@@ -8914,6 +8962,50 @@ export class UpdateSettingItem implements IUpdateSettingItem {
 export interface IUpdateSettingItem {
     key?: string | undefined;
     value?: string | undefined;
+}
+
+export class GetPublicSystemSettingsQuery implements IGetPublicSystemSettingsQuery {
+    keys?: string[] | undefined;
+
+    constructor(data?: IGetPublicSystemSettingsQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["keys"])) {
+                this.keys = [] as any;
+                for (let item of _data["keys"])
+                    this.keys!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetPublicSystemSettingsQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetPublicSystemSettingsQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.keys)) {
+            data["keys"] = [];
+            for (let item of this.keys)
+                data["keys"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IGetPublicSystemSettingsQuery {
+    keys?: string[] | undefined;
 }
 
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {

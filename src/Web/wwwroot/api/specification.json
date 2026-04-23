@@ -1586,7 +1586,62 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/MediaFile/hls-video": {
+      "get": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "GetHlsVideoByCourseId",
+        "parameters": [
+          {
+            "name": "CourseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Language",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HlsVideoCaptionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/MediaFile/chunks/initiate": {
@@ -2992,6 +3047,135 @@
             }
           }
         }
+      }
+    },
+    "/api/VideoCaptions/caption-language": {
+      "get": {
+        "tags": [
+          "VideoCaptions"
+        ],
+        "operationId": "GetCaptionLanguage",
+        "parameters": [
+          {
+            "name": "CourseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/VideoCaptions/{mediaFileId}": {
+      "get": {
+        "tags": [
+          "VideoCaptions"
+        ],
+        "operationId": "GetVideoCaptions",
+        "parameters": [
+          {
+            "name": "mediaFileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VideoCaptionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/VideoCaptions/upsert": {
+      "post": {
+        "tags": [
+          "VideoCaptions"
+        ],
+        "operationId": "UpsertCaption",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/VideoCaptions/{id}": {
+      "delete": {
+        "tags": [
+          "VideoCaptions"
+        ],
+        "operationId": "DeleteCaption",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/WeatherForecasts": {
@@ -4603,8 +4787,27 @@
           "lastModified": {
             "type": "string",
             "format": "date-time"
+          },
+          "hlsStatus": {
+            "$ref": "#/components/schemas/VideoStatus"
           }
         }
+      },
+      "VideoStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "NO_VIDEO",
+          "PROCESSING",
+          "READY",
+          "ERROR"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
       "SetCourseIdForContentCommand": {
         "type": "object",
@@ -4816,6 +5019,56 @@
             "nullable": true
           }
         }
+      },
+      "HlsVideoCaptionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "videoTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCaptioned": {
+            "type": "boolean"
+          },
+          "captionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "captionFileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploadStatus": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CaptionStatus"
+              }
+            ]
+          }
+        }
+      },
+      "CaptionStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "INITIATED",
+          "IN_PROGRESS",
+          "COMPLETED",
+          "FAILED"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
       "UploadSessionDto": {
         "type": "object",
@@ -6269,6 +6522,28 @@
           "totalCourses": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "VideoCaptionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "language": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

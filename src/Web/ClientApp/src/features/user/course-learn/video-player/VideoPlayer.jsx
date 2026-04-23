@@ -12,6 +12,8 @@ import useUpdateCPByItemId from "../../../../hooks/course-progress-hooks/useUpda
 
 import { useHls } from "../../../../hooks/media-file-hooks/useHls";
 import useGetDownloadUrl from "../../../../hooks/media-file-hooks/useGetDownloadUrl";
+import useGetCaptionsByVideoId from "../../../../hooks/video-caption-hooks/useGetCaptionsByVideoId";
+import { getCaptionLanguageOption } from "../../../../utils/captionLanguageHelper";
 import ControlsOverlay from "./ControlsOverlay";
 import ArticleContent from "./ArticleContent";
 
@@ -30,6 +32,10 @@ function VideoPlayer() {
   const [isHovering, setIsHovering] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
 
+  const [activeCaptionId, setActiveCaptionId] = useState(null);
+  const [currentSubtitleText, setCurrentSubtitleText] = useState("");
+  const activeCaptionTrackRef = useRef(null);
+
   const timerRef = useRef(null);
   const videoRef = useRef(null);
   const containerRef = useRef(null);
@@ -45,6 +51,61 @@ function VideoPlayer() {
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
   const { qualityLevels, currentLevel, changeQuality } = useHls(videoId, videoRef);
   const getDownloadUrlMutation = useGetDownloadUrl();
+  const { data: videoCaptions } = useGetCaptionsByVideoId(videoId);
+
+  const mappedCaptions = (videoCaptions || [])
+    .filter((c) => Boolean(c?.fileUrl))
+    .map((c) => ({
+      ...c,
+      label: getCaptionLanguageOption(c.language)?.label || "Unknown",
+    }));
+
+  const activeCaption = mappedCaptions.find((c) => c.id === activeCaptionId) || null;
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (!activeCaptionId) {
+      setCurrentSubtitleText("");
+      activeCaptionTrackRef.current = null;
+      Array.from(video.textTracks).forEach(track => {
+        track.mode = "disabled";
+        track.oncuechange = null;
+      });
+      return;
+    }
+
+    const handleCueChange = (e) => {
+      const activeCues = e.target.activeCues;
+      if (activeCues && activeCues.length > 0) {
+        setCurrentSubtitleText(activeCues[0].text || "");
+      } else {
+        setCurrentSubtitleText("");
+      }
+    };
+
+    const configureTrack = (track) => {
+      track.mode = "hidden";
+      track.oncuechange = handleCueChange;
+      activeCaptionTrackRef.current = track;
+      if (track.activeCues && track.activeCues.length > 0) {
+        setCurrentSubtitleText(track.activeCues[0].text || "");
+      }
+    };
+
+    Array.from(video.textTracks).forEach(configureTrack);
+
+    const onAddTrack = (e) => {
+      configureTrack(e.track);
+    };
+
+    video.textTracks.addEventListener('addtrack', onAddTrack);
+
+    return () => {
+      video.textTracks.removeEventListener('addtrack', onAddTrack);
+    };
+  }, [activeCaptionId, videoId]);
 
   const handleVideoDownload = async () => {
     if (currentItem?.videoId) {
@@ -73,7 +134,7 @@ function VideoPlayer() {
   }, [contentId]);
 
   // Use currentItem from above instead of redefining it.
-  
+
   useEffect(() => {
     if (currentItem && videoRef.current && currentItem.lastPosition > 0) {
       const restoreTime = () => {
@@ -100,7 +161,7 @@ function VideoPlayer() {
       // if (tagName === 'input' || tagName === 'textarea' || document.activeElement.isContentEditable) return;
       if (!videoRef.current || currentItem?.contentType !== 'video' || showOverlay) return;
 
-      switch(e.code) {
+      switch (e.code) {
         case 'Space':
           e.preventDefault();
           if (videoRef.current.paused) {
@@ -302,17 +363,17 @@ function VideoPlayer() {
         }}
       >
         {currentItem.contentType === 'video' ? (
-          <Box 
+          <Box
             sx={{ position: 'relative', width: '100%', height: '100%', display: showOverlay ? 'none' : 'block' }}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
             {isLoadingVideo && (
-              <Box 
-                sx={{ 
+              <Box
+                sx={{
                   position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  bgcolor: 'rgba(0,0,0,0.5)', zIndex: 1 
+                  bgcolor: 'rgba(0,0,0,0.5)', zIndex: 1
                 }}
               >
                 <CircularProgress sx={{ color: 'brand.main' }} />
@@ -323,6 +384,7 @@ function VideoPlayer() {
               key={currentItem.itemId}
               width="100%"
               height="100%"
+              crossOrigin="anonymous"
               autoPlay
               onWaiting={() => setIsLoadingVideo(true)}
               onPlaying={() => setIsLoadingVideo(false)}
@@ -336,51 +398,79 @@ function VideoPlayer() {
                 handlePause(e);
               }}
               onClick={() => {
-                  isPlaying ? videoRef.current.pause() : videoRef.current.play();
+                isPlaying ? videoRef.current.pause() : videoRef.current.play();
               }}
               style={{ width: '100%', height: '100%', display: 'block', backgroundColor: 'black' }}
             >
+              {activeCaption && (
+                <track
+                  key={`${videoId}-${activeCaption.id}`}
+                  kind="subtitles"
+                  src={activeCaption.fileUrl}
+                  default
+                />
+              )}
+
               Your browser does not support the video tag.
             </video>
-            
+
+            {activeCaptionId && currentSubtitleText && (
+              <Box sx={{
+                position: "absolute", bottom: isHovering || !isPlaying ? 100 : 30, left: 0, right: 0,
+                display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1,
+                transition: "bottom 0.3s ease", px: 4
+              }}>
+                <Typography sx={{
+                  bgcolor: "rgba(0,0,0,0.75)", color: "white", px: 2, py: 0.5, borderRadius: 1,
+                  fontSize: { xs: '0.9rem', md: '1.2rem' }, textAlign: "center", maxWidth: "80%",
+                  textShadow: "1px 1px 2px black", lineHeight: 1.4
+                }}>
+                  {currentSubtitleText}
+                </Typography>
+              </Box>
+            )}
+
             {!showOverlay && (
-                <ControlsOverlay 
-                    showControls={isHovering || !isPlaying}
-                    isPlaying={isPlaying}
-                    isMuted={isMuted}
-                    volume={volume}
-                    currentTime={currentTime}
-                    duration={duration}
-                    togglePlay={() => isPlaying ? videoRef.current.pause() : videoRef.current.play()}
-                    toggleMute={() => setIsMuted(!isMuted)}
-                    handleVolumeChange={(e, newValue) => { setVolume(newValue); videoRef.current.volume = newValue; setIsMuted(newValue === 0); }}
-                    handleSeek={(e, newValue) => { videoRef.current.currentTime = newValue; setCurrentTime(newValue); }}
-                    toggleFullscreen={() => { 
-                      if (!document.fullscreenElement) {
-                        if (containerRef.current?.requestFullscreen) {
-                          containerRef.current.requestFullscreen();
-                        }
-                      } else {
-                        if (document.exitFullscreen) {
-                          document.exitFullscreen();
-                        }
-                      }
-                    }}
-                    formatTime={(seconds) => new Date((seconds || 0) * 1000).toISOString().slice(14, 19)}
-                    qualities={qualityLevels}
-                    currentQuality={currentLevel}
-                    onQualityChange={changeQuality}
-                    playbackRate={playbackRate}
-                    onPlaybackRateChange={(rate) => setPlaybackRate(rate)}
-                    isDownloadable={currentItem.downloadable}
-                    onDownload={handleVideoDownload}
-                />
+              <ControlsOverlay
+                showControls={isHovering || !isPlaying}
+                isPlaying={isPlaying}
+                isMuted={isMuted}
+                volume={volume}
+                currentTime={currentTime}
+                duration={duration}
+                togglePlay={() => isPlaying ? videoRef.current.pause() : videoRef.current.play()}
+                toggleMute={() => setIsMuted(!isMuted)}
+                handleVolumeChange={(e, newValue) => { setVolume(newValue); videoRef.current.volume = newValue; setIsMuted(newValue === 0); }}
+                handleSeek={(e, newValue) => { videoRef.current.currentTime = newValue; setCurrentTime(newValue); }}
+                toggleFullscreen={() => {
+                  if (!document.fullscreenElement) {
+                    if (containerRef.current?.requestFullscreen) {
+                      containerRef.current.requestFullscreen();
+                    }
+                  } else {
+                    if (document.exitFullscreen) {
+                      document.exitFullscreen();
+                    }
+                  }
+                }}
+                formatTime={(seconds) => new Date((seconds || 0) * 1000).toISOString().slice(14, 19)}
+                qualities={qualityLevels}
+                currentQuality={currentLevel}
+                onQualityChange={changeQuality}
+                playbackRate={playbackRate}
+                onPlaybackRateChange={(rate) => setPlaybackRate(rate)}
+                isDownloadable={currentItem.downloadable}
+                onDownload={handleVideoDownload}
+                captions={mappedCaptions}
+                activeCaptionId={activeCaptionId}
+                onCaptionChange={setActiveCaptionId}
+              />
             )}
           </Box>
         ) : (
-          <ArticleContent 
-            item={currentItem} 
-            onMarkAsComplete={handleArticleInteraction} 
+          <ArticleContent
+            item={currentItem}
+            onMarkAsComplete={handleArticleInteraction}
           />
         )}
 

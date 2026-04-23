@@ -33,6 +33,7 @@ public interface IApplicationDbContext
     public DbSet<RoadmapTopic> RoadmapTopics { get; }
 
     public DbSet<SystemSetting> SystemSettings { get; }
+    public DbSet<VideoCaption> VideoCaptions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

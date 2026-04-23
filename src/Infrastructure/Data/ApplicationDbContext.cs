@@ -41,6 +41,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<RoadmapTopic> RoadmapTopics => Set<RoadmapTopic>();
 
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
+    public DbSet<VideoCaption> VideoCaptions => Set<VideoCaption>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {        

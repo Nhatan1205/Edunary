@@ -21,6 +21,7 @@ using System.IO;
 using Edunary.Application.MediaFiles.Queries.CheckMediaFileAccessQuery;
 using Edunary.Application.MediaFiles.Queries.GetHlsStreamQuery;
 using Edunary.Application.MediaFiles.Queries.GetDownloadUrlQuery;
+using Edunary.Application.MediaFiles.Queries.GetHlsVideoByCourseIdQuery;
 
 namespace Edunary.Web.Endpoints;
 
@@ -38,10 +39,12 @@ public class MediaFile : EndpointGroupBase
             .MapPost(GenerateUploadUrl, "/generate-upload-url")
             .MapPost(StartMultipartUpload, "/multipart/start")
             .MapPost(CompleteMultipartUpload, "/multipart/complete")
-            .MapGet(GetDownloadUrl, "/{id}/download-url");
+            .MapGet(GetDownloadUrl, "/{id}/download-url")
+            .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}")
+            .MapGet(GetHlsVideoByCourseId, "/hls-video");
 
-        app.MapGroup(this)
-            .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}");
+        // app.MapGroup(this)
+        //     .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}");
 
         app.MapGroup(this)
             .RequireAuthorization()
@@ -210,5 +213,15 @@ public class MediaFile : EndpointGroupBase
         if (result.ErrorType == "NotFound") return Results.NotFound();
 
         return Results.File(result.FilePath!, result.ContentType);
+    }
+    public async Task<List<HlsVideoCaptionDto>> GetHlsVideoByCourseId(ISender sender, int CourseId, int Language)
+    {
+        var query = new GetHlsVideoByCourseIdQuery
+        {
+            CourseId = CourseId,
+            Language = Language
+        };
+        var result = await sender.Send(query);
+        return result;
     }
 }

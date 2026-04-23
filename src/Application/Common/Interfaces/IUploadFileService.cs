@@ -14,4 +14,5 @@ public interface IUploadFileService
     Task<string> GeneratePresignedDownloadUrlAsync(string key, string displayFileName);
     Task<(string UploadId, List<string> PresignedUrls)> StartMultipartUploadAsync(string fileName, string contentType, int partsCount);
     Task<bool> CompleteMultipartUploadAsync(string fileName, string uploadId);
+    Task<bool> DeleteObjectByKeyAsync(string fullKey);
 }

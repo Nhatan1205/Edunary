@@ -39,7 +39,7 @@ function StepCourseCategory({ control, errors }) {
                 id="category-select"
                 {...field}
                 style={{
-                  borderColor: theme.palette.secondaryBrand.main,
+                  borderColor: "brand.main",
                   borderWidth: field.value ? "2px" : "1px",
                   color: "#212529",
                   textAlign: "left",

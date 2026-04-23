@@ -64,7 +64,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
 
   // Filter course contents based on search query and only show videos
   const filteredCourseContents = courseContents?.filter(content =>
-    content.contentType?.startsWith('video/') &&
+    content.contentType?.startsWith('video/') && content.hlsStatus === 2 &&
     content.fileName.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
@@ -379,7 +379,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
             }}
           >
             <Tab label="Upload Video" />
-            <Tab label="Add from library" />
+            <Tab label="Add from library (Only Hls-converted videos)" />
           </Tabs>
 
           {/* Upload Video Tab */}

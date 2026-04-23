@@ -6,7 +6,7 @@ const ControlsOverlay = ({
   showControls, isPlaying, isMuted, volume, currentTime, duration,
   togglePlay, toggleMute, handleVolumeChange, handleSeek, toggleFullscreen, formatTime,
   qualities, currentQuality, onQualityChange, playbackRate, onPlaybackRateChange,
-  isDownloadable, onDownload
+  isDownloadable, onDownload, captions, activeCaptionId, onCaptionChange
 }) => {
   return (
     <Box
@@ -68,6 +68,9 @@ const ControlsOverlay = ({
             onQualityChange={onQualityChange}
             playbackRate={playbackRate}
             onPlaybackRateChange={onPlaybackRateChange}
+            captions={captions}
+            activeCaptionId={activeCaptionId}
+            onCaptionChange={onCaptionChange}
           />
           <IconButton onClick={toggleFullscreen} sx={{ color: "white" }}>
             <Fullscreen />

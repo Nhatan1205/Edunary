@@ -165,6 +165,18 @@ public class UploadFileService : IUploadFileService
         return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent;
     }
 
+    public async Task<bool> DeleteObjectByKeyAsync(string fullKey)
+    {
+        var (s3Client, spacesSettings) = await GetS3ClientAsync();
+        var deleteRequest = new DeleteObjectRequest
+        {
+            BucketName = spacesSettings.SpaceName,
+            Key = fullKey
+        };
+        var response = await s3Client.DeleteObjectAsync(deleteRequest);
+        return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent;
+    }
+
     public async Task<string> GeneratePresignedUrl(string fileName, string contentType)
     {
         var (s3Client, spacesSettings) = await GetS3ClientAsync();

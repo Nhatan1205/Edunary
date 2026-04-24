@@ -1,5 +1,7 @@
 import { memo, useCallback } from "react";
 import { useNavigate, useLocation, matchPath } from "react-router";
+import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
@@ -25,6 +27,7 @@ function AdminAccountPanel({ open, onClose }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: userInfo } = useGetBasicUserInfo();
+  const { logout } = useAuth();
 
   const handleNavigate = useCallback(
     (url) => {
@@ -33,6 +36,13 @@ function AdminAccountPanel({ open, onClose }) {
     },
     [navigate, onClose]
   );
+
+  const handleLogout = useCallback(() => {
+    onClose();
+    logout();
+    toast.success("Logged out successfully!");
+    navigate("/");
+  }, [logout, navigate, onClose]);
 
   return (
     <Drawer
@@ -178,6 +188,7 @@ function AdminAccountPanel({ open, onClose }) {
             fullWidth
             variant="outlined"
             startIcon={<LogoutOutlinedIcon />}
+            onClick={handleLogout}
             sx={{
               borderRadius: "10px",
               py: 1.2,

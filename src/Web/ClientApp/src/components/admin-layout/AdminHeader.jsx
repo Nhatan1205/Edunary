@@ -14,6 +14,8 @@ import { useAdminDrawer } from "./AdminDrawerContext";
 import AdminSearchDialog from "./AdminSearchDialog";
 import AdminAccountPanel from "./AdminAccountPanel";
 import useGetBasicUserInfo from "../../hooks/auth-hooks/useGetBasicUserInfor";
+import NotificationPopup from "../notification-popup/NotificationPopup";
+import useGetNotificationsByUserId from "../../hooks/notifications-hooks/useGetNotificationByUserId";
 
 function AdminHeader() {
   const { toggleDrawer, downMD } = useAdminDrawer();
@@ -21,11 +23,22 @@ function AdminHeader() {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [anchorElNotification, setAnchorElNotification] = useState(null);
 
   const handleOpenSearch = useCallback(() => setSearchOpen(true), []);
   const handleCloseSearch = useCallback(() => setSearchOpen(false), []);
   const handleOpenAccount = useCallback(() => setAccountOpen(true), []);
   const handleCloseAccount = useCallback(() => setAccountOpen(false), []);
+  const handleOpenNotification = useCallback(
+    (event) => setAnchorElNotification(event.currentTarget),
+    []
+  );
+  const handleCloseNotification = useCallback(
+    () => setAnchorElNotification(null),
+    []
+  );
+
+  const { data: dataNofications } = useGetNotificationsByUserId();
 
   return (
     <>
@@ -97,6 +110,7 @@ function AdminHeader() {
 
         {/* Notifications */}
         <IconButton
+          onClick={handleOpenNotification}
           sx={{
             color: "text.primary",
             borderRadius: "8px",
@@ -105,10 +119,16 @@ function AdminHeader() {
             },
           }}
         >
-          <Badge badgeContent={4} color="error">
+          <Badge badgeContent={dataNofications?.unreadCount} color="error">
             <NotificationsNoneOutlinedIcon sx={{ fontSize: 22 }} />
           </Badge>
         </IconButton>
+        <NotificationPopup
+          open={Boolean(anchorElNotification)}
+          anchorEl={anchorElNotification}
+          handleClosePopup={handleCloseNotification}
+          notifications={dataNofications?.list}
+        />
 
         {/* Avatar */}
         <IconButton

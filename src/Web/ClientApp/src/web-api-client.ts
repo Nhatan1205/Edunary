@@ -5416,26 +5416,6 @@ export class CategoryComparisonItemDto implements ICategoryComparisonItemDto {
     enrollmentCount?: number;
 
     constructor(data?: ICategoryComparisonItemDto) {
-export class GetCourseByIdDto implements IGetCourseByIdDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    description?: string | undefined;
-    level?: CourseLevel;
-    status?: CourseStatus;
-    topic?: string | undefined;
-    learningObjectives?: string | undefined;
-    requirements?: string | undefined;
-    targetAudience?: string | undefined;
-    imageUrl?: string | undefined;
-    welcomeMessage?: string | undefined;
-    congratulationsMessage?: string | undefined;
-    price?: number;
-    categoryId?: number;
-    content?: string | undefined;
-    totalStudents?: number;
-
-    constructor(data?: IGetCourseByIdDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -5456,29 +5436,6 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     static fromJS(data: any): CategoryComparisonItemDto {
         data = typeof data === 'object' ? data : {};
         let result = new CategoryComparisonItemDto();
-            this.id = _data["id"];
-            this.title = _data["title"];
-            this.subtitle = _data["subtitle"];
-            this.description = _data["description"];
-            this.level = _data["level"];
-            this.status = _data["status"];
-            this.topic = _data["topic"];
-            this.learningObjectives = _data["learningObjectives"];
-            this.requirements = _data["requirements"];
-            this.targetAudience = _data["targetAudience"];
-            this.imageUrl = _data["imageUrl"];
-            this.welcomeMessage = _data["welcomeMessage"];
-            this.congratulationsMessage = _data["congratulationsMessage"];
-            this.price = _data["price"];
-            this.categoryId = _data["categoryId"];
-            this.content = _data["content"];
-            this.totalStudents = _data["totalStudents"];
-        }
-    }
-
-    static fromJS(data: any): GetCourseByIdDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GetCourseByIdDto();
         result.init(data);
         return result;
     }
@@ -5489,23 +5446,6 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["title"] = this.title;
         data["courseCount"] = this.courseCount;
         data["enrollmentCount"] = this.enrollmentCount;
-        data["id"] = this.id;
-        data["title"] = this.title;
-        data["subtitle"] = this.subtitle;
-        data["description"] = this.description;
-        data["level"] = this.level;
-        data["status"] = this.status;
-        data["topic"] = this.topic;
-        data["learningObjectives"] = this.learningObjectives;
-        data["requirements"] = this.requirements;
-        data["targetAudience"] = this.targetAudience;
-        data["imageUrl"] = this.imageUrl;
-        data["welcomeMessage"] = this.welcomeMessage;
-        data["congratulationsMessage"] = this.congratulationsMessage;
-        data["price"] = this.price;
-        data["categoryId"] = this.categoryId;
-        data["content"] = this.content;
-        data["totalStudents"] = this.totalStudents;
         return data;
     }
 }
@@ -5823,6 +5763,88 @@ export class DeleteCategoryCommand implements IDeleteCategoryCommand {
 
 export interface IDeleteCategoryCommand {
     id?: number;
+}
+
+export class GetCourseByIdDto implements IGetCourseByIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    topic?: string | undefined;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    content?: string | undefined;
+    totalStudents?: number;
+
+    constructor(data?: IGetCourseByIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.description = _data["description"];
+            this.level = _data["level"];
+            this.status = _data["status"];
+            this.topic = _data["topic"];
+            this.learningObjectives = _data["learningObjectives"];
+            this.requirements = _data["requirements"];
+            this.targetAudience = _data["targetAudience"];
+            this.imageUrl = _data["imageUrl"];
+            this.welcomeMessage = _data["welcomeMessage"];
+            this.congratulationsMessage = _data["congratulationsMessage"];
+            this.price = _data["price"];
+            this.categoryId = _data["categoryId"];
+            this.content = _data["content"];
+            this.totalStudents = _data["totalStudents"];
+        }
+    }
+
+    static fromJS(data: any): GetCourseByIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCourseByIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["description"] = this.description;
+        data["level"] = this.level;
+        data["status"] = this.status;
+        data["topic"] = this.topic;
+        data["learningObjectives"] = this.learningObjectives;
+        data["requirements"] = this.requirements;
+        data["targetAudience"] = this.targetAudience;
+        data["imageUrl"] = this.imageUrl;
+        data["welcomeMessage"] = this.welcomeMessage;
+        data["congratulationsMessage"] = this.congratulationsMessage;
+        data["price"] = this.price;
+        data["categoryId"] = this.categoryId;
+        data["content"] = this.content;
+        data["totalStudents"] = this.totalStudents;
+        return data;
+    }
+}
+
 export interface IGetCourseByIdDto {
     id?: number;
     title?: string | undefined;
@@ -11650,13 +11672,6 @@ export class AdminUserListItemDto implements IAdminUserListItemDto {
     isOnline?: boolean;
 
     constructor(data?: IAdminUserListItemDto) {
-export class VideoCaptionDto implements IVideoCaptionDto {
-    id?: number;
-    language?: number;
-    fileUrl?: string | undefined;
-    fileName?: string | undefined;
-
-    constructor(data?: IVideoCaptionDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -11688,15 +11703,6 @@ export class VideoCaptionDto implements IVideoCaptionDto {
     static fromJS(data: any): AdminUserListItemDto {
         data = typeof data === 'object' ? data : {};
         let result = new AdminUserListItemDto();
-            this.language = _data["language"];
-            this.fileUrl = _data["fileUrl"];
-            this.fileName = _data["fileName"];
-        }
-    }
-
-    static fromJS(data: any): VideoCaptionDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new VideoCaptionDto();
         result.init(data);
         return result;
     }
@@ -11718,9 +11724,6 @@ export class VideoCaptionDto implements IVideoCaptionDto {
         data["enrolledCourseCount"] = this.enrolledCourseCount;
         data["createdCourseCount"] = this.createdCourseCount;
         data["isOnline"] = this.isOnline;
-        data["language"] = this.language;
-        data["fileUrl"] = this.fileUrl;
-        data["fileName"] = this.fileName;
         return data;
     }
 }
@@ -12457,6 +12460,49 @@ export class ChangeUserRoleCommand implements IChangeUserRoleCommand {
 export interface IChangeUserRoleCommand {
     userId?: string | undefined;
     newRole?: string | undefined;
+}
+
+export class VideoCaptionDto implements IVideoCaptionDto {
+    id?: number;
+    language?: number;
+    fileUrl?: string | undefined;
+    fileName?: string | undefined;
+
+    constructor(data?: IVideoCaptionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.language = _data["language"];
+            this.fileUrl = _data["fileUrl"];
+            this.fileName = _data["fileName"];
+        }
+    }
+
+    static fromJS(data: any): VideoCaptionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new VideoCaptionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["language"] = this.language;
+        data["fileUrl"] = this.fileUrl;
+        data["fileName"] = this.fileName;
+        return data;
+    }
+}
+
 export interface IVideoCaptionDto {
     id?: number;
     language?: number;

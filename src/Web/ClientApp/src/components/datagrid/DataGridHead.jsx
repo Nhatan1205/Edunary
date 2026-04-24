@@ -1,15 +1,9 @@
-import Box from "@mui/material/Box";
 import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
 import TableHead from "@mui/material/TableHead";
 import TableCell from "@mui/material/TableCell";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import { visuallyHidden } from "../../utils/dataGridUtils";
 
 function DataGridHead({
-  order,
-  onSort,
-  orderBy,
   rowCount,
   headLabel,
   numSelected,
@@ -63,47 +57,9 @@ function DataGridHead({
           <TableCell
             key={col.id}
             align={col.align || "left"}
-            sortDirection={orderBy === col.id ? order : false}
             sx={{ ...hCell, width: col.width, minWidth: col.minWidth }}
           >
-            {col.id ? (
-              <TableSortLabel
-                hideSortIcon={false}
-                active={orderBy === col.id}
-                direction={orderBy === col.id ? order : "asc"}
-                onClick={() => onSort(col.id)}
-                sx={{
-                  color: "#6B7280",
-                  fontWeight: 600,
-                  fontSize: "0.72rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  gap: 0.25,
-                  "& .MuiTableSortLabel-icon": {
-                    fontSize: "0.9rem",
-                    opacity: 0.35,
-                    transition: "opacity 0.15s",
-                  },
-                  "&.Mui-active": {
-                    color: "#1C252E",
-                    "& .MuiTableSortLabel-icon": { opacity: 0.8, color: "#1C252E" },
-                  },
-                  "&:hover": {
-                    color: "#1C252E",
-                    "& .MuiTableSortLabel-icon": { opacity: 0.6 },
-                  },
-                }}
-              >
-                {col.label}
-                {orderBy === col.id && (
-                  <Box sx={{ ...visuallyHidden }}>
-                    {order === "desc" ? "sorted descending" : "sorted ascending"}
-                  </Box>
-                )}
-              </TableSortLabel>
-            ) : (
-              col.label || ""
-            )}
+            {col.label || ""}
           </TableCell>
         ))}
 

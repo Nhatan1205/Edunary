@@ -89,7 +89,7 @@ const theme = createTheme({
   },
 
   typography: {
-    fontFamily: "Roboto, sans-serif",
+    fontFamily: "Public Sans Variable, Roboto, sans-serif",
     h1: { fontSize: "2.5rem", fontWeight: 700 },
     h2: { fontSize: "2rem", fontWeight: 700 },
     h3: { fontSize: "1.6rem", fontWeight: 600 },

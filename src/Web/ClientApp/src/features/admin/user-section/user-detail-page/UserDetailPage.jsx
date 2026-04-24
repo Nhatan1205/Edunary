@@ -30,6 +30,7 @@ import useAdminRestrictUser from "../../../../hooks/user-hooks/useAdminRestrictU
 import useAdminUnbanUser from "../../../../hooks/user-hooks/useAdminUnbanUser";
 import useAdminChangeUserRole from "../../../../hooks/user-hooks/useAdminChangeUserRole";
 import useAdminGetUserDetail from "../../../../hooks/user-hooks/useAdminGetUserDetail";
+import useGetActivityLogs from "../../../../hooks/activity-log-hooks/useGetActivityLogs";
 import ConfirmDialog from "../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import ChangeRoleDialog from "../user-page/components/ChangeRoleDialog";
 import RestrictUserDialog from "../components/RestrictUserDialog";
@@ -145,6 +146,16 @@ export default function UserDetailPage() {
     const navigate = useNavigate();
 
     const { data, isLoading, isError } = useAdminGetUserDetail(userId);
+
+    // Fetch 5 most recent activity logs for this user
+    const TIMELINE_DOT_COLORS = ["success.main", "info.main", "warning.main", "error.main", "secondaryBrand.main"];
+    const { data: logsData, isLoading: logsLoading } = useGetActivityLogs({
+        userId,
+        pageNumber: 1,
+        pageSize: 5,
+        sortOrder: "newest",
+    });
+    const timelineLogs = logsData?.items ?? [];
 
     const { mutate: restrictUser, isPending: isRestricting } = useAdminRestrictUser();
     const { mutate: unbanUser } = useAdminUnbanUser();
@@ -364,33 +375,48 @@ export default function UserDetailPage() {
                             <Box sx={{ p: 2.5 }}>
                                 <SectionTitle>Activity Timeline</SectionTitle>
                                 <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                    {[
-                                        { color: "success.main", label: `Enrolled "React for Beginners"`, time: "20 Apr 2026, 1:42 pm" },
-                                        { color: "success.main", label: `Enrolled "Node.js Mastery"`, time: "19 Apr 2026, 12:42 pm" },
-                                        { color: "info.main", label: "Purchased course — $49.99", time: "18 Apr 2026, 11:42 am" },
-                                        { color: "warning.main", label: `Published "Advanced Vue.js"`, time: "17 Apr 2026, 10:42 am" },
-                                        { color: "secondaryBrand.main", label: `Rated "Python Basics" ⭐ 4.5`, time: "16 Apr 2026, 9:42 am" },
-                                    ].map((item, i, arr) => (
-                                        <Box key={i} sx={{ display: "flex", gap: 1.5 }}>
-                                            {/* Dot + line */}
-                                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                                                <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: item.color, mt: 0.4, flexShrink: 0 }} />
-                                                {i < arr.length - 1 && <Box sx={{ width: "2px", flex: 1, bgcolor: "#F3F4F6", my: 0.5 }} />}
+                                    {logsLoading ? (
+                                        Array.from({ length: 5 }).map((_, i) => (
+                                            <Box key={i} sx={{ display: "flex", gap: 1.5, pb: i < 4 ? 1.5 : 0 }}>
+                                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                                                    <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "grey.200", mt: 0.4 }} />
+                                                    {i < 4 && <Box sx={{ width: "2px", flex: 1, bgcolor: "#F3F4F6", my: 0.5, minHeight: 20 }} />}
+                                                </Box>
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Skeleton variant="text" width="80%" height={16} />
+                                                    <Skeleton variant="text" width="50%" height={12} />
+                                                </Box>
                                             </Box>
-                                            {/* Content */}
-                                            <Box sx={{ pb: i < arr.length - 1 ? 1.5 : 0 }}>
-                                                <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", fontSize: "0.82rem", lineHeight: 1.3 }}>
-                                                    {item.label}
-                                                </Typography>
-                                                <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                                                    {item.time}
-                                                </Typography>
+                                        ))
+                                    ) : timelineLogs.length === 0 ? (
+                                        <Typography variant="body2" sx={{ color: "text.disabled", fontStyle: "italic", py: 1 }}>No activity yet.</Typography>
+                                    ) : (
+                                        timelineLogs.map((log, i, arr) => (
+                                            <Box key={log.id} sx={{ display: "flex", gap: 1.5 }}>
+                                                {/* Dot + line */}
+                                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                                                    <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: TIMELINE_DOT_COLORS[i % TIMELINE_DOT_COLORS.length], mt: 0.4, flexShrink: 0 }} />
+                                                    {i < arr.length - 1 && <Box sx={{ width: "2px", flex: 1, bgcolor: "#F3F4F6", my: 0.5 }} />}
+                                                </Box>
+                                                {/* Content */}
+                                                <Box sx={{ pb: i < arr.length - 1 ? 1.5 : 0 }}>
+                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", fontSize: "0.82rem", lineHeight: 1.3 }}>
+                                                        {log.description || "—"}
+                                                    </Typography>
+                                                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                                                        {log.created ? new Date(log.created).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
+                                                    </Typography>
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                    ))}
+                                        ))
+                                    )}
                                 </Box>
                                 <Box sx={{ mt: 2, textAlign: "center" }}>
-                                    <Button size="small" sx={{ textTransform: "none", color: "brand.main", fontWeight: 600, fontSize: "0.78rem", "&:hover": { bgcolor: "background.muted" } }}>
+                                    <Button
+                                        size="small"
+                                        onClick={() => navigate(`/admin/user/${userId}/activity-logs`)}
+                                        sx={{ textTransform: "none", color: "brand.main", fontWeight: 600, fontSize: "0.78rem", "&:hover": { bgcolor: "background.muted" } }}
+                                    >
                                         View more
                                     </Button>
                                 </Box>

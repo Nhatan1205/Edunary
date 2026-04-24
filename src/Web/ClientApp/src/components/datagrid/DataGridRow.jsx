@@ -132,6 +132,7 @@ function DataGridRow({
           open={!!anchorEl}
           anchorEl={anchorEl}
           onClose={handleCloseMenu}
+          disableRestoreFocus
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
           slotProps={{

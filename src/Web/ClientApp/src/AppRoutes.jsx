@@ -108,7 +108,10 @@ const router = createBrowserRouter([
           },
           {
             path: ":userId",
-            element: <UserDetailPage />,
+            children: [
+              { index: true, element: <UserDetailPage /> },
+              { path: "activity-logs", element: <ActivityLogsPage /> },
+            ],
           },
         ],
       }

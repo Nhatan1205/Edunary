@@ -37,7 +37,7 @@ function DataGridToolbar({
         borderColor: "divider",
         transition: "background-color 0.2s ease",
         ...(numSelected > 0 && {
-          bgcolor: "rgba(0, 167, 111, 0.06)",
+          bgcolor: "brand.lighter",
         }),
       }}
     >
@@ -115,25 +115,27 @@ function DataGridToolbar({
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           {onRefresh && (
             <Tooltip title="Reload">
-              <IconButton
-                onClick={onRefresh}
-                size="small"
-                disabled={isRefreshing}
-                sx={{
-                  color: "grey.500",
-                  borderRadius: "8px",
-                  "&:hover": { bgcolor: "grey.100", color: "text.primary" },
-                  "@keyframes spin": {
-                    from: { transform: "rotate(0deg)" },
-                    to: { transform: "rotate(360deg)" },
-                  },
-                  "& svg": isRefreshing
-                    ? { animation: "spin 0.7s linear infinite" }
-                    : {},
-                }}
-              >
-                <RefreshIcon sx={{ fontSize: 20 }} />
-              </IconButton>
+              <span>
+                <IconButton
+                  onClick={onRefresh}
+                  size="small"
+                  disabled={isRefreshing}
+                  sx={{
+                    color: "grey.500",
+                    borderRadius: "8px",
+                    "&:hover": { bgcolor: "grey.100", color: "text.primary" },
+                    "@keyframes spin": {
+                      from: { transform: "rotate(0deg)" },
+                      to: { transform: "rotate(360deg)" },
+                    },
+                    "& svg": isRefreshing
+                      ? { animation: "spin 0.7s linear infinite" }
+                      : {},
+                  }}
+                >
+                  <RefreshIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+              </span>
             </Tooltip>
           )}
           {customRightAction ?? (

@@ -1,15 +1,19 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Roadmaps.Queries.GetRoadmapsAuthorQuery;
 
+[ActivityLog(ActivityType.AccessUserRoadmapsPage, "Access user's roadmaps page")]
 public class GetRoadmapsAuthorQuery : IRequest<PaginatedList<RoadmapAuthorDto>>
 {
     public string SearchText { get; init; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
 }
+
 
 public class GetRoadmapsAuthorQueryHandler : IRequestHandler<GetRoadmapsAuthorQuery, PaginatedList<RoadmapAuthorDto>>
 {

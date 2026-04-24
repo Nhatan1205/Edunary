@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Edunary.Application.Common.Behaviours;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -17,6 +17,7 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ActivityLogBehaviour<,>));
         });
 
         return services;

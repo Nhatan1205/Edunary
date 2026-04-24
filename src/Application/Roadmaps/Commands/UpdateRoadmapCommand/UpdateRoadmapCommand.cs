@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.Roadmaps.Models;
@@ -6,6 +7,8 @@ using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Roadmaps.Commands.UpdateRoadmapCommand;
 
+
+[ActivityLog(ActivityType.UpdateRoadmap, "Update Roadmaps")]
 public record UpdateRoadmapCommand : IRequest<Result>
 {
     public int Id { get; init; }

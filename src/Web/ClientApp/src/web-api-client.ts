@@ -10,6 +10,117 @@
 
 import followIfLoginRedirect from './components/api-authorization/followIfLoginRedirect';
 
+export class ActivityLogsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getActivityLogs(userId: string | null | undefined, activityTypeFilter: number, search: string | null | undefined, from: Date, to: Date, sortOrder: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfActivityLogDto> {
+        let url_ = this.baseUrl + "/api/ActivityLogs?";
+        if (userId !== undefined && userId !== null)
+            url_ += "UserId=" + encodeURIComponent("" + userId) + "&";
+        if (activityTypeFilter === undefined || activityTypeFilter === null)
+            throw new Error("The parameter 'activityTypeFilter' must be defined and cannot be null.");
+        else
+            url_ += "ActivityTypeFilter=" + encodeURIComponent("" + activityTypeFilter) + "&";
+        if (search !== undefined && search !== null)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (from === undefined || from === null)
+            throw new Error("The parameter 'from' must be defined and cannot be null.");
+        else
+            url_ += "From=" + encodeURIComponent(from ? "" + from.toISOString() : "") + "&";
+        if (to === undefined || to === null)
+            throw new Error("The parameter 'to' must be defined and cannot be null.");
+        else
+            url_ += "To=" + encodeURIComponent(to ? "" + to.toISOString() : "") + "&";
+        if (sortOrder !== undefined && sortOrder !== null)
+            url_ += "SortOrder=" + encodeURIComponent("" + sortOrder) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetActivityLogs(_response);
+        });
+    }
+
+    protected processGetActivityLogs(response: Response): Promise<PaginatedListOfActivityLogDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfActivityLogDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfActivityLogDto>(null as any);
+    }
+
+    deleteActivityLogs(command: DeleteActivityLogsCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/ActivityLogs";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteActivityLogs(_response);
+        });
+    }
+
+    protected processDeleteActivityLogs(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
 export class AnnouncementClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -3784,6 +3895,266 @@ export class WeatherForecastsClient {
     }
 }
 
+export class PaginatedListOfActivityLogDto implements IPaginatedListOfActivityLogDto {
+    items?: ActivityLogDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfActivityLogDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ActivityLogDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfActivityLogDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfActivityLogDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfActivityLogDto {
+    items?: ActivityLogDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class ActivityLogDto implements IActivityLogDto {
+    id?: number;
+    userId?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    avatar?: string | undefined;
+    activityType?: ActivityType;
+    description?: string | undefined;
+    created?: Date;
+
+    constructor(data?: IActivityLogDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.avatar = _data["avatar"];
+            this.activityType = _data["activityType"];
+            this.description = _data["description"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ActivityLogDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActivityLogDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["avatar"] = this.avatar;
+        data["activityType"] = this.activityType;
+        data["description"] = this.description;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IActivityLogDto {
+    id?: number;
+    userId?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    avatar?: string | undefined;
+    activityType?: ActivityType;
+    description?: string | undefined;
+    created?: Date;
+}
+
+export enum ActivityType {
+    Login = 0,
+    Logout = 1,
+    ChangePassword = 2,
+    CreateCourse = 10,
+    UpdateCourse = 11,
+    DeleteCourse = 12,
+    AddToCart = 13,
+    RemoveFromCart = 14,
+    CompletePurchase = 15,
+    UpdateCourseProgress = 16,
+    RateCourse = 17,
+    UpdateUserInfo = 18,
+    UpdateUserAvatar = 19,
+    SendAnnouncement = 20,
+    CreateRoadmap = 21,
+    UpdateRoadmap = 22,
+    DeleteRoadmap = 23,
+    AccessUserCoursesPage = 50,
+    AccessUserRoadmapsPage = 51,
+    AccessEnrolledCoursesPage = 52,
+    AccessUserAnnouncementsPage = 53,
+    AccessUserProfilePage = 54,
+    CreateCategory = 200,
+    UpdateCategory = 201,
+    DeleteCategory = 202,
+    RestrictUser = 203,
+    UnbanUser = 204,
+    ChangeUserRole = 205,
+    UpdateSystemSetting = 206,
+}
+
+export class Result implements IResult {
+    succeeded?: boolean;
+    message?: string | undefined;
+    data?: any | undefined;
+    errors?: string[] | undefined;
+
+    constructor(data?: IResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.succeeded = _data["succeeded"];
+            this.message = _data["message"];
+            this.data = _data["data"];
+            if (Array.isArray(_data["errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["errors"])
+                    this.errors!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): Result {
+        data = typeof data === 'object' ? data : {};
+        let result = new Result();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["succeeded"] = this.succeeded;
+        data["message"] = this.message;
+        data["data"] = this.data;
+        if (Array.isArray(this.errors)) {
+            data["errors"] = [];
+            for (let item of this.errors)
+                data["errors"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IResult {
+    succeeded?: boolean;
+    message?: string | undefined;
+    data?: any | undefined;
+    errors?: string[] | undefined;
+}
+
+export class DeleteActivityLogsCommand implements IDeleteActivityLogsCommand {
+    ids?: number[] | undefined;
+
+    constructor(data?: IDeleteActivityLogsCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["ids"])) {
+                this.ids = [] as any;
+                for (let item of _data["ids"])
+                    this.ids!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): DeleteActivityLogsCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteActivityLogsCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.ids)) {
+            data["ids"] = [];
+            for (let item of this.ids)
+                data["ids"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IDeleteActivityLogsCommand {
+    ids?: number[] | undefined;
+}
+
 export class ReturnResultOfCreateAnnouncementCommandDto implements IReturnResultOfCreateAnnouncementCommandDto {
     result?: CreateAnnouncementCommandDto | undefined;
     message?: string | undefined;
@@ -4843,62 +5214,6 @@ export class CreateCategoryCommand implements ICreateCategoryCommand {
 
 export interface ICreateCategoryCommand {
     title?: string | undefined;
-}
-
-export class Result implements IResult {
-    succeeded?: boolean;
-    message?: string | undefined;
-    data?: any | undefined;
-    errors?: string[] | undefined;
-
-    constructor(data?: IResult) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.succeeded = _data["succeeded"];
-            this.message = _data["message"];
-            this.data = _data["data"];
-            if (Array.isArray(_data["errors"])) {
-                this.errors = [] as any;
-                for (let item of _data["errors"])
-                    this.errors!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): Result {
-        data = typeof data === 'object' ? data : {};
-        let result = new Result();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["succeeded"] = this.succeeded;
-        data["message"] = this.message;
-        data["data"] = this.data;
-        if (Array.isArray(this.errors)) {
-            data["errors"] = [];
-            for (let item of this.errors)
-                data["errors"].push(item);
-        }
-        return data;
-    }
-}
-
-export interface IResult {
-    succeeded?: boolean;
-    message?: string | undefined;
-    data?: any | undefined;
-    errors?: string[] | undefined;
 }
 
 export class UpdateCategoryCommand implements IUpdateCategoryCommand {

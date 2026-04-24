@@ -25,6 +25,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
+
 namespace Edunary.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
@@ -37,6 +38,7 @@ public class IdentityService : IIdentityService
     private readonly ApplicationDbContext _context;
     private readonly AppSettings _appSettings;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IActivityLogService _activityLogService;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
@@ -46,7 +48,8 @@ public class IdentityService : IIdentityService
         ILogger<IdentityService> logger,
         ApplicationDbContext context,
         IOptions<AppSettings> appSettings,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IActivityLogService activityLogService)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
@@ -56,6 +59,7 @@ public class IdentityService : IIdentityService
         _context = context;
         _appSettings = appSettings.Value;
         _currentUserService = currentUserService;
+        _activityLogService = activityLogService;
     }
 
     public async Task<string> GetUserNameAsync(string userId)
@@ -347,6 +351,14 @@ public class IdentityService : IIdentityService
                     string refreshToken = await CreateToken(user, TokenType.RefreshToken);
                     await SetTokenAsync(user, Utils.GetEnumMemberValue(AccountType.System), Utils.GetEnumMemberValue(TokenType.RefreshToken), refreshToken);
                     rs = Result.Success(accessToken);
+
+                    // Activity log: track login (non-blocking via Hangfire)
+                    _activityLogService.EnqueueLog(new ActivityLogEntry
+                    {
+                        UserId = user.Id,
+                        ActivityType = ActivityType.Login,
+                        Description = "Have logged into the system"
+                    });
                 }
             }
         }

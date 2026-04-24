@@ -1,8 +1,11 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Users.Commands.UnbanUserCommand;
 
+[ActivityLog(ActivityType.UnbanUser, "Unbanned a user account")]
 public record UnbanUserCommand : IRequest<Result>
 {
     public string UserId { get; init; }

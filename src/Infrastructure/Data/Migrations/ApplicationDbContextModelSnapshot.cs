@@ -37,6 +37,51 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("AnnouncementCourse");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.ActivityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActivityType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityType")
+                        .HasDatabaseName("IX_ActivityLogs_ActivityType");
+
+                    b.HasIndex("Created")
+                        .HasDatabaseName("IX_ActivityLogs_Created");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_ActivityLogs_UserId");
+
+                    b.ToTable("ActivityLogs");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.Announcement", b =>
                 {
                     b.Property<int>("Id")

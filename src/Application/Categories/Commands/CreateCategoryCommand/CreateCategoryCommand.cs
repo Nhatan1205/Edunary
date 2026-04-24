@@ -1,9 +1,12 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Categories.Commands.CreateCategoryCommand;
 
+[ActivityLog(ActivityType.ChangePassword, "Change Password")]
 public record CreateCategoryCommand : IRequest<ReturnResult<CreatedCategoryDto>>
 {
     public string Title { get; init; } = string.Empty;

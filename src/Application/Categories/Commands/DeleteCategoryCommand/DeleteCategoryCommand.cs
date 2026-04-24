@@ -1,8 +1,11 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Categories.Commands.DeleteCategoryCommand;
 
+[ActivityLog(ActivityType.DeleteCategory, "Deleted a category")]
 public record DeleteCategoryCommand : IRequest<Result>
 {
     public int Id { get; init; }

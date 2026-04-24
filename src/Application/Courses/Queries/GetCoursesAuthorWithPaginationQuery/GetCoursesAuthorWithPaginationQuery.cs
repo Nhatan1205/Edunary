@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
@@ -8,6 +9,8 @@ using Edunary.Domain.Enums;
 
 
 namespace Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
+
+[ActivityLog(ActivityType.AccessUserCoursesPage, "access user's courses page")]
 public class GetCoursesAuthorWithPaginationQuery : IRequest<PaginatedList<GetCoursesAuthorDto>>
 {
     public string SearchText { get; init; }

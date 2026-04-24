@@ -85,6 +85,12 @@ const adminMenuConfig = {
               type: "item",
               url: "/admin/user/list",
             },
+            {
+              id: "activity-logs",
+              title: "Activity Logs",
+              type: "item",
+              url: "/admin/user/activity-logs",
+            },
           ],
         },
         {

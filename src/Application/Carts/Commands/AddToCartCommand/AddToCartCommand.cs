@@ -1,9 +1,12 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Carts.Commands.AddToCartCommand;
 
+[ActivityLog(ActivityType.AddToCart, "Added a course to cart")]
 public record AddToCartCommand : IRequest<Result>
 {
     public string CourseId { get; init; }

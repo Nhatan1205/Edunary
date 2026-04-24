@@ -1,8 +1,11 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Categories.Commands.UpdateCategoryCommand;
 
+[ActivityLog(ActivityType.UpdateCategory, "Updated a category")]
 public class UpdateCategoryCommand : IRequest<Result>
 {
     public int Id { get; init; }

@@ -1,9 +1,14 @@
 ﻿using System.Text.Json;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Common;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Users.Commands.UpdateUserInfoCommand;
+
+
+[ActivityLog(ActivityType.UpdateUserInfo, "Update User information")]
 public class UpdateUserInfoCommand : IRequest<Result>
 {
     public string FullName { get; init; }

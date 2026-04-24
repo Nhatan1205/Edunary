@@ -1,8 +1,11 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Users.Commands.ChangePasswordCommand;
 
+[ActivityLog(ActivityType.ChangePassword, "Change Password")]
 public class ChangePasswordCommand : IRequest<Result>
 {
     public string OldPassword { get; init; }

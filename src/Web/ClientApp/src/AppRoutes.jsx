@@ -56,6 +56,7 @@ import CategoryPage from "./features/admin/course-section/category-page/Category
 import UserPage from "./features/admin/user-section/user-page/UserPage";
 import UserDetailPage from "./features/admin/user-section/user-detail-page/UserDetailPage";
 import UserOverviewPage from "./features/admin/user-section/user-overview-page/UserOverviewPage";
+import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/ActivityLogsPage";
 
 const router = createBrowserRouter([
   {
@@ -100,6 +101,10 @@ const router = createBrowserRouter([
           {
             path: "list",
             element: <UserPage />,
+          },
+          {
+            path: "activity-logs",
+            element: <ActivityLogsPage />,
           },
           {
             path: ":userId",

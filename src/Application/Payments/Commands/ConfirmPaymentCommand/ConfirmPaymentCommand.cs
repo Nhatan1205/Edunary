@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
@@ -8,6 +9,7 @@ using Edunary.Application.CourseProgresses.Commands.CreateCourseProgressCommand;
 
 namespace Edunary.Application.Payments.Commands.ConfirmPaymentCommand;
 
+[ActivityLog(ActivityType.CompletePurchase, "Completed a purchase")]
 public record ConfirmPaymentCommand : IRequest<ConfirmPaymentDto>
 {
     public string PaymentIntentId { get; init; }

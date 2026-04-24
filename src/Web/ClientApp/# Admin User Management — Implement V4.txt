@@ -1,0 +1,457 @@
+# Admin User Management — Implementation Plan (v3)
+
+## Mục lục
+1. [User List Page](#1-user-list-page)
+2. [User Detail Page](#2-user-detail-page)
+3. [User Status System (v3)](#3-user-status-system-v3)
+4. [Phân Tích Kỹ Thuật](#4-phân-tích-kỹ-thuật)
+5. [Backend Endpoints](#5-backend-endpoints)
+6. [CQRS Files & Migration](#6-cqrs-files--migration)
+
+---
+
+## 1. User List Page
+
+### 1.1 Overview Section (Stat Cards + Chart)
+
+**4 Stat Cards** — mỗi card gồm icon + số + label:
+
+| Card | Giá trị | Data Source |
+|---|---|---|
+| **Total Users** | Tổng tất cả users | `COUNT(AspNetUsers)` |
+| **Active Users** | Users status Active | `COUNT WHERE Status = Active` |
+| **Banned Users** | Users đang bị ban | `COUNT WHERE Status = Banned` |
+| **New This Month** | Đăng ký trong tháng | `COUNT WHERE CreatedAt >= firstDayOfMonth` |
+
+**User Growth Line Chart** — nằm dưới stat cards:
+- Loại: Area/Line chart (ApexCharts, dùng `useChart` hook đã có)
+- Dropdown chọn: `Daily (7d)` | `Daily (30d)` | `Weekly (12w)` | `Monthly (6m)` | `Monthly (12m)`
+
+---
+
+### 1.2 DataGrid — Các cột hiển thị
+
+| # | Cột | Kiểu hiển thị | Sortable? | Data source |
+|---|---|---|---|---|
+| 1 | **#** | Row index | ❌ | Auto |
+| 2 | **User** | Avatar + Full Name + Email (stacked) | ✅ name | `.Avatar`, `.FullName`, `.Email` |
+| 3 | **Role** | Pill badge: `User` / `Administrator` | ✅ | `AspNetUserRoles` JOIN `AspNetRoles` |
+| 4 | **Status** | Pill badge (4 colors) | ✅ | `ApplicationUser.Status` (enum column) |
+| 5 | **Courses** | `📚 5 enrolled · 📝 2 created` | ✅ | Sub-query `Enrollments` + `Courses` |
+| 6 | **Last Login** | Relative time (`2 hours ago`) | ✅ | `ApplicationUser.LastLoginTime` |
+| 7 | **Joined** | Date (`Jan 15, 2025`) | ✅ | `ApplicationUser.CreatedAt` |
+| 8 | **Online** | Green dot / gray dot | ❌ | `ConnectionManagerService` in-memory |
+| 9 | **Actions** | Icon menu (⋮) | ❌ | — |
+
+**Cột "User" (cột 2)** render phức hợp:
+```
+┌──────┬──────────────────────┐
+│ 🖼️   │ Nguyễn Văn A         │
+│ AVT  │ a@gmail.com          │
+└──────┴──────────────────────┘
+```
+
+**Status badge colors (v3):**
+
+| Status | Background | Text |
+|---|---|---|
+| 🟢 Active | `success.lighter` | `success.dark` |
+| 🟡 Inactive | `warning.lighter` | `warning.dark` |
+| 🟠 Suspended | `brand.lighter` | `brand.dark` |
+| 🔴 Banned | `error.lighter` | `error.dark` |
+
+> [!IMPORTANT]
+> **Không đưa vào DataGrid** (tránh over-engineering):
+> - ❌ Bio/Description, Phone, Social links, Total spent/earned, IP address, Email verified
+
+### 1.3 Filters & Search
+
+| Filter | Loại UI | Options |
+|---|---|---|
+| **Search** | Text input | Search by name hoặc email |
+| **Role** | Dropdown | `All` / `User` / `Administrator` |
+| **Status** | Dropdown | `All` / `Active` / `Inactive` / `Suspended` / `Banned` |
+| **Sort** | Dropdown | `Newest` / `Name (A-Z)` / `Last Login` |
+
+### 1.4 Actions trên User List Page
+
+| Action | Vị trí | Điều kiện |
+|---|---|---|
+| **View Detail** | Row click hoặc Actions menu | Luôn có |
+| **Suspend User** | Actions menu (⋮) | User đang Active hoặc Inactive + không phải mình |
+| **Ban User** | Actions menu (⋮) | User đang Active/Inactive/Suspended + không phải mình |
+| **Unban User** | Actions menu (⋮) | User đang Banned hoặc Suspended |
+| **Change Role** | Actions menu (⋮) | Không phải mình |
+| **Add User** | Button phía trên DataGrid | Luôn có |
+
+**Add User** — mở Dialog:
+- Fields: Email, Full Name, Password
+- Tạo xong → account có role **`User`** (user bình thường), Status = Active
+
+---
+
+## 2. User Detail Page (v2 — Organic Bento Layout)
+
+### 2.1 Design Philosophy
+
+> **Cards should feel organically arranged, not mathematically equal.**
+> Lấy cảm hứng từ bento-grid: card ngắn cạnh card dài, card nhỏ cạnh card to.
+> Follower/Following style (ảnh 1) → áp dụng cho Total Learners + Reviews.
+
+---
+
+### 2.2 Hero Section — Full Width
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  🎨 Cover banner (gradient/mesh bg — full width, height ~180px)       │
+│                                                                        │
+│  ┌────┐  Nguyễn Văn A                    [🟢 Active] [User badge]     │
+│  │ 🖼️ │  Full-stack Developer (headline)                               │
+│  │AVT │  📧 a@gmail.com  📱 0901234567   🟢 Online                    │
+│  └────┘                                                                │
+│                                                                        │
+│  ┌──────────────────┐  ┌──────────────────┐                           │
+│  │  **1,947**       │  │   **4.8 ★**       │                           │
+│  │  Total Learners  │  │   Reviews         │                           │
+│  └──────────────────┘  └──────────────────┘                           │
+│                                        [Suspend] [Ban] [Change Role]  │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+**Notes:**
+- Avatar: tròn lớn (~88px), có viền trắng + shadow, overlay lên banner
+- Stat bubbles: **số to + bold**, label bên dưới màu `brand.main` (giống Follower/Following ở ảnh 1)
+- Admin actions: nút nhỏ góc phải của hero card
+- Online dot: nhỏ trên avatar
+
+---
+
+### 2.3 Bento Grid — Organic Layout (dưới Hero)
+
+```
+Row A:  [── Wide (8/12) ─────────────────] [── Narrow (4/12) ──────────]
+        │  Activity Stats (4 mini metrics) │ │  Meta Info                │
+        │  ┌──────┐ ┌──────┐              │ │  🗓 Joined: Jan 15, 2025   │
+        │  │📚 5  │ │📝 2  │              │ │  🕐 Last login: 2h ago     │
+        │  └──────┘ └──────┘              │ │  🆔 ID: abc123...          │
+        │  ┌──────┐ ┌──────┐              │ │  📍 LockoutEnd: —          │
+        │  │💰$150│ │💵$500│              │ └───────────────────────────┘
+        └──────────────────────────────────┘
+
+Row B:  [── Narrow (4/12) ──────────────] [── Wide (8/12) ─────────────]
+        │  About / Description             │ │  Links / Social             │
+        │  "Full-stack dev with 5 years..."│ │  🔗 github.com/user         │
+        │  (max 4 lines, expandable)       │ │  🔗 linkedin.com/in/user    │
+        │                                  │ │  🔗 portfolio.dev           │
+        └──────────────────────────────────┘ └─────────────────────────────┘
+
+Row C:  [── Wide (7/12) ─────────────────────] [── Narrow (5/12) ──────]
+        │  Recent Enrolled Courses (max 5)    │ │  Recent Created (max 5) │
+        │  React for Beginners     75% ████░  │ │  Advanced Vue.js         │
+        │  Node.js Mastery         30% ██░░░  │ │  👥 120  ⭐ 4.5          │
+        │  Python Basics          100% █████  │ │  Python Basics           │
+        │                                     │ │  👥 80   ⭐ 4.2          │
+        └─────────────────────────────────────┘ └─────────────────────────┘
+```
+
+**Sizing guide:**
+- Row A: Stats card có thêm padding/height lớn hơn → tạo cảm giác nặng/quan trọng
+- Row B: Description card ngắn hơn (compact), Links card có list items
+- Row C: Enrolled rộng hơn vì có progress bar
+
+---
+
+### 2.4 Data Fields — Full List
+
+#### Hero Section
+| Field | Source | Note |
+|---|---|---|
+| Avatar | `ApplicationUser.Avatar` | Fallback initials |
+| Full Name | `ApplicationUser.FullName` | Bold, large |
+| **Headline** | `ApplicationUser.Headline` | Subtitle muted |
+| Email | `ApplicationUser.Email` | Icon + text |
+| Phone | `ApplicationUser.PhoneNumber` | Nullable |
+| Role | `AspNetUserRoles` | Pill badge |
+| Status | `ApplicationUser.Status` | Colored badge |
+| Online | `ConnectionManagerService` | Dot indicator |
+| **Total Learners** | SUM của students trong các course của instructor | Follower-style number |
+| **Avg Rating** | AVG rating của các course | Follower-style number |
+
+#### Row A — Stats Cards
+| Metric | Source |
+|---|---|
+| Enrolled Courses | `COUNT(Enrollments WHERE StudentId = userId)` |
+| Created Courses | `COUNT(Courses WHERE CreatedBy = userId)` |
+| Total Spent | `SUM(Orders.TotalAmount WHERE userId AND Completed)` |
+| Total Earned | `SUM(OrderItem.Price WHERE Course.CreatedBy = userId)` |
+
+#### Row A — Meta Card
+| Field | Source |
+|---|---|
+| Joined Date | `ApplicationUser.CreatedAt` |
+| Last Login | `ApplicationUser.LastLoginTime` |
+| User ID | `ApplicationUser.Id` (truncated + copy btn) |
+| Suspend End | `ApplicationUser.LockoutEnd` (chỉ hiện nếu Suspended) |
+
+#### Row B — About & Links
+| Field | Source |
+|---|---|
+| **Description** | `ApplicationUser.Description` | Hiện nếu có, else "No bio provided" |
+| **Links** | `ApplicationUser.Links` (JSON array strings) | Render list of clickable links |
+
+---
+
+### 2.5 Follower-Style Stat Display
+
+Inspired by image 1 (Follower / Following bubbles):
+
+```jsx
+// Component: StatBubble
+<Box sx={{ textAlign: "center", px: 3, borderRight: "1px solid #F3F4F6" }}>
+  <Typography sx={{ fontSize: "1.5rem", fontWeight: 800, lineHeight: 1 }}>
+    1,947
+  </Typography>
+  <Typography sx={{ fontSize: "0.75rem", color: "brand.main", fontWeight: 600, mt: 0.5 }}>
+    Total Learners
+  </Typography>
+</Box>
+```
+
+2 bubbles side-by-side, separated by divider, placed inside Hero below contact info.
+
+---
+
+### 2.6 Admin Actions — Placement
+
+Đặt ở góc phải của Hero card:
+
+| Action | Điều kiện |
+|---|---|
+| **Suspend** | Status Active / Inactive (không phải mình) |
+| **Ban** | Status Active / Inactive / Suspended (không phải mình) |
+| **Unban** | Status Banned / Suspended |
+| **Change Role** | Luôn có (không phải mình) |
+
+Dùng lại `ConfirmDialog` component + mutations đã có.
+
+---
+
+### 2.7 Thông tin KHÔNG hiển thị
+
+| Loại | Lý do |
+|---|---|
+| ❌ Login count | Không track |
+| ❌ IP / Device history | Không có data source |
+| ❌ Total learning time | `CourseProgress` không track time |
+| ❌ Email verified | Không critical cho admin |
+
+---
+
+## 3. User Status System (v3)
+
+### 3.1 Enum — `UserStatus`
+
+```csharp
+public enum UserStatus
+{
+    Active = 0,      // Hoạt động bình thường
+    Inactive = 1,    // 30+ ngày không login
+    Suspended = 2,   // Khóa tạm thời (admin set thời hạn)
+    Banned = 3,      // Ban vĩnh viễn
+}
+```
+
+### 3.2 Lưu trữ — Column trong `ApplicationUser`
+
+```csharp
+public class ApplicationUser : IdentityUser
+{
+    // ... existing fields ...
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public UserStatus Status { get; set; } = UserStatus.Active;
+}
+```
+
+> [!NOTE]
+> **Tại sao lưu column thay vì computed?**
+> - Filter/query đơn giản: `WHERE Status = @status` (thay vì complex LockoutEnd logic)
+> - 4 trạng thái rõ ràng, không cần tính toán mỗi lần
+> - `LockoutEnd` vẫn giữ để biết ngày hết hạn Suspend
+
+### 3.3 Flow chuyển trạng thái
+
+```mermaid
+stateDiagram-v2
+    [*] --> Active : Register / Add User
+    Active --> Inactive : 30 ngày không login (background job)
+    Active --> Suspended : Admin suspend
+    Active --> Banned : Admin ban
+    Inactive --> Active : User login lại
+    Inactive --> Suspended : Admin suspend
+    Inactive --> Banned : Admin ban
+    Suspended --> Active : Hết hạn + login lại / Admin unban
+    Suspended --> Banned : Admin ban (nâng mức)
+    Banned --> Active : Admin unban
+```
+
+### 3.4 Login Flow (đã implement)
+
+```
+User login →
+  ├── Status = Banned      → Block: "Your account has been permanently banned."
+  ├── Status = Suspended
+  │     ├── LockoutEnd > now  → Block: "Account suspended until {date}."
+  │     └── LockoutEnd <= now → Auto reactivate → Active → login OK
+  ├── Status = Inactive    → Reset to Active → login OK
+  └── Status = Active      → login OK
+```
+
+### 3.5 Inactive Detection — Hangfire Background Job
+
+```csharp
+// Chạy mỗi ngày lúc 2:00 AM (chưa implement, sẽ làm sau)
+RecurringJob.AddOrUpdate<IUserStatusJob>(
+    "mark-inactive-users",
+    job => job.MarkInactiveUsersAsync(),
+    Cron.Daily(2));
+```
+
+Logic: User Active mà `LastLoginTime` null + `CreatedAt > 30 ngày` HOẶC `LastLoginTime > 30 ngày` → set Status = Inactive.
+
+---
+
+## 4. Phân Tích Kỹ Thuật
+
+### 4.1 Joined Date — `CreatedAt`
+
+**Không có sẵn** trong Identity → đã thêm `CreatedAt` vào `ApplicationUser`. Cần migration.
+
+### 4.2 Last Login — `LastLoginTime`
+
+**Đã có sẵn.** Cập nhật tại `Login()` method mỗi lần login. Nullable — `null` = chưa bao giờ login.
+
+### 4.3 Online Status — `ConnectionManagerService`
+
+Singleton in-memory `ConcurrentDictionary<userId, HashSet<connectionId>>`. User có SignalR connection = online. Đã thêm `GetAllOnlineUserIds()` và `GetOnlineCount()`.
+
+### 4.4 Change Role
+
+Dùng `UserManager` APIs: `RemoveFromRolesAsync` → `AddToRoleAsync`. Chỉ có 2 roles: `User` và `Administrator`. User cần refresh token/re-login sau khi đổi role.
+
+### 4.5 Ban/Unban/Suspend
+
+- **Ban**: `user.Status = Banned` + `LockoutEnd = MaxValue`
+- **Suspend**: `user.Status = Suspended` + `LockoutEnd = now + N days`
+- **Unban**: `user.Status = Active` + `LockoutEnd = null`
+- Tất cả vẫn set `LockoutEnabled` để tương thích code cũ (`GetUserById`)
+
+---
+
+## 5. Backend Endpoints
+
+### 5.1 Tổng quan
+
+| # | Endpoint | Method | Mục đích |
+|---|---|---|---|
+| 1 | `/api/User/admin` | GET | Danh sách users (paginated + filter) |
+| 2 | `/api/User/admin/{id}` | GET | Chi tiết 1 user |
+| 3 | `/api/User/admin/add-user` | POST | Tạo user mới (role = User) |
+| 4 | `/api/User/admin/ban` | PUT | Ban user vĩnh viễn |
+| 5 | `/api/User/admin/suspend` | PUT | Suspend user có thời hạn |
+| 6 | `/api/User/admin/unban` | PUT | Unban/Unsuspend user |
+| 7 | `/api/User/admin/change-role` | PUT | Đổi role |
+
+### 5.2 GET `/api/User/admin` — Danh sách Users
+
+**Query Params:** `searchText`, `roleFilter`, `statusFilter` (Active/Inactive/Suspended/Banned), `sortBy` (newest/name/lastLogin), `pageNumber`, `pageSize`
+
+**Response DTO (`AdminUserListItemDto`):**
+```json
+{
+  "items": [{
+    "id": "guid", "fullName": "Nguyễn Văn A", "email": "a@gmail.com",
+    "avatar": "url", "roles": ["User"], "status": "Active",
+    "lastLoginTime": "2025-04-16T08:00:00Z", "createdAt": "2025-01-01",
+    "enrolledCourseCount": 5, "createdCourseCount": 2, "isOnline": true
+  }],
+  "pageNumber": 1, "totalPages": 10, "totalCount": 298
+}
+```
+
+### 5.3 GET `/api/User/admin/{id}` — Chi tiết User
+
+**Response DTO (`AdminUserDetailDto`):**
+```json
+{
+  "id": "guid", "fullName": "...", "email": "...", "phoneNumber": "...",
+  "avatar": "...", "headline": "...", "roles": ["User"],
+  "status": "Active", "lastLoginTime": "...", "createdAt": "...", "isOnline": false,
+  "stats": {
+    "enrolledCourseCount": 5, "createdCourseCount": 2,
+    "totalSpent": 150.00, "totalEarned": 500.00
+  },
+  "enrolledCourses": [
+    { "courseId": 1, "courseTitle": "React", "enrolledDate": "...", "progressPercentage": 75 }
+  ],
+  "createdCourses": [
+    { "courseId": 10, "courseTitle": "Vue.js", "status": "Published", "totalStudents": 120, "ratings": 4.5 }
+  ]
+}
+```
+
+### 5.4 POST `/api/User/admin/add-user`
+
+**Request:** `{ "email": "...", "fullName": "...", "password": "..." }`
+**Logic:** Gọi `Register()` hiện có → role `"User"`, Status = Active.
+
+### 5.5 PUT `/api/User/admin/ban`
+
+**Request:** `{ "userId": "guid", "reason": "..." }`
+**Logic:** Set `Status = Banned`, `LockoutEnd = MaxValue`. Không tự ban mình.
+
+### 5.6 PUT `/api/User/admin/suspend`
+
+**Request:** `{ "userId": "guid", "durationDays": 7, "reason": "..." }`
+**Logic:** Set `Status = Suspended`, `LockoutEnd = now + durationDays`. Không tự suspend mình.
+
+### 5.7 PUT `/api/User/admin/unban`
+
+**Request:** `{ "userId": "guid" }`
+**Logic:** Set `Status = Active`, `LockoutEnd = null`. Dùng cho cả unban VÀ unsuspend sớm.
+
+### 5.8 PUT `/api/User/admin/change-role`
+
+**Request:** `{ "userId": "guid", "newRole": "Administrator" }`
+**Logic:** `RemoveFromRolesAsync` → `AddToRoleAsync`. Không tự đổi mình.
+
+---
+
+## 6. CQRS Files & Migration
+
+### 6.1 Files đã tạo
+
+| Folder | Files |
+|---|---|
+| `Application/Users/Queries/GetAdminUsersWithPaginationQuery/` | Query + DTO |
+| `Application/Users/Queries/GetAdminUserDetailQuery/` | Query + DTOs + ProgressJsonSchema |
+| `Application/Users/Commands/AddUserCommand/` | Command + Validator |
+| `Application/Users/Commands/BanUserCommand/` | Command |
+| `Application/Users/Commands/SuspendUserCommand/` | Command |
+| `Application/Users/Commands/UnbanUserCommand/` | Command |
+| `Application/Users/Commands/ChangeUserRoleCommand/` | Command |
+| `Domain/Enums/UserStatus.cs` | Enum |
+
+### 6.2 Interface changes
+
+- `IIdentityService` — thêm 7 methods (list, detail, add, ban, suspend, unban, changeRole)
+- `IConnectionManagerService` — thêm `GetAllOnlineUserIds()`, `GetOnlineCount()`
+
+### 6.3 Migration cần chạy
+
+```powershell
+dotnet ef migrations add AddCreatedAtAndStatusToApplicationUser --project src/Infrastructure --startup-project src/Web
+dotnet ef database update --project src/Infrastructure --startup-project src/Web
+```
+
+Thêm 2 columns: `CreatedAt` (DateTime) + `Status` (int, default 0 = Active).

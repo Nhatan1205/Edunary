@@ -2,6 +2,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Hubs;
 using Edunary.Infrastructure.Identity;
+using Edunary.Infrastructure.Services;
 using Edunary.Web.Infrastructure;
 using Hangfire;
 using NSwag;

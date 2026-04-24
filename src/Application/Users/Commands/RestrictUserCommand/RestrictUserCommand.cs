@@ -1,13 +1,11 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Users.Commands.RestrictUserCommand;
 
-/// <summary>
-/// Restricts a user account. 
-/// If DurationDays is null → permanent ban (LockoutEnd = DateTimeOffset.MaxValue).
-/// If DurationDays has a value → temporary suspension for that many days.
-/// </summary>
+[ActivityLog(ActivityType.RestrictUser, "Restricted a user account")]
 public record RestrictUserCommand : IRequest<Result>
 {
     public string UserId { get; init; }

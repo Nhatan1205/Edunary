@@ -1,10 +1,13 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.RatingCourses.Commands.UpsertRatingCourseCommand;
 
+[ActivityLog(ActivityType.RateCourse, "Rate Course")]
 public class UpsertRatingCourseCommand : IRequest<Result>
 {
     public int CourseId { get; init; }

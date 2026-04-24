@@ -1,8 +1,13 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Roadmaps.Commands.DeleteRoadmapCommand;
 
+
+
+[ActivityLog(ActivityType.DeleteRoadmap, "Delete Roadmap")]
 public record DeleteRoadmapCommand : IRequest<Result>
 {
     public int Id { get; init; }

@@ -162,8 +162,6 @@ function StatusTabs({ activeTab, onChange, counts }) {
     );
 }
 
-// ── Role filter dropdown (checkbox style) ──────────────────────────────────────
-
 function RoleFilterDropdown({ selectedRoles, onChange }) {
     const [anchor, setAnchor] = useState(null);
 
@@ -220,8 +218,6 @@ function RoleFilterDropdown({ selectedRoles, onChange }) {
         </>
     );
 }
-
-// ── Sort Popover (via FilterListIcon) ──────────────────────────────────────────
 
 function SortPopover({ sortBy, onChange }) {
     const [anchor, setAnchor] = useState(null);
@@ -303,7 +299,6 @@ function SortPopover({ sortBy, onChange }) {
     );
 }
 
-// ── Main Component ─────────────────────────────────────────────────────────────
 
 function UserDataGrid({
     // Data từ API (controlled)
@@ -409,12 +404,12 @@ function UserDataGrid({
                         order={table.order}
                         orderBy={table.orderBy}
                         rowCount={items.length}
-                        numSelected={table.selected.length}
+                        numSelected={0}
                         onSort={table.onSort}
-                        onSelectAllRows={(checked) => table.onSelectAllRows(checked, items.map((r) => r.id))}
+                        onSelectAllRows={() => { }}
                         headLabel={HEAD_LABEL}
-                        showCheckbox={true}
-                        showIndex={false}
+                        showCheckbox={false}
+                        showIndex={true}
                         showActions={true}
                     />
                     <TableBody>
@@ -423,20 +418,21 @@ function UserDataGrid({
                             <DataGridSkeletonRow
                                 key={i}
                                 colCount={HEAD_LABEL.length}
-                                showCheckbox={true}
-                                showIndex={false}
+                                showCheckbox={false}
+                                showIndex={true}
                                 showActions={true}
                             />
                         ))}
 
                         {/* ── Rows thật từ API ── */}
-                        {!isLoading && items.map((row) => (
+                        {!isLoading && items.map((row, index) => (
                             <DataGridRow
                                 key={row.id}
-                                selected={table.selected.includes(row.id)}
-                                onSelectRow={() => table.onSelectRow(row.id)}
-                                showCheckbox={true}
-                                showIndex={false}
+                                selected={false}
+                                onSelectRow={() => { }}
+                                showCheckbox={false}
+                                showIndex={true}
+                                rowIndex={page * rowsPerPage + index + 1}
                                 actionItems={actionItems(row)}
                                 row={row}
                                 viewLink={null}

@@ -1,9 +1,13 @@
-﻿using Edunary.Application.Common.Interfaces;
+﻿using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Announcements.Queries.GetAnnouncementsQuery;
+
+[ActivityLog(ActivityType.AccessUserAnnouncementsPage, "Access User Announcements page")]
+
 public class GetAnnouncementsQuery : IRequest<PaginatedList<GetAnnouncementDto>>
 {
     public AnnouncementStatus Status { get; set; }

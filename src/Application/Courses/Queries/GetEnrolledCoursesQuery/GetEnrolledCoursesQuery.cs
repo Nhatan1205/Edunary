@@ -1,10 +1,14 @@
 using System.Text.Json;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
 using Edunary.Application.CourseProgresses.Commands.UpdateCourseProgressCommand;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetEnrolledCoursesQuery;
+
+[ActivityLog(ActivityType.AccessEnrolledCoursesPage, "Access learning page")]
 public class GetEnrolledCoursesQuery : IRequest<PaginatedList<EnrolledCoursesDto>>
 {
     public int PageNumber { get; init; } = 1;

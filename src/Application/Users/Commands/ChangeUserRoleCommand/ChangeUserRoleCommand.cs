@@ -1,8 +1,11 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Users.Commands.ChangeUserRoleCommand;
 
+[ActivityLog(ActivityType.ChangeUserRole, "Changed a user's role")]
 public record ChangeUserRoleCommand : IRequest<Result>
 {
     public string UserId { get; init; }

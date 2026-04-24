@@ -1,8 +1,12 @@
-﻿using Edunary.Application.Common.Interfaces;
+﻿using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Common;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Users.Commands.UpdateUserAvatarCommand;
+
+[ActivityLog(ActivityType.UpdateUserAvatar, "Update User avatar")]
 public class UpdateUserAvatarCommand : IRequest<Result>
 {
     public string ImageUrl { get; init; }

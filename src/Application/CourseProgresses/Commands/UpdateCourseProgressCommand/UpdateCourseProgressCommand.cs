@@ -1,9 +1,12 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.CourseProgresses.Commands.UpdateCourseProgressCommand;
 
+[ActivityLog(ActivityType.UpdateCourseProgress, "Course Progress has been updated")]
 public class UpdateCourseProgressCommand : IRequest<Result>
 {
     public int CourseId { get; init; }

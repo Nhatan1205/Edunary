@@ -1,10 +1,13 @@
-﻿namespace Edunary.Application.Courses.Commands.UpdateCourse;
+namespace Edunary.Application.Courses.Commands.UpdateCourse;
 
 using System.Text.Json;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Courses;
+
+[ActivityLog(ActivityType.UpdateCourse, "Updated a course")]
 public class UpdateCourseCommand : IRequest<Result>
 {
     public int Id { get; init; }

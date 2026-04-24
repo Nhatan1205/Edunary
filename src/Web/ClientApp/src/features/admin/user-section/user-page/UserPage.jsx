@@ -34,7 +34,7 @@ const addBtnSx = {
 function UserPage() {
     //search states
     const [searchText, setSearchText] = useState("");
-    const debouncedSearch = useDebounce(searchText, 400);
+    const debouncedSearch = useDebounce(searchText, 1000);
 
     //pagination states
     const [page, setPage] = useState(0);

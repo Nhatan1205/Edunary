@@ -1,7 +1,10 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
+using Edunary.Infrastructure.Data;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -28,7 +31,7 @@ public class ActivityLogService : IActivityLogService
         try
         {
             using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             context.ActivityLogs.Add(new ActivityLog
             {
@@ -36,6 +39,11 @@ public class ActivityLogService : IActivityLogService
                 ActivityType = entry.ActivityType,
                 Description = entry.Description,
             });
+
+            // Update user status to Active if Inactive
+            await context.Users
+                .Where(u => u.Id == entry.UserId && u.Status == UserStatus.Inactive)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.Status, UserStatus.Active), CancellationToken.None);
 
             await context.SaveChangesAsync(CancellationToken.None);
         }

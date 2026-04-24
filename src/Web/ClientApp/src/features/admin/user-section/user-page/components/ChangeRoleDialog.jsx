@@ -52,7 +52,7 @@ export default function ChangeRoleDialog({ open, onClose, onSave, isSaving = fal
             }}
         >
             {/* ── Header ── */}
-            <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 2, px: 3, pb: 1.5 }}>
+            <DialogTitle component="div" sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 2, px: 3, pb: 1.5 }}>
                 <Box sx={{
                     width: 36, height: 36, borderRadius: "10px",
                     bgcolor: "brand.lighter",

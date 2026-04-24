@@ -1,3 +1,5 @@
+import { ActivityType } from "../web-api-client.ts";
+
 const LEVEL_MAP = {
   0: "Beginner",
   1: "Intermediate",
@@ -232,3 +234,6 @@ export function reactFlowToGraphData(nodes, edges) {
 
   return { nodes: apiNodes, edges: apiEdges };
 }
+
+
+export const getActivityTypeLabel = (value) => ActivityType[value] ?? "Unknown";

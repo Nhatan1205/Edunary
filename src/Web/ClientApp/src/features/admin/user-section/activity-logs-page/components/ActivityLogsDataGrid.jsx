@@ -19,8 +19,8 @@ import DataGridHead from "../../../../../components/datagrid/DataGridHead";
 import DataGridRow from "../../../../../components/datagrid/DataGridRow";
 import DataGridNoData from "../../../../../components/datagrid/DataGridNoData";
 import DataGridSkeletonRow from "../../../../../components/datagrid/DataGridSkeletonRow";
-import { getActivityTypeLabel } from "../../../../../utils/activityLogHelpers";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
+import { getActivityTypeLabel } from "../../../../../utils/helpers";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 

@@ -7,10 +7,13 @@ const useAdminChangeUserRole = () => {
     const client = new UserClient();
     return useMutation({
         mutationFn: async ({ userId, newRole }) => {
-            // NSwag client tự throw ApiException khi HTTP 4xx/5xx
-            await client.adminChangeUserRole({ userId, newRole });
+            return await client.adminChangeUserRole({ userId, newRole });
         },
-        onSuccess: (_, { fullName, newRole }) => {
+        onSuccess: (result, { fullName, newRole }) => {
+            if (!result?.succeeded) {
+                toast.error(result?.message || "Failed to change role.");
+                return;
+            }
             toast.success(`${fullName ?? "User"}'s role changed to ${newRole}.`);
             queryClient.invalidateQueries({ queryKey: ["admin-users"] });
             queryClient.invalidateQueries({ queryKey: ["admin-user-detail"] });

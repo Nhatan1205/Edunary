@@ -124,12 +124,9 @@ public class User : EndpointGroupBase
         return await sender.Send(command);
     }
 
-    public async Task<IResult> AdminChangeUserRole(ISender sender, [FromBody] ChangeUserRoleCommand command)
+    public async Task<Result> AdminChangeUserRole(ISender sender, [FromBody] ChangeUserRoleCommand command)
     {
-        var result = await sender.Send(command);
-        if (!result.Succeeded)
-            return Results.BadRequest(result);
-        return Results.Ok(result);
+        return await sender.Send(command);
     }
 
     public async Task<AdminOverviewSummaryDto> AdminGetOverviewSummary(ISender sender)

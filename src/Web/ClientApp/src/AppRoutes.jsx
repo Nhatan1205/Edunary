@@ -45,6 +45,7 @@ import ProfileInfoPage from "./features/user/profile/pages/ProfileInfoPage";
 import ProfilePhotoPage from "./features/user/profile/pages/ProfilePhotoPage";
 import AccountSecurityPage from "./features/user/profile/pages/AccountSecurityPage";
 import ProfilePage from "./features/guest/profile-page/ProfilePage";
+import InstructorCoursePreviewPage from "./features/instructor/courses-management/course-preview-page/InstructorCoursePreviewPage";
 import CareerPathOverviewPage from "./features/guest/career-paths-overview-page/CareerPathOverviewPage";
 import CareerPathPage from "./features/guest/career-paths-page/CareerPathPage";
 import RoadMapsPage from "./features/instructor/courses-management/roadmaps-page/RoadMapsPage";
@@ -317,6 +318,14 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <RoadmapEditPage />
       </ProtectedRoute>
+  },
+  {
+    path: "/instructor/course-preview/:courseId",
+    element: (
+      <ProtectedRoute>
+        <InstructorCoursePreviewPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/course/create/",

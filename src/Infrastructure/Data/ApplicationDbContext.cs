@@ -41,6 +41,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<RoadmapTopic> RoadmapTopics => Set<RoadmapTopic>();
 
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
+    public DbSet<VideoCaption> VideoCaptions => Set<VideoCaption>();
 
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
 

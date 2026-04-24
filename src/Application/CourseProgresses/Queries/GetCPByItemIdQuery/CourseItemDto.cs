@@ -34,11 +34,16 @@ public class ItemDetailDto
     [JsonPropertyName("type")]
     public string Type { get; set; } 
 
+    [JsonPropertyName("videoId")]
+    public int? VideoId { get; set; }
+
     [JsonPropertyName("lastPosition")]
     public double LastPosition { get; set; }
 
     [JsonPropertyName("isCompleted")]
     public bool IsCompleted { get; set; }
+    [JsonPropertyName("downloadable")]
+    public bool Downloadable {get; set;}
 }
 
 public class NavigationDto

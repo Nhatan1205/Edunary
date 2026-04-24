@@ -133,7 +133,7 @@ function SortableSection({ section, sectionIndex, onAddItem, onDeleteSection, on
                 >
                   Section {sectionIndex + 1}: {section.title}
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Switch
                     checked={section.published || false}
                     onChange={(e) => onUpdateSection(section.sectionId, { published: e.target.checked })}
@@ -157,7 +157,7 @@ function SortableSection({ section, sectionIndex, onAddItem, onDeleteSection, on
                   >
                     {section.published ? "Published" : "Draft"}
                   </Typography>
-                </Box>
+                </Box> */}
               </Box>
 
               <IconButton

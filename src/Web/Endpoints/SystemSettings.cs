@@ -1,4 +1,5 @@
 using Edunary.Application.SystemSettings.Commands.UpdateSystemSettingsCommand;
+using Edunary.Application.SystemSettings.Queries.GetPublicSystemSettingsQuery;
 using Edunary.Application.SystemSettings.Queries.GetSystemSettingsQuery;
 using Edunary.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,18 @@ public class SystemSettings : EndpointGroupBase
             .RequireAuthorization(Policies.SuperAdmin)
             .MapPost(GetSystemSettings)
             .MapPut(UpdateSystemSettings);
+
+        //
+        app.MapGroup(this)
+            .MapPost(GetPublicSystemSettings, "Public");
     }
 
     public async Task<List<SystemSettingDto>> GetSystemSettings(ISender sender, [FromBody] GetSystemSettingsQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<Dictionary<string, string>> GetPublicSystemSettings(ISender sender, [FromBody] GetPublicSystemSettingsQuery query)
     {
         return await sender.Send(query);
     }

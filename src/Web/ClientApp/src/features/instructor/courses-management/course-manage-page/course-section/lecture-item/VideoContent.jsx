@@ -40,7 +40,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const [overrideChecked, setOverrideChecked] = useState(false);
   const [uploadedContent, setUploadedContent] = useState(item.content || null);
   const [isDownloadable, setIsDownloadable] = useState(item.downloadable || false);
-  const [videoDuration, setVideoDuration] = useState(item.videoDuration || "00:00");
+  const [isFreePreview, setIsFreePreview] = useState(item.isFreePreview || false);
+  const [videoDuration, setVideoDuration] = useState(item.videoDuration || "00:00:00");
   const [searchQuery, setSearchQuery] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pendingDeleteContent, setPendingDeleteContent] = useState(null);
@@ -52,7 +53,6 @@ function VideoContent({ item, onUpdate, onCancel }) {
   const deleteCourseContent = useDeleteMediaFileById();
   const setCourseIdForContent = useSetCourseIdForContent();
   const { data: courseContents, isLoading: isLoadingCourseContents } = useGetMediaFile();
-  console.log("items: ", item);
   // Format date helper
   const formatDate = (date) => {
     const d = new Date(date);
@@ -64,23 +64,9 @@ function VideoContent({ item, onUpdate, onCancel }) {
 
   // Filter course contents based on search query and only show videos
   const filteredCourseContents = courseContents?.filter(content =>
-    content.contentType?.startsWith('video/') &&
+    content.contentType?.startsWith('video/') && content.hlsStatus === 2 &&
     content.fileName.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
-
-  const handleVideoMetadataLoad = (e) => {
-    // const video = e.target;
-    // const duration = video.duration;
-    // const minutes = Math.floor(duration / 60);
-    // const seconds = Math.floor(duration % 60);
-    // const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    // setVideoDuration(formattedDuration);
-    // if (onUpdate) {
-    //   onUpdate(item.itemId, {
-    //     videoDuration: formattedDuration
-    //   });
-    // }
-  };
 
   const handleUploadFile = async (file, override = false) => {
     if (item.videoId) {
@@ -109,15 +95,17 @@ function VideoContent({ item, onUpdate, onCancel }) {
         // Update with uploaded content
         setUploadedContent(result.fileName || file.name);
         setIsDownloadable(false);
+        setIsFreePreview(false);
         // Use duration from backend response (HH:MM:SS format)
-        setVideoDuration(result.duration || "00:00");
+        setVideoDuration(result.duration || "00:00:00");
 
         if (onUpdate) {
           onUpdate(item.itemId, {
             content: result.fileName || file.name,
             downloadable: false,
+            isFreePreview: false,
             videoId: result.sessionId,
-            videoDuration: result.duration || "00:00"
+            videoDuration: result.duration || "00:00:00"
           });
         }
       }
@@ -239,6 +227,14 @@ function VideoContent({ item, onUpdate, onCancel }) {
     }
   };
 
+  const handleFreePreviewChange = (checked) => {
+    setIsFreePreview(checked);
+
+    if (onUpdate) {
+      onUpdate(item.itemId, { isFreePreview: checked });
+    }
+  };
+
   const handleEditContent = () => {
     setShowVideoUploadForm(true);
   };
@@ -255,7 +251,8 @@ function VideoContent({ item, onUpdate, onCancel }) {
         content: null,
         contentType: null,
         videoId: null,
-        videoDuration: null
+        videoDuration: null,
+        thumbnailUrl: null
       });
     }
     if (onCancel) {
@@ -307,8 +304,10 @@ function VideoContent({ item, onUpdate, onCancel }) {
         onUpdate(item.itemId, {
           content: content.fileName,
           downloadable: false,
+          isFreePreview: false,
           videoId: content.id,
-          videoDuration: content.duration
+          videoDuration: content.duration,
+          thumbnailUrl: content.thumbnailUrl
         });
         setVideoDuration(content.duration);
       }
@@ -380,7 +379,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
             }}
           >
             <Tab label="Upload Video" />
-            <Tab label="Add from library" />
+            <Tab label="Add from library (Only Hls-converted videos)" />
           </Tabs>
 
           {/* Upload Video Tab */}
@@ -465,18 +464,31 @@ function VideoContent({ item, onUpdate, onCancel }) {
                 position: "relative",
               }}
             >
-              <video
-                src={uploadedContent}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}
-                preload="metadata"
-                onLoadedMetadata={handleVideoMetadataLoad}
-                onContextMenu={(e) => e.preventDefault()}
-                controlsList="nodownload"
-              />
+              {item.thumbnailUrl ? (
+                <img
+                  src={item.thumbnailUrl}
+                  alt="Video Thumbnail"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                  onContextMenu={(e) => e.preventDefault()}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    color: "text.secondary",
+                  }}
+                >
+                  <Typography variant="caption">Processing...</Typography>
+                </Box>
+              )}
             </Box>
 
             {/* Video Info */}
@@ -546,23 +558,47 @@ function VideoContent({ item, onUpdate, onCancel }) {
               </Box>
             </Box>
 
-            {/* Downloadable Toggle */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
-              <Typography variant="body2" sx={{ fontSize: "0.875rem", color: "text.primary" }}>
-                Downloadable:
-              </Typography>
-              <Switch
-                checked={isDownloadable}
-                onChange={(e) => handleDownloadableChange(e.target.checked)}
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "brand.main",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    bgcolor: "brand.main",
-                  },
-                }}
-              />
+            {/* Content Toggles */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, flexShrink: 0, ml: "auto" }}>
+              {/* Downloadable Toggle */}
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                <Typography variant="body2" sx={{ fontSize: "0.875rem", color: "text.primary" }}>
+                  Downloadable
+                </Typography>
+                <Switch
+                  checked={isDownloadable}
+                  onChange={(e) => handleDownloadableChange(e.target.checked)}
+                  size="small"
+                  sx={{
+                    "& .MuiSwitch-switchBase.Mui-checked": {
+                      color: "brand.main",
+                    },
+                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                      bgcolor: "brand.main",
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Free Preview Toggle */}
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                <Typography variant="body2" sx={{ fontSize: "0.875rem", color: "text.primary" }}>
+                  Free Preview
+                </Typography>
+                <Switch
+                  checked={isFreePreview}
+                  onChange={(e) => handleFreePreviewChange(e.target.checked)}
+                  size="small"
+                  sx={{
+                    "& .MuiSwitch-switchBase.Mui-checked": {
+                      color: "brand.main",
+                    },
+                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                      bgcolor: "brand.main",
+                    },
+                  }}
+                />
+              </Box>
             </Box>
           </Box>
         </Box>

@@ -1,4 +1,5 @@
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.MediaFiles.Queries.GetMediaFileByUserIdQuery;
 
@@ -12,6 +13,7 @@ public class MediaFileDto
     public int? CourseId { get; set; }
     public string Duration { get; set;}
     public DateTimeOffset LastModified { get; set; }
+    public VideoStatus HlsStatus { get; set;}
     private class Mapping : Profile
     {
         public Mapping()

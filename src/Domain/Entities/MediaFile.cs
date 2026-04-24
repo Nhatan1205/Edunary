@@ -29,4 +29,6 @@ public class MediaFile : BaseAuditableEntity
     // Navigation properties
 #nullable enable
     public Course? Course { get; set; }
+
+    public ICollection<VideoCaption> VideoCaptions { get; set; } = new List<VideoCaption>();
 }

@@ -1,9 +1,12 @@
 import React, { useState, useRef } from 'react';
 import './Chatbot.css';
+import useGetPublicSystemSettings from '../../hooks/system-settings-hooks/useGetPublicSystemSettings';
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const iframeRef = useRef(null);
+  const { data: settings } = useGetPublicSystemSettings(["Chatbot_ServiceUrl"]);
+  const chatbotUrl = settings?.["Chatbot_ServiceUrl"] || "nothing";
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
@@ -30,9 +33,9 @@ function Chatbot() {
             </button>
           </div>
         </div>
-        <iframe 
+        <iframe
           ref={iframeRef}
-          src="http://127.0.0.1:8000/" 
+          src={chatbotUrl}
           className="chatbot-iframe"
           title="AI Chatbot Demo"
           allow="microphone">
@@ -40,19 +43,19 @@ function Chatbot() {
       </div>
 
       {/* Toggle Button */}
-      <button 
+      <button
         className={`chatbot-toggle-button ${isOpen ? 'hidden' : ''}`}
         onClick={toggleChatbot}
         title="Open Chatbot"
       >
-        <svg 
-          width="24" 
-          height="24" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
           strokeLinejoin="round"
         >
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>

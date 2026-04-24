@@ -20,6 +20,7 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import CloudOutlinedIcon from "@mui/icons-material/CloudOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
+import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
@@ -71,6 +72,13 @@ const TABS = [
           "DigitalOcean_CDNEndpoint",
         ],
       },
+    ],
+  },
+  {
+    label: "AI services",
+    Icon: SmartToyOutlinedIcon,
+    sections: [
+      { header: "Chatbot service", keys: ["Chatbot_ServiceUrl"] },
     ],
   },
 ];

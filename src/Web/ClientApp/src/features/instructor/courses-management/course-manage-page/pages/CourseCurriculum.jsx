@@ -25,7 +25,7 @@ import SortableSection from "../course-section/SortableSection";
 import SortableCurriculumItem from "../course-section/SortableCurriculumItem";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import useSetCourseIdForContent from "../../../../../hooks/media-file-hooks/useSetCourseIdForContent";
-import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById";
+import useGetCourseCurriculumById from "../../../../../hooks/course-draft-hooks/useGetCourseCurriculumById";
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 import { useBlocker } from "react-router-dom";
 import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/SaveChangesDialog";
@@ -33,7 +33,7 @@ import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/Save
 function CourseCurriculum() {
   const { courseId } = useParams();
   const setCourseIdForContent = useSetCourseIdForContent();
-  const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseById(courseId);
+  const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseCurriculumById(courseId);
   const updatecourseMutation = useUpdateCourse();
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
   const [sections, setSections] = useState([]);
@@ -76,6 +76,15 @@ function CourseCurriculum() {
     }
   }, [courseData]);
 
+  // Broadcast data dynamically to any listening preview tab
+  useEffect(() => {
+    const channel = new BroadcastChannel(`preview_channel_${courseId}`);
+    channel.onmessage = (event) => {
+      if (event.data.type === 'REQUEST_DATA') {
+        channel.postMessage({ type: 'SEND_DATA', payload: sections });
+      }
+    };
+  }, [sections, courseId]);
   const getGlobalIndex = (sectionIndex, itemIndex) => {
     let count = 1;
     for (let i = 0; i < sectionIndex; i++) {
@@ -466,30 +475,32 @@ function CourseCurriculum() {
     let totalSeconds = 0;
     sections.forEach(section => {
       section.items.forEach(item => {
-        if (item.videoDuration) {
+        if (item.contentType === 'video' && item.videoDuration) {
           const parts = item.videoDuration.split(":").map(Number);
           let seconds = 0;
-          
+
           if (parts.length === 3) {
             // "hh:mm:ss" format
             seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
           } else if (parts.length === 2) {
             // "mm:ss" format
             seconds = parts[0] * 60 + parts[1];
-          } else if (parts.length === 1) {
+          } else if (parts.length === 1 && !isNaN(parts[0])) {
             // Just seconds
             seconds = parts[0];
           }
-          
-          totalSeconds += seconds;
+
+          if (!isNaN(seconds)) {
+            totalSeconds += seconds;
+          }
         }
       });
     });
-    
+
     const hours = Math.floor(totalSeconds / 3600);
     const remainingSeconds = totalSeconds % 3600;
     const minutes = Math.floor(remainingSeconds / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
@@ -497,7 +508,7 @@ function CourseCurriculum() {
       return `${minutes}m`;
     }
     return `${totalSeconds}s`;
-    
+
     // OLD CODE - Format mm:ss only (không hỗ trợ hh:mm:ss)
     // let totalSeconds = 0;
     // sections.forEach(section => {
@@ -546,36 +557,77 @@ function CourseCurriculum() {
           mb: 2.75,
         }}
       >
-        <Typography
-          variant="h5"
-          fontWeight={600}
-        >
-          Curriculum
-        </Typography>
-
-        <Button
-          variant="contained"
-          size="large"
-          onClick={handleUpdateCourse}
-          disabled={isCourseDataLoading || isUpdating || !hasUnsavedChanges}
+        <Box
           sx={{
-            bgcolor: "brand.main",
-            "&:hover": {
-              backgroundColor: "brand.dark",
-            },
-            position: "relative",
-            fontWeight: 600,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 1,
           }}
         >
-          {isUpdating ? (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <LoadingSpinner size={24} />
-              <span>Saving...</span>
-            </Box>
-          ) : (
-            "Save"
-          )}
-        </Button>
+          <Box
+            sx={{
+              width: 4,
+              height: 22,
+              borderRadius: "4px",
+              background: "linear-gradient(180deg, #3FCCB2 0%, #49BBBD 100%)",
+              flexShrink: 0,
+            }}
+          />
+          <Typography variant="h5" fontWeight={600}>
+            Curriculum
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="outlined"
+            size="large"
+            onClick={(e) => {
+              e.preventDefault();
+              // const channel = new BroadcastChannel(`preview_channel_${courseId}`);
+              // channel.postMessage({ type: 'SEND_DATA', payload: sections });
+              window.open(`/instructor/course-preview/${courseId}`, '_blank');
+              // channel.close();
+            }}
+            sx={{
+              borderColor: "brand.main",
+              color: "brand.main",
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                borderColor: "brand.dark",
+                bgcolor: "background.alt"
+              }
+            }}
+          >
+            Preview
+          </Button>
+
+          <Button
+            variant="contained"
+            size="large"
+            onClick={handleUpdateCourse}
+            disabled={isCourseDataLoading || isUpdating || !hasUnsavedChanges}
+            sx={{
+              bgcolor: "brand.main",
+              "&:hover": {
+                backgroundColor: "brand.dark",
+              },
+              position: "relative",
+              fontWeight: 600,
+            }}
+          >
+            {isUpdating ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <LoadingSpinner size={24} />
+                <span>Saving...</span>
+              </Box>
+            ) : (
+              "Save"
+            )}
+          </Button>
+        </Box>
       </Box>
       <Divider />
 

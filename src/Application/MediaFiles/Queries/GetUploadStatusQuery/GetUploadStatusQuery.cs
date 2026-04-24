@@ -9,7 +9,7 @@ namespace Edunary.Application.MediaFiles.Queries.GetUploadStatusQuery;
 
 public class GetUploadStatusQuery : IRequest<UploadSessionDto>
 {
-    public string SessionId { get; set; }
+    public int SessionId { get; set; }
 }
 
 public class GetUploadStatusQueryHandler : IRequestHandler<GetUploadStatusQuery, UploadSessionDto>

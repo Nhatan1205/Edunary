@@ -64,10 +64,14 @@ public class ItemSchema
     public int VideoId { get; set; }
     [JsonPropertyName("videoDuration")]
     public string VideoDuration { get; set; } = "1 minute";
+    [JsonPropertyName("isFreePreview")]
+    public bool IsFreePreview { get; set; } = false;
     [JsonPropertyName("isCompleted")]
     public bool IsCompleted { get; set; } = false;
     [JsonPropertyName("lastPosition")]
     public double LastPosition { get; set; } = 0;
+    [JsonPropertyName("thumbnailUrl")]
+    public string ThumbnailUrl { get; set; } = String.Empty;
 }
 
 public class ResourseSchema

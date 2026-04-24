@@ -882,6 +882,51 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("TodoLists");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.VideoCaption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MediaFileId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MediaFileId");
+
+                    b.ToTable("VideoCaptions");
+                });
+
             modelBuilder.Entity("Edunary.Infrastructure.Identity.ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
@@ -1247,6 +1292,17 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Colour");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.VideoCaption", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.MediaFile", "MediaFile")
+                        .WithMany("VideoCaptions")
+                        .HasForeignKey("MediaFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaFile");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Edunary.Infrastructure.Identity.ApplicationRole", null)
@@ -1312,6 +1368,11 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Progresses");
 
                     b.Navigation("RatingCourses");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.MediaFile", b =>
+                {
+                    b.Navigation("VideoCaptions");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Order", b =>

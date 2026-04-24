@@ -547,66 +547,22 @@
         }
       }
     },
-    "/api/Categories/admin/stats": {
+    "/api/CourseDrafts/{id}": {
       "get": {
         "tags": [
-          "Categories"
+          "CourseDrafts"
         ],
-        "operationId": "AdminGetCategoryStats",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CategoryStatsDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Categories/admin": {
-      "get": {
-        "tags": [
-          "Categories"
-        ],
-        "operationId": "AdminGetCategories",
+        "operationId": "GetCourseCurriculumById",
         "parameters": [
           {
-            "name": "SearchText",
-            "in": "query",
+            "name": "id",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "integer",
+              "format": "int32"
             },
             "x-position": 1
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 3
           }
         ],
         "responses": {
@@ -615,109 +571,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfAdminCategoryDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Categories"
-        ],
-        "operationId": "AdminCreateCategory",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCategoryCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReturnResultOfCreatedCategoryDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Categories"
-        ],
-        "operationId": "AdminUpdateCategory",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCategoryCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "Categories"
-        ],
-        "operationId": "AdminDeleteCategory",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeleteCategoryCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
+                  "$ref": "#/components/schemas/GetCourseByIdDto"
                 }
               }
             }
@@ -1729,6 +1583,205 @@
         ]
       }
     },
+    "/api/MediaFile/multipart/start": {
+      "post": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "StartMultipartUpload",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartMultipartUploadCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfStartMultipartUploadDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/MediaFile/multipart/complete": {
+      "post": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "CompleteMultipartUpload",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteMultipartUploadCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfBoolean"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/MediaFile/{id}/download-url": {
+      "get": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "GetDownloadUrl",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadUrlDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/MediaFile/hls/{videoId}": {
+      "get": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "GetHlsStream",
+        "parameters": [
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "fileName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/MediaFile/hls-video": {
+      "get": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "GetHlsVideoByCourseId",
+        "parameters": [
+          {
+            "name": "CourseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Language",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HlsVideoCaptionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/MediaFile/chunks/initiate": {
       "post": {
         "tags": [
@@ -1775,9 +1828,10 @@
           {
             "name": "sessionId",
             "in": "query",
+            "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "integer",
+              "format": "int32"
             },
             "x-position": 1
           },
@@ -1848,8 +1902,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "integer",
+              "format": "int32"
             },
             "x-position": 1
           }
@@ -2563,6 +2617,40 @@
         ]
       }
     },
+    "/api/SystemSettings/Public": {
+      "post": {
+        "tags": [
+          "SystemSettings"
+        ],
+        "operationId": "GetPublicSystemSettings",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetPublicSystemSettingsQuery"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/TodoItems": {
       "get": {
         "tags": [
@@ -3099,68 +3187,22 @@
         }
       }
     },
-    "/api/User/admin": {
+    "/api/VideoCaptions/caption-language": {
       "get": {
         "tags": [
-          "User"
+          "VideoCaptions"
         ],
-        "operationId": "AdminGetUsers",
+        "operationId": "GetCaptionLanguage",
         "parameters": [
           {
-            "name": "SearchText",
+            "name": "CourseId",
             "in": "query",
+            "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "integer",
+              "format": "int32"
             },
             "x-position": 1
-          },
-          {
-            "name": "RoleFilter",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "StatusFilter",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 3
-          },
-          {
-            "name": "SortBy",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 4
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 5
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 6
           }
         ],
         "responses": {
@@ -3169,7 +3211,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfAdminUserListItemDto"
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
                 }
               }
             }
@@ -3182,141 +3228,18 @@
         ]
       }
     },
-    "/api/User/admin/status-counts": {
+    "/api/VideoCaptions/{mediaFileId}": {
       "get": {
         "tags": [
-          "User"
+          "VideoCaptions"
         ],
-        "operationId": "AdminGetUserStatusCounts",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminUserStatusCountsDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/User/admin/{userId}": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "operationId": "AdminGetUserDetail",
+        "operationId": "GetVideoCaptions",
         "parameters": [
           {
-            "name": "userId",
+            "name": "mediaFileId",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminUserDetailDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/User/admin/overview/summary": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "operationId": "AdminGetOverviewSummary",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminOverviewSummaryDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/User/admin/overview/registration-trend": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "operationId": "AdminGetRegistrationTrend",
-        "parameters": [
-          {
-            "name": "Range",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistrationTrendDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/User/admin/overview/new-vs-returning": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "operationId": "AdminGetNewVsReturning",
-        "parameters": [
-          {
-            "name": "Year",
-            "in": "query",
-            "required": true,
-            "schema": {
               "type": "integer",
               "format": "int32"
             },
@@ -3329,7 +3252,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NewVsReturningDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VideoCaptionDto"
+                  }
                 }
               }
             }
@@ -3342,33 +3268,15 @@
         ]
       }
     },
-    "/api/User/admin/restrict": {
-      "put": {
+    "/api/VideoCaptions/upsert": {
+      "post": {
         "tags": [
-          "User"
+          "VideoCaptions"
         ],
-        "operationId": "AdminRestrictUser",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RestrictUserCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
+        "operationId": "UpsertCaption",
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -3378,69 +3286,27 @@
         ]
       }
     },
-    "/api/User/admin/unban": {
-      "put": {
+    "/api/VideoCaptions/{id}": {
+      "delete": {
         "tags": [
-          "User"
+          "VideoCaptions"
         ],
-        "operationId": "AdminUnbanUser",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UnbanUserCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
-                }
-              }
-            }
-          }
-        },
-        "security": [
+        "operationId": "DeleteCaption",
+        "parameters": [
           {
-            "JWT": []
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
           }
-        ]
-      }
-    },
-    "/api/User/admin/change-role": {
-      "put": {
-        "tags": [
-          "User"
         ],
-        "operationId": "AdminChangeUserRole",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangeUserRoleCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -3991,179 +3857,105 @@
           }
         }
       },
-      "CategoryStatsDto": {
+      "GetCourseByIdDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "totalCategories": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
-          "activeCategories": {
-            "type": "integer",
-            "format": "int32"
+          "title": {
+            "type": "string",
+            "nullable": true
           },
-          "emptyCategories": {
-            "type": "integer",
-            "format": "int32"
+          "subtitle": {
+            "type": "string",
+            "nullable": true
           },
-          "avgCoursesPerCategory": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "level": {
+            "$ref": "#/components/schemas/CourseLevel"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseStatus"
+          },
+          "topic": {
+            "type": "string",
+            "nullable": true
+          },
+          "learningObjectives": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirements": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetAudience": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "welcomeMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "congratulationsMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
             "type": "number",
-            "format": "double"
+            "format": "float"
           },
-          "categoriesComparison": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/CategoryComparisonItemDto"
-            }
-          }
-        }
-      },
-      "CategoryComparisonItemDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
           "categoryId": {
             "type": "integer",
             "format": "int32"
           },
-          "title": {
+          "content": {
             "type": "string",
             "nullable": true
           },
-          "courseCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "enrollmentCount": {
+          "totalStudents": {
             "type": "integer",
             "format": "int32"
           }
         }
       },
-      "PaginatedListOfAdminCategoryDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "items": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/AdminCategoryDto"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          }
-        }
+      "CourseLevel": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Beginner",
+          "Intermediate",
+          "Advanced",
+          "All"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
-      "AdminCategoryDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "courseCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "enrollmentCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "created": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "ReturnResultOfCreatedCategoryDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "result": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/CreatedCategoryDto"
-              }
-            ]
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CreatedCategoryDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CreateCategoryCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UpdateCategoryCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "DeleteCategoryCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
+      "CourseStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Draft",
+          "Public"
+        ],
+        "enum": [
+          0,
+          1
+        ]
       },
       "CourseProgressDto": {
         "type": "object",
@@ -4269,11 +4061,19 @@
             "type": "string",
             "nullable": true
           },
+          "videoId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "lastPosition": {
             "type": "number",
             "format": "double"
           },
           "isCompleted": {
+            "type": "boolean"
+          },
+          "downloadable": {
             "type": "boolean"
           }
         }
@@ -4493,18 +4293,6 @@
           }
         }
       },
-      "CourseStatus": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Draft",
-          "Public"
-        ],
-        "enum": [
-          0,
-          1
-        ]
-      },
       "CourseManagementSortBy": {
         "type": "integer",
         "description": "",
@@ -4617,94 +4405,6 @@
             "nullable": true
           }
         }
-      },
-      "GetCourseByIdDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "subtitle": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "level": {
-            "$ref": "#/components/schemas/CourseLevel"
-          },
-          "status": {
-            "$ref": "#/components/schemas/CourseStatus"
-          },
-          "topic": {
-            "type": "string",
-            "nullable": true
-          },
-          "learningObjectives": {
-            "type": "string",
-            "nullable": true
-          },
-          "requirements": {
-            "type": "string",
-            "nullable": true
-          },
-          "targetAudience": {
-            "type": "string",
-            "nullable": true
-          },
-          "imageUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "welcomeMessage": {
-            "type": "string",
-            "nullable": true
-          },
-          "congratulationsMessage": {
-            "type": "string",
-            "nullable": true
-          },
-          "price": {
-            "type": "number",
-            "format": "float"
-          },
-          "categoryId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "content": {
-            "type": "string",
-            "nullable": true
-          },
-          "totalStudents": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "CourseLevel": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Beginner",
-          "Intermediate",
-          "Advanced",
-          "All"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ]
       },
       "CourseStatsVM": {
         "type": "object",
@@ -5396,8 +5096,27 @@
           "lastModified": {
             "type": "string",
             "format": "date-time"
+          },
+          "hlsStatus": {
+            "$ref": "#/components/schemas/VideoStatus"
           }
         }
+      },
+      "VideoStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "NO_VIDEO",
+          "PROCESSING",
+          "READY",
+          "ERROR"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
       "SetCourseIdForContentCommand": {
         "type": "object",
@@ -5512,13 +5231,161 @@
           }
         }
       },
+      "ReturnResultOfStartMultipartUploadDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/StartMultipartUploadDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "StartMultipartUploadDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploadId": {
+            "type": "string",
+            "nullable": true
+          },
+          "presignedUrls": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "StartMultipartUploadCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "partsCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ReturnResultOfBoolean": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CompleteMultipartUploadCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploadId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DownloadUrlDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "HlsVideoCaptionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "videoTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCaptioned": {
+            "type": "boolean"
+          },
+          "captionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "captionFileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploadStatus": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CaptionStatus"
+              }
+            ]
+          }
+        }
+      },
+      "CaptionStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "INITIATED",
+          "IN_PROGRESS",
+          "COMPLETED",
+          "FAILED"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
       "UploadSessionDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "sessionId": {
-            "type": "string",
-            "nullable": true
+            "type": "integer",
+            "format": "int32"
           },
           "fileName": {
             "type": "string",
@@ -6494,6 +6361,19 @@
           }
         }
       },
+      "GetPublicSystemSettingsQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "keys": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "PaginatedListOfTodoItemBriefDto": {
         "type": "object",
         "additionalProperties": false,
@@ -6954,458 +6834,23 @@
           }
         }
       },
-      "PaginatedListOfAdminUserListItemDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "items": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/AdminUserListItemDto"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          }
-        }
-      },
-      "AdminUserListItemDto": {
+      "VideoCaptionDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "fullName": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "avatar": {
-            "type": "string",
-            "nullable": true
-          },
-          "roles": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "lastLoginTime": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "enrolledCourseCount": {
             "type": "integer",
             "format": "int32"
           },
-          "createdCourseCount": {
+          "language": {
             "type": "integer",
             "format": "int32"
           },
-          "isOnline": {
-            "type": "boolean"
-          }
-        }
-      },
-      "AdminUserStatusCountsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "total": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "active": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "inactive": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "suspended": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "banned": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "AdminUserDetailDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
+          "fileUrl": {
             "type": "string",
             "nullable": true
           },
-          "fullName": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "phoneNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "avatar": {
-            "type": "string",
-            "nullable": true
-          },
-          "headline": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "links": {
-            "type": "string",
-            "nullable": true
-          },
-          "roles": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "lastLoginTime": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isOnline": {
-            "type": "boolean"
-          },
-          "stats": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/AdminUserStatsDto"
-              }
-            ]
-          },
-          "enrolledCourses": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/AdminEnrolledCourseDto"
-            }
-          },
-          "createdCourses": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/AdminCreatedCourseDto"
-            }
-          }
-        }
-      },
-      "AdminUserStatsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "enrolledCourseCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "createdCourseCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalSpent": {
-            "type": "number",
-            "format": "float"
-          },
-          "totalEarned": {
-            "type": "number",
-            "format": "float"
-          },
-          "totalLearners": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "avgRating": {
-            "type": "number",
-            "format": "float"
-          }
-        }
-      },
-      "AdminEnrolledCourseDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseTitle": {
-            "type": "string",
-            "nullable": true
-          },
-          "courseImage": {
-            "type": "string",
-            "nullable": true
-          },
-          "enrolledDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "progressPercentage": {
-            "type": "number",
-            "format": "float"
-          }
-        }
-      },
-      "AdminCreatedCourseDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "courseId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "courseTitle": {
-            "type": "string",
-            "nullable": true
-          },
-          "courseImage": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "totalStudents": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "ratings": {
-            "type": "number",
-            "format": "float"
-          }
-        }
-      },
-      "AdminOverviewSummaryDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "activeUsers": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "activeUsersTrend": {
-            "type": "number",
-            "format": "double"
-          },
-          "newUsers30d": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "newUsersTrend": {
-            "type": "number",
-            "format": "double"
-          },
-          "onlineNow": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "statusActive": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "statusInactive": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "statusSuspended": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "statusBanned": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "topActiveUsers": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/TopActiveUserDto"
-            }
-          }
-        }
-      },
-      "TopActiveUserDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "fullName": {
-            "type": "string",
-            "nullable": true
-          },
-          "avatar": {
-            "type": "string",
-            "nullable": true
-          },
-          "enrolledCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "lastLogin": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "RegistrationTrendDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "period": {
-            "type": "string",
-            "nullable": true
-          },
-          "labels": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          },
-          "data": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        }
-      },
-      "NewVsReturningDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "year": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "labels": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          },
-          "newUsers": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          "returningUsers": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        }
-      },
-      "RestrictUserCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userId": {
-            "type": "string",
-            "nullable": true
-          },
-          "durationDays": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "reason": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UnbanUserCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userId": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ChangeUserRoleCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userId": {
-            "type": "string",
-            "nullable": true
-          },
-          "newRole": {
+          "fileName": {
             "type": "string",
             "nullable": true
           }

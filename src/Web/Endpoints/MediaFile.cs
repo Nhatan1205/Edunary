@@ -10,10 +10,18 @@ using Edunary.Application.MediaFiles.Commands.DeleteMediaFileCommand;
 using Edunary.Application.MediaFiles.Commands.GenerateUploadUrl;
 using Edunary.Application.MediaFiles.Commands.InitiateChunkedUploadCommand;
 using Edunary.Application.MediaFiles.Commands.SetCourseIdForContentCommand;
+using Edunary.Application.MediaFiles.Commands.StartMultipartUpload;
+using Edunary.Application.MediaFiles.Commands.CompleteMultipartUpload;
 using Edunary.Application.MediaFiles.Commands.UploadChunkCommand;
 using Edunary.Application.MediaFiles.Queries.GetMediaFileByUserIdQuery;
 using Edunary.Application.MediaFiles.Queries.GetUploadStatusQuery;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Edunary.Application.MediaFiles.Queries.CheckMediaFileAccessQuery;
+using Edunary.Application.MediaFiles.Queries.GetHlsStreamQuery;
+using Edunary.Application.MediaFiles.Queries.GetDownloadUrlQuery;
+using Edunary.Application.MediaFiles.Queries.GetHlsVideoByCourseIdQuery;
 
 namespace Edunary.Web.Endpoints;
 
@@ -28,7 +36,15 @@ public class MediaFile : EndpointGroupBase
             .MapPost(CheckFileExists, "/exists")
             .MapPost(SetCourseIdForContent, "/set-course-id")
             .MapPost(AddLinkToMediaFile, "/add-link")
-            .MapPost(GenerateUploadUrl, "/generate-upload-url");
+            .MapPost(GenerateUploadUrl, "/generate-upload-url")
+            .MapPost(StartMultipartUpload, "/multipart/start")
+            .MapPost(CompleteMultipartUpload, "/multipart/complete")
+            .MapGet(GetDownloadUrl, "/{id}/download-url")
+            .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}")
+            .MapGet(GetHlsVideoByCourseId, "/hls-video");
+
+        // app.MapGroup(this)
+        //     .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}");
 
         app.MapGroup(this)
             .RequireAuthorization()
@@ -49,6 +65,13 @@ public class MediaFile : EndpointGroupBase
         var query = new GetMediaFileByUserId();
         var result = await sender.Send(query);
         return result;
+    }
+
+    public async Task<DownloadUrlDto> GetDownloadUrl(ISender sender, int id)
+    {
+        var query = new GetDownloadUrlQuery { MediaFileId = id };
+        var url = await sender.Send(query);
+        return url;
     }
 
     [DisableRequestSizeLimit]
@@ -125,6 +148,18 @@ public class MediaFile : EndpointGroupBase
         return result;
     }
 
+    public async Task<ReturnResult<StartMultipartUploadDto>> StartMultipartUpload(ISender sender, StartMultipartUploadCommand command)
+    {
+        var result = await sender.Send(command);
+        return result;
+    }
+
+    public async Task<ReturnResult<bool>> CompleteMultipartUpload(ISender sender, CompleteMultipartUploadCommand command)
+    {
+        var result = await sender.Send(command);
+        return result;
+    }
+
     public async Task<UploadSessionDto> InitiateChunkedUpload(ISender sender, InitiateChunkedUploadCommand command)
     {
         var result = await sender.Send(command);
@@ -133,7 +168,7 @@ public class MediaFile : EndpointGroupBase
 
     [DisableRequestSizeLimit]
     [RequestFormLimits(MultipartBodyLengthLimit = 524288000, ValueLengthLimit = int.MaxValue)]
-    public async Task<UploadSessionDto> UploadChunk(ISender sender, [FromForm] IFormFile chunkFile, [FromForm] string sessionId, [FromForm] int chunkNumber, [FromForm] string chunkHash)
+    public async Task<UploadSessionDto> UploadChunk(ISender sender, [FromForm] IFormFile chunkFile, [FromForm] int sessionId, [FromForm] int chunkNumber, [FromForm] string chunkHash)
     {
         if (chunkFile == null || chunkFile.Length == 0)
         {
@@ -153,13 +188,39 @@ public class MediaFile : EndpointGroupBase
         return result;
     }
 
-    public async Task<UploadSessionDto> GetUploadStatus(ISender sender, string sessionId)
+    public async Task<UploadSessionDto> GetUploadStatus(ISender sender, int sessionId)
     {
         var query = new GetUploadStatusQuery
         {
             SessionId = sessionId
         };
 
+        var result = await sender.Send(query);
+        return result;
+    }
+
+    public async Task<IResult> GetHlsStream(ISender sender, [FromRoute] string videoId, [FromRoute] string fileName, IWebHostEnvironment env)
+    {
+        var result = await sender.Send(new GetHlsStreamQuery
+        {
+            VideoId = videoId,
+            FileName = fileName,
+            RootPath = env.WebRootPath
+        });
+
+        if (result.ErrorType == "BadRequest") return Results.BadRequest(result.ErrorMessage);
+        if (result.ErrorType == "Forbid") return Results.Forbid();
+        if (result.ErrorType == "NotFound") return Results.NotFound();
+
+        return Results.File(result.FilePath!, result.ContentType);
+    }
+    public async Task<List<HlsVideoCaptionDto>> GetHlsVideoByCourseId(ISender sender, int CourseId, int Language)
+    {
+        var query = new GetHlsVideoByCourseIdQuery
+        {
+            CourseId = CourseId,
+            Language = Language
+        };
         var result = await sender.Send(query);
         return result;
     }

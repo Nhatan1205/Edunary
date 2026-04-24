@@ -827,6 +827,55 @@ export class CategoriesClient {
     }
 }
 
+export class CourseDraftsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getCourseCurriculumById(id: number): Promise<GetCourseByIdDto> {
+        let url_ = this.baseUrl + "/api/CourseDrafts/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseCurriculumById(_response);
+        });
+    }
+
+    protected processGetCourseCurriculumById(response: Response): Promise<GetCourseByIdDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetCourseByIdDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GetCourseByIdDto>(null as any);
+    }
+}
+
 export class CourseProgressClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1923,6 +1972,209 @@ export class MediaFileClient {
         return Promise.resolve<ReturnResultOfGenerateUploadUrlDto>(null as any);
     }
 
+    startMultipartUpload(command: StartMultipartUploadCommand | undefined): Promise<ReturnResultOfStartMultipartUploadDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/multipart/start";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processStartMultipartUpload(_response);
+        });
+    }
+
+    protected processStartMultipartUpload(response: Response): Promise<ReturnResultOfStartMultipartUploadDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfStartMultipartUploadDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfStartMultipartUploadDto>(null as any);
+    }
+
+    completeMultipartUpload(command: CompleteMultipartUploadCommand | undefined): Promise<ReturnResultOfBoolean> {
+        let url_ = this.baseUrl + "/api/MediaFile/multipart/complete";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCompleteMultipartUpload(_response);
+        });
+    }
+
+    protected processCompleteMultipartUpload(response: Response): Promise<ReturnResultOfBoolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfBoolean.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfBoolean>(null as any);
+    }
+
+    getDownloadUrl(id: number): Promise<DownloadUrlDto> {
+        let url_ = this.baseUrl + "/api/MediaFile/{id}/download-url";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDownloadUrl(_response);
+        });
+    }
+
+    protected processGetDownloadUrl(response: Response): Promise<DownloadUrlDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DownloadUrlDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DownloadUrlDto>(null as any);
+    }
+
+    getHlsStream(videoId: string | null, fileName: string | null): Promise<void> {
+        let url_ = this.baseUrl + "/api/MediaFile/hls/{videoId}";
+        if (videoId === undefined || videoId === null)
+            throw new Error("The parameter 'videoId' must be defined.");
+        url_ = url_.replace("{videoId}", encodeURIComponent("" + videoId));
+        if (fileName === undefined || fileName === null)
+            throw new Error("The parameter 'fileName' must be defined.");
+        url_ = url_.replace("{fileName}", encodeURIComponent("" + fileName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetHlsStream(_response);
+        });
+    }
+
+    protected processGetHlsStream(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getHlsVideoByCourseId(courseId: number, language: number): Promise<HlsVideoCaptionDto[]> {
+        let url_ = this.baseUrl + "/api/MediaFile/hls-video?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (language === undefined || language === null)
+            throw new Error("The parameter 'language' must be defined and cannot be null.");
+        else
+            url_ += "Language=" + encodeURIComponent("" + language) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetHlsVideoByCourseId(_response);
+        });
+    }
+
+    protected processGetHlsVideoByCourseId(response: Response): Promise<HlsVideoCaptionDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(HlsVideoCaptionDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<HlsVideoCaptionDto[]>(null as any);
+    }
+
     initiateChunkedUpload(command: InitiateChunkedUploadCommand | undefined): Promise<UploadSessionDto> {
         let url_ = this.baseUrl + "/api/MediaFile/chunks/initiate";
         url_ = url_.replace(/[?&]$/, "");
@@ -1962,9 +2214,11 @@ export class MediaFileClient {
         return Promise.resolve<UploadSessionDto>(null as any);
     }
 
-    uploadChunk(sessionId: string | null | undefined, chunkNumber: number, chunkHash: string | null | undefined, chunkFile: FileParameter | null | undefined): Promise<UploadSessionDto> {
+    uploadChunk(sessionId: number, chunkNumber: number, chunkHash: string | null | undefined, chunkFile: FileParameter | null | undefined): Promise<UploadSessionDto> {
         let url_ = this.baseUrl + "/api/MediaFile/chunks/upload?";
-        if (sessionId !== undefined && sessionId !== null)
+        if (sessionId === undefined || sessionId === null)
+            throw new Error("The parameter 'sessionId' must be defined and cannot be null.");
+        else
             url_ += "sessionId=" + encodeURIComponent("" + sessionId) + "&";
         if (chunkNumber === undefined || chunkNumber === null)
             throw new Error("The parameter 'chunkNumber' must be defined and cannot be null.");
@@ -2010,7 +2264,7 @@ export class MediaFileClient {
         return Promise.resolve<UploadSessionDto>(null as any);
     }
 
-    getUploadStatus(sessionId: string | null): Promise<UploadSessionDto> {
+    getUploadStatus(sessionId: number): Promise<UploadSessionDto> {
         let url_ = this.baseUrl + "/api/MediaFile/chunks/{sessionId}/status";
         if (sessionId === undefined || sessionId === null)
             throw new Error("The parameter 'sessionId' must be defined.");
@@ -2856,6 +3110,54 @@ export class SystemSettingsClient {
             });
         }
         return Promise.resolve<void>(null as any);
+    }
+
+    getPublicSystemSettings(query: GetPublicSystemSettingsQuery | undefined): Promise<{ [key: string]: string; }> {
+        let url_ = this.baseUrl + "/api/SystemSettings/Public";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPublicSystemSettings(_response);
+        });
+    }
+
+    protected processGetPublicSystemSettings(response: Response): Promise<{ [key: string]: string; }> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        (<any>result200)![key] = resultData200[key] !== undefined ? resultData200[key] : <any>null;
+                }
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<{ [key: string]: string; }>(null as any);
     }
 }
 
@@ -3843,6 +4145,173 @@ export class UserClient {
             });
         }
         return Promise.resolve<Result>(null as any);
+    }
+}
+
+export class VideoCaptionsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getCaptionLanguage(courseId: number): Promise<number[]> {
+        let url_ = this.baseUrl + "/api/VideoCaptions/caption-language?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCaptionLanguage(_response);
+        });
+    }
+
+    protected processGetCaptionLanguage(response: Response): Promise<number[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<number[]>(null as any);
+    }
+
+    getVideoCaptions(mediaFileId: number): Promise<VideoCaptionDto[]> {
+        let url_ = this.baseUrl + "/api/VideoCaptions/{mediaFileId}";
+        if (mediaFileId === undefined || mediaFileId === null)
+            throw new Error("The parameter 'mediaFileId' must be defined.");
+        url_ = url_.replace("{mediaFileId}", encodeURIComponent("" + mediaFileId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetVideoCaptions(_response);
+        });
+    }
+
+    protected processGetVideoCaptions(response: Response): Promise<VideoCaptionDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(VideoCaptionDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<VideoCaptionDto[]>(null as any);
+    }
+
+    upsertCaption(): Promise<void> {
+        let url_ = this.baseUrl + "/api/VideoCaptions/upsert";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpsertCaption(_response);
+        });
+    }
+
+    protected processUpsertCaption(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteCaption(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/VideoCaptions/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteCaption(_response);
+        });
+    }
+
+    protected processDeleteCaption(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -4947,6 +5416,26 @@ export class CategoryComparisonItemDto implements ICategoryComparisonItemDto {
     enrollmentCount?: number;
 
     constructor(data?: ICategoryComparisonItemDto) {
+export class GetCourseByIdDto implements IGetCourseByIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    topic?: string | undefined;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    content?: string | undefined;
+    totalStudents?: number;
+
+    constructor(data?: IGetCourseByIdDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4967,6 +5456,29 @@ export class CategoryComparisonItemDto implements ICategoryComparisonItemDto {
     static fromJS(data: any): CategoryComparisonItemDto {
         data = typeof data === 'object' ? data : {};
         let result = new CategoryComparisonItemDto();
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.description = _data["description"];
+            this.level = _data["level"];
+            this.status = _data["status"];
+            this.topic = _data["topic"];
+            this.learningObjectives = _data["learningObjectives"];
+            this.requirements = _data["requirements"];
+            this.targetAudience = _data["targetAudience"];
+            this.imageUrl = _data["imageUrl"];
+            this.welcomeMessage = _data["welcomeMessage"];
+            this.congratulationsMessage = _data["congratulationsMessage"];
+            this.price = _data["price"];
+            this.categoryId = _data["categoryId"];
+            this.content = _data["content"];
+            this.totalStudents = _data["totalStudents"];
+        }
+    }
+
+    static fromJS(data: any): GetCourseByIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCourseByIdDto();
         result.init(data);
         return result;
     }
@@ -4977,6 +5489,23 @@ export class CategoryComparisonItemDto implements ICategoryComparisonItemDto {
         data["title"] = this.title;
         data["courseCount"] = this.courseCount;
         data["enrollmentCount"] = this.enrollmentCount;
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["description"] = this.description;
+        data["level"] = this.level;
+        data["status"] = this.status;
+        data["topic"] = this.topic;
+        data["learningObjectives"] = this.learningObjectives;
+        data["requirements"] = this.requirements;
+        data["targetAudience"] = this.targetAudience;
+        data["imageUrl"] = this.imageUrl;
+        data["welcomeMessage"] = this.welcomeMessage;
+        data["congratulationsMessage"] = this.congratulationsMessage;
+        data["price"] = this.price;
+        data["categoryId"] = this.categoryId;
+        data["content"] = this.content;
+        data["totalStudents"] = this.totalStudents;
         return data;
     }
 }
@@ -5294,6 +5823,36 @@ export class DeleteCategoryCommand implements IDeleteCategoryCommand {
 
 export interface IDeleteCategoryCommand {
     id?: number;
+export interface IGetCourseByIdDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    topic?: string | undefined;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    content?: string | undefined;
+    totalStudents?: number;
+}
+
+export enum CourseLevel {
+    Beginner = 0,
+    Intermediate = 1,
+    Advanced = 2,
+    All = 3,
+}
+
+export enum CourseStatus {
+    Draft = 0,
+    Public = 1,
 }
 
 export class CourseProgressDto implements ICourseProgressDto {
@@ -5475,8 +6034,10 @@ export class ItemDetailDto implements IItemDetailDto {
     content?: string | undefined;
     contentType?: string | undefined;
     type?: string | undefined;
+    videoId?: number | undefined;
     lastPosition?: number;
     isCompleted?: boolean;
+    downloadable?: boolean;
 
     constructor(data?: IItemDetailDto) {
         if (data) {
@@ -5495,8 +6056,10 @@ export class ItemDetailDto implements IItemDetailDto {
             this.content = _data["content"];
             this.contentType = _data["contentType"];
             this.type = _data["type"];
+            this.videoId = _data["videoId"];
             this.lastPosition = _data["lastPosition"];
             this.isCompleted = _data["isCompleted"];
+            this.downloadable = _data["downloadable"];
         }
     }
 
@@ -5515,8 +6078,10 @@ export class ItemDetailDto implements IItemDetailDto {
         data["content"] = this.content;
         data["contentType"] = this.contentType;
         data["type"] = this.type;
+        data["videoId"] = this.videoId;
         data["lastPosition"] = this.lastPosition;
         data["isCompleted"] = this.isCompleted;
+        data["downloadable"] = this.downloadable;
         return data;
     }
 }
@@ -5528,8 +6093,10 @@ export interface IItemDetailDto {
     content?: string | undefined;
     contentType?: string | undefined;
     type?: string | undefined;
+    videoId?: number | undefined;
     lastPosition?: number;
     isCompleted?: boolean;
+    downloadable?: boolean;
 }
 
 export class NavigationDto implements INavigationDto {
@@ -6004,11 +6571,6 @@ export interface IGetCoursesAuthorDto {
     created?: Date;
 }
 
-export enum CourseStatus {
-    Draft = 0,
-    Public = 1,
-}
-
 export enum CourseManagementSortBy {
     Newest = 0,
     Oldest = 1,
@@ -6168,113 +6730,6 @@ export interface IEnrolledCoursesDto {
     totalLectures?: number;
     completedLectures?: number;
     userRating?: number | undefined;
-}
-
-export class GetCourseByIdDto implements IGetCourseByIdDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    description?: string | undefined;
-    level?: CourseLevel;
-    status?: CourseStatus;
-    topic?: string | undefined;
-    learningObjectives?: string | undefined;
-    requirements?: string | undefined;
-    targetAudience?: string | undefined;
-    imageUrl?: string | undefined;
-    welcomeMessage?: string | undefined;
-    congratulationsMessage?: string | undefined;
-    price?: number;
-    categoryId?: number;
-    content?: string | undefined;
-    totalStudents?: number;
-
-    constructor(data?: IGetCourseByIdDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-            this.subtitle = _data["subtitle"];
-            this.description = _data["description"];
-            this.level = _data["level"];
-            this.status = _data["status"];
-            this.topic = _data["topic"];
-            this.learningObjectives = _data["learningObjectives"];
-            this.requirements = _data["requirements"];
-            this.targetAudience = _data["targetAudience"];
-            this.imageUrl = _data["imageUrl"];
-            this.welcomeMessage = _data["welcomeMessage"];
-            this.congratulationsMessage = _data["congratulationsMessage"];
-            this.price = _data["price"];
-            this.categoryId = _data["categoryId"];
-            this.content = _data["content"];
-            this.totalStudents = _data["totalStudents"];
-        }
-    }
-
-    static fromJS(data: any): GetCourseByIdDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GetCourseByIdDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        data["subtitle"] = this.subtitle;
-        data["description"] = this.description;
-        data["level"] = this.level;
-        data["status"] = this.status;
-        data["topic"] = this.topic;
-        data["learningObjectives"] = this.learningObjectives;
-        data["requirements"] = this.requirements;
-        data["targetAudience"] = this.targetAudience;
-        data["imageUrl"] = this.imageUrl;
-        data["welcomeMessage"] = this.welcomeMessage;
-        data["congratulationsMessage"] = this.congratulationsMessage;
-        data["price"] = this.price;
-        data["categoryId"] = this.categoryId;
-        data["content"] = this.content;
-        data["totalStudents"] = this.totalStudents;
-        return data;
-    }
-}
-
-export interface IGetCourseByIdDto {
-    id?: number;
-    title?: string | undefined;
-    subtitle?: string | undefined;
-    description?: string | undefined;
-    level?: CourseLevel;
-    status?: CourseStatus;
-    topic?: string | undefined;
-    learningObjectives?: string | undefined;
-    requirements?: string | undefined;
-    targetAudience?: string | undefined;
-    imageUrl?: string | undefined;
-    welcomeMessage?: string | undefined;
-    congratulationsMessage?: string | undefined;
-    price?: number;
-    categoryId?: number;
-    content?: string | undefined;
-    totalStudents?: number;
-}
-
-export enum CourseLevel {
-    Beginner = 0,
-    Intermediate = 1,
-    Advanced = 2,
-    All = 3,
 }
 
 export class CourseStatsVM implements ICourseStatsVM {
@@ -7421,6 +7876,7 @@ export class MediaFileDto implements IMediaFileDto {
     courseId?: number | undefined;
     duration?: string | undefined;
     lastModified?: Date;
+    hlsStatus?: VideoStatus;
 
     constructor(data?: IMediaFileDto) {
         if (data) {
@@ -7441,6 +7897,7 @@ export class MediaFileDto implements IMediaFileDto {
             this.courseId = _data["courseId"];
             this.duration = _data["duration"];
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.hlsStatus = _data["hlsStatus"];
         }
     }
 
@@ -7461,6 +7918,7 @@ export class MediaFileDto implements IMediaFileDto {
         data["courseId"] = this.courseId;
         data["duration"] = this.duration;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["hlsStatus"] = this.hlsStatus;
         return data;
     }
 }
@@ -7474,6 +7932,14 @@ export interface IMediaFileDto {
     courseId?: number | undefined;
     duration?: string | undefined;
     lastModified?: Date;
+    hlsStatus?: VideoStatus;
+}
+
+export enum VideoStatus {
+    NO_VIDEO = 0,
+    PROCESSING = 1,
+    READY = 2,
+    ERROR = 3,
 }
 
 export class SetCourseIdForContentCommand implements ISetCourseIdForContentCommand {
@@ -7740,8 +8206,327 @@ export interface IGenerateUploadUrlCommand {
     contentType?: string | undefined;
 }
 
+export class ReturnResultOfStartMultipartUploadDto implements IReturnResultOfStartMultipartUploadDto {
+    result?: StartMultipartUploadDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfStartMultipartUploadDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? StartMultipartUploadDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfStartMultipartUploadDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfStartMultipartUploadDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfStartMultipartUploadDto {
+    result?: StartMultipartUploadDto | undefined;
+    message?: string | undefined;
+}
+
+export class StartMultipartUploadDto implements IStartMultipartUploadDto {
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    uploadId?: string | undefined;
+    presignedUrls?: string[] | undefined;
+
+    constructor(data?: IStartMultipartUploadDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.fileUrl = _data["fileUrl"];
+            this.uploadId = _data["uploadId"];
+            if (Array.isArray(_data["presignedUrls"])) {
+                this.presignedUrls = [] as any;
+                for (let item of _data["presignedUrls"])
+                    this.presignedUrls!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): StartMultipartUploadDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StartMultipartUploadDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["fileUrl"] = this.fileUrl;
+        data["uploadId"] = this.uploadId;
+        if (Array.isArray(this.presignedUrls)) {
+            data["presignedUrls"] = [];
+            for (let item of this.presignedUrls)
+                data["presignedUrls"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IStartMultipartUploadDto {
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    uploadId?: string | undefined;
+    presignedUrls?: string[] | undefined;
+}
+
+export class StartMultipartUploadCommand implements IStartMultipartUploadCommand {
+    fileName?: string | undefined;
+    contentType?: string | undefined;
+    partsCount?: number;
+
+    constructor(data?: IStartMultipartUploadCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.contentType = _data["contentType"];
+            this.partsCount = _data["partsCount"];
+        }
+    }
+
+    static fromJS(data: any): StartMultipartUploadCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new StartMultipartUploadCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["contentType"] = this.contentType;
+        data["partsCount"] = this.partsCount;
+        return data;
+    }
+}
+
+export interface IStartMultipartUploadCommand {
+    fileName?: string | undefined;
+    contentType?: string | undefined;
+    partsCount?: number;
+}
+
+export class ReturnResultOfBoolean implements IReturnResultOfBoolean {
+    result?: boolean;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfBoolean) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfBoolean {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfBoolean();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfBoolean {
+    result?: boolean;
+    message?: string | undefined;
+}
+
+export class CompleteMultipartUploadCommand implements ICompleteMultipartUploadCommand {
+    fileName?: string | undefined;
+    uploadId?: string | undefined;
+
+    constructor(data?: ICompleteMultipartUploadCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.uploadId = _data["uploadId"];
+        }
+    }
+
+    static fromJS(data: any): CompleteMultipartUploadCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompleteMultipartUploadCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["uploadId"] = this.uploadId;
+        return data;
+    }
+}
+
+export interface ICompleteMultipartUploadCommand {
+    fileName?: string | undefined;
+    uploadId?: string | undefined;
+}
+
+export class DownloadUrlDto implements IDownloadUrlDto {
+    url?: string | undefined;
+
+    constructor(data?: IDownloadUrlDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.url = _data["url"];
+        }
+    }
+
+    static fromJS(data: any): DownloadUrlDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DownloadUrlDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["url"] = this.url;
+        return data;
+    }
+}
+
+export interface IDownloadUrlDto {
+    url?: string | undefined;
+}
+
+export class HlsVideoCaptionDto implements IHlsVideoCaptionDto {
+    videoId?: number;
+    videoTitle?: string | undefined;
+    isCaptioned?: boolean;
+    captionId?: number | undefined;
+    captionFileName?: string | undefined;
+    uploadStatus?: CaptionStatus | undefined;
+
+    constructor(data?: IHlsVideoCaptionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.videoId = _data["videoId"];
+            this.videoTitle = _data["videoTitle"];
+            this.isCaptioned = _data["isCaptioned"];
+            this.captionId = _data["captionId"];
+            this.captionFileName = _data["captionFileName"];
+            this.uploadStatus = _data["uploadStatus"];
+        }
+    }
+
+    static fromJS(data: any): HlsVideoCaptionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new HlsVideoCaptionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["videoId"] = this.videoId;
+        data["videoTitle"] = this.videoTitle;
+        data["isCaptioned"] = this.isCaptioned;
+        data["captionId"] = this.captionId;
+        data["captionFileName"] = this.captionFileName;
+        data["uploadStatus"] = this.uploadStatus;
+        return data;
+    }
+}
+
+export interface IHlsVideoCaptionDto {
+    videoId?: number;
+    videoTitle?: string | undefined;
+    isCaptioned?: boolean;
+    captionId?: number | undefined;
+    captionFileName?: string | undefined;
+    uploadStatus?: CaptionStatus | undefined;
+}
+
+export enum CaptionStatus {
+    INITIATED = 0,
+    IN_PROGRESS = 1,
+    COMPLETED = 2,
+    FAILED = 3,
+}
+
 export class UploadSessionDto implements IUploadSessionDto {
-    sessionId?: string | undefined;
+    sessionId?: number;
     fileName?: string | undefined;
     fileSize?: number;
     chunkSize?: number;
@@ -7809,7 +8594,7 @@ export class UploadSessionDto implements IUploadSessionDto {
 }
 
 export interface IUploadSessionDto {
-    sessionId?: string | undefined;
+    sessionId?: number;
     fileName?: string | undefined;
     fileSize?: number;
     chunkSize?: number;
@@ -9784,6 +10569,50 @@ export interface IUpdateSettingItem {
     value?: string | undefined;
 }
 
+export class GetPublicSystemSettingsQuery implements IGetPublicSystemSettingsQuery {
+    keys?: string[] | undefined;
+
+    constructor(data?: IGetPublicSystemSettingsQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["keys"])) {
+                this.keys = [] as any;
+                for (let item of _data["keys"])
+                    this.keys!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetPublicSystemSettingsQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetPublicSystemSettingsQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.keys)) {
+            data["keys"] = [];
+            for (let item of this.keys)
+                data["keys"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IGetPublicSystemSettingsQuery {
+    keys?: string[] | undefined;
+}
+
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {
     items?: TodoItemBriefDto[] | undefined;
     pageNumber?: number;
@@ -10821,6 +11650,13 @@ export class AdminUserListItemDto implements IAdminUserListItemDto {
     isOnline?: boolean;
 
     constructor(data?: IAdminUserListItemDto) {
+export class VideoCaptionDto implements IVideoCaptionDto {
+    id?: number;
+    language?: number;
+    fileUrl?: string | undefined;
+    fileName?: string | undefined;
+
+    constructor(data?: IVideoCaptionDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -10852,6 +11688,15 @@ export class AdminUserListItemDto implements IAdminUserListItemDto {
     static fromJS(data: any): AdminUserListItemDto {
         data = typeof data === 'object' ? data : {};
         let result = new AdminUserListItemDto();
+            this.language = _data["language"];
+            this.fileUrl = _data["fileUrl"];
+            this.fileName = _data["fileName"];
+        }
+    }
+
+    static fromJS(data: any): VideoCaptionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new VideoCaptionDto();
         result.init(data);
         return result;
     }
@@ -10873,6 +11718,9 @@ export class AdminUserListItemDto implements IAdminUserListItemDto {
         data["enrolledCourseCount"] = this.enrolledCourseCount;
         data["createdCourseCount"] = this.createdCourseCount;
         data["isOnline"] = this.isOnline;
+        data["language"] = this.language;
+        data["fileUrl"] = this.fileUrl;
+        data["fileName"] = this.fileName;
         return data;
     }
 }
@@ -11609,6 +12457,11 @@ export class ChangeUserRoleCommand implements IChangeUserRoleCommand {
 export interface IChangeUserRoleCommand {
     userId?: string | undefined;
     newRole?: string | undefined;
+export interface IVideoCaptionDto {
+    id?: number;
+    language?: number;
+    fileUrl?: string | undefined;
+    fileName?: string | undefined;
 }
 
 export class WeatherForecast implements IWeatherForecast {

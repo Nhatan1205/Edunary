@@ -9,6 +9,7 @@ public class AdminWithdrawalRequestDto
 
     public string InstructorId { get; set; } = string.Empty;
     public string InstructorName { get; set; } = string.Empty;
+    public string InstructorEmail { get; set; } = string.Empty;
 
     public decimal Amount { get; set; }
     public string Currency { get; set; } = string.Empty;

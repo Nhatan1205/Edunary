@@ -28,6 +28,7 @@ const useHandleAdminWithdrawalRequest = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["admin-withdrawal-requests"]);
+      queryClient.invalidateQueries(["admin-withdrawal-request-status-counts"]);
       queryClient.invalidateQueries(["instructor-wallet"]);
       queryClient.invalidateQueries(["instructor-wallet-transactions"]);
     },

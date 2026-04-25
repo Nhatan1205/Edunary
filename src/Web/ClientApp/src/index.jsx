@@ -6,6 +6,8 @@ import reportWebVitals from "./reportWebVitals";
 import { ThemeProvider } from "@emotion/react";
 import theme from "./theme/theme";
 import { CssBaseline } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { AuthProvider } from "./context/AuthContext";
 import { setupApiInterceptor } from "./utils/apiInterceptor";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -22,10 +24,12 @@ root.render(
   <>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <CssBaseline />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </LocalizationProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>
   </>,

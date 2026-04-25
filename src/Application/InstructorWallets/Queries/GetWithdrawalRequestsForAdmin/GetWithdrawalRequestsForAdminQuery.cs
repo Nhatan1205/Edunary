@@ -16,6 +16,11 @@ public class GetWithdrawalRequestsForAdminQuery : IRequest<PaginatedList<AdminWi
     public InstructorWalletTransactionStatus? Status { get; init; }
     public DateTimeOffset? FromDate { get; init; }
     public DateTimeOffset? ToDate { get; init; }
+
+    public string InstructorName { get; init; }
+    public string InstructorEmail { get; init; }
+    public string BankNumber { get; init; }
+    public string BankAccountHolder { get; init; }
 }
 
 public class GetWithdrawalRequestsForAdminQueryHandler
@@ -70,6 +75,38 @@ public class GetWithdrawalRequestsForAdminQueryHandler
             query = query.Where(w => w.Created < toExclusive);
         }
 
+        if (!string.IsNullOrWhiteSpace(request.BankNumber))
+        {
+            var bn = request.BankNumber.Trim().ToLower();
+            query = query.Where(w => w.BankNumber != null && w.BankNumber.ToLower().Contains(bn));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.BankAccountHolder))
+        {
+            var bh = request.BankAccountHolder.Trim().ToLower();
+            query = query.Where(w => w.BankAccountHolder != null && w.BankAccountHolder.ToLower().Contains(bh));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.InstructorName) ||
+            !string.IsNullOrWhiteSpace(request.InstructorEmail))
+        {
+            var matchingIds = await _identityService.SearchUserIdsByNameOrEmailAsync(
+                request.InstructorName,
+                request.InstructorEmail,
+                cancellationToken);
+
+            if (matchingIds.Count == 0)
+            {
+                return new PaginatedList<AdminWithdrawalRequestDto>(
+                    Array.Empty<AdminWithdrawalRequestDto>(),
+                    0,
+                    request.PageNumber,
+                    request.PageSize);
+            }
+
+            query = query.Where(w => matchingIds.Contains(w.InstructorId));
+        }
+
         query = query.OrderByDescending(w => w.Created);
 
         var paginated = await query.PaginatedListAsync(request.PageNumber, request.PageSize);
@@ -85,18 +122,24 @@ public class GetWithdrawalRequestsForAdminQueryHandler
             return paginated;
         }
 
-        var instructorNames = new Dictionary<string, string>();
-        foreach (var instructorId in instructorIds)
-        {
-            var fullName = await _identityService.GetFullNameAsync(instructorId);
-            instructorNames[instructorId] = string.IsNullOrWhiteSpace(fullName) ? instructorId : fullName;
-        }
+        var instructors = await _identityService.GetUserIdentitiesByIdsAsync(instructorIds, cancellationToken);
+        var instructorMap = instructors
+            .Where(u => !string.IsNullOrWhiteSpace(u.Id))
+            .ToDictionary(u => u.Id, u => u);
 
         foreach (var item in paginated.Items)
         {
-            if (instructorNames.TryGetValue(item.InstructorId, out var instructorName))
+            if (instructorMap.TryGetValue(item.InstructorId, out var instructor))
             {
-                item.InstructorName = instructorName;
+                item.InstructorName = string.IsNullOrWhiteSpace(instructor.FullName)
+                    ? item.InstructorId
+                    : instructor.FullName;
+                item.InstructorEmail = instructor.Email ?? string.Empty;
+            }
+            else
+            {
+                item.InstructorName = item.InstructorId;
+                item.InstructorEmail = string.Empty;
             }
         }
 

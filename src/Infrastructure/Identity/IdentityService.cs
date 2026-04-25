@@ -1048,6 +1048,34 @@ public class IdentityService : IIdentityService
         }
     }
 
+    public async Task<List<string>> SearchUserIdsByNameOrEmailAsync(
+        string nameKeyword, string emailKeyword, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = _context.Users.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(nameKeyword))
+            {
+                var n = nameKeyword.Trim().ToLower();
+                query = query.Where(u => u.FullName != null && u.FullName.ToLower().Contains(n));
+            }
+
+            if (!string.IsNullOrWhiteSpace(emailKeyword))
+            {
+                var e = emailKeyword.Trim().ToLower();
+                query = query.Where(u => u.Email != null && u.Email.ToLower().Contains(e));
+            }
+
+            return await query.Select(u => u.Id).ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at SearchUserIdsByNameOrEmailAsync. Ex: {0}", ex.Message);
+            return new List<string>();
+        }
+    }
+
     public async Task<Result> AddUserAsync(string email, string fullName, string password)
     {
         try

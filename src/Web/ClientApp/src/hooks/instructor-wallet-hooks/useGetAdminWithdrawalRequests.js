@@ -5,6 +5,10 @@ const useGetAdminWithdrawalRequests = (pageNumber = 1, pageSize = 10, options = 
     status = null,
     fromDate = null,
     toDate = null,
+    instructorName = null,
+    instructorEmail = null,
+    bankNumber = null,
+    bankAccountHolder = null,
   } = options;
 
   return useQuery({
@@ -15,6 +19,10 @@ const useGetAdminWithdrawalRequests = (pageNumber = 1, pageSize = 10, options = 
       status,
       fromDate,
       toDate,
+      instructorName,
+      instructorEmail,
+      bankNumber,
+      bankAccountHolder,
     ],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -31,6 +39,26 @@ const useGetAdminWithdrawalRequests = (pageNumber = 1, pageSize = 10, options = 
 
       if (toDate) {
         params.set("ToDate", new Date(toDate).toISOString());
+      }
+
+      const trimmedName = instructorName?.trim();
+      if (trimmedName) {
+        params.set("InstructorName", trimmedName);
+      }
+
+      const trimmedEmail = instructorEmail?.trim();
+      if (trimmedEmail) {
+        params.set("InstructorEmail", trimmedEmail);
+      }
+
+      const trimmedBankNumber = bankNumber?.trim();
+      if (trimmedBankNumber) {
+        params.set("BankNumber", trimmedBankNumber);
+      }
+
+      const trimmedHolder = bankAccountHolder?.trim();
+      if (trimmedHolder) {
+        params.set("BankAccountHolder", trimmedHolder);
       }
 
       const response = await fetch(`/api/InstructorWallet/admin/withdrawal-requests?${params.toString()}`, {

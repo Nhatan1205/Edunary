@@ -1,13 +1,10 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Common.Security;
-using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.InstructorWallets.Commands.CancelWithdrawalRequest;
 
-[Authorize(Roles = Roles.Administrator)]
 public class CancelWithdrawalRequestCommand : IRequest<Result>
 {
     public int RequestId { get; init; }

@@ -42,7 +42,8 @@ const TAB_BADGE_STYLE = {
 const datePickerFocusRing = `0 0 0 3px ${alpha(theme.palette.brand.main, 0.1)}`;
 
 const datePickerTextFieldSx = {
-  minWidth: { xs: "100%", sm: 170 },
+  width: "100%",
+  minWidth: 0,
   "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline, & .MuiPickersOutlinedInput-root.Mui-focused .MuiPickersOutlinedInput-notchedOutline": {
     borderColor: theme.palette.brand.main,
   },
@@ -423,10 +424,19 @@ function WithdrawalRequestsPage() {
         <DataGridToolbar
           showSearch={false}
           filterDropdowns={(
-            <Stack
-              direction={{ xs: "column", md: "row" }}
-              spacing={1.25}
-              sx={{ width: "100%", flexWrap: "wrap", rowGap: 1.25 }}
+            <Box
+              sx={{
+                display: "grid",
+                width: "100%",
+                gridTemplateColumns: {
+                  xs: "minmax(0, 1fr)",
+                  sm: "repeat(2, minmax(0, 1fr))",
+                  lg: "repeat(4, minmax(0, 1fr))",
+                },
+                columnGap: 1.25,
+                rowGap: 1.25,
+                alignItems: "start",
+              }}
             >
               <TextField
                 size="small"
@@ -473,10 +483,10 @@ function WithdrawalRequestsPage() {
                 onChange={handleDateChange(setToDate)}
                 slotProps={{ textField: { size: "small", sx: datePickerTextFieldSx } }}
               />
-            </Stack>
+            </Box>
           )}
           customRightAction={
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }} noWrap>
               {totalCount.toLocaleString("en-US")} request{totalCount === 1 ? "" : "s"}
             </Typography>
           }

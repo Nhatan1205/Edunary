@@ -27,12 +27,15 @@ function DataGridToolbar({
   return (
     <Toolbar
       sx={{
-        height: 80,
+        height: "auto",
+        minHeight: { xs: 96, md: 80 },
         display: "flex",
+        flexDirection: { xs: "column", md: "row" },
         justifyContent: "space-between",
-        alignItems: "center",
-        px: 2.5,
-        gap: 2,
+        alignItems: { xs: "stretch", md: "center" },
+        px: { xs: 2, sm: 2.5 },
+        py: { xs: 1.25, md: 0 },
+        gap: { xs: 1.25, md: 2 },
         borderBottom: "1px solid",
         borderColor: "divider",
         transition: "background-color 0.2s ease",
@@ -46,19 +49,37 @@ function DataGridToolbar({
         <Typography
           component="div"
           variant="body2"
-          sx={{ fontWeight: 600, color: "brand.main", letterSpacing: 0.2 }}
+          sx={{
+            width: { xs: "100%", md: "auto" },
+            fontWeight: 600,
+            color: "brand.main",
+            letterSpacing: 0.2,
+          }}
         >
           {numSelected} selected
         </Typography>
       ) : (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flex: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "stretch", sm: "center" },
+            rowGap: 1.25,
+            columnGap: 1.5,
+            flexWrap: "wrap",
+            flex: { md: 1 },
+            width: "100%",
+            minWidth: 0,
+          }}
+        >
           {showSearch && (
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
-                width: 280,
+                width: { xs: "100%", sm: 220, md: 280 },
+                maxWidth: "100%",
                 height: 40,
                 px: 1.5,
                 borderRadius: "10px",
@@ -104,6 +125,7 @@ function DataGridToolbar({
                 color: "error.main",
                 bgcolor: "rgba(255,59,59,0.06)",
                 borderRadius: "8px",
+                alignSelf: { xs: "flex-end", md: "center" },
                 "&:hover": { bgcolor: "rgba(255,59,59,0.12)" },
               }}
             >
@@ -112,7 +134,16 @@ function DataGridToolbar({
           </Tooltip>
         )
       ) : (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: { xs: "space-between", md: "flex-end" },
+            gap: 0.5,
+            width: { xs: "100%", md: "auto" },
+            flexShrink: 0,
+          }}
+        >
           {onRefresh && (
             <Tooltip title="Reload">
               <IconButton

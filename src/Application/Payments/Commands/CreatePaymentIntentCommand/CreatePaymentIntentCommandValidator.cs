@@ -11,12 +11,7 @@ public class CreatePaymentIntentCommandValidator : AbstractValidator<CreatePayme
             .Must(courseIds => courseIds.Count > 0).WithMessage("At least one course ID is required.");
 
         RuleForEach(c => c.CourseIds)
-            .NotEmpty().WithMessage("Course ID cannot be empty.")
-            .Must(BeAValidGuid).WithMessage("Course ID must be a valid GUID format.");
-    }
-
-    private static bool BeAValidGuid(string courseId)
-    {
-        return Guid.TryParse(courseId, out _) || int.TryParse(courseId, out _);
+            .GreaterThan(0)
+            .WithMessage("Course ID must be greater than 0.");
     }
 }

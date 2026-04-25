@@ -127,9 +127,8 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("datetimeoffset");
@@ -340,6 +339,94 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .HasDatabaseName("IX_Enrollments_CourseId_StudentId");
 
                     b.ToTable("Enrollments");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.InstructorWallet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InstructorId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalWithdrawn")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstructorId")
+                        .IsUnique();
+
+                    b.ToTable("InstructorWallets");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.InstructorWalletTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("InstructorWalletId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstructorWalletId", "OrderId", "CourseId")
+                        .IsUnique()
+                        .HasFilter("[OrderId] > 0 AND [CourseId] > 0");
+
+                    b.ToTable("InstructorWalletTransactions");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.MediaFile", b =>
@@ -571,10 +658,8 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CourseName")
                         .IsRequired()
@@ -927,6 +1012,63 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("VideoCaptions");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.WithdrawalRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Bank")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BankAccountHolder")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BankNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("InstructorWalletId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstructorWalletId", "Status");
+
+                    b.ToTable("WithdrawalRequests");
+                });
+
             modelBuilder.Entity("Edunary.Infrastructure.Identity.ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
@@ -964,6 +1106,18 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.Property<string>("Avatar")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Bank")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BankAccountHolder")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BankNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -1197,6 +1351,17 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.InstructorWalletTransaction", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.InstructorWallet", "InstructorWallet")
+                        .WithMany("Transactions")
+                        .HasForeignKey("InstructorWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InstructorWallet");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.MediaFile", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.Course", "Course")
@@ -1303,6 +1468,17 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("MediaFile");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.WithdrawalRequest", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.InstructorWallet", "InstructorWallet")
+                        .WithMany("WithdrawalRequests")
+                        .HasForeignKey("InstructorWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InstructorWallet");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Edunary.Infrastructure.Identity.ApplicationRole", null)
@@ -1373,6 +1549,13 @@ namespace Edunary.Infrastructure.Data.Migrations
             modelBuilder.Entity("Edunary.Domain.Entities.MediaFile", b =>
                 {
                     b.Navigation("VideoCaptions");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.InstructorWallet", b =>
+                {
+                    b.Navigation("Transactions");
+
+                    b.Navigation("WithdrawalRequests");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Order", b =>

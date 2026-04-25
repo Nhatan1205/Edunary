@@ -1,8 +1,12 @@
 using Edunary.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Edunary.Application.Common.Interfaces;
 public interface IApplicationDbContext
 {
+    DatabaseFacade Database { get; }
+
     DbSet<TodoList> TodoLists { get; }
 
     DbSet<TodoItem> TodoItems { get; }
@@ -36,6 +40,10 @@ public interface IApplicationDbContext
     public DbSet<VideoCaption> VideoCaptions { get; }
 
     public DbSet<ActivityLog> ActivityLogs { get; }
+
+    public DbSet<InstructorWallet> InstructorWallets { get; }
+    public DbSet<InstructorWalletTransaction> InstructorWalletTransactions { get; }
+    public DbSet<WithdrawalRequest> WithdrawalRequests { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

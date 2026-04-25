@@ -24,6 +24,8 @@ public interface IIdentityService
 
     Task<Result> UpdateUserAsync(UserModel model);
 
+    Task<Result> UpdatePayoutAccountAsync(string userId, string bank, string bankNumber, string bankAccountHolder);
+
     Task<Result> UpdateUserAvatarAsync(string avatarUrl, string userId);
 
     Task<Result> Register(string userName, string phoneNumber, string email, string password, string fullName, string avatar = null);
@@ -54,6 +56,11 @@ public interface IIdentityService
     Task<UserIdentityDto> GetUserIdentityByIdAsync(string userId);
 
     Task<List<UserIdentityDto>> GetUserIdentitiesByIdsAsync(List<string> ids, CancellationToken cancellationToken);
+
+    Task<List<string>> SearchUserIdsByNameOrEmailAsync(
+        string nameKeyword,
+        string emailKeyword,
+        CancellationToken cancellationToken);
 
     Task<Result> AddUserAsync(string email, string fullName, string password);
 

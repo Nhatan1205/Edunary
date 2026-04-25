@@ -44,6 +44,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<VideoCaption> VideoCaptions => Set<VideoCaption>();
 
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
+    public DbSet<InstructorWallet> InstructorWallets => Set<InstructorWallet>();
+    public DbSet<InstructorWalletTransaction> InstructorWalletTransactions => Set<InstructorWalletTransaction>();
+    public DbSet<WithdrawalRequest> WithdrawalRequests => Set<WithdrawalRequest>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {        

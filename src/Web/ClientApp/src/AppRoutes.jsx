@@ -34,6 +34,7 @@ import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer"
 import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
 import OverviewPage from "./features/instructor/performance-section/overview-page/CourseOverviewPage";
+import RevenuePage from "./features/instructor/performance-section/revenue-page/RevenuePage";
 import PolicyPage from "./features/guest/policy-page/PolicyPage";
 import AnnouncementsPage from "./features/instructor/communication-section/announcements-page/AnnouncementsPage";
 import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
@@ -58,6 +59,7 @@ import UserPage from "./features/admin/user-section/user-page/UserPage";
 import UserDetailPage from "./features/admin/user-section/user-detail-page/UserDetailPage";
 import UserOverviewPage from "./features/admin/user-section/user-overview-page/UserOverviewPage";
 import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/ActivityLogsPage";
+import WithdrawalRequestsPage from "./features/admin/withdrawal-requests/WithdrawalRequestsPage";
 
 const router = createBrowserRouter([
   {
@@ -115,6 +117,10 @@ const router = createBrowserRouter([
             ],
           },
         ],
+      },
+      {
+        path: "invoice/withdrawal-requests",
+        element: <WithdrawalRequestsPage />,
       }
     ],
   },
@@ -286,6 +292,10 @@ const router = createBrowserRouter([
           {
             path: "overview/:tab",
             element: <OverviewPage />,
+          },
+          {
+            path: "revenue",
+            element: <RevenuePage />,
           }
         ],
       },

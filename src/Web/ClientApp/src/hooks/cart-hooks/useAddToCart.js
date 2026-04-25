@@ -8,7 +8,7 @@ export const useAddToCart = () => {
   const mutation = useMutation({
     mutationFn: async (courseId) => {
       const cartClient = new CartClient()
-      const command = new AddToCartCommand({ courseId: courseId.toString() })
+      const command = new AddToCartCommand({ courseId: Number(courseId) })
       return await cartClient.addToCart(command)
     },
     onSuccess: (res) => {

@@ -1,9 +1,13 @@
-﻿using Edunary.Application.Common.Interfaces;
+﻿using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Courses.Queries.GetCourseStatsQuery;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Edunary.Application.Courses.Queries.GetCoursesStatsQuery;
+
+
 public class GetCourseStatsQuery : IRequest<CourseStatsVM>
 {
     public int? CourseId { get; init; } 

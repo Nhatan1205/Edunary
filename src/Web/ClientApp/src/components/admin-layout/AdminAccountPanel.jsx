@@ -1,5 +1,7 @@
 import { memo, useCallback } from "react";
 import { useNavigate, useLocation, matchPath } from "react-router";
+import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
@@ -17,12 +19,15 @@ import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 import AvatarImage from "../../assets/images/avatar.jpg";
 import accountMenuConfig from "./accountMenuConfig";
+import useGetBasicUserInfo from "../../hooks/auth-hooks/useGetBasicUserInfor";
 
 const panelWidth = 320;
 
 function AdminAccountPanel({ open, onClose }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { data: userInfo } = useGetBasicUserInfo();
+  const { logout } = useAuth();
 
   const handleNavigate = useCallback(
     (url) => {
@@ -31,6 +36,13 @@ function AdminAccountPanel({ open, onClose }) {
     },
     [navigate, onClose]
   );
+
+  const handleLogout = useCallback(() => {
+    onClose();
+    logout();
+    toast.success("Logged out successfully!");
+    navigate("/");
+  }, [logout, navigate, onClose]);
 
   return (
     <Drawer
@@ -91,8 +103,8 @@ function AdminAccountPanel({ open, onClose }) {
           }}
         >
           <Avatar
-            alt="Admin User"
-            src={AvatarImage}
+            alt={userInfo?.fullName || "Admin"}
+            src={userInfo?.avatar || AvatarImage}
             sx={{
               width: 96,
               height: 96,
@@ -104,23 +116,15 @@ function AdminAccountPanel({ open, onClose }) {
           />
           <Typography
             variant="h6"
-            sx={{
-              fontWeight: 700,
-              color: "text.primary",
-              textAlign: "center",
-            }}
+            sx={{ fontWeight: 700, color: "text.primary", textAlign: "center" }}
           >
-            Jaydon Frankie
+            {userInfo?.fullName || "Admin"}
           </Typography>
           <Typography
             variant="body2"
-            sx={{
-              color: "text.disabled",
-              textAlign: "center",
-              mt: 0.5,
-            }}
+            sx={{ color: "text.disabled", textAlign: "center", mt: 0.5 }}
           >
-            demo@edunary.cc
+            {userInfo?.email || ""}
           </Typography>
         </Box>
 
@@ -184,6 +188,7 @@ function AdminAccountPanel({ open, onClose }) {
             fullWidth
             variant="outlined"
             startIcon={<LogoutOutlinedIcon />}
+            onClick={handleLogout}
             sx={{
               borderRadius: "10px",
               py: 1.2,

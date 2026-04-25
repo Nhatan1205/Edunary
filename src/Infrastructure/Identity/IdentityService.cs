@@ -1,10 +1,17 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Globalization;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Application.Users;
+using Edunary.Application.Users.Queries.GetAdminUserStatusCountsQuery;
+using Edunary.Application.Users.Queries.GetAdminOverviewSummaryQuery;
+using Edunary.Application.Users.Queries.GetRegistrationTrendQuery;
+using Edunary.Application.Users.Queries.GetNewVsReturningQuery;
 using Edunary.Domain.Common;
+using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Edunary.Domain.Helpers;
 using Edunary.Infrastructure.Data;
@@ -18,6 +25,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
+
 namespace Edunary.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
@@ -30,6 +38,7 @@ public class IdentityService : IIdentityService
     private readonly ApplicationDbContext _context;
     private readonly AppSettings _appSettings;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IActivityLogService _activityLogService;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
@@ -39,7 +48,8 @@ public class IdentityService : IIdentityService
         ILogger<IdentityService> logger,
         ApplicationDbContext context,
         IOptions<AppSettings> appSettings,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IActivityLogService activityLogService)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
@@ -49,6 +59,7 @@ public class IdentityService : IIdentityService
         _context = context;
         _appSettings = appSettings.Value;
         _currentUserService = currentUserService;
+        _activityLogService = activityLogService;
     }
 
     public async Task<string> GetUserNameAsync(string userId)
@@ -228,15 +239,8 @@ public class IdentityService : IIdentityService
                     Links = user.Links
                 };
 
-                if (!user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.Now)
-                {
-                    userModel.Disable = true;
-                }
-                else
-                {
-                    userModel.Disable = false;
+                userModel.Disable = user.Status == UserStatus.Banned || user.Status == UserStatus.Suspended;
 
-                }
 
             }
         }
@@ -314,13 +318,47 @@ public class IdentityService : IIdentityService
                 }
                 if (isLogin)
                 {
+                    // Block banned/suspended users from logging in
+                    if (user.Status == UserStatus.Banned)
+                    {
+                        rs = Result.Failure("Your account has been banned.");
+                        isLogin = false;
+                    }
+                    else if (user.Status == UserStatus.Suspended)
+                    {
+                        if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                        {
+                            rs = Result.Failure($"Your account is suspended until {user.LockoutEnd.Value:yyyy-MM-dd}.");
+                            isLogin = false;
+                        }
+                        else
+                        {
+                            // Suspension expired → reactivate
+                            user.Status = UserStatus.Active;
+                            user.LockoutEnd = null;
+                        }
+                    }
+                }
+                if (isLogin)
+                {
                     bool isFirstLogin = forceFirstLogin ?? (user.LastLoginTime == null);
                     user.LastLoginTime = DateTime.Now;
+                    // Reset Inactive → Active on login
+                    if (user.Status == UserStatus.Inactive)
+                        user.Status = UserStatus.Active;
                     await _userManager.UpdateAsync(user);
                     string accessToken = await CreateToken(user, TokenType.AccessToken, false, accountType, isFirstLogin, defaultPassword);
                     string refreshToken = await CreateToken(user, TokenType.RefreshToken);
                     await SetTokenAsync(user, Utils.GetEnumMemberValue(AccountType.System), Utils.GetEnumMemberValue(TokenType.RefreshToken), refreshToken);
                     rs = Result.Success(accessToken);
+
+                    // Activity log: track login (non-blocking via Hangfire)
+                    _activityLogService.EnqueueLog(new ActivityLogEntry
+                    {
+                        UserId = user.Id,
+                        ActivityType = ActivityType.Login,
+                        Description = "Have logged into the system"
+                    });
                 }
             }
         }
@@ -794,5 +832,472 @@ public class IdentityService : IIdentityService
         }
     }
 
-    
+    public async Task<AdminUserStatusCountsDto> GetUserStatusCountsAsync()
+    {
+        try
+        {
+            // 1 query GROUP BY duy nhất — không filter gì, trả về count thực tế trong DB
+            // SQL: SELECT Status, COUNT(*) FROM AspNetUsers GROUP BY Status
+            var groups = await _context.Users
+                .GroupBy(u => u.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var dict = groups.ToDictionary(x => x.Status, x => x.Count);
+
+            return new AdminUserStatusCountsDto
+            {
+                Total     = dict.Values.Sum(),
+                Active    = dict.GetValueOrDefault(UserStatus.Active,    0),
+                Inactive  = dict.GetValueOrDefault(UserStatus.Inactive,  0),
+                Suspended = dict.GetValueOrDefault(UserStatus.Suspended, 0),
+                Banned    = dict.GetValueOrDefault(UserStatus.Banned,    0),
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetUserStatusCountsAsync. Ex: {0}", ex.Message);
+            return new AdminUserStatusCountsDto();
+        }
+    }
+
+    public async Task<(IReadOnlyList<UserIdentityDto> Users, int TotalCount)> GetFilteredUsersAsync(
+        string searchText, string roleFilter, string statusFilter,
+        string sortBy, int pageNumber, int pageSize)
+    {
+        try
+        {
+            var query = _context.Users.AsQueryable();
+
+            // ── Filter: Search theo tên hoặc email ───────────────────────────────
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                var search = searchText.Trim().ToLower();
+                query = query.Where(u =>
+                    (u.FullName != null && u.FullName.ToLower().Contains(search)) ||
+                    (u.Email != null && u.Email.ToLower().Contains(search)));
+            }
+
+            // ── Filter: Status — query trực tiếp column, không computed ──────────
+            if (!string.IsNullOrWhiteSpace(statusFilter)
+                && Enum.TryParse<UserStatus>(statusFilter, out var parsedStatus))
+            {
+                query = query.Where(u => u.Status == parsedStatus);
+            }
+
+            // ── Filter: Role — subquery vào AspNetUserRoles (1 query, không N+1) ─
+            if (!string.IsNullOrWhiteSpace(roleFilter))
+            {
+                var roleId = await _context.Roles
+                    .Where(r => r.Name == roleFilter)
+                    .Select(r => r.Id)
+                    .FirstOrDefaultAsync();
+
+                if (roleId != null)
+                {
+                    // EF Core translate thành: WHERE Id IN (SELECT UserId FROM AspNetUserRoles WHERE RoleId = @roleId)
+                    var userIdsWithRole = _context.UserRoles
+                        .Where(ur => ur.RoleId == roleId)
+                        .Select(ur => ur.UserId);
+                    query = query.Where(u => userIdsWithRole.Contains(u.Id));
+                }
+            }
+
+            // ── Sort ─────────────────────────────────────────────────────────────
+            query = sortBy switch
+            {
+                "name" => query.OrderBy(u => u.FullName),
+                "lastLogin" => query.OrderByDescending(u => u.LastLoginTime),
+                _ => query.OrderByDescending(u => u.CreatedAt)
+            };
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!users.Any())
+                return (Array.Empty<UserIdentityDto>(), totalCount);
+
+            // ── Batch fetch Roles: 1 JOIN query cho TẤT CẢ users trong trang ─────
+            // Thay vì N lần GetRolesAsync → chỉ 1 query với WHERE IN (...)
+            var userIds = users.Select(u => u.Id).ToList();
+            var userRolePairs = await _context.UserRoles
+                .Where(ur => userIds.Contains(ur.UserId))
+                .Join(_context.Roles,
+                    ur => ur.RoleId,
+                    r => r.Id,
+                    (ur, r) => new { ur.UserId, RoleName = r.Name })
+                .ToListAsync();
+
+            // Group theo userId → Dictionary cho O(1) lookup
+            var rolesDict = userRolePairs
+                .GroupBy(x => x.UserId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName).ToList());
+
+            // ── Map sang UserIdentityDto — Application layer sẽ ghép business data
+            var result = users.Select(u => new UserIdentityDto
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                Email = u.Email,
+                Avatar = u.Avatar,
+                Headline = u.Headline,
+                PhoneNumber = u.PhoneNumber,
+                Roles = rolesDict.TryGetValue(u.Id, out var roles) ? roles : new List<string>(),
+                Status = u.Status,
+                LockoutEnd = u.LockoutEnd,
+                LastLoginTime = u.LastLoginTime,
+                CreatedAt = u.CreatedAt,
+            }).ToList();
+
+            return (result.AsReadOnly(), totalCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetFilteredUsersAsync. Ex: {0}", ex.Message);
+            return (Array.Empty<UserIdentityDto>(), 0);
+        }
+    }
+
+    public async Task<UserIdentityDto> GetUserIdentityByIdAsync(string userId)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            // Single user → GetRolesAsync là đủ, không cần batch
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new UserIdentityDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Avatar = user.Avatar,
+                Headline = user.Headline,
+                Description = user.Description,
+                Links = user.Links,
+                PhoneNumber = user.PhoneNumber,
+                Roles = roles.ToList(),
+                Status = user.Status,
+                LockoutEnd = user.LockoutEnd,
+                LastLoginTime = user.LastLoginTime,
+                CreatedAt = user.CreatedAt,
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetUserIdentityByIdAsync. Ex: {0}", ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<List<UserIdentityDto>> GetUserIdentitiesByIdsAsync(
+        List<string> ids, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var users = await _context.Users
+                .Where(u => ids.Contains(u.Id))
+                .Select(u => new UserIdentityDto
+                {
+                    Id            = u.Id,
+                    FullName      = u.FullName,
+                    Email         = u.Email,
+                    Avatar        = u.Avatar,
+                    Status        = u.Status,
+                    LastLoginTime = u.LastLoginTime,
+                    CreatedAt     = u.CreatedAt,
+                })
+                .ToListAsync(cancellationToken);
+
+            return users;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetUserIdentitiesByIdsAsync. Ex: {0}", ex.Message);
+            return new List<UserIdentityDto>();
+        }
+    }
+
+    public async Task<Result> AddUserAsync(string email, string fullName, string password)
+    {
+        try
+        {
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+                return Result.Failure("An account with this email already exists.");
+
+            return await Register(email, null, email, password, fullName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at AddUserAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<Result> RestrictUserAsync(string userId, string currentAdminId, int? durationDays)
+    {
+        try
+        {
+            if (userId == currentAdminId)
+                return Result.Failure("Cannot restrict your own account.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Result.Failure("User not found.");
+
+            if (durationDays.HasValue)
+            {
+                user.Status = UserStatus.Suspended;
+                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddDays(durationDays.Value));
+                return Result.Success($"User has been suspended for {durationDays.Value} day(s).");
+            }
+            else
+            {
+                user.Status = UserStatus.Banned;
+                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+                return Result.Success("User has been permanently banned.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at RestrictUserAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<Result> UnbanUserAsync(string userId)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Result.Failure("User not found.");
+
+            user.Status = UserStatus.Active;
+            await _userManager.SetLockoutEndDateAsync(user, null);
+            return Result.Success("User has been unbanned successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at UnbanUserAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<Result> ChangeUserRoleAsync(string userId, string newRole, string currentAdminId)
+    {
+        try
+        {
+            if (userId == currentAdminId)
+                return Result.Failure("Cannot change your own role.");
+
+            if (newRole != Roles.User && newRole != Roles.Administrator)
+                return Result.Failure("Invalid role. Must be 'User' or 'Administrator'.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Result.Failure("User not found.");
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            if (currentRoles.Contains(newRole))
+                return Result.Failure($"User already has role '{newRole}'.");
+
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            if (!removeResult.Succeeded)
+                return Result.Failure("Failed to remove current roles.");
+
+            var addResult = await _userManager.AddToRoleAsync(user, newRole);
+            if (!addResult.Succeeded)
+                return Result.Failure(addResult.Errors.First().Description);
+
+            return Result.Success($"User role changed to '{newRole}' successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at ChangeUserRoleAsync. Ex: {0}", ex.Message);
+            return Result.Failure($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<OverviewStatsResult> GetOverviewStatsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var now = DateTime.UtcNow;
+            var sevenDaysAgo = now.AddDays(-7);
+            var thirtyDaysAgo = now.AddDays(-30);
+            var sixtyDaysAgo = now.AddDays(-60);
+
+            //1. get status counts, group by status
+            var groups = await _context.Users
+                .GroupBy(u => u.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync(cancellationToken);
+
+            var dict = groups.ToDictionary(x => x.Status, x => x.Count);
+
+            var statusActive    = dict.GetValueOrDefault(UserStatus.Active,    0);
+            var statusInactive  = dict.GetValueOrDefault(UserStatus.Inactive,  0);
+            var statusSuspended = dict.GetValueOrDefault(UserStatus.Suspended, 0);
+            var statusBanned    = dict.GetValueOrDefault(UserStatus.Banned,    0);
+
+            //2. trend counts
+            var trends = await _context.Users
+                .GroupBy(_ => 1)
+                .Select(g => new
+                {
+                    ActiveBefore7d  = g.Count(u => u.Status == UserStatus.Active && u.CreatedAt <= sevenDaysAgo),
+                    New30d          = g.Count(u => u.CreatedAt >= thirtyDaysAgo),
+                    NewPrev30d      = g.Count(u => u.CreatedAt >= sixtyDaysAgo && u.CreatedAt < thirtyDaysAgo),
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            // % trend: (current - previous) / previous * 100, rounded to 1 decimal
+            static double CalcTrend(int current, int previous)
+                => previous == 0 ? 0 : Math.Round((double)(current - previous) / previous * 100, 1);
+
+            return new OverviewStatsResult
+            {
+                ActiveUsers      = statusActive,
+                ActiveUsersTrend = CalcTrend(statusActive, trends?.ActiveBefore7d ?? 0),
+                NewUsers30d      = trends?.New30d ?? 0,
+                NewUsersTrend    = CalcTrend(trends?.New30d ?? 0, trends?.NewPrev30d ?? 0),
+
+                StatusActive    = statusActive,
+                StatusInactive  = statusInactive,
+                StatusSuspended = statusSuspended,
+                StatusBanned    = statusBanned,
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetOverviewStatsAsync. Ex: {0}", ex.Message);
+            return new OverviewStatsResult();
+        }
+    }
+
+    public async Task<RegistrationTrendDto> GetRegistrationTrendAsync(
+        string range, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var now = DateTime.UtcNow;
+            bool groupByDay;
+            DateTime startDate;
+
+            switch (range)
+            {
+                case "7d":  startDate = now.AddDays(-7);    groupByDay = true;  break;
+                case "3m":  startDate = now.AddMonths(-3);  groupByDay = false; break;
+                case "12m": startDate = now.AddMonths(-12); groupByDay = false; break;
+                default:    startDate = now.AddDays(-30);   groupByDay = true;  break; 
+            }
+
+            if (groupByDay)
+            {
+                // GROUP BY date — fill missing dates with 0
+                var raw = await _context.Users
+                    .Where(u => u.CreatedAt >= startDate)
+                    .GroupBy(u => u.CreatedAt.Date)
+                    .Select(g => new { Date = g.Key, Count = g.Count() })
+                    .OrderBy(x => x.Date)
+                    .ToListAsync(cancellationToken);
+
+                var dict = raw.ToDictionary(x => x.Date, x => x.Count);
+                var labels = new List<string>();
+                var data   = new List<int>();
+
+                for (var d = startDate.Date; d <= now.Date; d = d.AddDays(1))
+                {
+                    labels.Add(d.ToString("MMM d", CultureInfo.InvariantCulture));
+                    data.Add(dict.GetValueOrDefault(d, 0));
+                }
+
+                return new RegistrationTrendDto { Period = range, Labels = labels, Data = data };
+            }
+            else
+            {
+                // GROUP BY month
+                var raw = await _context.Users
+                    .Where(u => u.CreatedAt >= startDate)
+                    .GroupBy(u => new { u.CreatedAt.Year, u.CreatedAt.Month })
+                    .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
+                    .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                    .ToListAsync(cancellationToken);
+
+                var dict   = raw.ToDictionary(x => new DateTime(x.Year, x.Month, 1), x => x.Count);
+                var labels = new List<string>();
+                var data   = new List<int>();
+
+                var cursor = new DateTime(startDate.Year, startDate.Month, 1);
+                var end    = new DateTime(now.Year, now.Month, 1);
+                while (cursor <= end)
+                {
+                    labels.Add(cursor.ToString("MMM", CultureInfo.InvariantCulture));
+                    data.Add(dict.GetValueOrDefault(cursor, 0));
+                    cursor = cursor.AddMonths(1);
+                }
+
+                return new RegistrationTrendDto { Period = range, Labels = labels, Data = data };
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetRegistrationTrendAsync. Ex: {0}", ex.Message);
+            return new RegistrationTrendDto { Period = range };
+        }
+    }
+
+    public async Task<NewVsReturningDto> GetNewVsReturningAsync(
+        int year, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var currentMonth = DateTime.UtcNow.Year == year ? DateTime.UtcNow.Month : 12;
+
+            var raw = await _context.Users
+                .Where(u => u.CreatedAt.Year == year)
+                .GroupBy(u => u.CreatedAt.Month)
+                .Select(g => new { Month = g.Key, Count = g.Count() })
+                .ToListAsync(cancellationToken);
+
+            var dict   = raw.ToDictionary(x => x.Month, x => x.Count);
+            var labels  = new List<string>();
+            var newUsers = new List<int>();
+
+            for (int m = 1; m <= currentMonth; m++)
+            {
+                labels.Add(new DateTime(year, m, 1).ToString("MMM", CultureInfo.InvariantCulture));
+                newUsers.Add(dict.GetValueOrDefault(m, 0));
+            }
+
+            // #TODO: ReturningUsers requires LoginHistory table.
+            // LastLoginTime only stores the LAST login — cannot determine per-month returning users.
+            // Returning 0 as placeholder. Future: Add LoginHistory entity, then:
+            // COUNT DISTINCT UserId WHERE CreatedAt < month_start AND MONTH(LoginDate) = m AND YEAR = year
+            var returningUsers = Enumerable.Repeat(0, labels.Count).ToList();
+
+            return new NewVsReturningDto
+            {
+                Year           = year,
+                Labels         = labels,
+                NewUsers       = newUsers,
+                ReturningUsers = returningUsers,
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at GetNewVsReturningAsync. Ex: {0}", ex.Message);
+            return new NewVsReturningDto { Year = year };
+        }
+    }
+
 }

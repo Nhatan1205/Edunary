@@ -1,5 +1,6 @@
 ﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Announcements;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,19 +13,22 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
     private readonly IIdentityService _identityService;
     private readonly INotifyService _notifyService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IActivityLogService _activityLogService;
 
     public AnnouncementSentEventHandler(
         IApplicationDbContext context,
         IEmailService emailService,
         IIdentityService identityService,
         INotifyService notifyService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IActivityLogService activityLogService)
     {
         _context = context;
         _emailService = emailService;
         _identityService = identityService;
         _notifyService = notifyService;
         _currentUserService = currentUserService;
+        _activityLogService = activityLogService;
     }
 
     public async Task Handle(AnnouncementSentEvent notification, CancellationToken cancellationToken)
@@ -77,5 +81,13 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
             };
             await _notifyService.NotifyCourseUpdated(notificationRequest, cancellationToken);
         }
+
+        //
+        _activityLogService.EnqueueLog(new ActivityLogEntry
+        {
+            UserId = _currentUserService.UserId,
+            ActivityType = ActivityType.SendAnnouncement,
+            Description = $"Sent announcement to students in course"
+        });
     }
 }

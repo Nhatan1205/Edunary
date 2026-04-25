@@ -2,6 +2,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Hubs;
 using Edunary.Infrastructure.Identity;
+using Edunary.Infrastructure.Services;
 using Edunary.Web.Infrastructure;
 using Hangfire;
 using NSwag;
@@ -36,6 +37,12 @@ else
 }
 app.UseHangfireCustomDashboard(app.Environment);
 //https://localhost:5001/HangfireDashboard
+
+RecurringJob.AddOrUpdate<IUserStatusJobService>(
+    "mark-inactive-users",
+    job => job.MarkInactiveUsersAsync(),
+    Cron.Daily(2, 0),          // 2:00 AM UTC every day
+    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();

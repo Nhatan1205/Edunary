@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -13,8 +13,10 @@ using Edunary.Application.Courses.EventHandlers;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Courses;
+using Edunary.Application.Common.Behaviours;
 
 namespace Edunary.Application.Courses.Commands.CreateCourse;
+[ActivityLog(ActivityType.CreateCourse, "Created a new course")]
 public record CreateCourseCommand : IRequest<ReturnResult<CreatedCourseDto>>
 {
     public string Title { get; init; }

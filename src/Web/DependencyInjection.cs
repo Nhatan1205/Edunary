@@ -1,4 +1,4 @@
-﻿using Azure.Identity;
+using Azure.Identity;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
 using Edunary.Infrastructure.Identity;
@@ -7,8 +7,6 @@ using Edunary.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using Hangfire; // Chứa DashboardOptions, IDashboardAuthorizationFilter
-using HangfireBasicAuthenticationFilter;
 using Edunary.Domain.Common;
 using Microsoft.Extensions.Options;
 
@@ -69,28 +67,5 @@ public static class DependencyInjection
         }
 
         return services;
-    }
-}
-
-public static class HangfireWebExtensions
-{
-    public static IApplicationBuilder UseHangfireCustomDashboard(this IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        var options = new DashboardOptions();
-
-        var settings = app.ApplicationServices.GetRequiredService<IOptions<AccountToAccessHangfireDashboard>>().Value;
-
-        options.Authorization = new[]
-        {
-            new HangfireCustomBasicAuthenticationFilter
-            {
-                User = settings.User,
-                Pass = settings.Password
-            }
-        };
-        
-        app.UseHangfireDashboard("/HangfireDashboard", options);
-
-        return app;
     }
 }

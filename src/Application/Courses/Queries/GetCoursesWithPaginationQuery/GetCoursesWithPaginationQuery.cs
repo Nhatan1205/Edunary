@@ -1,10 +1,12 @@
-﻿using Edunary.Application.Common.Interfaces;
-using Microsoft.EntityFrameworkCore;
+﻿using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.Courses.Queries.GetCoursesWithPagination;
+
 public record GetCoursesWithPaginationQuery : IRequest<PaginatedList<GetCourseDto>>
 {
     public string SearchText { get; init; }

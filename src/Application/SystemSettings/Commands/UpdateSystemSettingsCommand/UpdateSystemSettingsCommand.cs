@@ -1,8 +1,12 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.SystemSettings.Commands.UpdateSystemSettingsCommand;
 
+
+[ActivityLog(ActivityType.UpdateSystemSetting, "Update System settings")]
 public class UpdateSystemSettingsCommand : IRequest<Result>
 {
     public List<UpdateSettingItem> Settings { get; init; } = new();

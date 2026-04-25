@@ -1,10 +1,13 @@
-﻿using Edunary.Application.Common.Interfaces;
+﻿using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Announcements;
 
 namespace Edunary.Application.Announcements.Commands.CreateDraftAnnouncementCommand;
+
+
 public class CreateAnnouncementCommand : IRequest<ReturnResult<CreateAnnouncementCommandDto>>
 {
     public string Subject { get; set; }

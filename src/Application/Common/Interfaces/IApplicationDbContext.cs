@@ -35,5 +35,7 @@ public interface IApplicationDbContext
     public DbSet<SystemSetting> SystemSettings { get; }
     public DbSet<VideoCaption> VideoCaptions { get; }
 
+    public DbSet<ActivityLog> ActivityLogs { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

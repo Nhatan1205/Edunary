@@ -53,6 +53,11 @@ import RoadmapEditPage from "./features/instructor/courses-management/roadmap-ed
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./features/admin/Dashboard";
 import SystemSettingsPage from "./features/admin/system-settings/SystemSettingsPage";
+import CategoryPage from "./features/admin/course-section/category-page/CategoryPage";
+import UserPage from "./features/admin/user-section/user-page/UserPage";
+import UserDetailPage from "./features/admin/user-section/user-detail-page/UserDetailPage";
+import UserOverviewPage from "./features/admin/user-section/user-overview-page/UserOverviewPage";
+import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/ActivityLogsPage";
 
 const router = createBrowserRouter([
   {
@@ -72,12 +77,44 @@ const router = createBrowserRouter([
         element: <AdminDashboard />,
       },
       {
-        path: "user/profile",
-        element: <AdminDashboard />,
-      },
-      {
         path: "system-settings",
         element: <SystemSettingsPage />,
+      },
+      {
+        path: "course/category",
+        element: <CategoryPage />,
+      },
+      {
+        path: "user",
+        children: [
+          {
+            index: true,
+            element: <Navigate to="overview" replace />,
+          },
+          {
+            path: "overview",
+            element: <UserOverviewPage />,
+          },
+          {
+            path: "profile",
+            element: <AdminDashboard />,
+          },
+          {
+            path: "list",
+            element: <UserPage />,
+          },
+          {
+            path: "activity-logs",
+            element: <ActivityLogsPage />,
+          },
+          {
+            path: ":userId",
+            children: [
+              { index: true, element: <UserDetailPage /> },
+              { path: "activity-logs", element: <ActivityLogsPage /> },
+            ],
+          },
+        ],
       }
     ],
   },

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Amazon;
 using Amazon.S3;
 using Edunary.Application.Common.Interfaces;
@@ -35,6 +35,7 @@ public static class DependencyInjection
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
 
             options.UseSqlServer(connectionString);
+
         });
 
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
@@ -42,6 +43,7 @@ public static class DependencyInjection
 
         services.Configure<DigitalOceanSettings>(configuration.GetSection("DigitalOceanSettings"));
         services.Configure<AccountToAccessHangfireDashboard>(configuration.GetSection("AccountToAccessHangfireDashboard"));
+        services.Configure<JobSettings>(configuration.GetSection("JobSettings"));
         //services.AddSingleton<IAmazonS3>(sp =>
         //{
         //    var settings = sp.GetRequiredService<IOptions<DigitalOceanSettings>>().Value;
@@ -76,6 +78,8 @@ public static class DependencyInjection
         services.AddScoped<IChunkedUploadService, ChunkedUploadService>();
         services.AddScoped<IVideoProcessorService, VideoProcessorService>();
         services.AddScoped<IProcessMediaFileJobService, ProcessMediaFileJobService>();
+        services.AddScoped<IUserStatusJobService, UserStatusJobService>();
+        services.AddSingleton<IActivityLogService, ActivityLogService>();
 
         services.AddAuthorization(options =>
         {

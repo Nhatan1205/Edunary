@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.Roadmaps.Models;
@@ -7,6 +8,8 @@ using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Roadmaps.Commands.CreateRoadmapCommand;
 
+
+[ActivityLog(ActivityType.CreateRoadmap, "Create New Roadmap")]
 public record CreateRoadmapCommand : IRequest<ReturnResult<CreatedRoadmapDto>>
 {
     public string Title { get; init; }

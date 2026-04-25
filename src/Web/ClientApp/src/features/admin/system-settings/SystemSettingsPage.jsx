@@ -11,6 +11,7 @@ import {
   InputAdornment,
   IconButton,
   Tooltip,
+  Skeleton,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
@@ -224,10 +225,51 @@ function SettingRow({ setting, isEditing, register }) {
   );
 }
 
+
+function SectionSkeleton({ rowCount = 3 }) {
+  return (
+    <Box sx={{ mb: 3.5 }}>
+      {/* Section header skeleton */}
+      <Skeleton variant="text" width={160} height={28} sx={{ mb: 1.5 }} />
+
+      {/* Card skeleton */}
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 2,
+          overflow: "hidden",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        }}
+      >
+        {Array.from({ length: rowCount }).map((_, i) => (
+          <Box
+            key={i}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              px: 2.5,
+              py: 2,
+              gap: 3,
+              borderBottom: i < rowCount - 1 ? "1px solid" : "none",
+              borderColor: "divider",
+            }}
+          >
+            <Skeleton variant="text" width={120} height={20} sx={{ flexShrink: 0 }} />
+            <Skeleton variant="rounded" width={360} height={36} sx={{ flexShrink: 0 }} />
+            <Skeleton variant="text" width={140} height={16} />
+          </Box>
+        ))}
+      </Paper>
+    </Box>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 function SystemSettingsPage() {
-  const { data: settings } = useGetSystemSettings();
+  const { data: settings, isLoading } = useGetSystemSettings();
   const { mutate: updateSettings, isPending } = useUpdateSystemSettings();
   const { register, handleSubmit, reset, formState: { dirtyFields } } = useForm();
 
@@ -361,45 +403,49 @@ function SystemSettingsPage() {
 
         {/* ── Tab Content ── */}
         <Box sx={{ pt: 2, pb: 4 }}>
-          {currentTab.sections.map((section, sIdx) => (
-            <Box key={sIdx} sx={{ mb: 3.5 }}>
-              {/* Section header */}
-              <Typography
-                variant="subtitle1"
-                fontWeight={700}
-                color="text.primary"
-                sx={{ mb: 1.5 }}
-              >
-                {section.header}
-              </Typography>
+          {isLoading
+            ? currentTab.sections.map((section, sIdx) => (
+              <SectionSkeleton key={sIdx} rowCount={section.keys.length} />
+            ))
+            : currentTab.sections.map((section, sIdx) => (
+              <Box key={sIdx} sx={{ mb: 3.5 }}>
+                {/* Section header */}
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={700}
+                  color="text.primary"
+                  sx={{ mb: 1.5 }}
+                >
+                  {section.header}
+                </Typography>
 
-              {/* Card wrapping rows */}
-              <Paper
-                elevation={0}
-                sx={{
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: 2,
-                  overflow: "hidden",
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-                  "& > :last-child": { borderBottom: "none" },
-                }}
-              >
-                {section.keys.map((key) => {
-                  const setting = settingMap[key];
-                  if (!setting) return null;
-                  return (
-                    <SettingRow
-                      key={key}
-                      setting={setting}
-                      isEditing={isEditing}
-                      register={register}
-                    />
-                  );
-                })}
-              </Paper>
-            </Box>
-          ))}
+                {/* Card wrapping rows */}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                    "& > :last-child": { borderBottom: "none" },
+                  }}
+                >
+                  {section.keys.map((key) => {
+                    const setting = settingMap[key];
+                    if (!setting) return null;
+                    return (
+                      <SettingRow
+                        key={key}
+                        setting={setting}
+                        isEditing={isEditing}
+                        register={register}
+                      />
+                    );
+                  })}
+                </Paper>
+              </Box>
+            ))}
         </Box>
 
       </Box>

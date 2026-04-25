@@ -1,9 +1,12 @@
-﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.MediaFiles.Commands.UnsetCourseIdForAllContentsCommand;
+using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Courses;
 
 namespace Edunary.Application.Courses.Commands.DeleteCourse;
+[ActivityLog(ActivityType.DeleteCourse, "Deleted a course")]
 public record DeleteCourseCommand : IRequest<Result>
 {
     public int Id { get; init; }

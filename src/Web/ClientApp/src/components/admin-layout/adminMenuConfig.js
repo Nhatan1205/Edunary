@@ -60,13 +60,6 @@ const adminMenuConfig = {
           url: "/admin/file",
           icon: InsertDriveFileOutlinedIcon,
         },
-        {
-          id: "course",
-          title: "Course",
-          type: "item",
-          url: "/admin/course",
-          icon: SchoolOutlinedIcon,
-        },
       ],
     },
     {
@@ -81,16 +74,10 @@ const adminMenuConfig = {
           icon: PersonOutlineOutlinedIcon,
           children: [
             {
-              id: "user-profile",
-              title: "Profile",
+              id: "user-overview",
+              title: "Overview",
               type: "item",
-              url: "/admin/user/profile",
-            },
-            {
-              id: "user-cards",
-              title: "Cards",
-              type: "item",
-              url: "/admin/user/cards",
+              url: "/admin/user/overview",
             },
             {
               id: "user-list",
@@ -99,49 +86,25 @@ const adminMenuConfig = {
               url: "/admin/user/list",
             },
             {
-              id: "user-create",
-              title: "Create",
+              id: "activity-logs",
+              title: "Activity Logs",
               type: "item",
-              url: "/admin/user/create",
-            },
-            {
-              id: "user-edit",
-              title: "Edit",
-              type: "item",
-              url: "/admin/user/edit",
-            },
-            {
-              id: "user-account",
-              title: "Account",
-              type: "item",
-              url: "/admin/user/account",
+              url: "/admin/user/activity-logs",
             },
           ],
         },
         {
-          id: "product",
-          title: "Product",
+          id: "course",
+          title: "Course",
           type: "collapse",
-          icon: Inventory2OutlinedIcon,
+          icon: SchoolOutlinedIcon,
           children: [
             {
-              id: "product-list",
-              title: "List",
+              id: "category",
+              title: "Category",
               type: "item",
-              url: "/admin/product/list",
-            },
-            {
-              id: "product-create",
-              title: "Create",
-              type: "item",
-              url: "/admin/product/create",
-            },
-            {
-              id: "product-edit",
-              title: "Edit",
-              type: "item",
-              url: "/admin/product/edit",
-            },
+              url: "/admin/course/category",
+            }
           ],
         },
         {

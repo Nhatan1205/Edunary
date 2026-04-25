@@ -132,9 +132,9 @@ function formatStatus(status) {
     case 0:
       return { label: "Succeeded", color: "success.darker", bgcolor: "success.lighter" };
     case 1:
-      return { label: "Processing", color: "warning.dark", bgcolor: "warning.lighter" };
+      return { label: "Processing", color: "warning.darker", bgcolor: "warning.lighter" };
     case 2:
-      return { label: "Cancelled", color: "text.secondary", bgcolor: "grey.200" };
+      return { label: "Cancelled", color: "eror.dark", bgcolor: "error.lighter" };
     default:
       return { label: "Unknown", color: "text.secondary", bgcolor: "grey.200" };
   }

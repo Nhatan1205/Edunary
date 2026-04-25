@@ -4,7 +4,6 @@ import {
   Typography,
   TextField,
   Button,
-  Alert,
   Stack,
   Dialog,
   DialogTitle,
@@ -15,6 +14,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
 import useGetInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useGetInstructorWallet';
 import useWithdrawFromInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useWithdrawFromInstructorWallet';
+import AlertBox from '../../../../../components/AlertBox';
 
 function WithdrawalForm({ user, isInfoEnough }) {
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
@@ -137,9 +137,9 @@ function WithdrawalForm({ user, isInfoEnough }) {
 
         {/* Error Alert */}
         {error && (
-          <Alert severity="error" sx={{ fontSize: '0.875rem' }}>
+          <AlertBox severity="error" sx={{ my: 0, fontSize: '0.875rem' }}>
             {error}
-          </Alert>
+          </AlertBox>
         )}
 
         {/* Withdrawal Amount Input */}

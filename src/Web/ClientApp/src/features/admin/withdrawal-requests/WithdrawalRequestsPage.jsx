@@ -5,20 +5,21 @@ import {
   Button,
   Card,
   Chip,
+  IconButton,
   Stack,
   Tab,
   TablePagination,
   Tabs,
-  TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import { alpha } from "@mui/material/styles";
-import theme from "../../../theme/theme";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import CloseIcon from "@mui/icons-material/Close";
 import PageTitle from "../../../components/PageTitle";
 import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs";
 import DataGridToolbar from "../../../components/datagrid/DataGridToolbar";
 import CustomDataGrid from "../../../components/datagrid/CustomDataGrid";
+import UserFilterDialog from "../user-section/activity-logs-page/components/UserFilterDialog";
 import useGetAdminWithdrawalRequests from "../../../hooks/instructor-wallet-hooks/useGetAdminWithdrawalRequests";
 import useHandleAdminWithdrawalRequest from "../../../hooks/instructor-wallet-hooks/useHandleAdminWithdrawalRequest";
 import useGetAdminWithdrawalRequestStatusCounts from "../../../hooks/instructor-wallet-hooks/useGetAdminWithdrawalRequestStatusCounts";
@@ -39,21 +40,29 @@ const TAB_BADGE_STYLE = {
   Cancelled: { bgcolor: "grey.300", color: "text.secondary" },
 };
 
-const datePickerFocusRing = `0 0 0 3px ${alpha(theme.palette.brand.main, 0.1)}`;
-
-const datePickerTextFieldSx = {
-  width: "100%",
+const pillInputSx = {
+  height: 40,
+  px: 1.5,
+  borderRadius: "10px",
+  border: "1.5px solid",
+  borderColor: "grey.300",
+  bgcolor: "grey.50",
+  color: "text.primary",
+  fontSize: "0.8rem",
+  fontFamily: "inherit",
+  outline: "none",
   minWidth: 0,
-  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline, & .MuiPickersOutlinedInput-root.Mui-focused .MuiPickersOutlinedInput-notchedOutline": {
-    borderColor: theme.palette.brand.main,
-  },
-  "& .MuiOutlinedInput-root.Mui-focused, & .MuiPickersOutlinedInput-root.Mui-focused": {
-    boxShadow: datePickerFocusRing,
-  },
-  "& .MuiInputLabel-root.Mui-focused, & .MuiFormLabel-root.Mui-focused, & .MuiPickersInputLabel-root.Mui-focused": {
-    color: theme.palette.brand.main,
-  },
+  "&::placeholder": { color: "text.secondary", opacity: 1 },
+  "&:hover": { borderColor: "grey.400" },
+  "&:focus": { borderColor: "brand.main" },
 };
+
+const pillDateSx = (filled) => ({
+  ...pillInputSx,
+  cursor: "pointer",
+  borderColor: filled ? "brand.main" : "grey.300",
+  color: filled ? "brand.main" : "text.secondary",
+});
 
 function StatusTabs({ activeTab, onChange, counts }) {
   return (
@@ -152,13 +161,13 @@ function WithdrawalRequestsPage() {
   const [activeTab, setActiveTab] = useState("All");
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
-  const [instructorName, setInstructorName] = useState("");
+  const [selectedInstructor, setSelectedInstructor] = useState(null);
+  const [instructorDialogOpen, setInstructorDialogOpen] = useState(false);
   const [instructorEmail, setInstructorEmail] = useState("");
   const [bankNumber, setBankNumber] = useState("");
   const [bankAccountHolder, setBankAccountHolder] = useState("");
   const [activeRequestId, setActiveRequestId] = useState(null);
 
-  const debouncedInstructorName = useDebounce(instructorName, 400);
   const debouncedInstructorEmail = useDebounce(instructorEmail, 400);
   const debouncedBankNumber = useDebounce(bankNumber, 400);
   const debouncedBankAccountHolder = useDebounce(bankAccountHolder, 400);
@@ -166,7 +175,6 @@ function WithdrawalRequestsPage() {
   useEffect(() => {
     setPage(0);
   }, [
-    debouncedInstructorName,
     debouncedInstructorEmail,
     debouncedBankNumber,
     debouncedBankAccountHolder,
@@ -177,9 +185,9 @@ function WithdrawalRequestsPage() {
   const queryOptions = useMemo(
     () => ({
       status: statusFilter,
-      fromDate: fromDate?.isValid() ? fromDate.toISOString() : null,
-      toDate: toDate?.isValid() ? toDate.toISOString() : null,
-      instructorName: debouncedInstructorName || null,
+      fromDate: fromDate ? new Date(fromDate).toISOString() : null,
+      toDate: toDate ? new Date(toDate).toISOString() : null,
+      instructorName: selectedInstructor?.fullName || null,
       instructorEmail: debouncedInstructorEmail || null,
       bankNumber: debouncedBankNumber || null,
       bankAccountHolder: debouncedBankAccountHolder || null,
@@ -188,7 +196,7 @@ function WithdrawalRequestsPage() {
       statusFilter,
       fromDate,
       toDate,
-      debouncedInstructorName,
+      selectedInstructor,
       debouncedInstructorEmail,
       debouncedBankNumber,
       debouncedBankAccountHolder,
@@ -230,7 +238,18 @@ function WithdrawalRequestsPage() {
   };
 
   const handleDateChange = (setter) => (value) => {
-    setter(value);
+    setter(value || null);
+    setPage(0);
+  };
+
+  const handleSelectInstructor = (user) => {
+    setSelectedInstructor(user);
+    setInstructorDialogOpen(false);
+    setPage(0);
+  };
+
+  const handleClearInstructor = () => {
+    setSelectedInstructor(null);
     setPage(0);
   };
 
@@ -426,63 +445,99 @@ function WithdrawalRequestsPage() {
           filterDropdowns={(
             <Box
               sx={{
-                display: "grid",
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 1,
                 width: "100%",
-                gridTemplateColumns: {
-                  xs: "minmax(0, 1fr)",
-                  sm: "repeat(2, minmax(0, 1fr))",
-                  lg: "repeat(4, minmax(0, 1fr))",
-                },
-                columnGap: 1.25,
-                rowGap: 1.25,
-                alignItems: "start",
               }}
             >
-              <TextField
-                size="small"
-                label="Instructor"
-                value={instructorName}
-                onChange={(e) => setInstructorName(e.target.value)}
-                sx={datePickerTextFieldSx}
-              />
-
-              <TextField
-                size="small"
-                label="Email"
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: "1 1 180px", minWidth: 160 }}>
+                <Button
+                  onClick={() => setInstructorDialogOpen(true)}
+                  endIcon={<ArrowDropDownIcon />}
+                  size="small"
+                  sx={{
+                    flex: 1,
+                    height: 40,
+                    px: 2,
+                    borderRadius: "10px",
+                    border: "1.5px solid",
+                    borderColor: selectedInstructor ? "brand.main" : "grey.300",
+                    bgcolor: "grey.50",
+                    color: selectedInstructor ? "brand.main" : "text.secondary",
+                    fontWeight: 500,
+                    fontSize: "0.8rem",
+                    textTransform: "none",
+                    whiteSpace: "nowrap",
+                    justifyContent: "space-between",
+                    "&:hover": { bgcolor: "grey.100", borderColor: "grey.400" },
+                    "& .MuiButton-endIcon": { ml: 0.5 },
+                  }}
+                >
+                  <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {selectedInstructor ? selectedInstructor.fullName : "All Instructors"}
+                  </Box>
+                </Button>
+                {selectedInstructor && (
+                  <Tooltip title="Clear instructor filter">
+                    <IconButton
+                      size="small"
+                      onClick={handleClearInstructor}
+                      sx={{
+                        color: "grey.500",
+                        borderRadius: "8px",
+                        "&:hover": { color: "error.main", bgcolor: "error.lighter" },
+                      }}
+                    >
+                      <CloseIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
+              <Box
+                component="input"
+                type="text"
+                placeholder="Email"
                 value={instructorEmail}
                 onChange={(e) => setInstructorEmail(e.target.value)}
-                sx={datePickerTextFieldSx}
+                sx={{ ...pillInputSx, flex: "1 1 180px", minWidth: 160 }}
               />
-
-              <TextField
-                size="small"
-                label="Account #"
+              <Box
+                component="input"
+                type="text"
+                placeholder="Account #"
                 value={bankNumber}
                 onChange={(e) => setBankNumber(e.target.value)}
-                sx={datePickerTextFieldSx}
+                sx={{ ...pillInputSx, flex: "1 1 140px", minWidth: 120 }}
               />
-
-              <TextField
-                size="small"
-                label="Beneficiary"
+              <Box
+                component="input"
+                type="text"
+                placeholder="Beneficiary"
                 value={bankAccountHolder}
                 onChange={(e) => setBankAccountHolder(e.target.value)}
-                sx={datePickerTextFieldSx}
+                sx={{ ...pillInputSx, flex: "1 1 160px", minWidth: 140 }}
               />
-
-              <DatePicker
-                label="From"
-                value={fromDate}
-                onChange={handleDateChange(setFromDate)}
-                slotProps={{ textField: { size: "small", sx: datePickerTextFieldSx } }}
-              />
-
-              <DatePicker
-                label="To"
-                value={toDate}
-                onChange={handleDateChange(setToDate)}
-                slotProps={{ textField: { size: "small", sx: datePickerTextFieldSx } }}
-              />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  component="input"
+                  type="date"
+                  value={fromDate || ""}
+                  onChange={(e) => handleDateChange(setFromDate)(e.target.value || null)}
+                  title="From date"
+                  sx={pillDateSx(!!fromDate)}
+                />
+                <Typography variant="caption" sx={{ color: "text.secondary" }}>—</Typography>
+                <Box
+                  component="input"
+                  type="date"
+                  value={toDate || ""}
+                  onChange={(e) => handleDateChange(setToDate)(e.target.value || null)}
+                  title="To date"
+                  sx={pillDateSx(!!toDate)}
+                />
+              </Box>
             </Box>
           )}
           customRightAction={
@@ -547,6 +602,12 @@ function WithdrawalRequestsPage() {
       </Card>
 
       <Box sx={{ height: 80 }} />
+
+      <UserFilterDialog
+        open={instructorDialogOpen}
+        onClose={() => setInstructorDialogOpen(false)}
+        onSelectUser={handleSelectInstructor}
+      />
     </Box>
   );
 }

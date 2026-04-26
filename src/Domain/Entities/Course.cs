@@ -50,6 +50,8 @@ public class Course : BaseAuditableEntity
     public ICollection<Announcement> Announcements { get; set; } = new List<Announcement>();
     public ICollection<RatingCourse> RatingCourses { get; set; } = new List<RatingCourse>();
 
+    public ICollection<CourseNote> CourseNotes { get; set; } = new List<CourseNote>();
+
     public void UpdateTotalStudents()
     {
         TotalStudents++;

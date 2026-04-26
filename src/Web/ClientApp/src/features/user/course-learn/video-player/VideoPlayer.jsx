@@ -156,9 +156,8 @@ function VideoPlayer() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // // Prevent running if user is typing in form inputs (like comments)
-      // const tagName = document.activeElement.tagName.toLowerCase();
-      // if (tagName === 'input' || tagName === 'textarea' || document.activeElement.isContentEditable) return;
+      const tagName = document.activeElement?.tagName?.toLowerCase();
+      if (tagName === 'input' || tagName === 'textarea' || document.activeElement?.isContentEditable) return;
       if (!videoRef.current || currentItem?.contentType !== 'video' || showOverlay) return;
 
       switch (e.code) {
@@ -644,7 +643,14 @@ function VideoPlayer() {
 
       </Box>
 
-      <CourseLearnTab />
+      <CourseLearnTab
+        courseId={courseId}
+        contentId={contentId}
+        currentItem={currentItem}
+        currentTime={currentTime}
+        onSeek={(time) => { if (videoRef.current) { videoRef.current.currentTime = time; setCurrentTime(time); } }}
+        onPauseVideo={() => { if (videoRef.current && !videoRef.current.paused) { videoRef.current.pause(); } }}
+      />
     </Box>
   );
 }

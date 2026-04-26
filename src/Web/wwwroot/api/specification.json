@@ -446,6 +446,154 @@
         ]
       }
     },
+    "/api/CourseNotes/video": {
+      "get": {
+        "tags": [
+          "CourseNotes"
+        ],
+        "operationId": "GetCourseNotesByVideo",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "videoId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseNoteDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseNotes": {
+      "post": {
+        "tags": [
+          "CourseNotes"
+        ],
+        "operationId": "CreateCourseNote",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseNoteCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseNotes/{noteId}": {
+      "put": {
+        "tags": [
+          "CourseNotes"
+        ],
+        "operationId": "UpdateCourseNote",
+        "parameters": [
+          {
+            "name": "noteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseNoteCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "CourseNotes"
+        ],
+        "operationId": "DeleteCourseNote",
+        "parameters": [
+          {
+            "name": "noteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/CourseProgress": {
       "get": {
         "tags": [
@@ -3647,6 +3795,86 @@
           0,
           1
         ]
+      },
+      "CourseNoteDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "videoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestampSeconds": {
+            "type": "number",
+            "format": "double"
+          },
+          "content": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateCourseNoteCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "videoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestampSeconds": {
+            "type": "number",
+            "format": "double"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateCourseNoteCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "noteId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timestampSeconds": {
+            "type": "number",
+            "format": "double"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "CourseProgressDto": {
         "type": "object",

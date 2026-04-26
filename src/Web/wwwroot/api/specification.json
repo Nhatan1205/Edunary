@@ -1661,6 +1661,366 @@
         ]
       }
     },
+    "/api/InstructorWallet": {
+      "get": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "GetWallet",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstructorWalletDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/InstructorWallet/transactions": {
+      "get": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "GetTransactions",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "FromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "ToDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "OrderId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 6
+          },
+          {
+            "name": "CourseId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 7
+          },
+          {
+            "name": "AmountSort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 8
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfInstructorWalletTransactionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/InstructorWallet/admin/withdrawal-requests": {
+      "get": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "GetAdminWithdrawalRequests",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/InstructorWalletTransactionStatus"
+                }
+              ]
+            },
+            "x-position": 3
+          },
+          {
+            "name": "FromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "ToDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "InstructorName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 6
+          },
+          {
+            "name": "InstructorEmail",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 7
+          },
+          {
+            "name": "BankNumber",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 8
+          },
+          {
+            "name": "BankAccountHolder",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 9
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfAdminWithdrawalRequestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/InstructorWallet/admin/withdrawal-requests/status-counts": {
+      "get": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "GetAdminWithdrawalRequestStatusCounts",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminWithdrawalRequestStatusCountsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/InstructorWallet/withdraw": {
+      "post": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "Withdraw",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawFromInstructorWalletCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/InstructorWallet/withdrawals/{id}/approve": {
+      "post": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "ApproveWithdrawal",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/InstructorWallet/withdrawals/{id}/cancel": {
+      "post": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "CancelWithdrawal",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/MediaFile": {
       "get": {
         "tags": [
@@ -3400,6 +3760,35 @@
         }
       }
     },
+    "/api/User/payout-account": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "UpdatePayoutAccount",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePayoutAccountCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/User/avatar": {
       "put": {
         "tags": [
@@ -3860,6 +4249,35 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/User/admin/create-user": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "AdminCreateUser",
+        "requestBody": {
+          "x-name": "model",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthenticateModel"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "security": [
@@ -4489,8 +4907,8 @@
         "additionalProperties": false,
         "properties": {
           "courseId": {
-            "type": "string",
-            "nullable": true
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -5996,6 +6414,222 @@
           }
         }
       },
+      "InstructorWalletDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalWithdrawn": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "pendingWithdrawal": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "PaginatedListOfInstructorWalletTransactionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/InstructorWalletTransactionDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "InstructorWalletTransactionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/InstructorWalletTransactionStatus"
+          }
+        }
+      },
+      "InstructorWalletTransactionStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Succeeded",
+          "Processing",
+          "Cancelled"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "PaginatedListOfAdminWithdrawalRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AdminWithdrawalRequestDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminWithdrawalRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "instructorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "bank": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAccountHolder": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/InstructorWalletTransactionStatus"
+          }
+        }
+      },
+      "AdminWithdrawalRequestStatusCountsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "processing": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "succeeded": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cancelled": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WithdrawFromInstructorWalletCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "MediaFileDto": {
         "type": "object",
         "additionalProperties": false,
@@ -6534,7 +7168,8 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           }
         }
@@ -6605,8 +7240,8 @@
         "additionalProperties": false,
         "properties": {
           "courseId": {
-            "type": "string",
-            "nullable": true
+            "type": "integer",
+            "format": "int32"
           },
           "courseName": {
             "type": "string",
@@ -7624,6 +8259,24 @@
           }
         }
       },
+      "UpdatePayoutAccountCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bank": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAccountHolder": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "UpdateUserAvatarCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -7655,6 +8308,18 @@
             "nullable": true
           },
           "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "bank": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAccountHolder": {
             "type": "string",
             "nullable": true
           },

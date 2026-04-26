@@ -21,6 +21,8 @@ public class ApproveWithdrawalRequestCommandHandler : IRequestHandler<ApproveWit
 
     public async Task<Result> Handle(ApproveWithdrawalRequestCommand request, CancellationToken cancellationToken)
     {
+        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+
         var withdrawalRequest = await _context.WithdrawalRequests
             .Include(t => t.InstructorWallet)
             .SingleOrDefaultAsync(t => t.Id == request.RequestId, cancellationToken);
@@ -35,7 +37,16 @@ public class ApproveWithdrawalRequestCommandHandler : IRequestHandler<ApproveWit
             return Result.Failure("Withdrawal request is not in processing state");
         }
 
-        var wallet = withdrawalRequest.InstructorWallet;
+        // Acquire a row-level lock on the wallet to serialize concurrent Approve/Withdraw/Cancel operations.
+        await _context.InstructorWallets
+            .Where(w => w.Id == withdrawalRequest.InstructorWalletId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(w => w.Balance, w => w.Balance), cancellationToken);
+
+        // Re-read the wallet after lock acquisition to ensure balance checks use current persisted values.
+        var wallet = await _context.InstructorWallets
+            .SingleAsync(w => w.Id == withdrawalRequest.InstructorWalletId, cancellationToken);
+
+        withdrawalRequest.InstructorWallet = wallet;
 
         if (wallet.Balance < withdrawalRequest.Amount)
         {
@@ -47,6 +58,8 @@ public class ApproveWithdrawalRequestCommandHandler : IRequestHandler<ApproveWit
         withdrawalRequest.Status = InstructorWalletTransactionStatus.Succeeded;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
 
         return Result.Success(new
         {

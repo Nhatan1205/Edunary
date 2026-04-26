@@ -17,10 +17,10 @@ public static class InitialiserExtensions
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
 
         // Turn off InitialiseAsync and SeedAsync + turn on await Task.CompletedTask; to run migrate
-        await initialiser.InitialiseAsync();
+        // await initialiser.InitialiseAsync();
 
-        await initialiser.SeedAsync();
-        // await Task.CompletedTask;
+        // await initialiser.SeedAsync();
+        await Task.CompletedTask;
     }
 }
 

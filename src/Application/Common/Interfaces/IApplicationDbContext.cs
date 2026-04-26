@@ -38,6 +38,7 @@ public interface IApplicationDbContext
 
     public DbSet<SystemSetting> SystemSettings { get; }
     public DbSet<VideoCaption> VideoCaptions { get; }
+    public DbSet<CourseNote> CourseNotes { get; }
 
     public DbSet<ActivityLog> ActivityLogs { get; }
 

@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import RatingTab from "../../../../components/rating-tab/RatingTab";
 import OverviewTab from "./OverviewTab";
+import NotesArea from "./NotesArea";
 import { useParams } from "react-router-dom";
 
-function CourseLearnTab() {
+function CourseLearnTab({ courseId: courseIdProp, contentId, currentItem, currentTime, onSeek, onPauseVideo }) {
   const [active, setActive] = useState("overview");
-  const { courseId } = useParams();
+  const { courseId: courseIdParam } = useParams();
+  const courseId = courseIdProp || courseIdParam;
 
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "500px" }}>
@@ -93,9 +95,20 @@ function CourseLearnTab() {
       )}
 
       {active === "notes" && (
-        <Box sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
-          <Typography>Notes area (placeholder)</Typography>
-        </Box>
+        currentItem?.contentType === "video" ? (
+          <NotesArea
+            courseId={courseId}
+            contentId={contentId}
+            currentItem={currentItem}
+            currentTime={currentTime}
+            onSeek={onSeek}
+            onPauseVideo={onPauseVideo}
+          />
+        ) : (
+          <Box sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
+            <Typography>Notes are available for video lectures only.</Typography>
+          </Box>
+        )
       )}
     </Box>
   );

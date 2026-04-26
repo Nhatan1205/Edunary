@@ -876,6 +876,174 @@ export class CourseDraftsClient {
     }
 }
 
+export class CourseNotesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getCourseNotesByVideo(courseId: number, videoId: number): Promise<CourseNoteDto[]> {
+        let url_ = this.baseUrl + "/api/CourseNotes/video?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        if (videoId === undefined || videoId === null)
+            throw new Error("The parameter 'videoId' must be defined and cannot be null.");
+        else
+            url_ += "videoId=" + encodeURIComponent("" + videoId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseNotesByVideo(_response);
+        });
+    }
+
+    protected processGetCourseNotesByVideo(response: Response): Promise<CourseNoteDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CourseNoteDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseNoteDto[]>(null as any);
+    }
+
+    createCourseNote(command: CreateCourseNoteCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseNotes";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCourseNote(_response);
+        });
+    }
+
+    protected processCreateCourseNote(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    updateCourseNote(noteId: number, command: UpdateCourseNoteCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseNotes/{noteId}";
+        if (noteId === undefined || noteId === null)
+            throw new Error("The parameter 'noteId' must be defined.");
+        url_ = url_.replace("{noteId}", encodeURIComponent("" + noteId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCourseNote(_response);
+        });
+    }
+
+    protected processUpdateCourseNote(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteCourseNote(noteId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseNotes/{noteId}";
+        if (noteId === undefined || noteId === null)
+            throw new Error("The parameter 'noteId' must be defined.");
+        url_ = url_.replace("{noteId}", encodeURIComponent("" + noteId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteCourseNote(_response);
+        });
+    }
+
+    protected processDeleteCourseNote(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class CourseProgressClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -5875,6 +6043,166 @@ export enum CourseLevel {
 export enum CourseStatus {
     Draft = 0,
     Public = 1,
+}
+
+export class CourseNoteDto implements ICourseNoteDto {
+    id?: number;
+    courseId?: number;
+    videoId?: number;
+    itemId?: string | undefined;
+    timestampSeconds?: number;
+    content?: string;
+    created?: Date;
+    lastModified?: Date;
+
+    constructor(data?: ICourseNoteDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.videoId = _data["videoId"];
+            this.itemId = _data["itemId"];
+            this.timestampSeconds = _data["timestampSeconds"];
+            this.content = _data["content"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CourseNoteDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseNoteDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["videoId"] = this.videoId;
+        data["itemId"] = this.itemId;
+        data["timestampSeconds"] = this.timestampSeconds;
+        data["content"] = this.content;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICourseNoteDto {
+    id?: number;
+    courseId?: number;
+    videoId?: number;
+    itemId?: string | undefined;
+    timestampSeconds?: number;
+    content?: string;
+    created?: Date;
+    lastModified?: Date;
+}
+
+export class CreateCourseNoteCommand implements ICreateCourseNoteCommand {
+    courseId?: number;
+    videoId?: number;
+    itemId?: string | undefined;
+    timestampSeconds?: number;
+    content?: string;
+
+    constructor(data?: ICreateCourseNoteCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.videoId = _data["videoId"];
+            this.itemId = _data["itemId"];
+            this.timestampSeconds = _data["timestampSeconds"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): CreateCourseNoteCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCourseNoteCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["videoId"] = this.videoId;
+        data["itemId"] = this.itemId;
+        data["timestampSeconds"] = this.timestampSeconds;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface ICreateCourseNoteCommand {
+    courseId?: number;
+    videoId?: number;
+    itemId?: string | undefined;
+    timestampSeconds?: number;
+    content?: string;
+}
+
+export class UpdateCourseNoteCommand implements IUpdateCourseNoteCommand {
+    noteId?: number;
+    timestampSeconds?: number;
+    content?: string | undefined;
+
+    constructor(data?: IUpdateCourseNoteCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.noteId = _data["noteId"];
+            this.timestampSeconds = _data["timestampSeconds"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCourseNoteCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCourseNoteCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["noteId"] = this.noteId;
+        data["timestampSeconds"] = this.timestampSeconds;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface IUpdateCourseNoteCommand {
+    noteId?: number;
+    timestampSeconds?: number;
+    content?: string | undefined;
 }
 
 export class CourseProgressDto implements ICourseProgressDto {

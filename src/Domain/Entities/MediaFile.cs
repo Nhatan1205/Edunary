@@ -31,4 +31,5 @@ public class MediaFile : BaseAuditableEntity
     public Course? Course { get; set; }
 
     public ICollection<VideoCaption> VideoCaptions { get; set; } = new List<VideoCaption>();
+    public ICollection<CourseNote> CourseNotes { get; set; } = new List<CourseNote>();
 }

@@ -134,24 +134,6 @@ const adminMenuConfig = {
           icon: ReceiptLongOutlinedIcon,
           children: [
             {
-              id: "invoice-list",
-              title: "List",
-              type: "item",
-              url: "/admin/invoice/list",
-            },
-            {
-              id: "invoice-create",
-              title: "Create",
-              type: "item",
-              url: "/admin/invoice/create",
-            },
-            {
-              id: "invoice-details",
-              title: "Details",
-              type: "item",
-              url: "/admin/invoice/details",
-            },
-            {
               id: "withdrawal-requests",
               title: "Withdrawal Requests",
               type: "item",

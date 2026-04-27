@@ -135,7 +135,7 @@ function WithdrawalHistory() {
           gap={1}
           sx={{ px: 3, pt: 3, pb: 2 }}
         >
-          <HistoryIcon sx={{ color: (theme) => theme.palette.brand.main, fontSize: 24 }} />
+          <HistoryIcon sx={{ color: "brand.main", fontSize: 24 }} />
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Transaction history
           </Typography>
@@ -485,7 +485,7 @@ function WithdrawalHistory() {
                     <TableCell sx={(theme) => ({ color: theme.palette.text.primary, fontWeight: 500 })}>
                       {item.created ? formatDate(item.created) : '--'}
                     </TableCell>
-                    <TableCell sx={(theme) => ({ color: theme.palette.brand.main, fontWeight: 600 })}>
+                    <TableCell sx={{ color: "brand.main", fontWeight: 600 }}>
                       {currencySymbol}{(item.amount ?? 0).toLocaleString('en-US')}
                     </TableCell>
                     {isWithdrawalView ? (
@@ -541,18 +541,18 @@ function WithdrawalHistory() {
             page={page}
             onChange={(event, value) => setPage(value)}
             color="standard"
-            sx={(theme) => ({
+            sx={{
               '& .MuiPaginationItem-root': {
-                color: theme.palette.text.primary
+                color: "text.primary"
               },
               '& .MuiPaginationItem-root.Mui-selected': {
-                bgcolor: theme.palette.brand.main,
-                color: theme.palette.background.inverse,
+                bgcolor: "brand.main",
+                color: "background.inverse",
                 '&:hover': {
-                  bgcolor: theme.palette.brand.dark
+                  bgcolor: "brand.dark"
                 }
               }
-            })}
+            }}
           />
         </Box>
       )}

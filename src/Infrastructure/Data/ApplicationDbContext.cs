@@ -48,6 +48,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<InstructorWallet> InstructorWallets => Set<InstructorWallet>();
     public DbSet<InstructorWalletTransaction> InstructorWalletTransactions => Set<InstructorWalletTransaction>();
     public DbSet<WithdrawalRequest> WithdrawalRequests => Set<WithdrawalRequest>();
+    public DbSet<PendingRegistration> PendingRegistrations => Set<PendingRegistration>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {        

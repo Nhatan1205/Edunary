@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { AuthClient, AuthenticateModel } from "../../web-api-client.ts";
+import { AuthClient, AuthenticateModel, UserClient } from "../../web-api-client.ts";
 import queryClient from "../../configs/reactQuery.js";
 
 const useAdminAddUser = () => {
@@ -8,13 +8,14 @@ const useAdminAddUser = () => {
 
     return useMutation({
         mutationFn: async ({ email, fullName, password, phone }) => {
+            const client = new UserClient()
             const model = new AuthenticateModel({
                 email,
                 fullName,
                 password,
                 phoneNumber: phone ?? null,
             });
-            return await authClient.register(model);
+            return await client.adminCreateUser(model);
         },
         onSuccess: () => {
             toast.success("User created successfully!");

@@ -7,6 +7,8 @@ import CartPage from "./features/user/cart-page/CartPage";
 import Register from "./features/guest/auth/register/Register";
 import Login from "./features/guest/auth/login/Login";
 import ForgetPassword from "./features/guest/auth/forgetpassword/ForgetPassword";
+import ResetPassword from "./features/guest/auth/resetpassword/ResetPassword";
+import VerifyRegistration from "./features/guest/auth/verify/VerifyRegistration";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import GuestRoute from "./components/GuestRoute";
@@ -197,6 +199,22 @@ const router = createBrowserRouter([
         element: (
           <GuestRoute>
             <ForgetPassword />
+          </GuestRoute>
+        ),
+      },
+      {
+        path: "/verify-registration",
+        element: (
+          <GuestRoute>
+            <VerifyRegistration />
+          </GuestRoute>
+        ),
+      },
+      {
+        path: "/reset-password",
+        element: (
+          <GuestRoute>
+            <ResetPassword />
           </GuestRoute>
         ),
       },

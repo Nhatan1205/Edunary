@@ -13,4 +13,6 @@ public class AppSettings
     public int RefreshTokenTime { get; set; }
     public string StripeSecretKey { get; set; }
     public string StripePublishableKey { get; set; }
+    #nullable enable
+    public string? ClientUrl { get; set; }
 }

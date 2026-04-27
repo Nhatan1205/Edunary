@@ -42,6 +42,17 @@ public class ApproveWithdrawalRequestCommandHandler : IRequestHandler<ApproveWit
             .Where(w => w.Id == withdrawalRequest.InstructorWalletId)
             .ExecuteUpdateAsync(setters => setters.SetProperty(w => w.Balance, w => w.Balance), cancellationToken);
 
+        // Re-read the withdrawal request status after lock acquisition to avoid acting on stale tracked state.
+        var currentWithdrawalRequestStatus = await _context.WithdrawalRequests
+            .AsNoTracking()
+            .Where(t => t.Id == request.RequestId)
+            .Select(t => t.Status)
+            .SingleAsync(cancellationToken);
+        if (currentWithdrawalRequestStatus != InstructorWalletTransactionStatus.Processing)
+        {
+            return Result.Failure("Withdrawal request is not in processing state");
+        }
+
         // Re-read the wallet after lock acquisition to ensure balance checks use current persisted values.
         var wallet = await _context.InstructorWallets
             .SingleAsync(w => w.Id == withdrawalRequest.InstructorWalletId, cancellationToken);

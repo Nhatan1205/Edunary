@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Models;
 using Edunary.Application.Roadmaps.Commands.CreateRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.DeleteRoadmapCommand;
+using Edunary.Application.Roadmaps.Commands.GenerateAIRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.UpdateRoadmapCommand;
 using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapDetailQuery;
 using Edunary.Application.Roadmaps.Queries.GetRelatedRoadmapsByCourseIdQuery;
@@ -20,6 +21,7 @@ public class Roadmaps : EndpointGroupBase
         app.MapGroup(this)
             .RequireAuthorization()
             .MapPost(CreateRoadmap)
+            .MapPost(GenerateAIRoadmap, "generate-ai")
             .MapPut(UpdateRoadmap)
             .MapDelete(DeleteRoadmap)
             .MapGet(GetRoadmapsAuthor)
@@ -79,6 +81,12 @@ public class Roadmaps : EndpointGroupBase
     public async Task<List<RelatedRoadmapDto>> GetRelatedRoadmapsByCourseId(ISender sender, int courseId)
     {
         return await sender.Send(new GetRelatedRoadmapsByCourseIdQuery { CourseId = courseId });
+    }
+
+    public async Task<ReturnResult<AIRoadmapResultDto>> GenerateAIRoadmap(
+        ISender sender, [FromBody] GenerateAIRoadmapCommand command)
+    {
+        return await sender.Send(command);
     }
 }
 

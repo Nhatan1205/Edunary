@@ -18,6 +18,8 @@ public static class DependencyInjection
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
 
+        services.AddHttpClient(); // Enables IHttpClientFactory injection in command handlers
+
         services.AddScoped<IUser, CurrentUser>();
 
         services.AddHttpContextAccessor();

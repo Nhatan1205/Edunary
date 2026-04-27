@@ -80,6 +80,7 @@ public static class DependencyInjection
         services.AddScoped<IProcessMediaFileJobService, ProcessMediaFileJobService>();
         services.AddScoped<IUserStatusJobService, UserStatusJobService>();
         services.AddSingleton<IActivityLogService, ActivityLogService>();
+        services.AddScoped<IAICenterClient, AICenterClient>();
 
         services.AddAuthorization(options =>
         {

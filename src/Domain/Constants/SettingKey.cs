@@ -35,13 +35,21 @@ public static class SettingKey
     public const string Email_FromName = "Email_FromName";
     public const string Email_FromAddress = "Email_FromAddress";
 
-    // === Chatbot ===
-    public const string Chatbot_ServiceUrl = "Chatbot_ServiceUrl";
+    // === AI Center ===
+    public const string AICenter_BaseUrl = "AICenter_BaseUrl";
+    public const string AICenter_ApiKey = "AICenter_ApiKey";
+
+    // === LLM Config ===
+    public const string LLM_ModelName = "LLM_ModelName";
+    public const string LLM_ApiKey = "LLM_ApiKey";
+    public const string LLM_BaseUrl = "LLM_BaseUrl";
+    public const string LLM_Temperature = "LLM_Temperature";
+    public const string LLM_MaxTokens = "LLM_MaxTokens";
 
     // use for whitelist key
     private static readonly HashSet<string> _publicKeys = new()
     {
-        Chatbot_ServiceUrl, 
+        AICenter_BaseUrl,
     };
 
     public static bool IsPublicKey(string key)

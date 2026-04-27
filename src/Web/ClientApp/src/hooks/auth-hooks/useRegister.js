@@ -1,11 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { AuthClient, AuthenticateModel } from '../../web-api-client.ts';
-import { useNavigate } from "react-router";
 
-const useRegister = () => {
+const useRegister = (options = {}) => {
   const authClient = new AuthClient();
-  const navigate = useNavigate();
+
   return useMutation({
     mutationFn: async (userData) => {
       const model = new AuthenticateModel({
@@ -15,18 +14,29 @@ const useRegister = () => {
         phoneNumber: userData.phone
       });
 
-      return await authClient.register(model);
+      const result = await authClient.register(model);
+      return { result, email: userData.email };
     },
-    onSuccess: () => {
-      toast.success('Registration successful!');
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+    onSuccess: ({ result, email }) => {
+      toast.success(result?.message || 'If the email is eligible, a verification link has been sent.');
+      if (options.onSuccess) {
+        options.onSuccess({ result, email });
+      }
     },
     onError: (error) => {
-      const data = JSON.parse(error.response);
-      const msg = data?.message || 'Registration failed. Please try again.'
+      let msg = 'Registration failed. Please try again.';
+      if (error.response) {
+        try {
+          const data = JSON.parse(error.response);
+          msg = data?.message || msg;
+        } catch {
+          msg = error.response;
+        }
+      }
       toast.error(msg);
+      if (options.onError) {
+        options.onError(error);
+      }
     }
   });
 };

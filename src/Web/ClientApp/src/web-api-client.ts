@@ -340,7 +340,7 @@ export class AuthClient {
         return Promise.resolve<LoginResponse>(null as any);
     }
 
-    register(model: AuthenticateModel | undefined): Promise<void> {
+    register(model: AuthenticateModel | undefined): Promise<Result> {
         let url_ = this.baseUrl + "/api/Auth/register";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -351,6 +351,7 @@ export class AuthClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
@@ -359,20 +360,177 @@ export class AuthClient {
         });
     }
 
-    protected processRegister(response: Response): Promise<void> {
+    protected processRegister(response: Response): Promise<Result> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<Result>(null as any);
+    }
+
+    verifyRegistration(token: string | null | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Auth/verify-registration?";
+        if (token !== undefined && token !== null)
+            url_ += "token=" + encodeURIComponent("" + token) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processVerifyRegistration(_response);
+        });
+    }
+
+    protected processVerifyRegistration(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    resendVerification(request: ResendVerificationRequest | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Auth/resend-verification";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processResendVerification(_response);
+        });
+    }
+
+    protected processResendVerification(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    forgotPassword(request: ForgotPasswordRequest | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Auth/forgot-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processForgotPassword(_response);
+        });
+    }
+
+    protected processForgotPassword(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    resetPassword(request: ResetPasswordRequest | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Auth/reset-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processResetPassword(_response);
+        });
+    }
+
+    protected processResetPassword(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
     }
 
     refreshToken(): Promise<LoginResponse> {
@@ -1853,6 +2011,302 @@ export class EnrollmentClient {
             });
         }
         return Promise.resolve<CheckUserEnrollmentDto>(null as any);
+    }
+}
+
+export class InstructorWalletClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getWallet(): Promise<InstructorWalletDto> {
+        let url_ = this.baseUrl + "/api/InstructorWallet";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetWallet(_response);
+        });
+    }
+
+    protected processGetWallet(response: Response): Promise<InstructorWalletDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InstructorWalletDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<InstructorWalletDto>(null as any);
+    }
+
+    getTransactions(pageNumber: number, pageSize: number, type: string | null | undefined, fromDate: Date | null | undefined, toDate: Date | null | undefined, orderId: number | null | undefined, courseId: number | null | undefined, amountSort: string | null | undefined): Promise<PaginatedListOfInstructorWalletTransactionDto> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/transactions?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (type !== undefined && type !== null)
+            url_ += "Type=" + encodeURIComponent("" + type) + "&";
+        if (fromDate !== undefined && fromDate !== null)
+            url_ += "FromDate=" + encodeURIComponent(fromDate ? "" + fromDate.toISOString() : "") + "&";
+        if (toDate !== undefined && toDate !== null)
+            url_ += "ToDate=" + encodeURIComponent(toDate ? "" + toDate.toISOString() : "") + "&";
+        if (orderId !== undefined && orderId !== null)
+            url_ += "OrderId=" + encodeURIComponent("" + orderId) + "&";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (amountSort !== undefined && amountSort !== null)
+            url_ += "AmountSort=" + encodeURIComponent("" + amountSort) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTransactions(_response);
+        });
+    }
+
+    protected processGetTransactions(response: Response): Promise<PaginatedListOfInstructorWalletTransactionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfInstructorWalletTransactionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfInstructorWalletTransactionDto>(null as any);
+    }
+
+    getAdminWithdrawalRequests(pageNumber: number, pageSize: number, status: InstructorWalletTransactionStatus | null | undefined, fromDate: Date | null | undefined, toDate: Date | null | undefined, instructorName: string | null | undefined, instructorEmail: string | null | undefined, bankNumber: string | null | undefined, bankAccountHolder: string | null | undefined): Promise<PaginatedListOfAdminWithdrawalRequestDto> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/admin/withdrawal-requests?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (status !== undefined && status !== null)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (fromDate !== undefined && fromDate !== null)
+            url_ += "FromDate=" + encodeURIComponent(fromDate ? "" + fromDate.toISOString() : "") + "&";
+        if (toDate !== undefined && toDate !== null)
+            url_ += "ToDate=" + encodeURIComponent(toDate ? "" + toDate.toISOString() : "") + "&";
+        if (instructorName !== undefined && instructorName !== null)
+            url_ += "InstructorName=" + encodeURIComponent("" + instructorName) + "&";
+        if (instructorEmail !== undefined && instructorEmail !== null)
+            url_ += "InstructorEmail=" + encodeURIComponent("" + instructorEmail) + "&";
+        if (bankNumber !== undefined && bankNumber !== null)
+            url_ += "BankNumber=" + encodeURIComponent("" + bankNumber) + "&";
+        if (bankAccountHolder !== undefined && bankAccountHolder !== null)
+            url_ += "BankAccountHolder=" + encodeURIComponent("" + bankAccountHolder) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAdminWithdrawalRequests(_response);
+        });
+    }
+
+    protected processGetAdminWithdrawalRequests(response: Response): Promise<PaginatedListOfAdminWithdrawalRequestDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfAdminWithdrawalRequestDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfAdminWithdrawalRequestDto>(null as any);
+    }
+
+    getAdminWithdrawalRequestStatusCounts(): Promise<AdminWithdrawalRequestStatusCountsDto> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/admin/withdrawal-requests/status-counts";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAdminWithdrawalRequestStatusCounts(_response);
+        });
+    }
+
+    protected processGetAdminWithdrawalRequestStatusCounts(response: Response): Promise<AdminWithdrawalRequestStatusCountsDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminWithdrawalRequestStatusCountsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AdminWithdrawalRequestStatusCountsDto>(null as any);
+    }
+
+    withdraw(command: WithdrawFromInstructorWalletCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/withdraw";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processWithdraw(_response);
+        });
+    }
+
+    protected processWithdraw(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    approveWithdrawal(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/withdrawals/{id}/approve";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processApproveWithdrawal(_response);
+        });
+    }
+
+    protected processApproveWithdrawal(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    cancelWithdrawal(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/withdrawals/{id}/cancel";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCancelWithdrawal(_response);
+        });
+    }
+
+    protected processCancelWithdrawal(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -3812,6 +4266,41 @@ export class UserClient {
         return Promise.resolve<PublicProfileDto>(null as any);
     }
 
+    updatePayoutAccount(command: UpdatePayoutAccountCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/User/payout-account";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdatePayoutAccount(_response);
+        });
+    }
+
+    protected processUpdatePayoutAccount(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     updateUserAvatar(command: UpdateUserAvatarCommand | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/User/avatar";
         url_ = url_.replace(/[?&]$/, "");
@@ -4313,6 +4802,41 @@ export class UserClient {
             });
         }
         return Promise.resolve<Result>(null as any);
+    }
+
+    adminCreateUser(model: AuthenticateModel | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/User/admin/create-user";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminCreateUser(_response);
+        });
+    }
+
+    protected processAdminCreateUser(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -5261,6 +5785,126 @@ export interface IAuthenticateModel {
     password?: string | undefined;
 }
 
+export class ResendVerificationRequest implements IResendVerificationRequest {
+    email?: string | undefined;
+
+    constructor(data?: IResendVerificationRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): ResendVerificationRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResendVerificationRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface IResendVerificationRequest {
+    email?: string | undefined;
+}
+
+export class ForgotPasswordRequest implements IForgotPasswordRequest {
+    email?: string | undefined;
+
+    constructor(data?: IForgotPasswordRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): ForgotPasswordRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ForgotPasswordRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface IForgotPasswordRequest {
+    email?: string | undefined;
+}
+
+export class ResetPasswordRequest implements IResetPasswordRequest {
+    email?: string | undefined;
+    token?: string | undefined;
+    newPassword?: string | undefined;
+    confirmPassword?: string | undefined;
+
+    constructor(data?: IResetPasswordRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+            this.token = _data["token"];
+            this.newPassword = _data["newPassword"];
+            this.confirmPassword = _data["confirmPassword"];
+        }
+    }
+
+    static fromJS(data: any): ResetPasswordRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResetPasswordRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        data["token"] = this.token;
+        data["newPassword"] = this.newPassword;
+        data["confirmPassword"] = this.confirmPassword;
+        return data;
+    }
+}
+
+export interface IResetPasswordRequest {
+    email?: string | undefined;
+    token?: string | undefined;
+    newPassword?: string | undefined;
+    confirmPassword?: string | undefined;
+}
+
 export class CartItemDto implements ICartItemDto {
     id?: number;
     courseId?: number;
@@ -5378,7 +6022,7 @@ export interface ICartResponse {
 }
 
 export class AddToCartCommand implements IAddToCartCommand {
-    courseId?: string | undefined;
+    courseId?: number;
 
     constructor(data?: IAddToCartCommand) {
         if (data) {
@@ -5410,7 +6054,7 @@ export class AddToCartCommand implements IAddToCartCommand {
 }
 
 export interface IAddToCartCommand {
-    courseId?: string | undefined;
+    courseId?: number;
 }
 
 export class PaginatedListOfCategoryDto implements IPaginatedListOfCategoryDto {
@@ -8217,6 +8861,412 @@ export interface ICheckUserEnrollmentDto {
     enrollmentDate?: Date | undefined;
 }
 
+export class InstructorWalletDto implements IInstructorWalletDto {
+    id?: number;
+    balance?: number;
+    totalWithdrawn?: number;
+    pendingWithdrawal?: number;
+
+    constructor(data?: IInstructorWalletDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.balance = _data["balance"];
+            this.totalWithdrawn = _data["totalWithdrawn"];
+            this.pendingWithdrawal = _data["pendingWithdrawal"];
+        }
+    }
+
+    static fromJS(data: any): InstructorWalletDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorWalletDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["balance"] = this.balance;
+        data["totalWithdrawn"] = this.totalWithdrawn;
+        data["pendingWithdrawal"] = this.pendingWithdrawal;
+        return data;
+    }
+}
+
+export interface IInstructorWalletDto {
+    id?: number;
+    balance?: number;
+    totalWithdrawn?: number;
+    pendingWithdrawal?: number;
+}
+
+export class PaginatedListOfInstructorWalletTransactionDto implements IPaginatedListOfInstructorWalletTransactionDto {
+    items?: InstructorWalletTransactionDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfInstructorWalletTransactionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(InstructorWalletTransactionDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfInstructorWalletTransactionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfInstructorWalletTransactionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfInstructorWalletTransactionDto {
+    items?: InstructorWalletTransactionDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class InstructorWalletTransactionDto implements IInstructorWalletTransactionDto {
+    id?: number;
+    created?: Date;
+    orderId?: number;
+    courseId?: number;
+    amount?: number;
+    currency?: string | undefined;
+    status?: InstructorWalletTransactionStatus;
+
+    constructor(data?: IInstructorWalletTransactionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.orderId = _data["orderId"];
+            this.courseId = _data["courseId"];
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): InstructorWalletTransactionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorWalletTransactionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["orderId"] = this.orderId;
+        data["courseId"] = this.courseId;
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IInstructorWalletTransactionDto {
+    id?: number;
+    created?: Date;
+    orderId?: number;
+    courseId?: number;
+    amount?: number;
+    currency?: string | undefined;
+    status?: InstructorWalletTransactionStatus;
+}
+
+export enum InstructorWalletTransactionStatus {
+    Succeeded = 0,
+    Processing = 1,
+    Cancelled = 2,
+}
+
+export class PaginatedListOfAdminWithdrawalRequestDto implements IPaginatedListOfAdminWithdrawalRequestDto {
+    items?: AdminWithdrawalRequestDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfAdminWithdrawalRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(AdminWithdrawalRequestDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfAdminWithdrawalRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfAdminWithdrawalRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfAdminWithdrawalRequestDto {
+    items?: AdminWithdrawalRequestDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class AdminWithdrawalRequestDto implements IAdminWithdrawalRequestDto {
+    id?: number;
+    created?: Date;
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorEmail?: string | undefined;
+    amount?: number;
+    currency?: string | undefined;
+    bank?: string | undefined;
+    bankNumber?: string | undefined;
+    bankAccountHolder?: string | undefined;
+    status?: InstructorWalletTransactionStatus;
+
+    constructor(data?: IAdminWithdrawalRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.instructorId = _data["instructorId"];
+            this.instructorName = _data["instructorName"];
+            this.instructorEmail = _data["instructorEmail"];
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+            this.bank = _data["bank"];
+            this.bankNumber = _data["bankNumber"];
+            this.bankAccountHolder = _data["bankAccountHolder"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): AdminWithdrawalRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminWithdrawalRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["instructorId"] = this.instructorId;
+        data["instructorName"] = this.instructorName;
+        data["instructorEmail"] = this.instructorEmail;
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        data["bank"] = this.bank;
+        data["bankNumber"] = this.bankNumber;
+        data["bankAccountHolder"] = this.bankAccountHolder;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IAdminWithdrawalRequestDto {
+    id?: number;
+    created?: Date;
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorEmail?: string | undefined;
+    amount?: number;
+    currency?: string | undefined;
+    bank?: string | undefined;
+    bankNumber?: string | undefined;
+    bankAccountHolder?: string | undefined;
+    status?: InstructorWalletTransactionStatus;
+}
+
+export class AdminWithdrawalRequestStatusCountsDto implements IAdminWithdrawalRequestStatusCountsDto {
+    total?: number;
+    processing?: number;
+    succeeded?: number;
+    cancelled?: number;
+
+    constructor(data?: IAdminWithdrawalRequestStatusCountsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.processing = _data["processing"];
+            this.succeeded = _data["succeeded"];
+            this.cancelled = _data["cancelled"];
+        }
+    }
+
+    static fromJS(data: any): AdminWithdrawalRequestStatusCountsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminWithdrawalRequestStatusCountsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["processing"] = this.processing;
+        data["succeeded"] = this.succeeded;
+        data["cancelled"] = this.cancelled;
+        return data;
+    }
+}
+
+export interface IAdminWithdrawalRequestStatusCountsDto {
+    total?: number;
+    processing?: number;
+    succeeded?: number;
+    cancelled?: number;
+}
+
+export class WithdrawFromInstructorWalletCommand implements IWithdrawFromInstructorWalletCommand {
+    amount?: number;
+    currency?: string | undefined;
+
+    constructor(data?: IWithdrawFromInstructorWalletCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): WithdrawFromInstructorWalletCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new WithdrawFromInstructorWalletCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IWithdrawFromInstructorWalletCommand {
+    amount?: number;
+    currency?: string | undefined;
+}
+
 export class MediaFileDto implements IMediaFileDto {
     id?: number;
     userId?: string | undefined;
@@ -9264,7 +10314,7 @@ export interface ICreatePaymentIntentDto {
 }
 
 export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
-    courseIds?: string[] | undefined;
+    courseIds?: number[] | undefined;
 
     constructor(data?: ICreatePaymentIntentCommand) {
         if (data) {
@@ -9304,7 +10354,7 @@ export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
 }
 
 export interface ICreatePaymentIntentCommand {
-    courseIds?: string[] | undefined;
+    courseIds?: number[] | undefined;
 }
 
 export class ConfirmPaymentDto implements IConfirmPaymentDto {
@@ -9452,7 +10502,7 @@ export interface IPaymentStatusDto {
 }
 
 export class OrderItemDto implements IOrderItemDto {
-    courseId?: string | undefined;
+    courseId?: number;
     courseName?: string | undefined;
     price?: number;
 
@@ -9490,7 +10540,7 @@ export class OrderItemDto implements IOrderItemDto {
 }
 
 export interface IOrderItemDto {
-    courseId?: string | undefined;
+    courseId?: number;
     courseName?: string | undefined;
     price?: number;
 }
@@ -11654,6 +12704,50 @@ export interface IUserLinksDto {
     youtube?: string | undefined;
 }
 
+export class UpdatePayoutAccountCommand implements IUpdatePayoutAccountCommand {
+    bank?: string | undefined;
+    bankNumber?: string | undefined;
+    bankAccountHolder?: string | undefined;
+
+    constructor(data?: IUpdatePayoutAccountCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bank = _data["bank"];
+            this.bankNumber = _data["bankNumber"];
+            this.bankAccountHolder = _data["bankAccountHolder"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePayoutAccountCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePayoutAccountCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bank"] = this.bank;
+        data["bankNumber"] = this.bankNumber;
+        data["bankAccountHolder"] = this.bankAccountHolder;
+        return data;
+    }
+}
+
+export interface IUpdatePayoutAccountCommand {
+    bank?: string | undefined;
+    bankNumber?: string | undefined;
+    bankAccountHolder?: string | undefined;
+}
+
 export class UpdateUserAvatarCommand implements IUpdateUserAvatarCommand {
     imageUrl?: string | undefined;
 
@@ -11696,6 +12790,9 @@ export class UserVm implements IUserVm {
     fullName?: string | undefined;
     phoneNumber?: string | undefined;
     avatar?: string | undefined;
+    bank?: string | undefined;
+    bankNumber?: string | undefined;
+    bankAccountHolder?: string | undefined;
     headline?: string | undefined;
     description?: string | undefined;
     links?: UserLinksDto | undefined;
@@ -11716,6 +12813,9 @@ export class UserVm implements IUserVm {
             this.fullName = _data["fullName"];
             this.phoneNumber = _data["phoneNumber"];
             this.avatar = _data["avatar"];
+            this.bank = _data["bank"];
+            this.bankNumber = _data["bankNumber"];
+            this.bankAccountHolder = _data["bankAccountHolder"];
             this.headline = _data["headline"];
             this.description = _data["description"];
             this.links = _data["links"] ? UserLinksDto.fromJS(_data["links"]) : <any>undefined;
@@ -11736,6 +12836,9 @@ export class UserVm implements IUserVm {
         data["fullName"] = this.fullName;
         data["phoneNumber"] = this.phoneNumber;
         data["avatar"] = this.avatar;
+        data["bank"] = this.bank;
+        data["bankNumber"] = this.bankNumber;
+        data["bankAccountHolder"] = this.bankAccountHolder;
         data["headline"] = this.headline;
         data["description"] = this.description;
         data["links"] = this.links ? this.links.toJSON() : <any>undefined;
@@ -11749,6 +12852,9 @@ export interface IUserVm {
     fullName?: string | undefined;
     phoneNumber?: string | undefined;
     avatar?: string | undefined;
+    bank?: string | undefined;
+    bankNumber?: string | undefined;
+    bankAccountHolder?: string | undefined;
     headline?: string | undefined;
     description?: string | undefined;
     links?: UserLinksDto | undefined;

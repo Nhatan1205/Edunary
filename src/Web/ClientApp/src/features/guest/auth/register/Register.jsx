@@ -14,6 +14,10 @@ import {
   Card,
   CardContent,
   Fade,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   Visibility,
@@ -31,10 +35,21 @@ import LoadingSpinner from "../../../../components/LoadingSpinner";
 import useGoogleLogin from "../../../../hooks/auth-hooks/useGoogleLogin";
 import { GoogleLogin } from "@react-oauth/google";
 import useRegister from "../../../../hooks/auth-hooks/useRegister";
+import useResendVerification from "../../../../hooks/auth-hooks/useResendVerification";
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
-  const registerMutation = useRegister();
+  const [openVerifyDialog, setOpenVerifyDialog] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+
+  const registerMutation = useRegister({
+    onSuccess: ({ email }) => {
+      console.log("here email: ", email)
+      setRegisteredEmail(email);
+      setOpenVerifyDialog(true);
+    },
+  });
+  const resendVerificationMutation = useResendVerification();
   const { handleGoogleLoginSuccess, handleGoogleLoginError, isLoading: isGoogleLoading } = useGoogleLogin();
   const {
     register,
@@ -46,12 +61,18 @@ function Register() {
     registerMutation.mutate(data);
   };
 
+  const handleResendVerification = () => {
+    if (!registeredEmail) return;
+    resendVerificationMutation.mutate(registeredEmail);
+  };
+
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   if (registerMutation.isLoading || isGoogleLoading) {
     return <LoadingSpinner fullScreen />;
   }
   return (
+    <>
     <Box
       sx={{
         minHeight: "90vh",
@@ -793,6 +814,47 @@ function Register() {
         </Fade>
       </Container>
     </Box>
+
+    <Dialog
+      open={openVerifyDialog}
+      onClose={() => setOpenVerifyDialog(false)}
+      maxWidth="xs"
+      fullWidth
+    >
+      <DialogTitle sx={{ color: "brand.main", fontWeight: 700 }}>
+        Check your email
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body1" sx={{ color: "text.secondary", mb: 1 }}>
+          We sent a verification link to:
+        </Typography>
+        <Typography variant="body1" sx={{ fontWeight: 700, mb: 2 }}>
+          {registeredEmail}
+        </Typography>
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          Please open your inbox and click the link to finish creating your account. If you do not see it, check Spam/Junk.
+        </Typography>
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={handleResendVerification}
+          disabled={resendVerificationMutation.isLoading}
+          sx={{ borderColor: "brand.main", color: "brand.main" }}
+        >
+          {resendVerificationMutation.isLoading ? "Resending..." : "Resend email"}
+        </Button>
+        <Button
+          component={Link}
+          to="/login"
+          variant="contained"
+          sx={{ backgroundColor: "brand.main", "&:hover": { backgroundColor: "brand.dark" } }}
+        >
+          Go to Login
+        </Button>
+      </DialogActions>
+    </Dialog>
+    </>
   );
 }
 

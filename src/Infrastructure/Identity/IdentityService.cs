@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Globalization;
 using System.Net;
@@ -24,6 +25,7 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect; 
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Edunary.Domain.Entities;
 
 
 namespace Edunary.Infrastructure.Identity;
@@ -39,6 +41,7 @@ public class IdentityService : IIdentityService
     private readonly AppSettings _appSettings;
     private readonly ICurrentUserService _currentUserService;
     private readonly IActivityLogService _activityLogService;
+    private readonly IEmailService _emailService;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
@@ -49,7 +52,8 @@ public class IdentityService : IIdentityService
         ApplicationDbContext context,
         IOptions<AppSettings> appSettings,
         ICurrentUserService currentUserService,
-        IActivityLogService activityLogService)
+        IActivityLogService activityLogService,
+        IEmailService emailService)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
@@ -60,6 +64,7 @@ public class IdentityService : IIdentityService
         _appSettings = appSettings.Value;
         _currentUserService = currentUserService;
         _activityLogService = activityLogService;
+        _emailService = emailService;
     }
 
     public async Task<string> GetUserNameAsync(string userId)
@@ -142,6 +147,321 @@ public class IdentityService : IIdentityService
         var result = await _userManager.CreateAsync(user, password);
 
         return (result.ToApplicationResult(), user.Id);
+    }
+
+    public async Task<Result> StartRegistration(string phoneNumber, string email, string password, string fullName)
+    {
+        try
+        {
+            if (await _userManager.FindByEmailAsync(email) != null || await _userManager.FindByNameAsync(email) != null)
+            {
+                return Result.Success(message: "You already have an account, please Sign In ");
+            }
+
+            var normalizedEmail = _userManager.NormalizeEmail(email);
+            var existingPending = await _context.PendingRegistrations
+                .Where(x => x.NormalizedEmail == normalizedEmail && x.UsedAt == null)
+                .OrderByDescending(x => x.Created)
+                .FirstOrDefaultAsync();
+
+            var plainToken = NewVerificationToken();
+            var tokenHash = HashToken(plainToken);
+            var passwordHash = _userManager.PasswordHasher.HashPassword(null!, password);
+            var expiresAt = DateTimeOffset.UtcNow.Add(RegistrationTokenTtl);
+
+            if (existingPending == null)
+            {
+                existingPending = new PendingRegistration
+                {
+                    Email = email,
+                    NormalizedEmail = normalizedEmail,
+                    FullName = fullName,
+                    PhoneNumber = phoneNumber ?? string.Empty,
+                    PasswordHash = passwordHash,
+                    TokenHash = tokenHash,
+                    TokenExpiresAt = expiresAt,
+                };
+                _context.PendingRegistrations.Add(existingPending);
+            }
+            else
+            {
+                existingPending.Email = email;
+                existingPending.FullName = fullName;
+                existingPending.PhoneNumber = phoneNumber ?? string.Empty;
+                existingPending.PasswordHash = passwordHash;
+                existingPending.TokenHash = tokenHash;
+                existingPending.TokenExpiresAt = expiresAt;
+                existingPending.UsedAt = null;
+            }
+
+            await _context.SaveChangesAsync(CancellationToken.None);
+
+            var verifyUrl = BuildVerifyUrl(GetVerifyBaseUrl(), plainToken);
+            var emailContent = EmailTemplates.BuildRegistrationTemplate(fullName, verifyUrl, _appSettings.ClientUrl);
+            await SendRegistrationEmailAsync(email, "Verify your email", emailContent);
+
+            return Result.Success(message: "If the email is eligible, a verification link has been sent.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at StartRegistration. Ex: {0}", ex.Message);
+            return Result.Failure("Unable to start registration. Please try again.");
+        }
+    }
+
+    public async Task<Result> VerifyRegistration(string token)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return Result.Failure("Verification link is invalid or expired.");
+            }
+
+            var tokenHash = HashToken(token);
+            var pending = await _context.PendingRegistrations
+                .Where(x => x.TokenHash == tokenHash && x.UsedAt == null)
+                .OrderByDescending(x => x.Created)
+                .FirstOrDefaultAsync();
+
+            if (pending == null || pending.TokenExpiresAt < DateTimeOffset.UtcNow)
+            {
+                return Result.Failure("Verification link is invalid or expired.");
+            }
+
+            if (await _userManager.FindByEmailAsync(pending.Email) != null)
+            {
+                pending.UsedAt = DateTimeOffset.UtcNow;
+                await _context.SaveChangesAsync(CancellationToken.None);
+                return Result.Failure("This email has already been registered.");
+            }
+
+            var createResult = await CreateVerifiedUserFromPending(pending);
+            if (!createResult.Succeeded)
+            {
+                return createResult;
+            }
+
+            pending.UsedAt = DateTimeOffset.UtcNow;
+            await _context.SaveChangesAsync(CancellationToken.None);
+
+            return Result.Success(message: "Email verified. Account created.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at VerifyRegistration. Ex: {0}", ex.Message);
+            return Result.Failure("Verification link is invalid or expired.");
+        }
+    }
+
+    public async Task<Result> ResendRegistrationVerification(string email)
+    {
+        try
+        {
+            var normalizedEmail = _userManager.NormalizeEmail(email) ?? string.Empty;
+            var pending = await _context.PendingRegistrations
+                .Where(x => x.NormalizedEmail == normalizedEmail && x.UsedAt == null)
+                .OrderByDescending(x => x.Created)
+                .FirstOrDefaultAsync();
+
+            if (pending == null)
+            {
+                return Result.Success(message: "If the email is eligible, a verification link has been sent.");
+            }
+
+            if (!CanSendEmailToday(normalizedEmail))
+            {
+                return Result.Success(message: "If the email is eligible, a link has been sent. Please wait before requesting another.");
+            }
+
+            var plainToken = NewVerificationToken();
+            pending.TokenHash = HashToken(plainToken);
+            pending.TokenExpiresAt = DateTimeOffset.UtcNow.Add(RegistrationTokenTtl);
+            await _context.SaveChangesAsync(CancellationToken.None);
+
+            var verifyUrl = BuildVerifyUrl(GetVerifyBaseUrl(), plainToken);
+            var emailContent = EmailTemplates.BuildRegistrationTemplate(pending.FullName, verifyUrl, _appSettings.ClientUrl);
+            await SendRegistrationEmailAsync(email, "Verify your email", emailContent);
+            RegisterEmailSent(normalizedEmail);
+
+            return Result.Success(message: "If the email is eligible, a verification link has been sent.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at ResendRegistrationVerification. Ex: {0}", ex.Message);
+            return Result.Failure("Unable to resend verification email. Please try again.");
+        }
+    }
+
+    public async Task<Result> ForgotPassword(string email)
+    {
+        try
+        {
+            var normalizedEmail = _userManager.NormalizeEmail(email) ?? string.Empty;
+            if (!CanSendEmailToday(normalizedEmail))
+            {
+                return Result.Success(message: "If the email is eligible, a link has been sent. Please wait before requesting another.");
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || !user.EmailConfirmed)
+            {
+                return Result.Success(message: "If the email is eligible, a password reset link has been sent.");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetUrl = BuildResetPasswordUrl(GetResetPasswordBaseUrl(), email, token);
+            var emailContent = EmailTemplates.BuildResetPasswordTemplate(user.FullName ?? user.UserName ?? "there", resetUrl, _appSettings.ClientUrl);
+            await _emailService.SendBulkEmailsAsync(new[] { email }, "Reset your Edunary password", emailContent);
+            RegisterEmailSent(normalizedEmail);
+
+            return Result.Success(message: "If the email is eligible, a password reset link has been sent.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at ForgotPassword. Ex: {0}", ex.Message);
+            return Result.Success(message: "If the email is eligible, a password reset link has been sent.");
+        }
+    }
+
+    public async Task<Result> ResetPassword(string email, string token, string newPassword)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(newPassword))
+            {
+                return Result.Failure("Password reset link is invalid or expired.");
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Result.Failure("Password reset link is invalid or expired.");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            if (!result.Succeeded)
+            {
+                return Result.Failure(result.Errors.Select(x => x.Description).ToArray());
+            }
+
+            return Result.Success(message: "Password has been reset successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at ResetPassword. Ex: {0}", ex.Message);
+            return Result.Failure("Password reset link is invalid or expired.");
+        }
+    }
+
+    private string GetVerifyBaseUrl()
+    {
+        var clientUrl = string.IsNullOrWhiteSpace(_appSettings.ClientUrl)
+            ? "https://localhost:44447"
+            : _appSettings.ClientUrl.TrimEnd('/');
+
+        return $"{clientUrl}/verify-registration";
+    }
+
+    private static string HashToken(string token)
+    {
+        using var sha = System.Security.Cryptography.SHA256.Create();                                                                                          
+        var bytes = Encoding.UTF8.GetBytes(token);                                                                                
+        var hash = sha.ComputeHash(bytes);                                                                                                    
+        return Convert.ToHexString(hash);   
+    }
+
+    private static string BuildVerifyUrl(string verifyBaseUrl, string token)
+    {
+        var separator = verifyBaseUrl.Contains('?') ? "&" : "?";
+        return $"{verifyBaseUrl}{separator}token={Uri.EscapeDataString(token)}";
+    }
+
+    private string GetResetPasswordBaseUrl()
+    {
+        var clientUrl = string.IsNullOrWhiteSpace(_appSettings.ClientUrl)
+            ? "https://localhost:44447"
+            : _appSettings.ClientUrl.TrimEnd('/');
+
+        return $"{clientUrl}/reset-password";
+    }
+
+    private static string BuildResetPasswordUrl(string resetBaseUrl, string email, string token)
+    {
+        var separator = resetBaseUrl.Contains('?') ? "&" : "?";
+        return $"{resetBaseUrl}{separator}email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
+    }
+
+    private async Task SendRegistrationEmailAsync(string email, string subject, string content)
+    {
+        await _emailService.SendBulkEmailsAsync(new[] { email }, subject, content);
+    }
+
+    private async Task<Result> CreateVerifiedUserFromPending(PendingRegistration pending)
+    {
+        var avatarUrl = $"https://ui-avatars.com/api/?name={WebUtility.UrlEncode(pending.FullName.Trim())}&background=random";
+        var user = new ApplicationUser
+        {
+            UserName = pending.Email,
+            PhoneNumber = pending.PhoneNumber,
+            Email = pending.Email,
+            FullName = pending.FullName,
+            Avatar = avatarUrl,
+            PasswordHash = pending.PasswordHash,
+            EmailConfirmed = true
+        };
+
+        var createResult = await _userManager.CreateAsync(user);
+        if (!createResult.Succeeded)
+        {
+            return Result.Failure(createResult.Errors.First().Description);
+        }
+
+        var roleResult = await _userManager.AddToRoleAsync(user, "User");
+        if (!roleResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+            return Result.Failure(roleResult.Errors.First().Description);
+        }
+
+        return Result.Success();
+    }
+
+    private static string NewVerificationToken()
+    {
+        return Convert.ToBase64String(Guid.NewGuid().ToByteArray()) + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+    }
+
+    private static readonly TimeSpan RegistrationTokenTtl = TimeSpan.FromHours(24);
+    private const int MaxEmailSendsPerDay = 3;
+
+    private static readonly ConcurrentDictionary<string, DateTime[]> _emailSendLog = new();
+
+    private static bool CanSendEmailToday(string normalizedEmail)
+    {
+        if (string.IsNullOrEmpty(normalizedEmail)) return false;
+        var cutoff = DateTime.UtcNow.Date;
+        if (!_emailSendLog.TryGetValue(normalizedEmail, out var timestamps))
+            return true;
+
+        var today = timestamps.Where(t => t.Date == cutoff).ToArray();
+        return today.Length < MaxEmailSendsPerDay;
+    }
+
+    private static void RegisterEmailSent(string normalizedEmail)
+    {
+        if (string.IsNullOrEmpty(normalizedEmail)) return;
+        var now = DateTime.UtcNow;
+        _emailSendLog.AddOrUpdate(
+            normalizedEmail,
+            _ => new[] { now },
+            (_, existing) =>
+            {
+                var cutoff = now.Date;
+                var today = existing.Where(t => t.Date == cutoff).ToList();
+                today.Add(now);
+                return today.ToArray();
+            });
     }
 
     public async Task<bool> IsInRoleAsync(string userId, string role)

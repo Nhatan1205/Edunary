@@ -29,7 +29,17 @@ public interface IIdentityService
     Task<Result> UpdateUserAvatarAsync(string avatarUrl, string userId);
 
     Task<Result> Register(string userName, string phoneNumber, string email, string password, string fullName, string avatar = null);
-    
+
+    Task<Result> StartRegistration(string phoneNumber, string email, string password, string fullName);
+
+    Task<Result> VerifyRegistration(string token);
+
+    Task<Result> ResendRegistrationVerification(string email);
+
+    Task<Result> ForgotPassword(string email);
+
+    Task<Result> ResetPassword(string email, string token, string newPassword);
+
     Task<bool> CheckUserNameExist(string userName);
     
     Task<UserModel> GetUserById(string userId);

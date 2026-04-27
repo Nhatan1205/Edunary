@@ -21,6 +21,7 @@ using Edunary.Domain.Constants;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Edunary.Domain.Common;
 
 namespace Edunary.Web.Endpoints;
 
@@ -51,7 +52,8 @@ public class User : EndpointGroupBase
             .MapGet(AdminGetNewVsReturning, "admin/overview/new-vs-returning")
             .MapPut(AdminRestrictUser, "admin/restrict")
             .MapPut(AdminUnbanUser, "admin/unban")
-            .MapPut(AdminChangeUserRole, "admin/change-role");
+            .MapPut(AdminChangeUserRole, "admin/change-role")
+            .MapPost(AdminCreateUser, "admin/create-user");
     }
 
     public async Task<IResult> Create(ISender sender, CreateUserCommand command)
@@ -155,5 +157,22 @@ public class User : EndpointGroupBase
         ISender sender, [AsParameters] GetNewVsReturningQuery query)
     {
         return await sender.Send(query);
+    }
+
+    public async Task<IResult> AdminCreateUser(ISender sender, [FromBody] AuthenticateModel model)
+    {
+        var result = await sender.Send(new CreateUserCommand()
+        {
+            UserName = model.Email,
+            PhoneNumber = model.PhoneNumber!,
+            Email = model.Email,
+            Password = model.Password!,
+            FullName = model.FullName!
+        });
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
     }
 }

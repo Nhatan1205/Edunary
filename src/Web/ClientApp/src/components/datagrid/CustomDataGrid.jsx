@@ -10,6 +10,7 @@ function CustomDataGrid({
   onRowClick = null,
   height = 400,
   sx = {},
+  slots = {},
 }) {
 
   return (
@@ -26,6 +27,7 @@ function CustomDataGrid({
         onRowClick={onRowClick}
         disableRowSelectionOnClick
         loading={loading}
+        slots={slots}
         hideFooter
         sx={{
           border: 'none',

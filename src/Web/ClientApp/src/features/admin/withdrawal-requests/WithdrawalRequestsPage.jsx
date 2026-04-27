@@ -13,6 +13,9 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import CloseIcon from "@mui/icons-material/Close";
 import PageTitle from "../../../components/PageTitle";
@@ -24,6 +27,8 @@ import useGetAdminWithdrawalRequests from "../../../hooks/instructor-wallet-hook
 import useHandleAdminWithdrawalRequest from "../../../hooks/instructor-wallet-hooks/useHandleAdminWithdrawalRequest";
 import useGetAdminWithdrawalRequestStatusCounts from "../../../hooks/instructor-wallet-hooks/useGetAdminWithdrawalRequestStatusCounts";
 import useDebounce from "../../../hooks/common/useDebounce";
+import NoData from "../../../components/NoData";
+import emptyMailbox from "../../../assets/images/empty-mailbox.png";
 
 const STATUS_TABS = ["All", "Processing", "Succeeded", "Cancelled"];
 
@@ -57,11 +62,29 @@ const pillInputSx = {
   "&:focus": { borderColor: "brand.main" },
 };
 
-const pillDateSx = (filled) => ({
-  ...pillInputSx,
-  cursor: "pointer",
-  borderColor: filled ? "brand.main" : "grey.300",
-  color: filled ? "brand.main" : "text.secondary",
+const datepickerSx = (filled) => ({
+  "& .MuiOutlinedInput-root": {
+    height: 40,
+    borderRadius: "10px",
+    fontSize: "0.8rem",
+    bgcolor: "grey.50",
+    color: filled ? "brand.main" : "text.secondary",
+    "& fieldset": {
+      borderWidth: "1.5px",
+      borderColor: filled ? "brand.main" : "grey.300",
+    },
+    "&:hover fieldset": { borderColor: "grey.400" },
+    "&.Mui-focused fieldset": { borderColor: "brand.main" },
+  },
+  "& .MuiInputBase-input": {
+    fontSize: "0.8rem",
+    py: 0,
+    color: filled ? "brand.main" : "text.secondary",
+  },
+  "& .MuiIconButton-root": {
+    color: filled ? "brand.main" : "grey.400",
+    p: 0.5,
+  },
 });
 
 function StatusTabs({ activeTab, onChange, counts }) {
@@ -163,19 +186,16 @@ function WithdrawalRequestsPage() {
   const [toDate, setToDate] = useState(null);
   const [selectedInstructor, setSelectedInstructor] = useState(null);
   const [instructorDialogOpen, setInstructorDialogOpen] = useState(false);
-  const [instructorEmail, setInstructorEmail] = useState("");
   const [bankNumber, setBankNumber] = useState("");
   const [bankAccountHolder, setBankAccountHolder] = useState("");
   const [activeRequestId, setActiveRequestId] = useState(null);
 
-  const debouncedInstructorEmail = useDebounce(instructorEmail, 400);
   const debouncedBankNumber = useDebounce(bankNumber, 400);
   const debouncedBankAccountHolder = useDebounce(bankAccountHolder, 400);
 
   useEffect(() => {
     setPage(0);
   }, [
-    debouncedInstructorEmail,
     debouncedBankNumber,
     debouncedBankAccountHolder,
   ]);
@@ -185,10 +205,9 @@ function WithdrawalRequestsPage() {
   const queryOptions = useMemo(
     () => ({
       status: statusFilter,
-      fromDate: fromDate ? new Date(fromDate).toISOString() : null,
-      toDate: toDate ? new Date(toDate).toISOString() : null,
+      fromDate: fromDate ? fromDate.toISOString() : null,
+      toDate: toDate ? toDate.toISOString() : null,
       instructorName: selectedInstructor?.fullName || null,
-      instructorEmail: debouncedInstructorEmail || null,
       bankNumber: debouncedBankNumber || null,
       bankAccountHolder: debouncedBankAccountHolder || null,
     }),
@@ -197,7 +216,6 @@ function WithdrawalRequestsPage() {
       fromDate,
       toDate,
       selectedInstructor,
-      debouncedInstructorEmail,
       debouncedBankNumber,
       debouncedBankAccountHolder,
     ]
@@ -276,6 +294,21 @@ function WithdrawalRequestsPage() {
   const columns = useMemo(
     () => [
       {
+        field: "__index__",
+        headerName: "#",
+        width: 60,
+        sortable: false,
+        filterable: false,
+        renderCell: (params) => {
+          const localIndex = params.api.getAllRowIds().indexOf(params.id);
+          return (
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              {page * rowsPerPage + localIndex + 1}
+            </Typography>
+          );
+        },
+      },
+      {
         field: "created",
         headerName: "Requested At",
         flex: 1.15,
@@ -332,7 +365,7 @@ function WithdrawalRequestsPage() {
       },
       {
         field: "bankAccountHolder",
-        headerName: "Beneficiary",
+        headerName: "Account Holder",
         flex: 1.15,
         minWidth: 180,
       },
@@ -400,7 +433,7 @@ function WithdrawalRequestsPage() {
         },
       },
     ],
-    [isMutating, activeRequestId]
+    [isMutating, activeRequestId, page, rowsPerPage]
   );
 
   return (
@@ -498,15 +531,7 @@ function WithdrawalRequestsPage() {
               <Box
                 component="input"
                 type="text"
-                placeholder="Email"
-                value={instructorEmail}
-                onChange={(e) => setInstructorEmail(e.target.value)}
-                sx={{ ...pillInputSx, flex: "1 1 180px", minWidth: 160 }}
-              />
-              <Box
-                component="input"
-                type="text"
-                placeholder="Account #"
+                placeholder="Account Number"
                 value={bankNumber}
                 onChange={(e) => setBankNumber(e.target.value)}
                 sx={{ ...pillInputSx, flex: "1 1 140px", minWidth: 120 }}
@@ -514,30 +539,32 @@ function WithdrawalRequestsPage() {
               <Box
                 component="input"
                 type="text"
-                placeholder="Beneficiary"
+                placeholder="Account Holder"
                 value={bankAccountHolder}
                 onChange={(e) => setBankAccountHolder(e.target.value)}
                 sx={{ ...pillInputSx, flex: "1 1 160px", minWidth: 140 }}
               />
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  component="input"
-                  type="date"
-                  value={fromDate || ""}
-                  onChange={(e) => handleDateChange(setFromDate)(e.target.value || null)}
-                  title="From date"
-                  sx={pillDateSx(!!fromDate)}
-                />
-                <Typography variant="caption" sx={{ color: "text.secondary" }}>—</Typography>
-                <Box
-                  component="input"
-                  type="date"
-                  value={toDate || ""}
-                  onChange={(e) => handleDateChange(setToDate)(e.target.value || null)}
-                  title="To date"
-                  sx={pillDateSx(!!toDate)}
-                />
-              </Box>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <DatePicker
+                    value={fromDate}
+                    onChange={handleDateChange(setFromDate)}
+                    slotProps={{
+                      textField: { size: "small", placeholder: "From date", sx: datepickerSx(!!fromDate) },
+                      field: { clearable: true, onClear: () => handleDateChange(setFromDate)(null) },
+                    }}
+                  />
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>—</Typography>
+                  <DatePicker
+                    value={toDate}
+                    onChange={handleDateChange(setToDate)}
+                    slotProps={{
+                      textField: { size: "small", placeholder: "To date", sx: datepickerSx(!!toDate) },
+                      field: { clearable: true, onClear: () => handleDateChange(setToDate)(null) },
+                    }}
+                  />
+                </Box>
+              </LocalizationProvider>
             </Box>
           )}
           customRightAction={
@@ -553,6 +580,16 @@ function WithdrawalRequestsPage() {
           rows={rows}
           columns={columns}
           loading={isLoading}
+          slots={{
+            noRowsOverlay: () => (
+              <NoData
+                image={emptyMailbox}
+                title="No withdrawal requests"
+                description="There are no withdrawal requests matching your filters."
+                minHeight="360px"
+              />
+            ),
+          }}
           checkboxSelection={false}
           height={560}
           sx={{

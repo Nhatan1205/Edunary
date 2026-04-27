@@ -24,6 +24,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useMemo, useState } from 'react';
 import useGetCoursesAuthor from '../../../../../hooks/course-hooks/useGetCoursesAuthor';
 import useGetInstructorWalletTransactions from '../../../../../hooks/instructor-wallet-hooks/useGetInstructorWalletTransactions';
+import NoData from '../../../../../components/NoData';
+import emptyMailbox from '../../../../../assets/images/empty-mailbox.png';
 
 function WithdrawalHistory() {
   const [page, setPage] = useState(1);
@@ -510,10 +512,13 @@ function WithdrawalHistory() {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={isWithdrawalView ? 4 : 5} sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography sx={(theme) => ({ color: theme.palette.text.disabled })}>
-                    No transactions found
-                  </Typography>
+                <TableCell colSpan={isWithdrawalView ? 4 : 5} sx={{ p: 0, border: 'none' }}>
+                  <NoData
+                    image={emptyMailbox}
+                    title="No transactions found"
+                    description="There are no transactions matching your filters."
+                    minHeight="320px"
+                  />
                 </TableCell>
               </TableRow>
             )}

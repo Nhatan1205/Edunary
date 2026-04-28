@@ -1476,6 +1476,166 @@
         }
       }
     },
+    "/api/CourseTopics": {
+      "get": {
+        "tags": [
+          "CourseTopics"
+        ],
+        "operationId": "GetCourseTopics",
+        "parameters": [
+          {
+            "name": "SearchText",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfGetCourseTopicDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseTopics/admin": {
+      "post": {
+        "tags": [
+          "CourseTopics"
+        ],
+        "operationId": "CreateCourseTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfCreatedCourseTopicDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "CourseTopics"
+        ],
+        "operationId": "UpdateCourseTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "CourseTopics"
+        ],
+        "operationId": "DeleteCourseTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteCourseTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Enrollment/check/{courseId}": {
       "get": {
         "tags": [
@@ -5016,9 +5176,12 @@
           "status": {
             "$ref": "#/components/schemas/CourseStatus"
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CourseTopicItemDto"
+            }
           },
           "learningObjectives": {
             "type": "string",
@@ -5089,6 +5252,20 @@
           0,
           1
         ]
+      },
+      "CourseTopicItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "CourseProgressDto": {
         "type": "object",
@@ -5667,9 +5844,13 @@
             "type": "integer",
             "format": "int32"
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topicIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           "learningObjectives": {
             "type": "array",
@@ -5794,9 +5975,12 @@
             "type": "string",
             "nullable": true
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CourseTopicItemDto"
+            }
           },
           "ratings": {
             "type": "number",
@@ -5960,9 +6144,12 @@
             "type": "string",
             "nullable": true
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CourseTopicItemDto"
+            }
           },
           "ratings": {
             "type": "number",
@@ -6011,9 +6198,12 @@
           "status": {
             "$ref": "#/components/schemas/CourseStatus"
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CourseTopicItemDto"
+            }
           },
           "learningObjectives": {
             "type": "string",
@@ -6161,9 +6351,12 @@
             "type": "string",
             "nullable": true
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CourseTopicItemDto"
+            }
           },
           "ratings": {
             "type": "number",
@@ -6176,6 +6369,121 @@
           "createdBy": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "PaginatedListOfGetCourseTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/GetCourseTopicDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetCourseTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ReturnResultOfCreatedCourseTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CreatedCourseTopicDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatedCourseTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateCourseTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateCourseTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeleteCourseTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

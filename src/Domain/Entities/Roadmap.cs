@@ -1,4 +1,4 @@
-﻿namespace Edunary.Domain.Entities;
+namespace Edunary.Domain.Entities;
 public class Roadmap : BaseAuditableEntity
 {
     public string Title { get; set; }
@@ -12,6 +12,12 @@ public class Roadmap : BaseAuditableEntity
     public bool IsPublic { get; set; } = false;
 
     public string GraphData { get; set; }
+
+    public bool IsAiGenerated { get; set; } = false;
+
+    public string AiMetadata { get; set; }
+
+    public int? UserRating { get; set; }
 
     public int RoadmapTopicId { get; set; }
 

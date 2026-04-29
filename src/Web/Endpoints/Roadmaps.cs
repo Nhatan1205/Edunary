@@ -2,11 +2,14 @@ using Edunary.Application.Common.Models;
 using Edunary.Application.Roadmaps.Commands.CreateRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.DeleteRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.GenerateAIRoadmapCommand;
+using Edunary.Application.Roadmaps.Commands.RateRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.UpdateRoadmapCommand;
+using Edunary.Application.Roadmaps.Queries.GetMyAIRoadmapsQuery;
 using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapDetailQuery;
-using Edunary.Application.Roadmaps.Queries.GetRelatedRoadmapsByCourseIdQuery;
 using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapsQuery;
+using Edunary.Application.Roadmaps.Queries.GetRelatedRoadmapsByCourseIdQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapDetailQuery;
+using Edunary.Application.Roadmaps.Queries.GetRoadmapDetailWithProgressQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapsAuthorQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapTopicsQuery;
 using MediatR;
@@ -23,9 +26,12 @@ public class Roadmaps : EndpointGroupBase
             .MapPost(CreateRoadmap)
             .MapPost(GenerateAIRoadmap, "generate-ai")
             .MapPut(UpdateRoadmap)
+            .MapPut(RateRoadmap, "{id}/rate")
             .MapDelete(DeleteRoadmap)
             .MapGet(GetRoadmapsAuthor)
-            .MapGet(GetRoadmapDetail, "{id}");
+            .MapGet(GetRoadmapDetail, "{id}")
+            .MapGet(GetMyAIRoadmaps, "my-ai-roadmaps")
+            .MapGet(GetAIRoadmapDetail, "my-ai-roadmaps/{id}");
 
         app.MapGroup(this)
             .MapGet(GetPublicRoadmaps, "public")
@@ -83,10 +89,27 @@ public class Roadmaps : EndpointGroupBase
         return await sender.Send(new GetRelatedRoadmapsByCourseIdQuery { CourseId = courseId });
     }
 
-    public async Task<ReturnResult<AIRoadmapResultDto>> GenerateAIRoadmap(
+    public async Task<ReturnResult<GeneratedAIRoadmapDto>> GenerateAIRoadmap(
         ISender sender, [FromBody] GenerateAIRoadmapCommand command)
     {
         return await sender.Send(command);
+    }
+
+    public async Task<IResult> RateRoadmap(ISender sender, int id, [FromBody] RateRoadmapCommand command)
+    {
+        var result = await sender.Send(command with { RoadmapId = id });
+        if (!result.Succeeded) return Results.BadRequest(result);
+        return Results.Ok(result);
+    }
+
+    public async Task<List<MyAIRoadmapDto>> GetMyAIRoadmaps(ISender sender)
+    {
+        return await sender.Send(new GetMyAIRoadmapsQuery());
+    }
+
+    public async Task<AIRoadmapDetailDto> GetAIRoadmapDetail(ISender sender, int id)
+    {
+        return await sender.Send(new GetRoadmapDetailWithProgressQuery { Id = id });
     }
 }
 

@@ -1,11 +1,20 @@
-import { Paper, Box, Typography, Button, Stack, Divider, TextField } from '@mui/material';
+import { Paper, Box, Typography, Button, Stack, Divider, TextField, useTheme } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import EditIcon from '@mui/icons-material/Edit';
 import { useEffect, useState } from 'react';
 import useUpdatePaymentAccount from '../../../../../hooks/auth-hooks/useUpdatePaymentAccount';
+import AlertBox from '../../../../../components/AlertBox';
+
+const brandTextFieldSx = (theme) => ({
+  '& .MuiOutlinedInput-root': {
+    '&.Mui-focused fieldset': { borderColor: theme.palette.brand.main },
+  },
+  '& label.Mui-focused': { color: theme.palette.brand.main },
+});
 
 function PaymentAccount({ user, isInfoEnough }) {
   const updateMutation = useUpdatePaymentAccount();
+  const theme = useTheme();
 
   const [isEditing, setIsEditing] = useState(false);
   const [formValues, setFormValues] = useState({
@@ -145,6 +154,7 @@ function PaymentAccount({ user, isInfoEnough }) {
               onChange={(e) => setFormValues((prev) => ({ ...prev, bankAccountHolder: e.target.value }))}
               size="small"
               fullWidth
+              sx={brandTextFieldSx(theme)}
             />
           ) : (
             <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: (theme) => theme.palette.text.primary }}>
@@ -171,6 +181,7 @@ function PaymentAccount({ user, isInfoEnough }) {
               onChange={(e) => setFormValues((prev) => ({ ...prev, bank: e.target.value }))}
               size="small"
               fullWidth
+              sx={brandTextFieldSx(theme)}
             />
           ) : (
             <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: (theme) => theme.palette.text.primary }}>
@@ -197,6 +208,7 @@ function PaymentAccount({ user, isInfoEnough }) {
               onChange={(e) => setFormValues((prev) => ({ ...prev, bankNumber: e.target.value }))}
               size="small"
               fullWidth
+              sx={brandTextFieldSx(theme)}
             />
           ) : (
             <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: (theme) => theme.palette.text.primary }}>
@@ -206,29 +218,14 @@ function PaymentAccount({ user, isInfoEnough }) {
         </Box>
 
         {/* Status */}
-        <Box
-          sx={(theme) => ({
-            bgcolor: theme.palette.background.muted,
-            p: 1.5,
-            borderRadius: 1,
-            borderLeft: `4px solid ${isInfoEnough ? theme.palette.success.main : theme.palette.warning.main}`
-          })}
-        >
-          <Typography
-            variant="body2"
-            sx={(theme) => ({
-              color: isInfoEnough ? theme.palette.success.main : theme.palette.warning.main,
-              fontWeight: 600
-            })}
-          >
-            {isInfoEnough ? '✓ Your bank information is ready.' : '⚠ You have not updated your bank information. Update now!'}
-          </Typography>
-          {updateMutation.isError ? (
-            <Typography variant="body2" sx={{ mt: 0.75, color: (theme) => theme.palette.error.main }}>
-              Failed to update payout account.
-            </Typography>
-          ) : null}
-        </Box>
+        <AlertBox severity={isInfoEnough ? 'success' : 'warning'} sx={{ my: 0 }}>
+          {isInfoEnough ? 'Your bank information is ready.' : 'You have not updated your bank information. Update now!'}
+        </AlertBox>
+        {updateMutation.isError && (
+          <AlertBox severity="error" sx={{ my: 0 }}>
+            Failed to update payout account.
+          </AlertBox>
+        )}
       </Stack>
     </Paper>
   );

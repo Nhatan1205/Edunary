@@ -1,13 +1,10 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Common.Security;
-using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 
 namespace Edunary.Application.InstructorWallets.Queries.GetWithdrawalRequestsForAdmin;
 
-[Authorize(Roles = Roles.Administrator)]
 public class GetWithdrawalRequestsForAdminQuery : IRequest<PaginatedList<AdminWithdrawalRequestDto>>
 {
     public int PageNumber { get; init; } = 1;

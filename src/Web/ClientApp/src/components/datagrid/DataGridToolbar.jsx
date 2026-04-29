@@ -34,7 +34,7 @@ function DataGridToolbar({
         justifyContent: "space-between",
         alignItems: { xs: "stretch", md: "center" },
         px: { xs: 2, sm: 2.5 },
-        py: { xs: 1.25, md: 0 },
+        py: { xs: 1.25, md: 1.5 },
         gap: { xs: 1.25, md: 2 },
         borderBottom: "1px solid",
         borderColor: "divider",

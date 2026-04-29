@@ -18,16 +18,10 @@ const accountMenuConfig = [
     url: "/user/profile",
   },
   {
-    id: "security",
-    title: "Security",
-    icon: SecurityOutlinedIcon,
-    url: "/user/security",
-  },
-  {
     id: "account-settings",
     title: "Account settings",
     icon: SettingsOutlinedIcon,
-    url: "/admin/settings",
+    url: "/user/security",
   },
 ];
 

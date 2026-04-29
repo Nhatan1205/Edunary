@@ -8,6 +8,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
 import useAdminGetUsers from "../../../../../hooks/user-hooks/useAdminGetUsers";
+import NoData from "../../../../../components/NoData";
+import emptyStateImg from "../../../../../assets/images/empty-courses.png";
 
 // ── Status chip ────────────────────────────────────────────────────────────────
 
@@ -116,9 +118,13 @@ function UserFilterDialog({ open, onClose, onSelectUser }) {
                             <CircularProgress size={28} sx={{ color: "brand.main" }} />
                         </Box>
                     ) : users.length === 0 ? (
-                        <Box sx={{ textAlign: "center", py: 6 }}>
-                            <Typography variant="body2" color="text.secondary">No users found</Typography>
-                        </Box>
+                        <NoData
+                            image={emptyStateImg}
+                            title="No users found"
+                            description="Try a different search term."
+                            imageWidth={120}
+                            minHeight="350px"
+                        />
                     ) : (
                         users.map((user) => (
                             <Box

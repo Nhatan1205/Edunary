@@ -5,24 +5,30 @@ import {
   Button,
   Card,
   Chip,
+  IconButton,
   Stack,
   Tab,
   TablePagination,
   Tabs,
-  TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import { alpha } from "@mui/material/styles";
-import theme from "../../../theme/theme";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import CloseIcon from "@mui/icons-material/Close";
 import PageTitle from "../../../components/PageTitle";
 import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs";
 import DataGridToolbar from "../../../components/datagrid/DataGridToolbar";
 import CustomDataGrid from "../../../components/datagrid/CustomDataGrid";
+import UserFilterDialog from "../user-section/activity-logs-page/components/UserFilterDialog";
 import useGetAdminWithdrawalRequests from "../../../hooks/instructor-wallet-hooks/useGetAdminWithdrawalRequests";
 import useHandleAdminWithdrawalRequest from "../../../hooks/instructor-wallet-hooks/useHandleAdminWithdrawalRequest";
 import useGetAdminWithdrawalRequestStatusCounts from "../../../hooks/instructor-wallet-hooks/useGetAdminWithdrawalRequestStatusCounts";
 import useDebounce from "../../../hooks/common/useDebounce";
+import NoData from "../../../components/NoData";
+import emptyMailbox from "../../../assets/images/empty-mailbox.png";
 
 const STATUS_TABS = ["All", "Processing", "Succeeded", "Cancelled"];
 
@@ -39,21 +45,47 @@ const TAB_BADGE_STYLE = {
   Cancelled: { bgcolor: "grey.300", color: "text.secondary" },
 };
 
-const datePickerFocusRing = `0 0 0 3px ${alpha(theme.palette.brand.main, 0.1)}`;
-
-const datePickerTextFieldSx = {
-  width: "100%",
+const pillInputSx = {
+  height: 40,
+  px: 1.5,
+  borderRadius: "10px",
+  border: "1.5px solid",
+  borderColor: "grey.300",
+  bgcolor: "grey.50",
+  color: "text.primary",
+  fontSize: "0.8rem",
+  fontFamily: "inherit",
+  outline: "none",
   minWidth: 0,
-  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline, & .MuiPickersOutlinedInput-root.Mui-focused .MuiPickersOutlinedInput-notchedOutline": {
-    borderColor: theme.palette.brand.main,
-  },
-  "& .MuiOutlinedInput-root.Mui-focused, & .MuiPickersOutlinedInput-root.Mui-focused": {
-    boxShadow: datePickerFocusRing,
-  },
-  "& .MuiInputLabel-root.Mui-focused, & .MuiFormLabel-root.Mui-focused, & .MuiPickersInputLabel-root.Mui-focused": {
-    color: theme.palette.brand.main,
-  },
+  "&::placeholder": { color: "text.secondary", opacity: 1 },
+  "&:hover": { borderColor: "grey.400" },
+  "&:focus": { borderColor: "brand.main" },
 };
+
+const datepickerSx = (filled) => ({
+  "& .MuiOutlinedInput-root": {
+    height: 40,
+    borderRadius: "10px",
+    fontSize: "0.8rem",
+    bgcolor: "grey.50",
+    color: filled ? "brand.main" : "text.secondary",
+    "& fieldset": {
+      borderWidth: "1.5px",
+      borderColor: filled ? "brand.main" : "grey.300",
+    },
+    "&:hover fieldset": { borderColor: "grey.400" },
+    "&.Mui-focused fieldset": { borderColor: "brand.main" },
+  },
+  "& .MuiInputBase-input": {
+    fontSize: "0.8rem",
+    py: 0,
+    color: filled ? "brand.main" : "text.secondary",
+  },
+  "& .MuiIconButton-root": {
+    color: filled ? "brand.main" : "grey.400",
+    p: 0.5,
+  },
+});
 
 function StatusTabs({ activeTab, onChange, counts }) {
   return (
@@ -123,9 +155,9 @@ function formatStatus(status) {
     case 0:
       return { label: "Succeeded", color: "success.darker", bgcolor: "success.lighter" };
     case 1:
-      return { label: "Processing", color: "warning.dark", bgcolor: "warning.lighter" };
+      return { label: "Processing", color: "warning.darker", bgcolor: "warning.lighter" };
     case 2:
-      return { label: "Cancelled", color: "text.secondary", bgcolor: "grey.200" };
+      return { label: "Cancelled", color: "error.dark", bgcolor: "error.lighter" };
     default:
       return { label: "Unknown", color: "text.secondary", bgcolor: "grey.200" };
   }
@@ -152,22 +184,18 @@ function WithdrawalRequestsPage() {
   const [activeTab, setActiveTab] = useState("All");
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
-  const [instructorName, setInstructorName] = useState("");
-  const [instructorEmail, setInstructorEmail] = useState("");
+  const [selectedInstructor, setSelectedInstructor] = useState(null);
+  const [instructorDialogOpen, setInstructorDialogOpen] = useState(false);
   const [bankNumber, setBankNumber] = useState("");
   const [bankAccountHolder, setBankAccountHolder] = useState("");
   const [activeRequestId, setActiveRequestId] = useState(null);
 
-  const debouncedInstructorName = useDebounce(instructorName, 400);
-  const debouncedInstructorEmail = useDebounce(instructorEmail, 400);
   const debouncedBankNumber = useDebounce(bankNumber, 400);
   const debouncedBankAccountHolder = useDebounce(bankAccountHolder, 400);
 
   useEffect(() => {
     setPage(0);
   }, [
-    debouncedInstructorName,
-    debouncedInstructorEmail,
     debouncedBankNumber,
     debouncedBankAccountHolder,
   ]);
@@ -177,10 +205,9 @@ function WithdrawalRequestsPage() {
   const queryOptions = useMemo(
     () => ({
       status: statusFilter,
-      fromDate: fromDate?.isValid() ? fromDate.toISOString() : null,
-      toDate: toDate?.isValid() ? toDate.toISOString() : null,
-      instructorName: debouncedInstructorName || null,
-      instructorEmail: debouncedInstructorEmail || null,
+      fromDate: fromDate ? fromDate.toISOString() : null,
+      toDate: toDate ? toDate.toISOString() : null,
+      instructorName: selectedInstructor?.fullName || null,
       bankNumber: debouncedBankNumber || null,
       bankAccountHolder: debouncedBankAccountHolder || null,
     }),
@@ -188,8 +215,7 @@ function WithdrawalRequestsPage() {
       statusFilter,
       fromDate,
       toDate,
-      debouncedInstructorName,
-      debouncedInstructorEmail,
+      selectedInstructor,
       debouncedBankNumber,
       debouncedBankAccountHolder,
     ]
@@ -230,7 +256,18 @@ function WithdrawalRequestsPage() {
   };
 
   const handleDateChange = (setter) => (value) => {
-    setter(value);
+    setter(value || null);
+    setPage(0);
+  };
+
+  const handleSelectInstructor = (user) => {
+    setSelectedInstructor(user);
+    setInstructorDialogOpen(false);
+    setPage(0);
+  };
+
+  const handleClearInstructor = () => {
+    setSelectedInstructor(null);
     setPage(0);
   };
 
@@ -256,6 +293,21 @@ function WithdrawalRequestsPage() {
 
   const columns = useMemo(
     () => [
+      {
+        field: "__index__",
+        headerName: "#",
+        width: 60,
+        sortable: false,
+        filterable: false,
+        renderCell: (params) => {
+          const localIndex = params.api.getAllRowIds().indexOf(params.id);
+          return (
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              {page * rowsPerPage + localIndex + 1}
+            </Typography>
+          );
+        },
+      },
       {
         field: "created",
         headerName: "Requested At",
@@ -313,7 +365,7 @@ function WithdrawalRequestsPage() {
       },
       {
         field: "bankAccountHolder",
-        headerName: "Beneficiary",
+        headerName: "Account Holder",
         flex: 1.15,
         minWidth: 180,
       },
@@ -381,7 +433,7 @@ function WithdrawalRequestsPage() {
         },
       },
     ],
-    [isMutating, activeRequestId]
+    [isMutating, activeRequestId, page, rowsPerPage]
   );
 
   return (
@@ -426,63 +478,93 @@ function WithdrawalRequestsPage() {
           filterDropdowns={(
             <Box
               sx={{
-                display: "grid",
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 1,
                 width: "100%",
-                gridTemplateColumns: {
-                  xs: "minmax(0, 1fr)",
-                  sm: "repeat(2, minmax(0, 1fr))",
-                  lg: "repeat(4, minmax(0, 1fr))",
-                },
-                columnGap: 1.25,
-                rowGap: 1.25,
-                alignItems: "start",
               }}
             >
-              <TextField
-                size="small"
-                label="Instructor"
-                value={instructorName}
-                onChange={(e) => setInstructorName(e.target.value)}
-                sx={datePickerTextFieldSx}
-              />
-
-              <TextField
-                size="small"
-                label="Email"
-                value={instructorEmail}
-                onChange={(e) => setInstructorEmail(e.target.value)}
-                sx={datePickerTextFieldSx}
-              />
-
-              <TextField
-                size="small"
-                label="Account #"
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: "1 1 180px", minWidth: 160 }}>
+                <Button
+                  onClick={() => setInstructorDialogOpen(true)}
+                  endIcon={<ArrowDropDownIcon />}
+                  size="small"
+                  sx={{
+                    flex: 1,
+                    height: 40,
+                    px: 2,
+                    borderRadius: "10px",
+                    border: "1.5px solid",
+                    borderColor: selectedInstructor ? "brand.main" : "grey.300",
+                    bgcolor: "grey.50",
+                    color: selectedInstructor ? "brand.main" : "text.secondary",
+                    fontWeight: 500,
+                    fontSize: "0.8rem",
+                    textTransform: "none",
+                    whiteSpace: "nowrap",
+                    justifyContent: "space-between",
+                    "&:hover": { bgcolor: "grey.100", borderColor: "grey.400" },
+                    "& .MuiButton-endIcon": { ml: 0.5 },
+                  }}
+                >
+                  <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {selectedInstructor ? selectedInstructor.fullName : "All Instructors"}
+                  </Box>
+                </Button>
+                {selectedInstructor && (
+                  <Tooltip title="Clear instructor filter">
+                    <IconButton
+                      size="small"
+                      onClick={handleClearInstructor}
+                      sx={{
+                        color: "grey.500",
+                        borderRadius: "8px",
+                        "&:hover": { color: "error.main", bgcolor: "error.lighter" },
+                      }}
+                    >
+                      <CloseIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
+              <Box
+                component="input"
+                type="text"
+                placeholder="Account Number"
                 value={bankNumber}
                 onChange={(e) => setBankNumber(e.target.value)}
-                sx={datePickerTextFieldSx}
+                sx={{ ...pillInputSx, flex: "1 1 140px", minWidth: 120 }}
               />
-
-              <TextField
-                size="small"
-                label="Beneficiary"
+              <Box
+                component="input"
+                type="text"
+                placeholder="Account Holder"
                 value={bankAccountHolder}
                 onChange={(e) => setBankAccountHolder(e.target.value)}
-                sx={datePickerTextFieldSx}
+                sx={{ ...pillInputSx, flex: "1 1 160px", minWidth: 140 }}
               />
-
-              <DatePicker
-                label="From"
-                value={fromDate}
-                onChange={handleDateChange(setFromDate)}
-                slotProps={{ textField: { size: "small", sx: datePickerTextFieldSx } }}
-              />
-
-              <DatePicker
-                label="To"
-                value={toDate}
-                onChange={handleDateChange(setToDate)}
-                slotProps={{ textField: { size: "small", sx: datePickerTextFieldSx } }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <DatePicker
+                    value={fromDate}
+                    onChange={handleDateChange(setFromDate)}
+                    slotProps={{
+                      textField: { size: "small", placeholder: "From date", sx: datepickerSx(!!fromDate) },
+                      field: { clearable: true, onClear: () => handleDateChange(setFromDate)(null) },
+                    }}
+                  />
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>—</Typography>
+                  <DatePicker
+                    value={toDate}
+                    onChange={handleDateChange(setToDate)}
+                    slotProps={{
+                      textField: { size: "small", placeholder: "To date", sx: datepickerSx(!!toDate) },
+                      field: { clearable: true, onClear: () => handleDateChange(setToDate)(null) },
+                    }}
+                  />
+                </Box>
+              </LocalizationProvider>
             </Box>
           )}
           customRightAction={
@@ -498,6 +580,16 @@ function WithdrawalRequestsPage() {
           rows={rows}
           columns={columns}
           loading={isLoading}
+          slots={{
+            noRowsOverlay: () => (
+              <NoData
+                image={emptyMailbox}
+                title="No withdrawal requests"
+                description="There are no withdrawal requests matching your filters."
+                minHeight="360px"
+              />
+            ),
+          }}
           checkboxSelection={false}
           height={560}
           sx={{
@@ -547,6 +639,12 @@ function WithdrawalRequestsPage() {
       </Card>
 
       <Box sx={{ height: 80 }} />
+
+      <UserFilterDialog
+        open={instructorDialogOpen}
+        onClose={() => setInstructorDialogOpen(false)}
+        onSelectUser={handleSelectInstructor}
+      />
     </Box>
   );
 }

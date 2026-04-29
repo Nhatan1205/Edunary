@@ -1,12 +1,9 @@
 using Edunary.Application.Common.Interfaces;
-using Edunary.Application.Common.Security;
-using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.InstructorWallets.Queries.GetWithdrawalRequestStatusCountsForAdmin;
 
-[Authorize(Roles = Roles.Administrator)]
 public record GetWithdrawalRequestStatusCountsForAdminQuery
     : IRequest<AdminWithdrawalRequestStatusCountsDto>;
 

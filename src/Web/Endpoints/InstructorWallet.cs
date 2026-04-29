@@ -6,6 +6,7 @@ using Edunary.Application.InstructorWallets.Queries.GetInstructorWallet;
 using Edunary.Application.InstructorWallets.Queries.GetInstructorWalletTransactions;
 using Edunary.Application.InstructorWallets.Queries.GetWithdrawalRequestsForAdmin;
 using Edunary.Application.InstructorWallets.Queries.GetWithdrawalRequestStatusCountsForAdmin;
+using Edunary.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,9 +20,13 @@ public class InstructorWallet : EndpointGroupBase
             .RequireAuthorization()
             .MapGet(GetWallet)
             .MapGet(GetTransactions, "transactions")
+            .MapPost(Withdraw, "withdraw");
+
+        // Admin
+        app.MapGroup(this)
+            .RequireAuthorization(Policies.SuperAdmin)
             .MapGet(GetAdminWithdrawalRequests, "admin/withdrawal-requests")
             .MapGet(GetAdminWithdrawalRequestStatusCounts, "admin/withdrawal-requests/status-counts")
-            .MapPost(Withdraw, "withdraw")
             .MapPost(ApproveWithdrawal, "withdrawals/{id:int}/approve")
             .MapPost(CancelWithdrawal, "withdrawals/{id:int}/cancel");
     }

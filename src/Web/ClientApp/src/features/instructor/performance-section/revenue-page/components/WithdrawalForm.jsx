@@ -4,7 +4,6 @@ import {
   Typography,
   TextField,
   Button,
-  Alert,
   Stack,
   Dialog,
   DialogTitle,
@@ -15,6 +14,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
 import useGetInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useGetInstructorWallet';
 import useWithdrawFromInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useWithdrawFromInstructorWallet';
+import AlertBox from '../../../../../components/AlertBox';
 
 function WithdrawalForm({ user, isInfoEnough }) {
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
@@ -120,26 +120,27 @@ function WithdrawalForm({ user, isInfoEnough }) {
       <Stack spacing={2.5}>
         {/* Available Balance Info */}
         <Box
-          sx={(theme) => ({
-            bgcolor: theme.palette.brand.lighter,
+          sx={{
+            bgcolor: "brand.lighter",
             p: 2,
             borderRadius: 1,
-            borderLeft: `4px solid ${theme.palette.brand.main}`
-          })}
+            borderLeft: "4px solid",
+            borderLeftColor: "brand.main"
+          }}
         >
           <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary, mb: 0.5 })}>
             Available balance
           </Typography>
-          <Typography sx={(theme) => ({ fontSize: '1.25rem', fontWeight: 600, color: theme.palette.brand.main })}>
+          <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, color: "brand.main" }}>
             {currencySymbol}{availableBalance.toLocaleString('en-US')} {currencyCode}
           </Typography>
         </Box>
 
         {/* Error Alert */}
         {error && (
-          <Alert severity="error" sx={{ fontSize: '0.875rem' }}>
+          <AlertBox severity="error" sx={{ my: 0, fontSize: '0.875rem' }}>
             {error}
-          </Alert>
+          </AlertBox>
         )}
 
         {/* Withdrawal Amount Input */}
@@ -164,8 +165,8 @@ function WithdrawalForm({ user, isInfoEnough }) {
             size="medium"
             sx={{
               '& .MuiOutlinedInput-root': {
-                '&:hover fieldset': (theme) => ({ borderColor: theme.palette.brand.main }),
-                '&.Mui-focused fieldset': (theme) => ({ borderColor: theme.palette.brand.main })
+                '&:hover fieldset': { borderColor: "brand.main" },
+                '&.Mui-focused fieldset': { borderColor: "brand.main" }
               }
             }}
             inputProps={{
@@ -199,7 +200,7 @@ function WithdrawalForm({ user, isInfoEnough }) {
             <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary })}>
               You'll receive
             </Typography>
-            <Typography sx={(theme) => ({ fontWeight: 600, color: theme.palette.brand.main })}>
+            <Typography sx={{ fontWeight: 600, color: "brand.main" }}>
               {currencySymbol}{withdrawalAmount ? parseFloat(withdrawalAmount).toLocaleString('en-US') : '0'}
             </Typography>
           </Box>
@@ -212,19 +213,19 @@ function WithdrawalForm({ user, isInfoEnough }) {
           endIcon={<SendIcon />}
           onClick={handleContinue}
           disabled={isPending || !isInfoEnough}
-          sx={(theme) => ({
-            bgcolor: theme.palette.brand.main,
-            color: theme.palette.text.inverse,
+          sx={{
+            bgcolor: "brand.main",
+            color: "text.inverse",
             textTransform: 'none',
             fontWeight: 600,
             py: 1.25,
             fontSize: '1rem',
             boxShadow: 'none',
             '&:hover': {
-              bgcolor: theme.palette.brand.dark,
+              bgcolor: "brand.dark",
               boxShadow: 'none'
             }
-          })}
+          }}
         >
           Continue
         </Button>
@@ -287,14 +288,14 @@ function WithdrawalForm({ user, isInfoEnough }) {
           <Button
             onClick={handleCancelConfirm}
             disabled={isPending}
-            sx={(theme) => ({
+            sx={{
               textTransform: 'none',
               fontWeight: 600,
-              color: theme.palette.brand.main,
+              color: "brand.main",
               '&:hover': {
-                bgcolor: theme.palette.brand.lighter
+                bgcolor: "brand.lighter"
               }
-            })}
+            }}
           >
             Cancel
           </Button>
@@ -302,17 +303,17 @@ function WithdrawalForm({ user, isInfoEnough }) {
             variant="contained"
             onClick={handleConfirmWithdrawal}
             disabled={isPending}
-            sx={(theme) => ({
+            sx={{
               textTransform: 'none',
               fontWeight: 600,
-              bgcolor: theme.palette.brand.main,
-              color: theme.palette.text.inverse,
+              bgcolor: "brand.main",
+              color: "text.inverse",
               boxShadow: 'none',
               '&:hover': {
-                bgcolor: theme.palette.brand.dark,
+                bgcolor: "brand.dark",
                 boxShadow: 'none'
               }
-            })}
+            }}
           >
             Confirm
           </Button>

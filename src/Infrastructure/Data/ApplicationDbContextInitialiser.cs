@@ -146,6 +146,54 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
+        if (!_context.CourseTopics.Any())
+        {
+            _context.CourseTopics.AddRange(
+                new CourseTopic { Name = "Web Development" },
+                new CourseTopic { Name = "Mobile Development" },
+                new CourseTopic { Name = "Data Science" },
+                new CourseTopic { Name = "Machine Learning" },
+                new CourseTopic { Name = "Artificial Intelligence" },
+                new CourseTopic { Name = "Deep Learning" },
+                new CourseTopic { Name = "Natural Language Processing" },
+                new CourseTopic { Name = "Computer Vision" },
+                new CourseTopic { Name = "Cloud Computing" },
+                new CourseTopic { Name = "DevOps" },
+                new CourseTopic { Name = "Cybersecurity" },
+                new CourseTopic { Name = "Networking" },
+                new CourseTopic { Name = "Database Management" },
+                new CourseTopic { Name = "Backend Development" },
+                new CourseTopic { Name = "Frontend Development" },
+                new CourseTopic { Name = "Full Stack Development" },
+                new CourseTopic { Name = "React" },
+                new CourseTopic { Name = "Angular" },
+                new CourseTopic { Name = "Vue.js" },
+                new CourseTopic { Name = "Node.js" },
+                new CourseTopic { Name = "Python" },
+                new CourseTopic { Name = "Java" },
+                new CourseTopic { Name = "C#" },
+                new CourseTopic { Name = "C++" },
+                new CourseTopic { Name = "JavaScript" },
+                new CourseTopic { Name = "TypeScript" },
+                new CourseTopic { Name = "Flutter" },
+                new CourseTopic { Name = "React Native" },
+                new CourseTopic { Name = "Swift" },
+                new CourseTopic { Name = "Kotlin" },
+                new CourseTopic { Name = "Game Development" },
+                new CourseTopic { Name = "UI/UX Design" },
+                new CourseTopic { Name = "Graphic Design" },
+                new CourseTopic { Name = "3D Modeling" },
+                new CourseTopic { Name = "Video Editing" },
+                new CourseTopic { Name = "Photography" },
+                new CourseTopic { Name = "Digital Marketing" },
+                new CourseTopic { Name = "Business Analytics" },
+                new CourseTopic { Name = "Project Management" },
+                new CourseTopic { Name = "Blockchain" }
+            );
+
+            await _context.SaveChangesAsync();
+        }
+
         var allKeys = SettingKey.GetAllKeys();
         var existingKeys = _context.SystemSettings.Select(s => s.Key).ToHashSet();
         var missingKeys = allKeys.Where(k => !existingKeys.Contains(k)).ToList();

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { 
+import {
   Box,
   Tabs,
   Tab,
@@ -47,17 +47,17 @@ const CourseTabs = ({ courseData, reviews }) => {
 
   const renderDescription = () => (
     <Box sx={{ py: 3 }}>
-      <Typography 
-        variant="h3" 
-        sx={{ 
-          fontWeight: 700, 
+      <Typography
+        variant="h3"
+        sx={{
+          fontWeight: 700,
           mb: 3,
           color: 'text.primary'
         }}
       >
         About This Course
       </Typography>
-      
+
       {courseData.requirements && (
         <Box sx={{ mb: 2 }}>
           <Typography
@@ -70,7 +70,7 @@ const CourseTabs = ({ courseData, reviews }) => {
             Requirements
           </Typography>
 
-          <Box component="ul" sx={{ pl: 3}}>
+          <Box component="ul" sx={{ pl: 3 }}>
             {courseData.requirements.map((req, index) => (
               <Typography
                 key={index}
@@ -86,7 +86,7 @@ const CourseTabs = ({ courseData, reviews }) => {
       )}
       {courseData.description && (
         <Box sx={{ mb: 4 }}>
-        <Typography
+          <Typography
             variant="h6"
             sx={{
               fontWeight: 600,
@@ -95,17 +95,17 @@ const CourseTabs = ({ courseData, reviews }) => {
           >
             Description
           </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            lineHeight: 1.7,
-            fontSize: "1.1rem",
-            mb: 4,
-          }}
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(courseData.description),
-          }}
-        />
+          <Typography
+            variant="body1"
+            sx={{
+              lineHeight: 1.7,
+              fontSize: "1.1rem",
+              mb: 4,
+            }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(courseData.description),
+            }}
+          />
         </Box>
       )}
 
@@ -121,7 +121,7 @@ const CourseTabs = ({ courseData, reviews }) => {
             Who this course is for:
           </Typography>
 
-          <Box component="ul" sx={{ pl: 3}}>
+          <Box component="ul" sx={{ pl: 3 }}>
             {courseData.targetAudience.map((text, index) => (
               <Typography
                 key={index}
@@ -156,9 +156,9 @@ const CourseTabs = ({ courseData, reviews }) => {
     return (
       <Box sx={{ py: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography 
-            variant="h3" 
-            sx={{ 
+          <Typography
+            variant="h3"
+            sx={{
               fontWeight: 700,
               color: 'text.primary'
             }}
@@ -215,7 +215,7 @@ const CourseTabs = ({ courseData, reviews }) => {
                     variant="subtitle1"
                     sx={{ fontWeight: 600, color: 'text.primary' }}
                   >
-                     {section.title}
+                    {section.title}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                     <Chip
@@ -237,10 +237,10 @@ const CourseTabs = ({ courseData, reviews }) => {
               <AccordionDetails sx={{ pt: 0 }}>
                 <List dense>
                   {section.lessons.map((lesson, lessonIndex) => (
-                    <ListItem 
+                    <ListItem
                       key={lessonIndex}
-                      sx={{ 
-                        px: 0, 
+                      sx={{
+                        px: 0,
                         py: 1,
                         borderBottom: lessonIndex < section.lessons.length - 1 ? '1px solid' : 'none',
                         borderColor: 'divider'
@@ -251,7 +251,7 @@ const CourseTabs = ({ courseData, reviews }) => {
                         {lesson.type === 'article' && <Assignment sx={{ color: 'text.tertiary', fontSize: 20 }} />}
                         {lesson.type === 'quiz' && <Quiz sx={{ color: 'text.tertiary', fontSize: 20 }} />}
                       </ListItemIcon>
-                      <ListItemText 
+                      <ListItemText
                         primary={lesson.title}
                         primaryTypographyProps={{
                           variant: 'body2',
@@ -321,16 +321,16 @@ const CourseTabs = ({ courseData, reviews }) => {
           </Typography>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
-              {Array.from({ 
-                length: Math.ceil(courseData?.learningObjectives.length / 2) 
+              {Array.from({
+                length: Math.ceil(courseData?.learningObjectives.length / 2)
               }).map((_, rowIndex) => {
                 const leftItem = courseData?.learningObjectives[rowIndex];
                 const rightItem = courseData?.learningObjectives[rowIndex + Math.ceil(courseData?.learningObjectives.length / 2)];
-                
+
                 return (
                   <tr key={rowIndex}>
-                    <td style={{ 
-                      width: '50%', 
+                    <td style={{
+                      width: '50%',
                       padding: '6px 16px 6px 0',
                       verticalAlign: 'top'
                     }}>
@@ -345,7 +345,7 @@ const CourseTabs = ({ courseData, reviews }) => {
                               color: '#1c1d1f'
                             }}
                           />
-                          <span 
+                          <span
                             dangerouslySetInnerHTML={{ __html: leftItem }}
                             style={{
                               fontSize: '14px',
@@ -356,8 +356,8 @@ const CourseTabs = ({ courseData, reviews }) => {
                         </Box>
                       )}
                     </td>
-                    <td style={{ 
-                      width: '50%', 
+                    <td style={{
+                      width: '50%',
                       padding: '6px 0 6px 16px',
                       verticalAlign: 'top'
                     }}>
@@ -372,7 +372,7 @@ const CourseTabs = ({ courseData, reviews }) => {
                               color: '#1c1d1f'
                             }}
                           />
-                          <span 
+                          <span
                             dangerouslySetInnerHTML={{ __html: rightItem }}
                             style={{
                               fontSize: '14px',
@@ -390,128 +390,171 @@ const CourseTabs = ({ courseData, reviews }) => {
           </table>
         </Box>
       </Container>
-    <Box 
-      sx={{ 
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: 'divider',
-        overflow: 'hidden'
-      }}
-    >
-      <Box sx={{ px: 3, pt: 2 }}>
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
+
+      {courseData?.topics?.length > 0 && (
+        <Container className="py-0 px-0">
+          <Box
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+              padding: '24px 32px',
+              backgroundColor: 'background.paper',
+              mt: 0,
+              mb: 4,
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 700, mb: 3, color: 'text.primary' }}
+            >
+              Related topics
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {courseData.topics.map((topic) => (
+                <Chip
+                  key={topic.id}
+                  label={topic.name}
+                  variant="outlined"
+                  sx={{
+                    borderColor: 'text.secondary',
+                    color: 'text.primary',
+                    fontWeight: 500,
+                    fontSize: '0.875rem',
+                    borderRadius: '10px',
+                    '&:hover': {
+                      bgcolor: 'grey.200',
+                    },
+                    cursor: 'default',
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
+        </Container>
+      )}
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: 'divider',
+          overflow: 'hidden'
+        }}
+      >
+        <Box sx={{ px: 3, pt: 2 }}>
+          <Tabs
+            value={activeTab}
+            onChange={handleTabChange}
+            sx={{
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '1rem',
+                color: 'text.tertiary',
+                px: 3,
+                py: 2,
+                '&.Mui-selected': {
+                  color: 'brand.main',
+                  fontWeight: 600,
+                }
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: 'brand.main',
+                height: 3,
+                borderRadius: '3px 3px 0 0'
+              },
+              borderBottom: '1px solid',
+              borderColor: 'divider'
+            }}
+          >
+            <Tab label="Description" />
+            <Tab label="Content" />
+            <Tab label="Reviews" />
+          </Tabs>
+        </Box>
+
+        <Box sx={{ px: 3, pb: 3 }}>
+          {activeTab === 0 && renderDescription()}
+          {activeTab === 1 && renderCourses()}
+          {activeTab === 2 && renderReviews(courseId)}
+        </Box>
+      </Box>
+      <Dialog
+        open={Boolean(previewVideo)}
+        onClose={closePreview}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            bgcolor: 'background.paper',
+            backgroundImage: 'none',
+            borderRadius: 2,
+            overflow: 'hidden'
+          }
+        }}
+      >
+        <DialogTitle
           sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 500,
-              fontSize: '1rem',
-              color: 'text.tertiary',
-              px: 3,
-              py: 2,
-              '&.Mui-selected': {
-                color: 'brand.main',
-                fontWeight: 600,
-              }
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: 'brand.main',
-              height: 3,
-              borderRadius: '3px 3px 0 0'
-            },
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            p: 2,
+            px: 3,
+            bgcolor: 'brand.main',
+            color: 'white',
             borderBottom: '1px solid',
             borderColor: 'divider'
           }}
         >
-          <Tab label="Description" />
-          <Tab label="Content" />
-          <Tab label="Reviews" />
-        </Tabs>
-      </Box>
-
-      <Box sx={{ px: 3, pb: 3 }}>
-        {activeTab === 0 && renderDescription()}
-        {activeTab === 1 && renderCourses()}
-        {activeTab === 2 && renderReviews(courseId)}
-      </Box>
-    </Box>
-    <Dialog
-      open={Boolean(previewVideo)}
-      onClose={closePreview}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: { 
-          bgcolor: 'background.paper', 
-          backgroundImage: 'none',
-          borderRadius: 2,
-          overflow: 'hidden'
-        }
-      }}
-    >
-      <DialogTitle 
-        sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          p: 2,
-          px: 3,
-          bgcolor: 'brand.main',
-          color: 'white',
-          borderBottom: '1px solid',
-          borderColor: 'divider'
-        }}
-      >
-        <Box>
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              color: 'rgba(255,255,255,0.7)', 
-              fontWeight: 600, 
-              textTransform: 'uppercase', 
-              letterSpacing: 1, 
-              display: 'block', 
-              mb: 0.5 
+          <Box>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'rgba(255,255,255,0.7)',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+                display: 'block',
+                mb: 0.5
+              }}
+            >
+              Course Preview
+            </Typography>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                fontWeight: 700,
+                color: 'white',
+                lineHeight: 1.2
+              }}
+            >
+              {previewVideo?.title}
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={closePreview}
+            size="small"
+            sx={{
+              color: 'white',
+              bgcolor: 'rgba(255,255,255,0.1)',
+              '&:hover': {
+                bgcolor: 'rgba(255,255,255,0.2)',
+              }
             }}
           >
-            Course Preview
-          </Typography>
-          <Typography 
-            variant="h6" 
-            component="div" 
-            sx={{ 
-              fontWeight: 700, 
-              color: 'white', 
-              lineHeight: 1.2 
-            }}
-          >
-            {previewVideo?.title}
-          </Typography>
-        </Box>
-        <IconButton 
-          onClick={closePreview} 
-          size="small"
-          sx={{
-            color: 'white',
-            bgcolor: 'rgba(255,255,255,0.1)',
-            '&:hover': {
-              bgcolor: 'rgba(255,255,255,0.2)',
-            }
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent sx={{ p: 0, bgcolor: 'black', outline: 'none' }}>
-        {previewVideo?.videoId && (
-          <PreviewVideoPlayer
-            contentId={previewVideo.videoId}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0, bgcolor: 'black', outline: 'none' }}>
+          {previewVideo?.videoId && (
+            <PreviewVideoPlayer
+              contentId={previewVideo.videoId}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

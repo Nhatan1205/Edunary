@@ -16,7 +16,7 @@ public class UpdateCourseCommand : IRequest<Result>
     public string Description { get; init; }
     public int Level { get; init; }
     public int Status { get; init; }
-    public string Topic { get; init; }
+    public List<int> TopicIds { get; init; } = new();
     public List<string> LearningObjectives { get; init; }
     public List<string> Requirements { get; init; }
     public List<string> TargetAudience { get; init; }
@@ -51,7 +51,8 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
         {
             
             var entity = await _context.Courses
-            .FindAsync(new object[] { request.Id }, cancellationToken);
+                .Include(c => c.Topics)
+                .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
             Guard.Against.NotFound(request.Id, entity);
 
             var userId = _currentUserService?.UserId;
@@ -62,7 +63,13 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.Title = request.Title;
             entity.Subtitle = request.Subtitle;
             entity.Description = request.Description;
-            entity.Topic = request.Topic;
+            // Sync N:N topics
+            var newTopics = await _context.CourseTopics
+                .Where(t => request.TopicIds.Contains(t.Id))
+                .ToListAsync(cancellationToken);
+            entity.Topics.Clear();
+            foreach (var topic in newTopics)
+                entity.Topics.Add(topic);
             entity.LearningObjectives = JsonSerializer.Serialize(request.LearningObjectives);
             entity.Requirements = JsonSerializer.Serialize(request.Requirements);
             entity.TargetAudience = JsonSerializer.Serialize(request.TargetAudience);

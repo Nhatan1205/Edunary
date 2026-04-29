@@ -61,7 +61,7 @@ const CourseOverview = () => {
     requirements: courseData.requirements || "No prior experience required",
     learningObjectives: courseData.learningObjectives || "Master the fundamentals and build practical skills",
     welcomeMessage: courseData.welcomeMessage || "",
-    topic: courseData.topic || courseData.categoryTitle || "Development",
+    topics: courseData.topics || [],
     subtitle: courseData.subtitle || "",
     certificateOfCompletion: true,
     lifetimeAccess: true,

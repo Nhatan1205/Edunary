@@ -35,6 +35,7 @@ public interface IApplicationDbContext
 
     public DbSet<Roadmap> Roadmaps { get; }
     public DbSet<RoadmapTopic> RoadmapTopics { get; }
+    public DbSet<CourseTopic> CourseTopics { get; }
 
     public DbSet<SystemSetting> SystemSettings { get; }
     public DbSet<VideoCaption> VideoCaptions { get; }

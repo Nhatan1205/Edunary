@@ -18,7 +18,7 @@ const CourseHeader = ({ courseData }) => {
           color: 'text.inverse'
         }}
       >
-        {courseData.category} • {courseData.topic}
+        {courseData.category}
       </Typography>
 
       <Typography

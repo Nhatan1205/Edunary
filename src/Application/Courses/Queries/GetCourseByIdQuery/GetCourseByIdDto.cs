@@ -1,8 +1,14 @@
-﻿using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
+using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetCourseById;
+
+public class CourseTopicItemDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
+}
 public class GetCourseByIdDto
 {
     public int Id { get; set; }
@@ -11,7 +17,7 @@ public class GetCourseByIdDto
     public string Description { get; set; } = null!;
     public CourseLevel Level { get; set; }
     public CourseStatus Status { get; set; }
-    public string Topic { get; set; } = null!;
+    public List<CourseTopicItemDto> Topics { get; set; } = new();
     public string LearningObjectives { get; set; } = null!;
     public string Requirements { get; set; } = null!;
     public string TargetAudience { get; set; } = null!;
@@ -27,6 +33,7 @@ public class GetCourseByIdDto
     {
         public Mapping()
         {
+            CreateMap<CourseTopic, CourseTopicItemDto>();
             CreateMap<Course, GetCourseByIdDto>();
         }
     }

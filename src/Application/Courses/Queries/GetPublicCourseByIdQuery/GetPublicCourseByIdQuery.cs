@@ -30,6 +30,7 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
     {
         var course = await _context.Courses
             .Include(c => c.Category)
+            .Include(c => c.Topics)
             .Where(c => c.Id == request.Id)
             .ProjectTo<GetPublicCourseByIdDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);

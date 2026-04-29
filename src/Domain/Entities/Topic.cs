@@ -1,6 +1,6 @@
 namespace Edunary.Domain.Entities;
 
-public class CourseTopic : BaseAuditableEntity
+public class Topic : BaseAuditableEntity
 {
     public string Name { get; set; } = null!;
 

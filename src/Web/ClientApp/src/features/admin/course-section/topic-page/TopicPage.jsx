@@ -6,10 +6,10 @@ import PageTitle from "../../../../components/PageTitle";
 import ConfirmDialog from "../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import useDebounce from "../../../../hooks/common/useDebounce";
 
-import useGetCourseTopics from "../../../../hooks/course-topic-hooks/useGetCourseTopics";
-import useCreateCourseTopic from "../../../../hooks/course-topic-hooks/useCreateCourseTopic";
-import useUpdateCourseTopic from "../../../../hooks/course-topic-hooks/useUpdateCourseTopic";
-import useDeleteCourseTopic from "../../../../hooks/course-topic-hooks/useDeleteCourseTopic";
+import useGetTopics from "../../../../hooks/topic-hooks/useGetTopics";
+import useCreateTopic from "../../../../hooks/topic-hooks/useCreateTopic";
+import useUpdateTopic from "../../../../hooks/topic-hooks/useUpdateTopic";
+import useDeleteTopic from "../../../../hooks/topic-hooks/useDeleteTopic";
 import TopicDialog from "./components/TopicDialog";
 import TopicDataGrid from "./components/TopicDataGrid";
 
@@ -45,15 +45,15 @@ function TopicPage() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [topicToDelete, setTopicToDelete] = useState(null);
 
-    const { data, isLoading, isFetching } = useGetCourseTopics(
+    const { data, isLoading, isFetching } = useGetTopics(
         debouncedSearch || null,
         page + 1,
         rowsPerPage
     );
 
-    const createTopic = useCreateCourseTopic();
-    const updateTopic = useUpdateCourseTopic();
-    const deleteTopic = useDeleteCourseTopic();
+    const createTopic = useCreateTopic();
+    const updateTopic = useUpdateTopic();
+    const deleteTopic = useDeleteTopic();
 
     const handleChangePage = useCallback((_, newPage) => setPage(newPage), []);
     const handleChangeRowsPerPage = useCallback((e) => {

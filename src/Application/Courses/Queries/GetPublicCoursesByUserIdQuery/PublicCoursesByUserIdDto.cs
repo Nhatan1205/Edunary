@@ -10,7 +10,7 @@ public class PublicCoursesByUserIdDto
     public float Price { get; set; }
     public string ImageUrl { get; set; }
     public string Level { get; set; }
-    public List<CourseTopicItemDto> Topics { get; set; } = new();
+    public List<TopicItemDto> Topics { get; set; } = new();
     public float Ratings { get; set; }
     public int TotalStudents { get; set; }
     public string CreatedBy { get; set; }

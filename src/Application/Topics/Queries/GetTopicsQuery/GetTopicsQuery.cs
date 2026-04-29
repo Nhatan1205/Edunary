@@ -1,30 +1,29 @@
-using Edunary.Application.Common.Interfaces;
+﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
 
-namespace Edunary.Application.CourseTopics.Queries.GetCourseTopics;
-
-public record GetCourseTopicsQuery : IRequest<PaginatedList<GetCourseTopicDto>>
+namespace Edunary.Application.Topics.Queries.GetTopicsQuery;
+public record GetTopicsQuery : IRequest<PaginatedList<GetTopicDto>>
 {
     public string SearchText { get; init; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 20;
 }
 
-public class GetCourseTopicsQueryHandler : IRequestHandler<GetCourseTopicsQuery, PaginatedList<GetCourseTopicDto>>
+public class GetTopicsQueryHandler : IRequestHandler<GetTopicsQuery, PaginatedList<GetTopicDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public GetCourseTopicsQueryHandler(IApplicationDbContext context, IMapper mapper)
+    public GetTopicsQueryHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
 
-    public async Task<PaginatedList<GetCourseTopicDto>> Handle(GetCourseTopicsQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<GetTopicDto>> Handle(GetTopicsQuery request, CancellationToken cancellationToken)
     {
-        var query = _context.CourseTopics
+        var query = _context.Topics
             .Include(t => t.Courses)
             .AsQueryable();
 
@@ -36,7 +35,7 @@ public class GetCourseTopicsQueryHandler : IRequestHandler<GetCourseTopicsQuery,
 
         return await query
             .OrderBy(t => t.Name)
-            .ProjectTo<GetCourseTopicDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<GetTopicDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
     }
 }

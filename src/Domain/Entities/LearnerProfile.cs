@@ -8,6 +8,7 @@ public class LearnerProfile : BaseAuditableEntity
     public string KnownSkills { get; set; } = string.Empty;
     public string Interests { get; set; } = string.Empty;             
     public string PreferredCategoryIds { get; set; } = string.Empty;
+    public string PreferredTopicIds { get; set; } = string.Empty;
     public int WeeklyHours { get; set; }
     public int TimelineMonths { get; set; }
 }

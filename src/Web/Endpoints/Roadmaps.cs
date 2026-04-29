@@ -9,7 +9,6 @@ using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapDetailQuery;
 using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapsQuery;
 using Edunary.Application.Roadmaps.Queries.GetRelatedRoadmapsByCourseIdQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapDetailQuery;
-using Edunary.Application.Roadmaps.Queries.GetRoadmapDetailWithProgressQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapsAuthorQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapTopicsQuery;
 using MediatR;
@@ -30,13 +29,12 @@ public class Roadmaps : EndpointGroupBase
             .MapDelete(DeleteRoadmap)
             .MapGet(GetRoadmapsAuthor)
             .MapGet(GetRoadmapDetail, "{id}")
-            .MapGet(GetMyAIRoadmaps, "my-ai-roadmaps")
-            .MapGet(GetAIRoadmapDetail, "my-ai-roadmaps/{id}");
+            .MapGet(GetMyAIRoadmaps, "my-ai-roadmaps");
 
         app.MapGroup(this)
             .MapGet(GetPublicRoadmaps, "public")
             .MapGet(GetPublicRoadmapDetail, "public/{id}")
-            .MapGet(GetTopics, "public/topics")
+            .MapGet(GetRoadmapTopics, "public/topics")
             .MapGet(GetRelatedRoadmapsByCourseId, "public/course/{courseId}");
     }
 
@@ -45,7 +43,7 @@ public class Roadmaps : EndpointGroupBase
         return await sender.Send(command);
     }
 
-    public async Task<List<RoadmapTopicDto>> GetTopics(ISender sender)
+    public async Task<List<RoadmapTopicDto>> GetRoadmapTopics(ISender sender)
     {
         return await sender.Send(new GetRoadmapTopicsQuery());
     }
@@ -107,9 +105,5 @@ public class Roadmaps : EndpointGroupBase
         return await sender.Send(new GetMyAIRoadmapsQuery());
     }
 
-    public async Task<AIRoadmapDetailDto> GetAIRoadmapDetail(ISender sender, int id)
-    {
-        return await sender.Send(new GetRoadmapDetailWithProgressQuery { Id = id });
-    }
 }
 

@@ -1,8 +1,7 @@
-namespace Edunary.Application.CourseTopics.Commands.CreateCourseTopic;
-
-public class CreateCourseTopicCommandValidator : AbstractValidator<CreateCourseTopicCommand>
+﻿namespace Edunary.Application.Topics.Commands.CreateTopicCommand;
+public class CreateTopicCommandValidator : AbstractValidator<CreateTopicCommand>
 {
-    public CreateCourseTopicCommandValidator()
+    public CreateTopicCommandValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Topic name is required.")

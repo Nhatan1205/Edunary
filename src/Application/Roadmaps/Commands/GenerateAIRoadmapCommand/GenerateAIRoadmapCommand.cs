@@ -107,16 +107,31 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
                 .Select(p => p.CourseId)
                 .ToListAsync(ct);
 
+            // Resolve preferred topic names from LearnerProfile (for AI signal)
+            var preferredTopicIds = string.IsNullOrEmpty(profile.PreferredTopicIds)
+                ? new List<int>()
+                : JsonSerializer.Deserialize<List<int>>(profile.PreferredTopicIds) ?? new List<int>();
+
+            var preferredTopicNames = preferredTopicIds.Count > 0
+                ? await _context.Topics
+                    .Where(t => preferredTopicIds.Contains(t.Id))
+                    .Select(t => t.Name)
+                    .ToListAsync(ct)
+                : new List<string>();
+
             // ── 25% ──
             await SendProgress(userId, 25, "Understanding your current skills...");
 
             // 4. Filter course catalog (4 steps in one query)
+            // Courses matching student's preferred topics are sorted to the top (soft boost, not hard exclude)
             var catalog = await _context.Courses
+                .Include(c => c.Topics)
                 .Where(c => c.Status == CourseStatus.Public
                          && c.CategoryId == request.CategoryId
                          && !enrolledIds.Contains(c.Id)
                          && (c.TotalStudents >= 1 || c.Ratings >= 1))
-                .OrderByDescending(c => c.Ratings)
+                .OrderByDescending(c => c.Topics.Any(t => preferredTopicIds.Contains(t.Id)) ? 1 : 0)
+                .ThenByDescending(c => c.Ratings)
                 .ThenByDescending(c => c.TotalStudents)
                 .Take(50)
                 .Select(c => new
@@ -124,7 +139,7 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
                     id = c.Id,
                     title = c.Title,
                     level = c.Level.ToString(),
-                    topic = c.Topic,
+                    topics = c.Topics.Select(t => t.Name).ToList(),
                     ratings = c.Ratings,
                     total_students = c.TotalStudents,
                     learning_objectives = c.LearningObjectives
@@ -144,6 +159,7 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
                     goal = request.Goal,
                     skill_level = request.Level.ToString(),
                     known_skills = request.KnownSkills,
+                    preferred_topics = preferredTopicNames,   // topic names for AI reasoning
                     weekly_hours = request.WeeklyHours,
                     timeline_months = request.TimelineMonths,
                     enrolled_course_ids = enrolledIds,

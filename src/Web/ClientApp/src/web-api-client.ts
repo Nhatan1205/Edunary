@@ -1639,179 +1639,6 @@ export class CoursesClient {
     }
 }
 
-export class CourseTopicsClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
-
-    getCourseTopics(searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCourseTopicDto> {
-        let url_ = this.baseUrl + "/api/CourseTopics?";
-        if (searchText !== undefined && searchText !== null)
-            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
-        if (pageNumber === undefined || pageNumber === null)
-            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
-        else
-            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        if (pageSize === undefined || pageSize === null)
-            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
-        else
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCourseTopics(_response);
-        });
-    }
-
-    protected processGetCourseTopics(response: Response): Promise<PaginatedListOfGetCourseTopicDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfGetCourseTopicDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PaginatedListOfGetCourseTopicDto>(null as any);
-    }
-
-    createCourseTopic(command: CreateCourseTopicCommand | undefined): Promise<ReturnResultOfCreatedCourseTopicDto> {
-        let url_ = this.baseUrl + "/api/CourseTopics/admin";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateCourseTopic(_response);
-        });
-    }
-
-    protected processCreateCourseTopic(response: Response): Promise<ReturnResultOfCreatedCourseTopicDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ReturnResultOfCreatedCourseTopicDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ReturnResultOfCreatedCourseTopicDto>(null as any);
-    }
-
-    updateCourseTopic(command: UpdateCourseTopicCommand | undefined): Promise<Result> {
-        let url_ = this.baseUrl + "/api/CourseTopics/admin";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateCourseTopic(_response);
-        });
-    }
-
-    protected processUpdateCourseTopic(response: Response): Promise<Result> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Result>(null as any);
-    }
-
-    deleteCourseTopic(command: DeleteCourseTopicCommand | undefined): Promise<Result> {
-        let url_ = this.baseUrl + "/api/CourseTopics/admin";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteCourseTopic(_response);
-        });
-    }
-
-    protected processDeleteCourseTopic(response: Response): Promise<Result> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Result.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Result>(null as any);
-    }
-}
-
 export class EnrollmentClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -2141,6 +1968,52 @@ export class InstructorWalletClient {
     }
 
     protected processCancelWithdrawal(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class LearnerProfilesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    upsertProfile(command: UpsertLearnerProfileCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/LearnerProfiles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpsertProfile(_response);
+        });
+    }
+
+    protected processUpsertProfile(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -3279,7 +3152,7 @@ export class RoadmapsClient {
         return Promise.resolve<PaginatedListOfRoadmapAuthorDto>(null as any);
     }
 
-    generateAIRoadmap(command: GenerateAIRoadmapCommand | undefined): Promise<ReturnResultOfAIRoadmapResultDto> {
+    generateAIRoadmap(command: GenerateAIRoadmapCommand | undefined): Promise<ReturnResultOfGeneratedAIRoadmapDto> {
         let url_ = this.baseUrl + "/api/Roadmaps/generate-ai";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3299,7 +3172,7 @@ export class RoadmapsClient {
         });
     }
 
-    protected processGenerateAIRoadmap(response: Response): Promise<ReturnResultOfAIRoadmapResultDto> {
+    protected processGenerateAIRoadmap(response: Response): Promise<ReturnResultOfGeneratedAIRoadmapDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -3307,7 +3180,7 @@ export class RoadmapsClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ReturnResultOfAIRoadmapResultDto.fromJS(resultData200);
+            result200 = ReturnResultOfGeneratedAIRoadmapDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -3315,7 +3188,45 @@ export class RoadmapsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<ReturnResultOfAIRoadmapResultDto>(null as any);
+        return Promise.resolve<ReturnResultOfGeneratedAIRoadmapDto>(null as any);
+    }
+
+    rateRoadmap(id: number, command: RateRoadmapCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Roadmaps/{id}/rate";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRateRoadmap(_response);
+        });
+    }
+
+    protected processRateRoadmap(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     getRoadmapDetail(id: number): Promise<RoadmapDetailDto> {
@@ -3354,6 +3265,48 @@ export class RoadmapsClient {
             });
         }
         return Promise.resolve<RoadmapDetailDto>(null as any);
+    }
+
+    getMyAIRoadmaps(): Promise<MyAIRoadmapDto[]> {
+        let url_ = this.baseUrl + "/api/Roadmaps/my-ai-roadmaps";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyAIRoadmaps(_response);
+        });
+    }
+
+    protected processGetMyAIRoadmaps(response: Response): Promise<MyAIRoadmapDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MyAIRoadmapDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MyAIRoadmapDto[]>(null as any);
     }
 
     getPublicRoadmaps(roadmapTopicId: number | null | undefined, searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfPublicRoadmapListDto> {
@@ -3441,7 +3394,7 @@ export class RoadmapsClient {
         return Promise.resolve<PublicRoadmapDetailDto>(null as any);
     }
 
-    getTopics(): Promise<RoadmapTopicDto[]> {
+    getRoadmapTopics(): Promise<RoadmapTopicDto[]> {
         let url_ = this.baseUrl + "/api/Roadmaps/public/topics";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3453,11 +3406,11 @@ export class RoadmapsClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetTopics(_response);
+            return this.processGetRoadmapTopics(_response);
         });
     }
 
-    protected processGetTopics(response: Response): Promise<RoadmapTopicDto[]> {
+    protected processGetRoadmapTopics(response: Response): Promise<RoadmapTopicDto[]> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -4032,6 +3985,179 @@ export class TodoListsClient {
             });
         }
         return Promise.resolve<void>(null as any);
+    }
+}
+
+export class TopicsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getTopics(searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfGetTopicDto> {
+        let url_ = this.baseUrl + "/api/Topics?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTopics(_response);
+        });
+    }
+
+    protected processGetTopics(response: Response): Promise<PaginatedListOfGetTopicDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfGetTopicDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfGetTopicDto>(null as any);
+    }
+
+    createTopic(command: CreateTopicCommand | undefined): Promise<ReturnResultOfCreatedTopicDto> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateTopic(_response);
+        });
+    }
+
+    protected processCreateTopic(response: Response): Promise<ReturnResultOfCreatedTopicDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCreatedTopicDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCreatedTopicDto>(null as any);
+    }
+
+    updateTopic(command: UpdateTopicCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateTopic(_response);
+        });
+    }
+
+    protected processUpdateTopic(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteTopic(command: DeleteTopicCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteTopic(_response);
+        });
+    }
+
+    protected processDeleteTopic(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
     }
 }
 
@@ -6315,7 +6441,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -6347,7 +6473,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             if (Array.isArray(_data["topics"])) {
                 this.topics = [] as any;
                 for (let item of _data["topics"])
-                    this.topics!.push(CourseTopicItemDto.fromJS(item));
+                    this.topics!.push(TopicItemDto.fromJS(item));
             }
             this.learningObjectives = _data["learningObjectives"];
             this.requirements = _data["requirements"];
@@ -6403,7 +6529,7 @@ export interface IGetCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -6428,11 +6554,11 @@ export enum CourseStatus {
     Public = 1,
 }
 
-export class CourseTopicItemDto implements ICourseTopicItemDto {
+export class TopicItemDto implements ITopicItemDto {
     id?: number;
     name?: string | undefined;
 
-    constructor(data?: ICourseTopicItemDto) {
+    constructor(data?: ITopicItemDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6448,9 +6574,9 @@ export class CourseTopicItemDto implements ICourseTopicItemDto {
         }
     }
 
-    static fromJS(data: any): CourseTopicItemDto {
+    static fromJS(data: any): TopicItemDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CourseTopicItemDto();
+        let result = new TopicItemDto();
         result.init(data);
         return result;
     }
@@ -6463,7 +6589,7 @@ export class CourseTopicItemDto implements ICourseTopicItemDto {
     }
 }
 
-export interface ICourseTopicItemDto {
+export interface ITopicItemDto {
     id?: number;
     name?: string | undefined;
 }
@@ -7782,7 +7908,7 @@ export class GetCourseDto implements IGetCourseDto {
     imageUrl?: string | undefined;
     level?: CourseLevel;
     learningObjectives?: string | undefined;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     isEnrolled?: boolean;
@@ -7812,7 +7938,7 @@ export class GetCourseDto implements IGetCourseDto {
             if (Array.isArray(_data["topics"])) {
                 this.topics = [] as any;
                 for (let item of _data["topics"])
-                    this.topics!.push(CourseTopicItemDto.fromJS(item));
+                    this.topics!.push(TopicItemDto.fromJS(item));
             }
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
@@ -7864,7 +7990,7 @@ export interface IGetCourseDto {
     imageUrl?: string | undefined;
     level?: CourseLevel;
     learningObjectives?: string | undefined;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     isEnrolled?: boolean;
@@ -8067,7 +8193,7 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
     level?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -8098,7 +8224,7 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
             if (Array.isArray(_data["topics"])) {
                 this.topics = [] as any;
                 for (let item of _data["topics"])
-                    this.topics!.push(CourseTopicItemDto.fromJS(item));
+                    this.topics!.push(TopicItemDto.fromJS(item));
             }
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
@@ -8152,7 +8278,7 @@ export interface IGetHomepageCoursesDto {
     level?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -8167,7 +8293,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -8205,7 +8331,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             if (Array.isArray(_data["topics"])) {
                 this.topics = [] as any;
                 for (let item of _data["topics"])
-                    this.topics!.push(CourseTopicItemDto.fromJS(item));
+                    this.topics!.push(TopicItemDto.fromJS(item));
             }
             this.learningObjectives = _data["learningObjectives"];
             this.requirements = _data["requirements"];
@@ -8273,7 +8399,7 @@ export interface IGetPublicCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -8407,7 +8533,7 @@ export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
     price?: number;
     imageUrl?: string | undefined;
     level?: string | undefined;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -8432,7 +8558,7 @@ export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
             if (Array.isArray(_data["topics"])) {
                 this.topics = [] as any;
                 for (let item of _data["topics"])
-                    this.topics!.push(CourseTopicItemDto.fromJS(item));
+                    this.topics!.push(TopicItemDto.fromJS(item));
             }
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
@@ -8474,310 +8600,10 @@ export interface IPublicCoursesByUserIdDto {
     price?: number;
     imageUrl?: string | undefined;
     level?: string | undefined;
-    topics?: CourseTopicItemDto[] | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
-}
-
-export class PaginatedListOfGetCourseTopicDto implements IPaginatedListOfGetCourseTopicDto {
-    items?: GetCourseTopicDto[] | undefined;
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-
-    constructor(data?: IPaginatedListOfGetCourseTopicDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(GetCourseTopicDto.fromJS(item));
-            }
-            this.pageNumber = _data["pageNumber"];
-            this.totalPages = _data["totalPages"];
-            this.totalCount = _data["totalCount"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-        }
-    }
-
-    static fromJS(data: any): PaginatedListOfGetCourseTopicDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfGetCourseTopicDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["pageNumber"] = this.pageNumber;
-        data["totalPages"] = this.totalPages;
-        data["totalCount"] = this.totalCount;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        return data;
-    }
-}
-
-export interface IPaginatedListOfGetCourseTopicDto {
-    items?: GetCourseTopicDto[] | undefined;
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-}
-
-export class GetCourseTopicDto implements IGetCourseTopicDto {
-    id?: number;
-    name?: string | undefined;
-    courseCount?: number;
-
-    constructor(data?: IGetCourseTopicDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.courseCount = _data["courseCount"];
-        }
-    }
-
-    static fromJS(data: any): GetCourseTopicDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GetCourseTopicDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["courseCount"] = this.courseCount;
-        return data;
-    }
-}
-
-export interface IGetCourseTopicDto {
-    id?: number;
-    name?: string | undefined;
-    courseCount?: number;
-}
-
-export class ReturnResultOfCreatedCourseTopicDto implements IReturnResultOfCreatedCourseTopicDto {
-    result?: CreatedCourseTopicDto | undefined;
-    message?: string | undefined;
-
-    constructor(data?: IReturnResultOfCreatedCourseTopicDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.result = _data["result"] ? CreatedCourseTopicDto.fromJS(_data["result"]) : <any>undefined;
-            this.message = _data["message"];
-        }
-    }
-
-    static fromJS(data: any): ReturnResultOfCreatedCourseTopicDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ReturnResultOfCreatedCourseTopicDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
-        data["message"] = this.message;
-        return data;
-    }
-}
-
-export interface IReturnResultOfCreatedCourseTopicDto {
-    result?: CreatedCourseTopicDto | undefined;
-    message?: string | undefined;
-}
-
-export class CreatedCourseTopicDto implements ICreatedCourseTopicDto {
-    id?: number;
-    name?: string | undefined;
-
-    constructor(data?: ICreatedCourseTopicDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-        }
-    }
-
-    static fromJS(data: any): CreatedCourseTopicDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatedCourseTopicDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        return data;
-    }
-}
-
-export interface ICreatedCourseTopicDto {
-    id?: number;
-    name?: string | undefined;
-}
-
-export class CreateCourseTopicCommand implements ICreateCourseTopicCommand {
-    name?: string | undefined;
-
-    constructor(data?: ICreateCourseTopicCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-        }
-    }
-
-    static fromJS(data: any): CreateCourseTopicCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateCourseTopicCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        return data;
-    }
-}
-
-export interface ICreateCourseTopicCommand {
-    name?: string | undefined;
-}
-
-export class UpdateCourseTopicCommand implements IUpdateCourseTopicCommand {
-    id?: number;
-    name?: string | undefined;
-
-    constructor(data?: IUpdateCourseTopicCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-        }
-    }
-
-    static fromJS(data: any): UpdateCourseTopicCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateCourseTopicCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        return data;
-    }
-}
-
-export interface IUpdateCourseTopicCommand {
-    id?: number;
-    name?: string | undefined;
-}
-
-export class DeleteCourseTopicCommand implements IDeleteCourseTopicCommand {
-    id?: number;
-
-    constructor(data?: IDeleteCourseTopicCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-        }
-    }
-
-    static fromJS(data: any): DeleteCourseTopicCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new DeleteCourseTopicCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        return data;
-    }
-}
-
-export interface IDeleteCourseTopicCommand {
-    id?: number;
 }
 
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {
@@ -9224,6 +9050,90 @@ export class WithdrawFromInstructorWalletCommand implements IWithdrawFromInstruc
 export interface IWithdrawFromInstructorWalletCommand {
     amount?: number;
     currency?: string | undefined;
+}
+
+export class UpsertLearnerProfileCommand implements IUpsertLearnerProfileCommand {
+    goal?: string | undefined;
+    level?: CourseLevel;
+    knownSkills?: string[] | undefined;
+    interests?: string[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number;
+    timelineMonths?: number;
+
+    constructor(data?: IUpsertLearnerProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.goal = _data["goal"];
+            this.level = _data["level"];
+            if (Array.isArray(_data["knownSkills"])) {
+                this.knownSkills = [] as any;
+                for (let item of _data["knownSkills"])
+                    this.knownSkills!.push(item);
+            }
+            if (Array.isArray(_data["interests"])) {
+                this.interests = [] as any;
+                for (let item of _data["interests"])
+                    this.interests!.push(item);
+            }
+            if (Array.isArray(_data["preferredTopicIds"])) {
+                this.preferredTopicIds = [] as any;
+                for (let item of _data["preferredTopicIds"])
+                    this.preferredTopicIds!.push(item);
+            }
+            this.weeklyHours = _data["weeklyHours"];
+            this.timelineMonths = _data["timelineMonths"];
+        }
+    }
+
+    static fromJS(data: any): UpsertLearnerProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpsertLearnerProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["goal"] = this.goal;
+        data["level"] = this.level;
+        if (Array.isArray(this.knownSkills)) {
+            data["knownSkills"] = [];
+            for (let item of this.knownSkills)
+                data["knownSkills"].push(item);
+        }
+        if (Array.isArray(this.interests)) {
+            data["interests"] = [];
+            for (let item of this.interests)
+                data["interests"].push(item);
+        }
+        if (Array.isArray(this.preferredTopicIds)) {
+            data["preferredTopicIds"] = [];
+            for (let item of this.preferredTopicIds)
+                data["preferredTopicIds"].push(item);
+        }
+        data["weeklyHours"] = this.weeklyHours;
+        data["timelineMonths"] = this.timelineMonths;
+        return data;
+    }
+}
+
+export interface IUpsertLearnerProfileCommand {
+    goal?: string | undefined;
+    level?: CourseLevel;
+    knownSkills?: string[] | undefined;
+    interests?: string[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number;
+    timelineMonths?: number;
 }
 
 export class MediaFileDto implements IMediaFileDto {
@@ -10864,11 +10774,11 @@ export interface ICreateRoadmapCommand {
     skillLevel?: CourseLevel;
 }
 
-export class ReturnResultOfAIRoadmapResultDto implements IReturnResultOfAIRoadmapResultDto {
-    result?: AIRoadmapResultDto | undefined;
+export class ReturnResultOfGeneratedAIRoadmapDto implements IReturnResultOfGeneratedAIRoadmapDto {
+    result?: GeneratedAIRoadmapDto | undefined;
     message?: string | undefined;
 
-    constructor(data?: IReturnResultOfAIRoadmapResultDto) {
+    constructor(data?: IReturnResultOfGeneratedAIRoadmapDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -10879,14 +10789,14 @@ export class ReturnResultOfAIRoadmapResultDto implements IReturnResultOfAIRoadma
 
     init(_data?: any) {
         if (_data) {
-            this.result = _data["result"] ? AIRoadmapResultDto.fromJS(_data["result"]) : <any>undefined;
+            this.result = _data["result"] ? GeneratedAIRoadmapDto.fromJS(_data["result"]) : <any>undefined;
             this.message = _data["message"];
         }
     }
 
-    static fromJS(data: any): ReturnResultOfAIRoadmapResultDto {
+    static fromJS(data: any): ReturnResultOfGeneratedAIRoadmapDto {
         data = typeof data === 'object' ? data : {};
-        let result = new ReturnResultOfAIRoadmapResultDto();
+        let result = new ReturnResultOfGeneratedAIRoadmapDto();
         result.init(data);
         return result;
     }
@@ -10899,16 +10809,18 @@ export class ReturnResultOfAIRoadmapResultDto implements IReturnResultOfAIRoadma
     }
 }
 
-export interface IReturnResultOfAIRoadmapResultDto {
-    result?: AIRoadmapResultDto | undefined;
+export interface IReturnResultOfGeneratedAIRoadmapDto {
+    result?: GeneratedAIRoadmapDto | undefined;
     message?: string | undefined;
 }
 
-export class AIRoadmapResultDto implements IAIRoadmapResultDto {
-    nodes?: AIRoadmapNodeDto[] | undefined;
-    edges?: AIRoadmapEdgeDto[] | undefined;
+export class GeneratedAIRoadmapDto implements IGeneratedAIRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    summary?: string | undefined;
+    nodeCount?: number;
 
-    constructor(data?: IAIRoadmapResultDto) {
+    constructor(data?: IGeneratedAIRoadmapDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -10919,146 +10831,45 @@ export class AIRoadmapResultDto implements IAIRoadmapResultDto {
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["nodes"])) {
-                this.nodes = [] as any;
-                for (let item of _data["nodes"])
-                    this.nodes!.push(AIRoadmapNodeDto.fromJS(item));
-            }
-            if (Array.isArray(_data["edges"])) {
-                this.edges = [] as any;
-                for (let item of _data["edges"])
-                    this.edges!.push(AIRoadmapEdgeDto.fromJS(item));
-            }
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.summary = _data["summary"];
+            this.nodeCount = _data["nodeCount"];
         }
     }
 
-    static fromJS(data: any): AIRoadmapResultDto {
+    static fromJS(data: any): GeneratedAIRoadmapDto {
         data = typeof data === 'object' ? data : {};
-        let result = new AIRoadmapResultDto();
+        let result = new GeneratedAIRoadmapDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.nodes)) {
-            data["nodes"] = [];
-            for (let item of this.nodes)
-                data["nodes"].push(item.toJSON());
-        }
-        if (Array.isArray(this.edges)) {
-            data["edges"] = [];
-            for (let item of this.edges)
-                data["edges"].push(item.toJSON());
-        }
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["summary"] = this.summary;
+        data["nodeCount"] = this.nodeCount;
         return data;
     }
 }
 
-export interface IAIRoadmapResultDto {
-    nodes?: AIRoadmapNodeDto[] | undefined;
-    edges?: AIRoadmapEdgeDto[] | undefined;
-}
-
-export class AIRoadmapNodeDto implements IAIRoadmapNodeDto {
-    clientNodeId?: string | undefined;
-    label?: string | undefined;
-    description?: string | undefined;
-    positionX?: number;
-    positionY?: number;
-    sortOrder?: number;
-
-    constructor(data?: IAIRoadmapNodeDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.clientNodeId = _data["clientNodeId"];
-            this.label = _data["label"];
-            this.description = _data["description"];
-            this.positionX = _data["positionX"];
-            this.positionY = _data["positionY"];
-            this.sortOrder = _data["sortOrder"];
-        }
-    }
-
-    static fromJS(data: any): AIRoadmapNodeDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new AIRoadmapNodeDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["clientNodeId"] = this.clientNodeId;
-        data["label"] = this.label;
-        data["description"] = this.description;
-        data["positionX"] = this.positionX;
-        data["positionY"] = this.positionY;
-        data["sortOrder"] = this.sortOrder;
-        return data;
-    }
-}
-
-export interface IAIRoadmapNodeDto {
-    clientNodeId?: string | undefined;
-    label?: string | undefined;
-    description?: string | undefined;
-    positionX?: number;
-    positionY?: number;
-    sortOrder?: number;
-}
-
-export class AIRoadmapEdgeDto implements IAIRoadmapEdgeDto {
-    sourceNodeId?: string | undefined;
-    targetNodeId?: string | undefined;
-
-    constructor(data?: IAIRoadmapEdgeDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.sourceNodeId = _data["sourceNodeId"];
-            this.targetNodeId = _data["targetNodeId"];
-        }
-    }
-
-    static fromJS(data: any): AIRoadmapEdgeDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new AIRoadmapEdgeDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["sourceNodeId"] = this.sourceNodeId;
-        data["targetNodeId"] = this.targetNodeId;
-        return data;
-    }
-}
-
-export interface IAIRoadmapEdgeDto {
-    sourceNodeId?: string | undefined;
-    targetNodeId?: string | undefined;
+export interface IGeneratedAIRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    summary?: string | undefined;
+    nodeCount?: number;
 }
 
 export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
-    topic?: string | undefined;
-    level?: string | undefined;
+    goal?: string | undefined;
+    categoryId?: number;
+    roadmapTopicId?: number;
+    level?: CourseLevel;
+    knownSkills?: string[] | undefined;
+    weeklyHours?: number;
+    timelineMonths?: number;
 
     constructor(data?: IGenerateAIRoadmapCommand) {
         if (data) {
@@ -11071,8 +10882,17 @@ export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.topic = _data["topic"];
+            this.goal = _data["goal"];
+            this.categoryId = _data["categoryId"];
+            this.roadmapTopicId = _data["roadmapTopicId"];
             this.level = _data["level"];
+            if (Array.isArray(_data["knownSkills"])) {
+                this.knownSkills = [] as any;
+                for (let item of _data["knownSkills"])
+                    this.knownSkills!.push(item);
+            }
+            this.weeklyHours = _data["weeklyHours"];
+            this.timelineMonths = _data["timelineMonths"];
         }
     }
 
@@ -11085,15 +10905,29 @@ export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["topic"] = this.topic;
+        data["goal"] = this.goal;
+        data["categoryId"] = this.categoryId;
+        data["roadmapTopicId"] = this.roadmapTopicId;
         data["level"] = this.level;
+        if (Array.isArray(this.knownSkills)) {
+            data["knownSkills"] = [];
+            for (let item of this.knownSkills)
+                data["knownSkills"].push(item);
+        }
+        data["weeklyHours"] = this.weeklyHours;
+        data["timelineMonths"] = this.timelineMonths;
         return data;
     }
 }
 
 export interface IGenerateAIRoadmapCommand {
-    topic?: string | undefined;
-    level?: string | undefined;
+    goal?: string | undefined;
+    categoryId?: number;
+    roadmapTopicId?: number;
+    level?: CourseLevel;
+    knownSkills?: string[] | undefined;
+    weeklyHours?: number;
+    timelineMonths?: number;
 }
 
 export class UpdateRoadmapCommand implements IUpdateRoadmapCommand {
@@ -11158,6 +10992,46 @@ export interface IUpdateRoadmapCommand {
     skillLevel?: CourseLevel;
     isPublic?: boolean;
     graphData?: string | undefined;
+}
+
+export class RateRoadmapCommand implements IRateRoadmapCommand {
+    roadmapId?: number;
+    rating?: number;
+
+    constructor(data?: IRateRoadmapCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.roadmapId = _data["roadmapId"];
+            this.rating = _data["rating"];
+        }
+    }
+
+    static fromJS(data: any): RateRoadmapCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RateRoadmapCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["roadmapId"] = this.roadmapId;
+        data["rating"] = this.rating;
+        return data;
+    }
+}
+
+export interface IRateRoadmapCommand {
+    roadmapId?: number;
+    rating?: number;
 }
 
 export class DeleteRoadmapCommand implements IDeleteRoadmapCommand {
@@ -11574,6 +11448,62 @@ export class RoadmapEdgeData implements IRoadmapEdgeData {
 export interface IRoadmapEdgeData {
     sourceNodeId?: string | undefined;
     targetNodeId?: string | undefined;
+}
+
+export class MyAIRoadmapDto implements IMyAIRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    description?: string | undefined;
+    skillLevel?: string | undefined;
+    userRating?: number | undefined;
+    created?: Date;
+
+    constructor(data?: IMyAIRoadmapDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.skillLevel = _data["skillLevel"];
+            this.userRating = _data["userRating"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): MyAIRoadmapDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MyAIRoadmapDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["skillLevel"] = this.skillLevel;
+        data["userRating"] = this.userRating;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IMyAIRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    description?: string | undefined;
+    skillLevel?: string | undefined;
+    userRating?: number | undefined;
+    created?: Date;
 }
 
 export class PaginatedListOfPublicRoadmapListDto implements IPaginatedListOfPublicRoadmapListDto {
@@ -12737,6 +12667,306 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
 export interface IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
+}
+
+export class PaginatedListOfGetTopicDto implements IPaginatedListOfGetTopicDto {
+    items?: GetTopicDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetTopicDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetTopicDto {
+    items?: GetTopicDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class GetTopicDto implements IGetTopicDto {
+    id?: number;
+    name?: string | undefined;
+    courseCount?: number;
+
+    constructor(data?: IGetTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.courseCount = _data["courseCount"];
+        }
+    }
+
+    static fromJS(data: any): GetTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["courseCount"] = this.courseCount;
+        return data;
+    }
+}
+
+export interface IGetTopicDto {
+    id?: number;
+    name?: string | undefined;
+    courseCount?: number;
+}
+
+export class ReturnResultOfCreatedTopicDto implements IReturnResultOfCreatedTopicDto {
+    result?: CreatedTopicDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCreatedTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CreatedTopicDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCreatedTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCreatedTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCreatedTopicDto {
+    result?: CreatedTopicDto | undefined;
+    message?: string | undefined;
+}
+
+export class CreatedTopicDto implements ICreatedTopicDto {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: ICreatedTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreatedTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatedTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ICreatedTopicDto {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class CreateTopicCommand implements ICreateTopicCommand {
+    name?: string | undefined;
+
+    constructor(data?: ICreateTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreateTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ICreateTopicCommand {
+    name?: string | undefined;
+}
+
+export class UpdateTopicCommand implements IUpdateTopicCommand {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: IUpdateTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): UpdateTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IUpdateTopicCommand {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class DeleteTopicCommand implements IDeleteTopicCommand {
+    id?: number;
+
+    constructor(data?: IDeleteTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): DeleteTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IDeleteTopicCommand {
+    id?: number;
 }
 
 export class CreateUserCommand implements ICreateUserCommand {

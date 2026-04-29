@@ -1,8 +1,7 @@
-using Edunary.Domain.Entities;
+﻿using Edunary.Domain.Entities;
 
-namespace Edunary.Application.CourseTopics.Queries.GetCourseTopics;
-
-public class GetCourseTopicDto
+namespace Edunary.Application.Topics.Queries.GetTopicsQuery;
+public class GetTopicDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;
@@ -12,7 +11,7 @@ public class GetCourseTopicDto
     {
         public Mapping()
         {
-            CreateMap<CourseTopic, GetCourseTopicDto>()
+            CreateMap<Topic, GetTopicDto>()
                 .ForMember(d => d.CourseCount, opt => opt.MapFrom(src => src.Courses.Count));
         }
     }

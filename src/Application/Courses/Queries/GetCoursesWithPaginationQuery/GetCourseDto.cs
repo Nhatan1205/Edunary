@@ -13,7 +13,7 @@ public class GetCourseDto
     public string ImageUrl { get; set; }
     public CourseLevel Level { get; set; }
     public string LearningObjectives { get; set; }
-    public List<CourseTopicItemDto> Topics { get; set; } = new();
+    public List<TopicItemDto> Topics { get; set; } = new();
     public float Ratings { get; set; }
     public int TotalStudents { get; set; }
     public bool IsEnrolled { get; set; }

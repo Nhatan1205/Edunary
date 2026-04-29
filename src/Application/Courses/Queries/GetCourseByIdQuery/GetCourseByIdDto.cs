@@ -4,7 +4,7 @@ using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetCourseById;
 
-public class CourseTopicItemDto
+public class TopicItemDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;
@@ -17,7 +17,7 @@ public class GetCourseByIdDto
     public string Description { get; set; } = null!;
     public CourseLevel Level { get; set; }
     public CourseStatus Status { get; set; }
-    public List<CourseTopicItemDto> Topics { get; set; } = new();
+    public List<TopicItemDto> Topics { get; set; } = new();
     public string LearningObjectives { get; set; } = null!;
     public string Requirements { get; set; } = null!;
     public string TargetAudience { get; set; } = null!;
@@ -33,7 +33,7 @@ public class GetCourseByIdDto
     {
         public Mapping()
         {
-            CreateMap<CourseTopic, CourseTopicItemDto>();
+            CreateMap<Topic, TopicItemDto>();
             CreateMap<Course, GetCourseByIdDto>();
         }
     }

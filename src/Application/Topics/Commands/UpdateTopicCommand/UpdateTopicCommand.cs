@@ -1,32 +1,31 @@
-using Edunary.Application.Common.Interfaces;
+﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 
-namespace Edunary.Application.CourseTopics.Commands.UpdateCourseTopic;
-
-public record UpdateCourseTopicCommand : IRequest<Result>
+namespace Edunary.Application.Topics.Commands.UpdateTopicCommand;
+public record UpdateTopicCommand : IRequest<Result>
 {
     public int Id { get; init; }
     public string Name { get; init; } = string.Empty;
 }
 
-public class UpdateCourseTopicCommandHandler : IRequestHandler<UpdateCourseTopicCommand, Result>
+public class UpdateTopicCommandHandler : IRequestHandler<UpdateTopicCommand, Result>
 {
     private readonly IApplicationDbContext _context;
 
-    public UpdateCourseTopicCommandHandler(IApplicationDbContext context)
+    public UpdateTopicCommandHandler(IApplicationDbContext context)
     {
         _context = context;
     }
 
-    public async Task<Result> Handle(UpdateCourseTopicCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateTopicCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            var entity = await _context.CourseTopics
+            var entity = await _context.Topics
                 .FindAsync(new object[] { request.Id }, cancellationToken);
             Guard.Against.NotFound(request.Id, entity);
 
-            var duplicate = await _context.CourseTopics
+            var duplicate = await _context.Topics
                 .AnyAsync(t => t.Name.ToLower() == request.Name.Trim().ToLower() && t.Id != request.Id, cancellationToken);
 
             if (duplicate)

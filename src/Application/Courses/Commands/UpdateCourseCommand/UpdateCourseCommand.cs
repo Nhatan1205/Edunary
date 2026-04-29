@@ -64,7 +64,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.Subtitle = request.Subtitle;
             entity.Description = request.Description;
             // Sync N:N topics
-            var newTopics = await _context.CourseTopics
+            var newTopics = await _context.Topics
                 .Where(t => request.TopicIds.Contains(t.Id))
                 .ToListAsync(cancellationToken);
             entity.Topics.Clear();

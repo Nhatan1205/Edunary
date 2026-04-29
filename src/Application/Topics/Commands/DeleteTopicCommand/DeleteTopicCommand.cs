@@ -1,27 +1,26 @@
-using Edunary.Application.Common.Interfaces;
+﻿using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 
-namespace Edunary.Application.CourseTopics.Commands.DeleteCourseTopic;
-
-public record DeleteCourseTopicCommand : IRequest<Result>
+namespace Edunary.Application.Topics.Commands.DeleteTopicCommand;
+public record DeleteTopicCommand : IRequest<Result>
 {
     public int Id { get; init; }
 }
 
-public class DeleteCourseTopicCommandHandler : IRequestHandler<DeleteCourseTopicCommand, Result>
+public class DeleteTopicCommandHandler : IRequestHandler<DeleteTopicCommand, Result>
 {
     private readonly IApplicationDbContext _context;
 
-    public DeleteCourseTopicCommandHandler(IApplicationDbContext context)
+    public DeleteTopicCommandHandler(IApplicationDbContext context)
     {
         _context = context;
     }
 
-    public async Task<Result> Handle(DeleteCourseTopicCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(DeleteTopicCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            var entity = await _context.CourseTopics
+            var entity = await _context.Topics
                 .Include(t => t.Courses)
                 .FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
 
@@ -32,7 +31,7 @@ public class DeleteCourseTopicCommandHandler : IRequestHandler<DeleteCourseTopic
                 return Result.Failure($"Cannot delete topic '{entity.Name}' because it is assigned to {entity.Courses.Count} course(s).");
             }
 
-            _context.CourseTopics.Remove(entity);
+            _context.Topics.Remove(entity);
             var result = await _context.SaveChangesAsync(cancellationToken);
 
             return result > 0

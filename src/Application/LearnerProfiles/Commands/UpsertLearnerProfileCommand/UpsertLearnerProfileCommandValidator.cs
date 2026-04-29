@@ -7,10 +7,6 @@ public class UpsertLearnerProfileCommandValidator : AbstractValidator<UpsertLear
         RuleFor(x => x.Goal)
             .MaximumLength(200).WithMessage("Goal must not exceed 200 characters.");
 
-        RuleFor(x => x.SkillLevel)
-            .Must(l => string.IsNullOrEmpty(l) || new[] { "Beginner", "Intermediate", "Advanced", "AllLevel" }.Contains(l))
-            .WithMessage("SkillLevel must be one of: Beginner, Intermediate, Advanced, AllLevel.");
-
         RuleFor(x => x.WeeklyHours)
             .InclusiveBetween(0, 100).WithMessage("WeeklyHours must be between 0 and 100.");
 

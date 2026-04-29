@@ -19,7 +19,7 @@ import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById
 import { useParams } from "react-router";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
-import useGetCourseTopics from "../../../../../hooks/course-topic-hooks/useGetCourseTopics";
+import useGetTopics from "../../../../../hooks/topic-hooks/useGetTopics";
 import TextEditor from "../../../../../components/TextEditor";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
@@ -70,7 +70,7 @@ function CourseLandingPage() {
 
   const { data: categoryData, isLoading: isCategoryDataLoading } = useGetCategories(1, 20);
 
-  const { data: topicsData, isFetching: isTopicsFetching } = useGetCourseTopics(debouncedInput, 1, 20);
+  const { data: topicsData, isFetching: isTopicsFetching } = useGetTopics(debouncedInput, 1, 20);
 
   // Options = selected objects + search results, deduplicated by id
   const topicOptions = Array.from(

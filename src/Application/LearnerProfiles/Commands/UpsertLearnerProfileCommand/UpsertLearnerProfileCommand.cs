@@ -2,15 +2,17 @@ using System.Text.Json;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.LearnerProfiles.Commands.UpsertLearnerProfileCommand;
 
 public record UpsertLearnerProfileCommand : IRequest<Result>
 {
     public string Goal { get; init; } = string.Empty;
-    public string SkillLevel { get; init; } = string.Empty;
+    public CourseLevel Level { get; init; }
     public List<string> KnownSkills { get; init; } = new();
     public List<string> Interests { get; init; } = new();
+    public List<int> PreferredTopicIds { get; init; } = new();
     public int WeeklyHours { get; init; }
     public int TimelineMonths { get; init; }
 }
@@ -44,9 +46,11 @@ public class UpsertLearnerProfileCommandHandler : IRequestHandler<UpsertLearnerP
             }
 
             profile.Goal = request.Goal;
-            profile.SkillLevel = request.SkillLevel;
+            profile.SkillLevel = request.Level.ToString();
             profile.KnownSkills = JsonSerializer.Serialize(request.KnownSkills);
             profile.Interests = JsonSerializer.Serialize(request.Interests);
+            // Replace preferred topics entirely — student may deselect old ones
+            profile.PreferredTopicIds = JsonSerializer.Serialize(request.PreferredTopicIds);
             profile.WeeklyHours = request.WeeklyHours;
             profile.TimelineMonths = request.TimelineMonths;
 

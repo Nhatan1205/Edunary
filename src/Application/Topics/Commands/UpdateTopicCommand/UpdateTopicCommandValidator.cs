@@ -1,8 +1,7 @@
-namespace Edunary.Application.CourseTopics.Commands.UpdateCourseTopic;
-
-public class UpdateCourseTopicCommandValidator : AbstractValidator<UpdateCourseTopicCommand>
+﻿namespace Edunary.Application.Topics.Commands.UpdateTopicCommand;
+public class UpdateTopicCommandValidator : AbstractValidator<UpdateTopicCommand>
 {
-    public UpdateCourseTopicCommandValidator()
+    public UpdateTopicCommandValidator()
     {
         RuleFor(x => x.Id)
             .GreaterThan(0).WithMessage("Id must be greater than 0.");

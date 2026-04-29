@@ -1476,166 +1476,6 @@
         }
       }
     },
-    "/api/CourseTopics": {
-      "get": {
-        "tags": [
-          "CourseTopics"
-        ],
-        "operationId": "GetCourseTopics",
-        "parameters": [
-          {
-            "name": "SearchText",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 3
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfGetCourseTopicDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/CourseTopics/admin": {
-      "post": {
-        "tags": [
-          "CourseTopics"
-        ],
-        "operationId": "CreateCourseTopic",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCourseTopicCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReturnResultOfCreatedCourseTopicDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "CourseTopics"
-        ],
-        "operationId": "UpdateCourseTopic",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCourseTopicCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "CourseTopics"
-        ],
-        "operationId": "DeleteCourseTopic",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeleteCourseTopicCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/Enrollment/check/{courseId}": {
       "get": {
         "tags": [
@@ -2021,6 +1861,35 @@
             "x-position": 1
           }
         ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/LearnerProfiles": {
+      "put": {
+        "tags": [
+          "LearnerProfiles"
+        ],
+        "operationId": "UpsertProfile",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertLearnerProfileCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -3089,10 +2958,51 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ReturnResultOfAIRoadmapResultDto"
+                  "$ref": "#/components/schemas/ReturnResultOfGeneratedAIRoadmapDto"
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Roadmaps/{id}/rate": {
+      "put": {
+        "tags": [
+          "Roadmaps"
+        ],
+        "operationId": "RateRoadmap",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RateRoadmapCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "security": [
@@ -3127,6 +3037,34 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RoadmapDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Roadmaps/my-ai-roadmaps": {
+      "get": {
+        "tags": [
+          "Roadmaps"
+        ],
+        "operationId": "GetMyAIRoadmaps",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyAIRoadmapDto"
+                  }
                 }
               }
             }
@@ -3237,7 +3175,7 @@
         "tags": [
           "Roadmaps"
         ],
-        "operationId": "GetTopics",
+        "operationId": "GetRoadmapTopics",
         "responses": {
           "200": {
             "description": "",
@@ -3712,6 +3650,166 @@
         "responses": {
           "200": {
             "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Topics": {
+      "get": {
+        "tags": [
+          "Topics"
+        ],
+        "operationId": "GetTopics",
+        "parameters": [
+          {
+            "name": "SearchText",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfGetTopicDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Topics/admin": {
+      "post": {
+        "tags": [
+          "Topics"
+        ],
+        "operationId": "CreateTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfCreatedTopicDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Topics"
+        ],
+        "operationId": "UpdateTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Topics"
+        ],
+        "operationId": "DeleteTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -5180,7 +5278,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/CourseTopicItemDto"
+              "$ref": "#/components/schemas/TopicItemDto"
             }
           },
           "learningObjectives": {
@@ -5253,7 +5351,7 @@
           1
         ]
       },
-      "CourseTopicItemDto": {
+      "TopicItemDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5979,7 +6077,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/CourseTopicItemDto"
+              "$ref": "#/components/schemas/TopicItemDto"
             }
           },
           "ratings": {
@@ -6148,7 +6246,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/CourseTopicItemDto"
+              "$ref": "#/components/schemas/TopicItemDto"
             }
           },
           "ratings": {
@@ -6202,7 +6300,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/CourseTopicItemDto"
+              "$ref": "#/components/schemas/TopicItemDto"
             }
           },
           "learningObjectives": {
@@ -6355,7 +6453,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/CourseTopicItemDto"
+              "$ref": "#/components/schemas/TopicItemDto"
             }
           },
           "ratings": {
@@ -6369,121 +6467,6 @@
           "createdBy": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "PaginatedListOfGetCourseTopicDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "items": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/GetCourseTopicDto"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          }
-        }
-      },
-      "GetCourseTopicDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "courseCount": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "ReturnResultOfCreatedCourseTopicDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "result": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/CreatedCourseTopicDto"
-              }
-            ]
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CreatedCourseTopicDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CreateCourseTopicCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UpdateCourseTopicCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "DeleteCourseTopicCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },
@@ -6714,6 +6697,49 @@
           "currency": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "UpsertLearnerProfileCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "goal": {
+            "type": "string",
+            "nullable": true
+          },
+          "level": {
+            "$ref": "#/components/schemas/CourseLevel"
+          },
+          "knownSkills": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "interests": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "preferredTopicIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "weeklyHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timelineMonths": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -7516,7 +7542,7 @@
           }
         }
       },
-      "ReturnResultOfAIRoadmapResultDto": {
+      "ReturnResultOfGeneratedAIRoadmapDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -7524,7 +7550,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/AIRoadmapResultDto"
+                "$ref": "#/components/schemas/GeneratedAIRoadmapDto"
               }
             ]
           },
@@ -7534,67 +7560,25 @@
           }
         }
       },
-      "AIRoadmapResultDto": {
+      "GeneratedAIRoadmapDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "nodes": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/AIRoadmapNodeDto"
-            }
-          },
-          "edges": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/AIRoadmapEdgeDto"
-            }
-          }
-        }
-      },
-      "AIRoadmapNodeDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "clientNodeId": {
-            "type": "string",
-            "nullable": true
-          },
-          "label": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "positionX": {
-            "type": "number",
-            "format": "double"
-          },
-          "positionY": {
-            "type": "number",
-            "format": "double"
-          },
-          "sortOrder": {
+          "id": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "AIRoadmapEdgeDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "sourceNodeId": {
+          },
+          "title": {
             "type": "string",
             "nullable": true
           },
-          "targetNodeId": {
+          "summary": {
             "type": "string",
             "nullable": true
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -7602,13 +7586,35 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "topic": {
+          "goal": {
             "type": "string",
             "nullable": true
           },
+          "categoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roadmapTopicId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "level": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/CourseLevel"
+          },
+          "knownSkills": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "weeklyHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timelineMonths": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -7645,6 +7651,20 @@
           "graphData": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "RateRoadmapCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "roadmapId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -7842,6 +7862,37 @@
           "targetNodeId": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "MyAIRoadmapDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "skillLevel": {
+            "type": "string",
+            "nullable": true
+          },
+          "userRating": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -8357,6 +8408,121 @@
           "title": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "PaginatedListOfGetTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/GetTopicDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ReturnResultOfCreatedTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CreatedTopicDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatedTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeleteTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

@@ -39,6 +39,9 @@ function TopicDataGrid({
     const totalCount = data?.totalCount ?? 0;
     const notFound = !isLoading && items.length === 0 && !!searchText;
 
+    const pageCount = totalCount > 0 ? Math.ceil(totalCount / rowsPerPage) : 1;
+    const safePage = Math.min(page, pageCount - 1);
+
     const actionItems = [
         {
             label: "Edit",
@@ -117,7 +120,7 @@ function TopicDataGrid({
 
             <TablePagination
                 component="div"
-                page={page}
+                page={safePage}
                 count={totalCount}
                 rowsPerPage={rowsPerPage}
                 onPageChange={onChangePage}

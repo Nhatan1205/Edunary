@@ -39,7 +39,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<Roadmap> Roadmaps => Set<Roadmap>();
     public DbSet<RoadmapTopic> RoadmapTopics => Set<RoadmapTopic>();
-    public DbSet<CourseTopic> CourseTopics => Set<CourseTopic>();
+    public DbSet<Topic> Topics => Set<Topic>();
 
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
     public DbSet<VideoCaption> VideoCaptions => Set<VideoCaption>();

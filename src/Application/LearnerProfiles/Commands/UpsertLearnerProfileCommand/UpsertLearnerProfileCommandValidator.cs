@@ -5,12 +5,11 @@ public class UpsertLearnerProfileCommandValidator : AbstractValidator<UpsertLear
     public UpsertLearnerProfileCommandValidator()
     {
         RuleFor(x => x.Goal)
-            .MaximumLength(200).WithMessage("Goal must not exceed 200 characters.");
+            .MaximumLength(200).WithMessage("Goal must not exceed 200 characters.")
+            .When(x => x.Goal != null);
 
         RuleFor(x => x.WeeklyHours)
-            .InclusiveBetween(0, 100).WithMessage("WeeklyHours must be between 0 and 100.");
-
-        RuleFor(x => x.TimelineMonths)
-            .GreaterThanOrEqualTo(0).WithMessage("TimelineMonths must be 0 or greater.");
+            .InclusiveBetween(1, 100).WithMessage("WeeklyHours must be between 1 and 100.")
+            .When(x => x.WeeklyHours.HasValue);
     }
 }

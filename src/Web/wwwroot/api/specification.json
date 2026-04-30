@@ -531,6 +531,15 @@
               "format": "int32"
             },
             "x-position": 2
+          },
+          {
+            "name": "SearchText",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
         "responses": {
@@ -1874,6 +1883,29 @@
       }
     },
     "/api/LearnerProfiles": {
+      "get": {
+        "tags": [
+          "LearnerProfiles"
+        ],
+        "operationId": "GetMyProfile",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearnerProfileDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
       "put": {
         "tags": [
           "LearnerProfiles"
@@ -6700,7 +6732,7 @@
           }
         }
       },
-      "UpsertLearnerProfileCommand": {
+      "LearnerProfileDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -6708,21 +6740,16 @@
             "type": "string",
             "nullable": true
           },
-          "level": {
-            "$ref": "#/components/schemas/CourseLevel"
+          "skillLevel": {
+            "type": "string",
+            "nullable": true
           },
-          "knownSkills": {
+          "preferredCategoryIds": {
             "type": "array",
             "nullable": true,
             "items": {
-              "type": "string"
-            }
-          },
-          "interests": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           },
           "preferredTopicIds": {
@@ -6736,10 +6763,41 @@
           "weeklyHours": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "UpsertLearnerProfileCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "goal": {
+            "type": "string",
+            "nullable": true
           },
-          "timelineMonths": {
+          "skillLevel": {
+            "type": "string",
+            "nullable": true
+          },
+          "preferredCategoryIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "preferredTopicIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "weeklyHours": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           }
         }
       },

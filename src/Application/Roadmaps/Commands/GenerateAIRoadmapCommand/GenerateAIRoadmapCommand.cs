@@ -80,9 +80,7 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
 
             profile.Goal = request.Goal;
             profile.SkillLevel = request.Level.ToString();
-            profile.KnownSkills = JsonSerializer.Serialize(request.KnownSkills);
             profile.WeeklyHours = request.WeeklyHours;
-            profile.TimelineMonths = request.TimelineMonths;
 
             // Accumulate preferred categories across wizard sessions
             var preferredIds = string.IsNullOrEmpty(profile.PreferredCategoryIds)

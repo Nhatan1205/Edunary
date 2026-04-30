@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -45,12 +45,9 @@ namespace Edunary.Infrastructure.Data.Migrations
                     StudentId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
                     Goal = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     SkillLevel = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    KnownSkills = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Interests = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PreferredCategoryIds = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PreferredTopicIds = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WeeklyHours = table.Column<int>(type: "int", nullable: false),
-                    TimelineMonths = table.Column<int>(type: "int", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),

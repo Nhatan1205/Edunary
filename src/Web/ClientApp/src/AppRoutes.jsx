@@ -61,6 +61,7 @@ import UserOverviewPage from "./features/admin/user-section/user-overview-page/U
 import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/ActivityLogsPage";
 import WithdrawalRequestsPage from "./features/admin/withdrawal-requests/WithdrawalRequestsPage";
 import TopicPage from "./features/admin/course-section/topic-page/TopicPage";
+import ProfileSetupPage from "./features/user/profile-setup/ProfileSetupPage";
 
 const router = createBrowserRouter([
   {
@@ -344,6 +345,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <InstructorCoursePreviewPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/personalize",
+    element: (
+      <ProtectedRoute>
+        <ProfileSetupPage />
       </ProtectedRoute>
     ),
   },

@@ -1,5 +1,6 @@
 import { Help, Language, Logout, School, Settings } from "@mui/icons-material";
 import LocalLibraryOutlinedIcon from "@mui/icons-material/LocalLibraryOutlined";
+import InterestsIcon from '@mui/icons-material/Interests';
 import MobileDropDownProfile from "./Mobile/MobileDropDownProfile";
 import DesktopDropDownProfile from "./Desktop/DesktopDropDownProfile";
 import { useAuth } from "../../../context/AuthContext";
@@ -31,6 +32,11 @@ const MENU_ITEMS = [
     title: "Help",
     icon: <Help fontSize="small" />,
     path: "/help",
+  },
+  {
+    title: "Add/Edit your interests",
+    icon: <InterestsIcon fontSize="small" />,
+    path: "/personalize",
   },
 ];
 

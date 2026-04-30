@@ -19,8 +19,6 @@ public class LearnerProfileConfiguration : IEntityTypeConfiguration<LearnerProfi
             .HasMaxLength(50);
 
         // JSON fields — no max length constraint
-        builder.Property(p => p.KnownSkills).HasColumnType("nvarchar(max)");
-        builder.Property(p => p.Interests).HasColumnType("nvarchar(max)");
         builder.Property(p => p.PreferredCategoryIds).HasColumnType("nvarchar(max)");
 
         // Unique: one profile per student

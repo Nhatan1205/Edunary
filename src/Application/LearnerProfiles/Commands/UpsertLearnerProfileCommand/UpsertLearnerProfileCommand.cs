@@ -2,19 +2,20 @@ using System.Text.Json;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
-using Edunary.Domain.Enums;
 
 namespace Edunary.Application.LearnerProfiles.Commands.UpsertLearnerProfileCommand;
 
+/// <summary>
+/// Upsert command — all fields are nullable/optional.
+/// Only non-null fields overwrite existing values (partial save support for Save &amp; Exit).
+/// </summary>
 public record UpsertLearnerProfileCommand : IRequest<Result>
 {
-    public string Goal { get; init; } = string.Empty;
-    public CourseLevel Level { get; init; }
-    public List<string> KnownSkills { get; init; } = new();
-    public List<string> Interests { get; init; } = new();
-    public List<int> PreferredTopicIds { get; init; } = new();
-    public int WeeklyHours { get; init; }
-    public int TimelineMonths { get; init; }
+    public string Goal { get; init; }
+    public string SkillLevel { get; init; }
+    public List<int> PreferredCategoryIds { get; init; }
+    public List<int> PreferredTopicIds { get; init; }
+    public int? WeeklyHours { get; init; }
 }
 
 public class UpsertLearnerProfileCommandHandler : IRequestHandler<UpsertLearnerProfileCommand, Result>
@@ -45,20 +46,26 @@ public class UpsertLearnerProfileCommandHandler : IRequestHandler<UpsertLearnerP
                 _context.LearnerProfiles.Add(profile);
             }
 
-            profile.Goal = request.Goal;
-            profile.SkillLevel = request.Level.ToString();
-            profile.KnownSkills = JsonSerializer.Serialize(request.KnownSkills);
-            profile.Interests = JsonSerializer.Serialize(request.Interests);
-            // Replace preferred topics entirely — student may deselect old ones
-            profile.PreferredTopicIds = JsonSerializer.Serialize(request.PreferredTopicIds);
-            profile.WeeklyHours = request.WeeklyHours;
-            profile.TimelineMonths = request.TimelineMonths;
+            if (request.Goal != null)
+                profile.Goal = request.Goal;
+
+            if (request.SkillLevel != null)
+                profile.SkillLevel = request.SkillLevel;
+
+            if (request.PreferredCategoryIds != null)
+                profile.PreferredCategoryIds = JsonSerializer.Serialize(request.PreferredCategoryIds);
+
+            if (request.PreferredTopicIds != null)
+                profile.PreferredTopicIds = JsonSerializer.Serialize(request.PreferredTopicIds);
+
+            if (request.WeeklyHours.HasValue)
+                profile.WeeklyHours = request.WeeklyHours.Value;
 
             var result = await _context.SaveChangesAsync(cancellationToken);
 
-            return result > 0
-                ? Result.Success(null, "Learner profile updated successfully.")
-                : Result.Failure("Failed to update learner profile.");
+            return Result.Success(null, "Learner profile updated successfully.");
+
+
         }
         catch (Exception ex)
         {

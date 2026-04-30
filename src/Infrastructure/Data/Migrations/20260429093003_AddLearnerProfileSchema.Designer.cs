@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Edunary.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260429034415_AddLearnerProfileSchema")]
+    [Migration("20260429093003_AddLearnerProfileSchema")]
     partial class AddLearnerProfileSchema
     {
         /// <inheritdoc />
@@ -462,12 +462,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Interests")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("KnownSkills")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("datetimeoffset");
 
@@ -488,9 +482,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("TimelineMonths")
-                        .HasColumnType("int");
 
                     b.Property<int>("WeeklyHours")
                         .HasColumnType("int");

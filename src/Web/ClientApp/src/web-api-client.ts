@@ -3515,6 +3515,45 @@ export class RoadmapsClient {
         return Promise.resolve<PaginatedListOfRoadmapAuthorDto>(null as any);
     }
 
+    generateAIRoadmap(command: GenerateAIRoadmapCommand | undefined): Promise<ReturnResultOfGeneratedAIRoadmapDto> {
+        let url_ = this.baseUrl + "/api/Roadmaps/generate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGenerateAIRoadmap(_response);
+        });
+    }
+
+    protected processGenerateAIRoadmap(response: Response): Promise<ReturnResultOfGeneratedAIRoadmapDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfGeneratedAIRoadmapDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfGeneratedAIRoadmapDto>(null as any);
+    }
+
     getRoadmapDetail(id: number): Promise<RoadmapDetailDto> {
         let url_ = this.baseUrl + "/api/Roadmaps/{id}";
         if (id === undefined || id === null)
@@ -11371,6 +11410,130 @@ export interface ICreateRoadmapCommand {
     description?: string | undefined;
     roadmapTopicId?: number;
     skillLevel?: CourseLevel;
+}
+
+export class ReturnResultOfGeneratedAIRoadmapDto implements IReturnResultOfGeneratedAIRoadmapDto {
+    result?: GeneratedAIRoadmapDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfGeneratedAIRoadmapDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? GeneratedAIRoadmapDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfGeneratedAIRoadmapDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfGeneratedAIRoadmapDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfGeneratedAIRoadmapDto {
+    result?: GeneratedAIRoadmapDto | undefined;
+    message?: string | undefined;
+}
+
+export class GeneratedAIRoadmapDto implements IGeneratedAIRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    nodeCount?: number;
+
+    constructor(data?: IGeneratedAIRoadmapDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.nodeCount = _data["nodeCount"];
+        }
+    }
+
+    static fromJS(data: any): GeneratedAIRoadmapDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GeneratedAIRoadmapDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["nodeCount"] = this.nodeCount;
+        return data;
+    }
+}
+
+export interface IGeneratedAIRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    nodeCount?: number;
+}
+
+export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
+    description?: string | undefined;
+    roadmapTopicName?: string | undefined;
+
+    constructor(data?: IGenerateAIRoadmapCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["description"];
+            this.roadmapTopicName = _data["roadmapTopicName"];
+        }
+    }
+
+    static fromJS(data: any): GenerateAIRoadmapCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateAIRoadmapCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["description"] = this.description;
+        data["roadmapTopicName"] = this.roadmapTopicName;
+        return data;
+    }
+}
+
+export interface IGenerateAIRoadmapCommand {
+    description?: string | undefined;
+    roadmapTopicName?: string | undefined;
 }
 
 export class UpdateRoadmapCommand implements IUpdateRoadmapCommand {

@@ -3246,6 +3246,42 @@
         ]
       }
     },
+    "/api/Roadmaps/generate": {
+      "post": {
+        "tags": [
+          "Roadmaps"
+        ],
+        "operationId": "GenerateAIRoadmap",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateAIRoadmapCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfGeneratedAIRoadmapDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Roadmaps/{id}": {
       "get": {
         "tags": [
@@ -7915,6 +7951,56 @@
           },
           "skillLevel": {
             "$ref": "#/components/schemas/CourseLevel"
+          }
+        }
+      },
+      "ReturnResultOfGeneratedAIRoadmapDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GeneratedAIRoadmapDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GeneratedAIRoadmapDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GenerateAIRoadmapCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "roadmapTopicName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

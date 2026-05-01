@@ -104,6 +104,12 @@ const adminMenuConfig = {
               title: "Category",
               type: "item",
               url: "/admin/course/category",
+            },
+            {
+              id: "topic",
+              title: "Topic",
+              type: "item",
+              url: "/admin/course/topic",
             }
           ],
         },

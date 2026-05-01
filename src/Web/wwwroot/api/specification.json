@@ -1922,6 +1922,35 @@
         ]
       }
     },
+    "/api/InstructorWallet/withdraw": {
+      "post": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "Withdraw",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawFromInstructorWalletCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/InstructorWallet/admin/withdrawal-requests": {
       "get": {
         "tags": [
@@ -2054,35 +2083,6 @@
                 }
               }
             }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/InstructorWallet/withdraw": {
-      "post": {
-        "tags": [
-          "InstructorWallet"
-        ],
-        "operationId": "Withdraw",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WithdrawFromInstructorWalletCommand"
-              }
-            }
-          },
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
           }
         },
         "security": [
@@ -3320,7 +3320,7 @@
         "tags": [
           "Roadmaps"
         ],
-        "operationId": "GetTopics",
+        "operationId": "GetRoadmapTopics",
         "responses": {
           "200": {
             "description": "",
@@ -3795,6 +3795,166 @@
         "responses": {
           "200": {
             "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Topics": {
+      "get": {
+        "tags": [
+          "Topics"
+        ],
+        "operationId": "GetTopics",
+        "parameters": [
+          {
+            "name": "SearchText",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfGetTopicDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Topics/admin": {
+      "post": {
+        "tags": [
+          "Topics"
+        ],
+        "operationId": "CreateTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfCreatedTopicDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Topics"
+        ],
+        "operationId": "UpdateTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Topics"
+        ],
+        "operationId": "DeleteTopic",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteTopicCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -5330,9 +5490,12 @@
           "status": {
             "$ref": "#/components/schemas/CourseStatus"
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TopicItemDto"
+            }
           },
           "learningObjectives": {
             "type": "string",
@@ -5403,6 +5566,20 @@
           0,
           1
         ]
+      },
+      "TopicItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "CourseNoteDto": {
         "type": "object",
@@ -6061,9 +6238,13 @@
             "type": "integer",
             "format": "int32"
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topicIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           "learningObjectives": {
             "type": "array",
@@ -6188,9 +6369,12 @@
             "type": "string",
             "nullable": true
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TopicItemDto"
+            }
           },
           "ratings": {
             "type": "number",
@@ -6354,10 +6538,6 @@
             "type": "string",
             "nullable": true
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
-          },
           "ratings": {
             "type": "number",
             "format": "float"
@@ -6405,9 +6585,12 @@
           "status": {
             "$ref": "#/components/schemas/CourseStatus"
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TopicItemDto"
+            }
           },
           "learningObjectives": {
             "type": "string",
@@ -6555,9 +6738,12 @@
             "type": "string",
             "nullable": true
           },
-          "topic": {
-            "type": "string",
-            "nullable": true
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TopicItemDto"
+            }
           },
           "ratings": {
             "type": "number",
@@ -6687,6 +6873,20 @@
           2
         ]
       },
+      "WithdrawFromInstructorWalletCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "PaginatedListOfAdminWithdrawalRequestDto": {
         "type": "object",
         "additionalProperties": false,
@@ -6786,20 +6986,6 @@
           "cancelled": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "WithdrawFromInstructorWalletCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "amount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "currency": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -8347,6 +8533,121 @@
           "title": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "PaginatedListOfGetTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/GetTopicDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ReturnResultOfCreatedTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CreatedTopicDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatedTopicDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeleteTopicCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

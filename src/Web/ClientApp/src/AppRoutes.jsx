@@ -62,6 +62,7 @@ import UserDetailPage from "./features/admin/user-section/user-detail-page/UserD
 import UserOverviewPage from "./features/admin/user-section/user-overview-page/UserOverviewPage";
 import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/ActivityLogsPage";
 import WithdrawalRequestsPage from "./features/admin/withdrawal-requests/WithdrawalRequestsPage";
+import TopicPage from "./features/admin/course-section/topic-section/TopicPage";
 
 const router = createBrowserRouter([
   {
@@ -85,8 +86,17 @@ const router = createBrowserRouter([
         element: <SystemSettingsPage />,
       },
       {
-        path: "course/category",
-        element: <CategoryPage />,
+        path: "course",
+        children: [
+          {
+            path: "category",
+            element: <CategoryPage />,
+          },
+          {
+            path: "topic",
+            element: <TopicPage />,
+          },
+        ]
       },
       {
         path: "user",

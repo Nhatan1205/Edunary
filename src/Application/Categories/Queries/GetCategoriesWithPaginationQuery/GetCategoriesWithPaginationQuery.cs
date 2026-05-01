@@ -16,6 +16,7 @@ public record GetCategoriesWithPaginationQuery : IRequest<PaginatedList<Category
 {
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
+    public string SearchText { get; init; }
 }
 
 public class GetCategoriesWithPaginationQueryHandler : IRequestHandler<GetCategoriesWithPaginationQuery, PaginatedList<CategoryDto>>
@@ -31,7 +32,15 @@ public class GetCategoriesWithPaginationQueryHandler : IRequestHandler<GetCatego
 
     public async Task<PaginatedList<CategoryDto>> Handle(GetCategoriesWithPaginationQuery request, CancellationToken cancellationToken)
     {
-            return await _context.Categories
+        var query = _context.Categories.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.SearchText))
+        {
+            var search = request.SearchText.Trim().ToLower();
+            query = query.Where(c => c.Title.ToLower().Contains(search));
+        }
+
+        return await query
             .OrderBy(x => x.Title)
             .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);

@@ -744,7 +744,7 @@ export class CategoriesClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getCategories(pageNumber: number, pageSize: number): Promise<PaginatedListOfCategoryDto> {
+    getCategories(pageNumber: number, pageSize: number, searchText: string | null | undefined): Promise<PaginatedListOfCategoryDto> {
         let url_ = this.baseUrl + "/api/Categories?";
         if (pageNumber === undefined || pageNumber === null)
             throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
@@ -754,6 +754,8 @@ export class CategoriesClient {
             throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
         else
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -2294,6 +2296,87 @@ export class InstructorWalletClient {
     }
 
     protected processCancelWithdrawal(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class LearnerProfilesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getMyProfile(): Promise<LearnerProfileDto> {
+        let url_ = this.baseUrl + "/api/LearnerProfiles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyProfile(_response);
+        });
+    }
+
+    protected processGetMyProfile(response: Response): Promise<LearnerProfileDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LearnerProfileDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LearnerProfileDto>(null as any);
+    }
+
+    upsertProfile(command: UpsertLearnerProfileCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/LearnerProfiles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpsertProfile(_response);
+        });
+    }
+
+    protected processUpsertProfile(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -9514,6 +9597,142 @@ export interface IAdminWithdrawalRequestStatusCountsDto {
     processing?: number;
     succeeded?: number;
     cancelled?: number;
+}
+
+export class LearnerProfileDto implements ILearnerProfileDto {
+    goal?: string | undefined;
+    skillLevel?: string | undefined;
+    preferredCategoryIds?: number[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number;
+
+    constructor(data?: ILearnerProfileDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.goal = _data["goal"];
+            this.skillLevel = _data["skillLevel"];
+            if (Array.isArray(_data["preferredCategoryIds"])) {
+                this.preferredCategoryIds = [] as any;
+                for (let item of _data["preferredCategoryIds"])
+                    this.preferredCategoryIds!.push(item);
+            }
+            if (Array.isArray(_data["preferredTopicIds"])) {
+                this.preferredTopicIds = [] as any;
+                for (let item of _data["preferredTopicIds"])
+                    this.preferredTopicIds!.push(item);
+            }
+            this.weeklyHours = _data["weeklyHours"];
+        }
+    }
+
+    static fromJS(data: any): LearnerProfileDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LearnerProfileDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["goal"] = this.goal;
+        data["skillLevel"] = this.skillLevel;
+        if (Array.isArray(this.preferredCategoryIds)) {
+            data["preferredCategoryIds"] = [];
+            for (let item of this.preferredCategoryIds)
+                data["preferredCategoryIds"].push(item);
+        }
+        if (Array.isArray(this.preferredTopicIds)) {
+            data["preferredTopicIds"] = [];
+            for (let item of this.preferredTopicIds)
+                data["preferredTopicIds"].push(item);
+        }
+        data["weeklyHours"] = this.weeklyHours;
+        return data;
+    }
+}
+
+export interface ILearnerProfileDto {
+    goal?: string | undefined;
+    skillLevel?: string | undefined;
+    preferredCategoryIds?: number[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number;
+}
+
+export class UpsertLearnerProfileCommand implements IUpsertLearnerProfileCommand {
+    goal?: string | undefined;
+    skillLevel?: string | undefined;
+    preferredCategoryIds?: number[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number | undefined;
+
+    constructor(data?: IUpsertLearnerProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.goal = _data["goal"];
+            this.skillLevel = _data["skillLevel"];
+            if (Array.isArray(_data["preferredCategoryIds"])) {
+                this.preferredCategoryIds = [] as any;
+                for (let item of _data["preferredCategoryIds"])
+                    this.preferredCategoryIds!.push(item);
+            }
+            if (Array.isArray(_data["preferredTopicIds"])) {
+                this.preferredTopicIds = [] as any;
+                for (let item of _data["preferredTopicIds"])
+                    this.preferredTopicIds!.push(item);
+            }
+            this.weeklyHours = _data["weeklyHours"];
+        }
+    }
+
+    static fromJS(data: any): UpsertLearnerProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpsertLearnerProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["goal"] = this.goal;
+        data["skillLevel"] = this.skillLevel;
+        if (Array.isArray(this.preferredCategoryIds)) {
+            data["preferredCategoryIds"] = [];
+            for (let item of this.preferredCategoryIds)
+                data["preferredCategoryIds"].push(item);
+        }
+        if (Array.isArray(this.preferredTopicIds)) {
+            data["preferredTopicIds"] = [];
+            for (let item of this.preferredTopicIds)
+                data["preferredTopicIds"].push(item);
+        }
+        data["weeklyHours"] = this.weeklyHours;
+        return data;
+    }
+}
+
+export interface IUpsertLearnerProfileCommand {
+    goal?: string | undefined;
+    skillLevel?: string | undefined;
+    preferredCategoryIds?: number[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number | undefined;
 }
 
 export class MediaFileDto implements IMediaFileDto {

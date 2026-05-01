@@ -1,5 +1,6 @@
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
+using Edunary.Application.Courses.Queries.GetCourseById;
 
 namespace Edunary.Application.Courses.Queries.GetPublicCourseById;
 
@@ -9,6 +10,7 @@ public class InstructorDto
     public string Name { get; set; } = null!;
     public string Avatar { get; set; } = null!;
 }
+
 public class GetPublicCourseByIdDto
 {
     public int Id { get; set; }
@@ -17,7 +19,7 @@ public class GetPublicCourseByIdDto
     public string Description { get; set; } = null!;
     public CourseLevel Level { get; set; }
     public CourseStatus Status { get; set; }
-    public string Topic { get; set; } = null!;
+    public List<TopicItemDto> Topics { get; set; } = new();
     public string LearningObjectives { get; set; } = null!;
     public string Requirements { get; set; } = null!;
     public string TargetAudience { get; set; } = null!;

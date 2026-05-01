@@ -13,7 +13,6 @@ public class GetHomepageCoursesDto
     public string Level { get; set; }
     public string Description { get; set; }
     public string LearningObjectives { get; set; }
-    public string Topic { get; set; }
     public float Ratings { get; set; }
     public int TotalStudents { get; set; }
     public string CreatedBy { get; set; }

@@ -18,6 +18,8 @@ public interface IApplicationDbContext
     DbSet<OrderItem> OrderItems { get; }
 
     public DbSet<Course> Courses { get; }
+
+    public DbSet<Topic> Topics { get; }
     public DbSet<Category> Categories { get; }
     public DbSet<Enrollment> Enrollments { get; }
 

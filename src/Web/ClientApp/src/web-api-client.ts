@@ -2114,6 +2114,41 @@ export class InstructorWalletClient {
         return Promise.resolve<PaginatedListOfInstructorWalletTransactionDto>(null as any);
     }
 
+    withdraw(command: WithdrawFromInstructorWalletCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/withdraw";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processWithdraw(_response);
+        });
+    }
+
+    protected processWithdraw(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     getAdminWithdrawalRequests(pageNumber: number, pageSize: number, status: InstructorWalletTransactionStatus | null | undefined, fromDate: Date | null | undefined, toDate: Date | null | undefined, instructorName: string | null | undefined, instructorEmail: string | null | undefined, bankNumber: string | null | undefined, bankAccountHolder: string | null | undefined): Promise<PaginatedListOfAdminWithdrawalRequestDto> {
         let url_ = this.baseUrl + "/api/InstructorWallet/admin/withdrawal-requests?";
         if (pageNumber === undefined || pageNumber === null)
@@ -2204,41 +2239,6 @@ export class InstructorWalletClient {
             });
         }
         return Promise.resolve<AdminWithdrawalRequestStatusCountsDto>(null as any);
-    }
-
-    withdraw(command: WithdrawFromInstructorWalletCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/InstructorWallet/withdraw";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processWithdraw(_response);
-        });
-    }
-
-    protected processWithdraw(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
     }
 
     approveWithdrawal(id: number): Promise<void> {
@@ -3555,7 +3555,7 @@ export class RoadmapsClient {
         return Promise.resolve<PublicRoadmapDetailDto>(null as any);
     }
 
-    getTopics(): Promise<RoadmapTopicDto[]> {
+    getRoadmapTopics(): Promise<RoadmapTopicDto[]> {
         let url_ = this.baseUrl + "/api/Roadmaps/public/topics";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3567,11 +3567,11 @@ export class RoadmapsClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetTopics(_response);
+            return this.processGetRoadmapTopics(_response);
         });
     }
 
-    protected processGetTopics(response: Response): Promise<RoadmapTopicDto[]> {
+    protected processGetRoadmapTopics(response: Response): Promise<RoadmapTopicDto[]> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -4146,6 +4146,179 @@ export class TodoListsClient {
             });
         }
         return Promise.resolve<void>(null as any);
+    }
+}
+
+export class TopicsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getTopics(searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfGetTopicDto> {
+        let url_ = this.baseUrl + "/api/Topics?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTopics(_response);
+        });
+    }
+
+    protected processGetTopics(response: Response): Promise<PaginatedListOfGetTopicDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfGetTopicDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfGetTopicDto>(null as any);
+    }
+
+    createTopic(command: CreateTopicCommand | undefined): Promise<ReturnResultOfCreatedTopicDto> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateTopic(_response);
+        });
+    }
+
+    protected processCreateTopic(response: Response): Promise<ReturnResultOfCreatedTopicDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCreatedTopicDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCreatedTopicDto>(null as any);
+    }
+
+    updateTopic(command: UpdateTopicCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateTopic(_response);
+        });
+    }
+
+    protected processUpdateTopic(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteTopic(command: DeleteTopicCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteTopic(_response);
+        });
+    }
+
+    protected processDeleteTopic(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
     }
 }
 
@@ -6584,7 +6757,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -6613,7 +6786,11 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             this.description = _data["description"];
             this.level = _data["level"];
             this.status = _data["status"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(TopicItemDto.fromJS(item));
+            }
             this.learningObjectives = _data["learningObjectives"];
             this.requirements = _data["requirements"];
             this.targetAudience = _data["targetAudience"];
@@ -6642,7 +6819,11 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["description"] = this.description;
         data["level"] = this.level;
         data["status"] = this.status;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
         data["learningObjectives"] = this.learningObjectives;
         data["requirements"] = this.requirements;
         data["targetAudience"] = this.targetAudience;
@@ -6664,7 +6845,7 @@ export interface IGetCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -6687,6 +6868,46 @@ export enum CourseLevel {
 export enum CourseStatus {
     Draft = 0,
     Public = 1,
+}
+
+export class TopicItemDto implements ITopicItemDto {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: ITopicItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): TopicItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TopicItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ITopicItemDto {
+    id?: number;
+    name?: string | undefined;
 }
 
 export class CourseNoteDto implements ICourseNoteDto {
@@ -7933,7 +8154,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
     description?: string | undefined;
     level?: number;
     status?: number;
-    topic?: string | undefined;
+    topicIds?: number[] | undefined;
     learningObjectives?: string[] | undefined;
     requirements?: string[] | undefined;
     targetAudience?: string[] | undefined;
@@ -7961,7 +8182,11 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
             this.description = _data["description"];
             this.level = _data["level"];
             this.status = _data["status"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topicIds"])) {
+                this.topicIds = [] as any;
+                for (let item of _data["topicIds"])
+                    this.topicIds!.push(item);
+            }
             if (Array.isArray(_data["learningObjectives"])) {
                 this.learningObjectives = [] as any;
                 for (let item of _data["learningObjectives"])
@@ -8001,7 +8226,11 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
         data["description"] = this.description;
         data["level"] = this.level;
         data["status"] = this.status;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topicIds)) {
+            data["topicIds"] = [];
+            for (let item of this.topicIds)
+                data["topicIds"].push(item);
+        }
         if (Array.isArray(this.learningObjectives)) {
             data["learningObjectives"] = [];
             for (let item of this.learningObjectives)
@@ -8034,7 +8263,7 @@ export interface IUpdateCourseCommand {
     description?: string | undefined;
     level?: number;
     status?: number;
-    topic?: string | undefined;
+    topicIds?: number[] | undefined;
     learningObjectives?: string[] | undefined;
     requirements?: string[] | undefined;
     targetAudience?: string[] | undefined;
@@ -8155,7 +8384,7 @@ export class GetCourseDto implements IGetCourseDto {
     imageUrl?: string | undefined;
     level?: CourseLevel;
     learningObjectives?: string | undefined;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     isEnrolled?: boolean;
@@ -8182,7 +8411,11 @@ export class GetCourseDto implements IGetCourseDto {
             this.imageUrl = _data["imageUrl"];
             this.level = _data["level"];
             this.learningObjectives = _data["learningObjectives"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(TopicItemDto.fromJS(item));
+            }
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
             this.isEnrolled = _data["isEnrolled"];
@@ -8209,7 +8442,11 @@ export class GetCourseDto implements IGetCourseDto {
         data["imageUrl"] = this.imageUrl;
         data["level"] = this.level;
         data["learningObjectives"] = this.learningObjectives;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
         data["isEnrolled"] = this.isEnrolled;
@@ -8229,7 +8466,7 @@ export interface IGetCourseDto {
     imageUrl?: string | undefined;
     level?: CourseLevel;
     learningObjectives?: string | undefined;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     isEnrolled?: boolean;
@@ -8432,7 +8669,6 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
     level?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -8460,7 +8696,6 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
             this.level = _data["level"];
             this.description = _data["description"];
             this.learningObjectives = _data["learningObjectives"];
-            this.topic = _data["topic"];
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
             this.createdBy = _data["createdBy"];
@@ -8488,7 +8723,6 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
         data["level"] = this.level;
         data["description"] = this.description;
         data["learningObjectives"] = this.learningObjectives;
-        data["topic"] = this.topic;
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
         data["createdBy"] = this.createdBy;
@@ -8509,7 +8743,6 @@ export interface IGetHomepageCoursesDto {
     level?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -8524,7 +8757,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -8559,7 +8792,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.description = _data["description"];
             this.level = _data["level"];
             this.status = _data["status"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(TopicItemDto.fromJS(item));
+            }
             this.learningObjectives = _data["learningObjectives"];
             this.requirements = _data["requirements"];
             this.targetAudience = _data["targetAudience"];
@@ -8594,7 +8831,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["description"] = this.description;
         data["level"] = this.level;
         data["status"] = this.status;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
         data["learningObjectives"] = this.learningObjectives;
         data["requirements"] = this.requirements;
         data["targetAudience"] = this.targetAudience;
@@ -8622,7 +8863,7 @@ export interface IGetPublicCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -8756,7 +8997,7 @@ export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
     price?: number;
     imageUrl?: string | undefined;
     level?: string | undefined;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -8778,7 +9019,11 @@ export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
             this.price = _data["price"];
             this.imageUrl = _data["imageUrl"];
             this.level = _data["level"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(TopicItemDto.fromJS(item));
+            }
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
             this.createdBy = _data["createdBy"];
@@ -8800,7 +9045,11 @@ export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
         data["price"] = this.price;
         data["imageUrl"] = this.imageUrl;
         data["level"] = this.level;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
         data["createdBy"] = this.createdBy;
@@ -8815,7 +9064,7 @@ export interface IPublicCoursesByUserIdDto {
     price?: number;
     imageUrl?: string | undefined;
     level?: string | undefined;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -9039,6 +9288,46 @@ export enum InstructorWalletTransactionStatus {
     Cancelled = 2,
 }
 
+export class WithdrawFromInstructorWalletCommand implements IWithdrawFromInstructorWalletCommand {
+    amount?: number;
+    currency?: string | undefined;
+
+    constructor(data?: IWithdrawFromInstructorWalletCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): WithdrawFromInstructorWalletCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new WithdrawFromInstructorWalletCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IWithdrawFromInstructorWalletCommand {
+    amount?: number;
+    currency?: string | undefined;
+}
+
 export class PaginatedListOfAdminWithdrawalRequestDto implements IPaginatedListOfAdminWithdrawalRequestDto {
     items?: AdminWithdrawalRequestDto[] | undefined;
     pageNumber?: number;
@@ -9225,46 +9514,6 @@ export interface IAdminWithdrawalRequestStatusCountsDto {
     processing?: number;
     succeeded?: number;
     cancelled?: number;
-}
-
-export class WithdrawFromInstructorWalletCommand implements IWithdrawFromInstructorWalletCommand {
-    amount?: number;
-    currency?: string | undefined;
-
-    constructor(data?: IWithdrawFromInstructorWalletCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.amount = _data["amount"];
-            this.currency = _data["currency"];
-        }
-    }
-
-    static fromJS(data: any): WithdrawFromInstructorWalletCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new WithdrawFromInstructorWalletCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["amount"] = this.amount;
-        data["currency"] = this.currency;
-        return data;
-    }
-}
-
-export interface IWithdrawFromInstructorWalletCommand {
-    amount?: number;
-    currency?: string | undefined;
 }
 
 export class MediaFileDto implements IMediaFileDto {
@@ -12546,6 +12795,306 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
 export interface IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
+}
+
+export class PaginatedListOfGetTopicDto implements IPaginatedListOfGetTopicDto {
+    items?: GetTopicDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetTopicDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetTopicDto {
+    items?: GetTopicDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class GetTopicDto implements IGetTopicDto {
+    id?: number;
+    name?: string | undefined;
+    courseCount?: number;
+
+    constructor(data?: IGetTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.courseCount = _data["courseCount"];
+        }
+    }
+
+    static fromJS(data: any): GetTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["courseCount"] = this.courseCount;
+        return data;
+    }
+}
+
+export interface IGetTopicDto {
+    id?: number;
+    name?: string | undefined;
+    courseCount?: number;
+}
+
+export class ReturnResultOfCreatedTopicDto implements IReturnResultOfCreatedTopicDto {
+    result?: CreatedTopicDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCreatedTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CreatedTopicDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCreatedTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCreatedTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCreatedTopicDto {
+    result?: CreatedTopicDto | undefined;
+    message?: string | undefined;
+}
+
+export class CreatedTopicDto implements ICreatedTopicDto {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: ICreatedTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreatedTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatedTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ICreatedTopicDto {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class CreateTopicCommand implements ICreateTopicCommand {
+    name?: string | undefined;
+
+    constructor(data?: ICreateTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreateTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ICreateTopicCommand {
+    name?: string | undefined;
+}
+
+export class UpdateTopicCommand implements IUpdateTopicCommand {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: IUpdateTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): UpdateTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IUpdateTopicCommand {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class DeleteTopicCommand implements IDeleteTopicCommand {
+    id?: number;
+
+    constructor(data?: IDeleteTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): DeleteTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IDeleteTopicCommand {
+    id?: number;
 }
 
 export class CreateUserCommand implements ICreateUserCommand {

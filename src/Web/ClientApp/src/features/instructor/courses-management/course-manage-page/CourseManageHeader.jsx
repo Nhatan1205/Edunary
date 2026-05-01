@@ -53,7 +53,7 @@ function CourseManageHeader() {
                   py: 0.75,
                   transition: "all 0.2s",
                   "&:hover": {
-                    color: "#3FCCB2",
+                    color: "brand.light",
                     backgroundColor: "rgba(63,204,178,0.1)",
                   },
                 }}
@@ -94,10 +94,7 @@ function CourseManageHeader() {
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    background:
-                      "linear-gradient(90deg, #3FCCB2 0%, #49BBBD 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
+                    color: "brand.light",
                     fontWeight: 700,
                     letterSpacing: "0.02em",
                   }}

@@ -10952,13 +10952,8 @@ export interface IGeneratedAIRoadmapDto {
 }
 
 export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
-    goal?: string | undefined;
-    categoryId?: number;
-    roadmapTopicId?: number;
-    level?: CourseLevel;
-    knownSkills?: string[] | undefined;
-    weeklyHours?: number;
-    timelineMonths?: number;
+    description?: string | undefined;
+    roadmapTopicName?: string | undefined;
 
     constructor(data?: IGenerateAIRoadmapCommand) {
         if (data) {
@@ -10971,17 +10966,8 @@ export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.goal = _data["goal"];
-            this.categoryId = _data["categoryId"];
-            this.roadmapTopicId = _data["roadmapTopicId"];
-            this.level = _data["level"];
-            if (Array.isArray(_data["knownSkills"])) {
-                this.knownSkills = [] as any;
-                for (let item of _data["knownSkills"])
-                    this.knownSkills!.push(item);
-            }
-            this.weeklyHours = _data["weeklyHours"];
-            this.timelineMonths = _data["timelineMonths"];
+            this.description = _data["description"];
+            this.roadmapTopicName = _data["roadmapTopicName"];
         }
     }
 
@@ -10994,29 +10980,15 @@ export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["goal"] = this.goal;
-        data["categoryId"] = this.categoryId;
-        data["roadmapTopicId"] = this.roadmapTopicId;
-        data["level"] = this.level;
-        if (Array.isArray(this.knownSkills)) {
-            data["knownSkills"] = [];
-            for (let item of this.knownSkills)
-                data["knownSkills"].push(item);
-        }
-        data["weeklyHours"] = this.weeklyHours;
-        data["timelineMonths"] = this.timelineMonths;
+        data["description"] = this.description;
+        data["roadmapTopicName"] = this.roadmapTopicName;
         return data;
     }
 }
 
 export interface IGenerateAIRoadmapCommand {
-    goal?: string | undefined;
-    categoryId?: number;
-    roadmapTopicId?: number;
-    level?: CourseLevel;
-    knownSkills?: string[] | undefined;
-    weeklyHours?: number;
-    timelineMonths?: number;
+    description?: string | undefined;
+    roadmapTopicName?: string | undefined;
 }
 
 export class UpdateRoadmapCommand implements IUpdateRoadmapCommand {

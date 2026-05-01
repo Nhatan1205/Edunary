@@ -7644,35 +7644,13 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "goal": {
+          "description": {
             "type": "string",
             "nullable": true
           },
-          "categoryId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "roadmapTopicId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "level": {
-            "$ref": "#/components/schemas/CourseLevel"
-          },
-          "knownSkills": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          },
-          "weeklyHours": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "timelineMonths": {
-            "type": "integer",
-            "format": "int32"
+          "roadmapTopicName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

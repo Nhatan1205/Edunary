@@ -3,7 +3,6 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.Roadmaps.Models;
 using Edunary.Application.SystemSettings.Queries.GetAIConfigQuery;
-using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
@@ -11,13 +10,8 @@ namespace Edunary.Application.Roadmaps.Commands.GenerateAIRoadmapCommand;
 
 public record GenerateAIRoadmapCommand : IRequest<ReturnResult<GeneratedAIRoadmapDto>>
 {
-    public string Goal { get; init; } = string.Empty;
-    public int CategoryId { get; init; }
-    public int RoadmapTopicId { get; init; }
-    public CourseLevel Level { get; init; }
-    public List<string> KnownSkills { get; init; } = new();
-    public int WeeklyHours { get; init; }
-    public int TimelineMonths { get; init; }   // 0 = no deadline
+    public string Description { get; init; } = string.Empty;
+    public string RoadmapTopicName { get; init; } = string.Empty; 
 }
 
 public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmapCommand, ReturnResult<GeneratedAIRoadmapDto>>
@@ -57,59 +51,48 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
 
         try
         {
-            // ── 10% ──
             await SendProgress(userId, 10, "Analyzing your learning profile...");
 
-            // 1. Validate RoadmapTopicId exists
-            var topicExists = await _context.RoadmapTopics.AnyAsync(t => t.Id == request.RoadmapTopicId, ct);
-            if (!topicExists)
-                return new ReturnResult<GeneratedAIRoadmapDto> { 
-                    Result = null, 
-                    Message = "Invalid roadmap topic." 
-                };
-
-            // 2. Upsert LearnerProfile
+            // 1. Get user personalize metadata
             var profile = await _context.LearnerProfiles
+                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.StudentId == userId, ct);
 
-            if (profile == null)
+            // Deserialize preferred ids from profile
+            List<int> preferredCategoryIds;
+            if (profile != null && !string.IsNullOrEmpty(profile.PreferredCategoryIds))
             {
-                profile = new LearnerProfile { StudentId = userId };
-                _context.LearnerProfiles.Add(profile);
+                preferredCategoryIds = JsonSerializer.Deserialize<List<int>>(profile.PreferredCategoryIds) ?? new();
+            }
+            else
+            {
+                preferredCategoryIds = new();
             }
 
-            profile.Goal = request.Goal;
-            profile.SkillLevel = request.Level.ToString();
-            profile.WeeklyHours = request.WeeklyHours;
-
-            // Accumulate preferred categories across wizard sessions
-            var preferredIds = string.IsNullOrEmpty(profile.PreferredCategoryIds)
-                ? new List<int>()
-                : JsonSerializer.Deserialize<List<int>>(profile.PreferredCategoryIds) ?? new List<int>();
-            if (!preferredIds.Contains(request.CategoryId))
+            List<int> preferredTopicIds;
+            if (profile != null && !string.IsNullOrEmpty(profile.PreferredTopicIds))
             {
-                preferredIds.Add(request.CategoryId);
-                profile.PreferredCategoryIds = JsonSerializer.Serialize(preferredIds);
+                preferredTopicIds = JsonSerializer.Deserialize<List<int>>(profile.PreferredTopicIds) ?? new();
+            }
+            else
+            {
+                preferredTopicIds = new();
             }
 
-            await _context.SaveChangesAsync(ct);
+            // Parse skill level — fallback to All if not set or unrecognized
+            CourseLevel skillLevel;
+            if (!Enum.TryParse<CourseLevel>(profile?.SkillLevel, out skillLevel))
+            {
+                skillLevel = CourseLevel.All;
+            }
 
-            // 3. Get implicit student context (enrolled + completed)
+            // 2. Get enrolled course IDs to exclude from catalog
             var enrolledIds = await _context.Enrollments
                 .Where(e => e.StudentId == userId)
                 .Select(e => e.CourseId)
                 .ToListAsync(ct);
 
-            var completedIds = await _context.CourseProgress
-                .Where(p => p.StudentId == userId)
-                .Select(p => p.CourseId)
-                .ToListAsync(ct);
-
-            // Resolve preferred topic names from LearnerProfile (for AI signal)
-            var preferredTopicIds = string.IsNullOrEmpty(profile.PreferredTopicIds)
-                ? new List<int>()
-                : JsonSerializer.Deserialize<List<int>>(profile.PreferredTopicIds) ?? new List<int>();
-
+            // 3. Get topic/category name
             var preferredTopicNames = preferredTopicIds.Count > 0
                 ? await _context.Topics
                     .Where(t => preferredTopicIds.Contains(t.Id))
@@ -117,18 +100,26 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
                     .ToListAsync(ct)
                 : new List<string>();
 
-            // ── 25% ──
+            var preferredCategoryNames = preferredCategoryIds.Count > 0
+                ? await _context.Categories
+                    .Where(c => preferredCategoryIds.Contains(c.Id))
+                    .Select(c => c.Title)
+                    .ToListAsync(ct)
+                : new List<string>();
+
             await SendProgress(userId, 25, "Understanding your current skills...");
 
-            // 4. Filter course catalog (4 steps in one query)
-            // Courses matching student's preferred topics are sorted to the top (soft boost, not hard exclude)
+            // 4. Filter course catalog
             var catalog = await _context.Courses
                 .Include(c => c.Topics)
-                .Where(c => c.Status == CourseStatus.Public
-                         && c.CategoryId == request.CategoryId
-                         && !enrolledIds.Contains(c.Id)
-                         && (c.TotalStudents >= 1 || c.Ratings >= 1))
-                .OrderByDescending(c => c.Topics.Any(t => preferredTopicIds.Contains(t.Id)) ? 1 : 0)
+                .Include(c => c.Category)
+                .Where(c => c.Status == CourseStatus.Public                            // only get published courses
+                         && !enrolledIds.Contains(c.Id)                                // exclude course that user already enrolled 
+                         && (c.TotalStudents >= 1 || c.Ratings >= 1)                   // exclude ghost/zero-activity courses
+                         && (preferredCategoryIds.Contains(c.CategoryId)               // matches any preferred category OR
+                             || c.Topics.Any(t => preferredTopicIds.Contains(t.Id))))  // matches any preferred topic
+                .OrderByDescending(c => c.Topics.Any(t => preferredTopicIds.Contains(t.Id)) ? 1 : 0) // preferred topic match first
+                .ThenByDescending(c => preferredCategoryIds.Contains(c.CategoryId) ? 1 : 0)          // then preferred category
                 .ThenByDescending(c => c.Ratings)
                 .ThenByDescending(c => c.TotalStudents)
                 .Take(50)
@@ -138,13 +129,13 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
                     title = c.Title,
                     level = c.Level.ToString(),
                     topics = c.Topics.Select(t => t.Name).ToList(),
+                    category = c.Category != null ? c.Category.Title : null,
                     ratings = c.Ratings,
                     total_students = c.TotalStudents,
                     learning_objectives = c.LearningObjectives
                 })
                 .ToListAsync(ct);
 
-            // ── 40% ──
             await SendProgress(userId, 40, "Finding relevant courses in our library...");
 
             // 5. Get AI config + build payload
@@ -154,14 +145,17 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
             {
                 student_profile = new
                 {
-                    goal = request.Goal,
-                    skill_level = request.Level.ToString(),
-                    known_skills = request.KnownSkills,
-                    preferred_topics = preferredTopicNames,   // topic names for AI reasoning
-                    weekly_hours = request.WeeklyHours,
-                    timeline_months = request.TimelineMonths,
+                    skill_level = skillLevel.ToString(),
+                    goal = profile?.Goal,
+                    preferred_topics = preferredTopicNames,
+                    preferred_categories = preferredCategoryNames,
+                    weekly_hours = profile?.WeeklyHours,
                     enrolled_course_ids = enrolledIds,
-                    completed_course_ids = completedIds
+                },
+                roadmap_data = new
+                {
+                    description = request.Description,
+                    roadmap_topic = request.RoadmapTopicName,
                 },
                 courses_catalog = catalog,
                 llm_config = new
@@ -174,9 +168,8 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
                 }
             };
 
-            var url = $"{aiConfig.AICenterBaseUrl}api/roadmap/generate-personalized";
+            var url = $"{aiConfig.AICenterBaseUrl}api/roadmap/generate";
 
-            // ── 50% ── (slowest step — LLM call 3–8s)
             await SendProgress(userId, 50, "AI is designing your personalized roadmap...");
 
             var (isSuccess, body) = await _aiCenterClient.PostAsync(url, aiConfig.AICenterApiKey, JsonSerializer.Serialize(payload), ct);
@@ -191,7 +184,6 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
                 };
             }
 
-            // ── 80% ──
             await SendProgress(userId, 80, "Validating and optimizing results...");
 
             // 6. Parse AI response
@@ -247,23 +239,21 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
             };
 
             // 9. Save Roadmap
-            var roadmap = new Roadmap
+            var roadmap = new Domain.Entities.Roadmap
             {
-                Title = $"{request.Goal} — AI Roadmap",
-                Subtitle = $"Personalized {request.Level} path",
+                Title = $"{request.Description} — AI Roadmap",
+                Subtitle = $"Personalized {skillLevel} path · {request.RoadmapTopicName}",
                 Description = aiSummary,
-                Level = request.Level,
+                Level = skillLevel,
                 IsPublic = false,
                 IsAiGenerated = true,
                 GraphData = JsonSerializer.Serialize(graphData),
                 AiMetadata = JsonSerializer.Serialize(aiMetadata),
-                RoadmapTopicId = request.RoadmapTopicId
             };
 
             _context.Roadmaps.Add(roadmap);
             await _context.SaveChangesAsync(ct);
 
-            // ── 100% ──
             await SendProgress(userId, 100, "Your roadmap is ready!");
 
             return new ReturnResult<GeneratedAIRoadmapDto>

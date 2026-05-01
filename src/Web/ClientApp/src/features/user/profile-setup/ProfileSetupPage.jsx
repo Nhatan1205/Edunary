@@ -65,13 +65,12 @@ function ProfileSetupPage() {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((s) => s + 1);
     } else {
-      // Last step → full save → redirect
       try {
         await upsertMutation.mutateAsync(buildCommand(formData));
-        toast.success("Profile saved! Your roadmap is ready.");
+        toast.success("Profile saved!");
         navigate("/");
       } catch {
-        // error toast handled in hook
+
       }
     }
   };

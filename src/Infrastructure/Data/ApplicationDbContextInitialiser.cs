@@ -211,5 +211,9 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
+        // ── AI Roadmap Test Data ────────────────────────────────────────────────
+        await Seeds.RoadmapTestSeedData.SeedAsync(_context, _userManager);
+
+
     }
 }

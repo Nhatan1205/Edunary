@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { CategoriesClient } from "../../web-api-client.ts";
 
-const useGetCategories = (pageNumber = 1, pageSize = 10) => {
+const useGetCategories = (pageNumber = 1, pageSize = 10, searchText = null) => {
   return useQuery({
-    queryKey: ["categories", pageNumber, pageSize],
+    queryKey: ["categories", pageNumber, pageSize, searchText],
     queryFn: async () => {
-      const categoriesClient = new CategoriesClient();
-      const result = await categoriesClient.getCategories(pageNumber, pageSize);
+      const client = new CategoriesClient();
+      const result = await client.getCategories(pageNumber, pageSize, searchText || null);
 
       if (!result) {
         throw new Error("Failed to fetch categories");

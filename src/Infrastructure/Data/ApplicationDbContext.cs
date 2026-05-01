@@ -52,6 +52,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<WithdrawalRequest> WithdrawalRequests => Set<WithdrawalRequest>();
     public DbSet<PendingRegistration> PendingRegistrations => Set<PendingRegistration>();
 
+    public DbSet<LearnerProfile> LearnerProfiles => Set<LearnerProfile>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

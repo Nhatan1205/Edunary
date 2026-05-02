@@ -64,6 +64,9 @@ import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/A
 import WithdrawalRequestsPage from "./features/admin/withdrawal-requests/WithdrawalRequestsPage";
 import TopicPage from "./features/admin/course-section/topic-section/TopicPage";
 import ProfileSetupPage from "./features/user/profile-setup/ProfileSetupPage";
+import KnowledgeBasePage from "./features/admin/knowledge-base/KnowledgeBasePage";
+import QdrantDashboardPage from "./features/admin/qdrant-dashboard/QdrantDashboardPage";
+import CourseEmbeddingPage from "./features/admin/course-embedding/CourseEmbeddingPage";
 
 const router = createBrowserRouter([
   {
@@ -134,7 +137,19 @@ const router = createBrowserRouter([
       {
         path: "invoice/withdrawal-requests",
         element: <WithdrawalRequestsPage />,
-      }
+      },
+      {
+        path: "knowledge-base",
+        element: <KnowledgeBasePage />,
+      },
+      {
+        path: "qdrant-dashboard",
+        element: <QdrantDashboardPage />,
+      },
+      {
+        path: "course-embeddings",
+        element: <CourseEmbeddingPage />,
+      },
     ],
   },
   {

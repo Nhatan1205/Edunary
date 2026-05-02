@@ -39,6 +39,17 @@ public static class SettingKey
     public const string LLM_Temperature = "LLM_Temperature";
     public const string LLM_MaxTokens = "LLM_MaxTokens";
 
+    // Embedding Config
+    public const string Embedding_Provider = "Embedding_Provider";
+    public const string Embedding_ModelName = "Embedding_ModelName";
+    public const string Embedding_ApiKey = "Embedding_ApiKey";
+    public const string Embedding_BaseUrl = "Embedding_BaseUrl";
+
+    // Qdrant Config
+    public const string Qdrant_Url = "Qdrant_Url";
+    public const string Qdrant_ApiKey = "Qdrant_ApiKey";
+    public const string Qdrant_Collection = "Qdrant_Collection";
+
     // use for whitelist key
     private static readonly HashSet<string> _publicKeys = new()
     {

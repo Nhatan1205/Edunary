@@ -49,6 +49,7 @@ public interface IApplicationDbContext
     public DbSet<WithdrawalRequest> WithdrawalRequests { get; }
     public DbSet<PendingRegistration> PendingRegistrations { get; }
     public DbSet<LearnerProfile> LearnerProfiles { get; }
+    public DbSet<KnowledgeDocument> KnowledgeDocuments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

@@ -11,6 +11,7 @@ const useGetQdrantPoints = (collectionName, params) => {
       return await client.getPoints(collectionName, limit, offset, filterKey, filterValue);
     },
     enabled: !!collectionName,
+    staleTime: 30_000,
     keepPreviousData: true,
   });
 };

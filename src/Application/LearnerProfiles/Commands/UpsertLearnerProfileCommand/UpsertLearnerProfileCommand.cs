@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
@@ -17,11 +17,16 @@ public class UpsertLearnerProfileCommandHandler : IRequestHandler<UpsertLearnerP
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IUserEmbeddingJobService _userEmbeddingJobService;
 
-    public UpsertLearnerProfileCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public UpsertLearnerProfileCommandHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        IUserEmbeddingJobService userEmbeddingJobService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _userEmbeddingJobService = userEmbeddingJobService;
     }
 
     public async Task<Result> Handle(UpsertLearnerProfileCommand request, CancellationToken cancellationToken)
@@ -66,7 +71,10 @@ public class UpsertLearnerProfileCommandHandler : IRequestHandler<UpsertLearnerP
                 profile.WeeklyHours = request.WeeklyHours.Value;
             }
 
-            var result = await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            // Trigger async re-embedding so the Qdrant vector stays in sync
+            _userEmbeddingJobService.EnqueueUserProfileEmbedding(userId);
 
             return Result.Success(null, "Learner profile updated successfully.");
 

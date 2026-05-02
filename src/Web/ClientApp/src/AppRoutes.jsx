@@ -67,6 +67,7 @@ import ProfileSetupPage from "./features/user/profile-setup/ProfileSetupPage";
 import KnowledgeBasePage from "./features/admin/knowledge-base/KnowledgeBasePage";
 import QdrantDashboardPage from "./features/admin/qdrant-dashboard/QdrantDashboardPage";
 import CourseEmbeddingPage from "./features/admin/course-embedding/CourseEmbeddingPage";
+import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage";
 
 const router = createBrowserRouter([
   {
@@ -149,6 +150,10 @@ const router = createBrowserRouter([
       {
         path: "course-embeddings",
         element: <CourseEmbeddingPage />,
+      },
+      {
+        path: "user-embeddings",
+        element: <UserEmbeddingPage />,
       },
     ],
   },

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
@@ -22,10 +22,16 @@ public class UpdateUserInfoCommandHandler : IRequestHandler<UpdateUserInfoComman
 {
     private readonly IIdentityService _identityService;
     private readonly ICurrentUserService _currentUserService;
-    public UpdateUserInfoCommandHandler(IIdentityService identityService, ICurrentUserService currentUserService)
+    private readonly IUserEmbeddingJobService _userEmbeddingJobService;
+
+    public UpdateUserInfoCommandHandler(
+        IIdentityService identityService,
+        ICurrentUserService currentUserService,
+        IUserEmbeddingJobService userEmbeddingJobService)
     {
         _identityService = identityService;
         _currentUserService = currentUserService;
+        _userEmbeddingJobService = userEmbeddingJobService;
     }
     public async Task<Result> Handle(UpdateUserInfoCommand request, CancellationToken cancellationToken)
     {
@@ -46,6 +52,14 @@ public class UpdateUserInfoCommandHandler : IRequestHandler<UpdateUserInfoComman
         };
 
         var result = await _identityService.UpdateUserAsync(userModel);
+
+        // Re-embed the user's Qdrant vector when their full name changes,
+        // since the full name is part of the searchable embedding text.
+        if (result.Succeeded && !string.IsNullOrEmpty(request.FullName))
+        {
+            _userEmbeddingJobService.EnqueueUserProfileEmbedding(userId);
+        }
+
         return result;
     }
 }

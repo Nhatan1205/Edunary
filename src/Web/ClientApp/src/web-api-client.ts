@@ -5580,6 +5580,131 @@ export class UserClient {
     }
 }
 
+export class UserEmbeddingsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    batchEmbedUsers(): Promise<void> {
+        let url_ = this.baseUrl + "/api/UserEmbeddings/user-batch-embed";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processBatchEmbedUsers(_response);
+        });
+    }
+
+    protected processBatchEmbedUsers(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getUserEmbeddingSyncStatus(searchText: string | null | undefined, statusFilter: string | null, pageNumber: number, pageSize: number): Promise<ReturnResultOfUserEmbeddingSyncStatusDto> {
+        let url_ = this.baseUrl + "/api/UserEmbeddings/sync-status?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (statusFilter === undefined)
+            throw new Error("The parameter 'statusFilter' must be defined.");
+        else if(statusFilter !== null)
+            url_ += "StatusFilter=" + encodeURIComponent("" + statusFilter) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUserEmbeddingSyncStatus(_response);
+        });
+    }
+
+    protected processGetUserEmbeddingSyncStatus(response: Response): Promise<ReturnResultOfUserEmbeddingSyncStatusDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfUserEmbeddingSyncStatusDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfUserEmbeddingSyncStatusDto>(null as any);
+    }
+
+    embedSingleUser(userId: string | null): Promise<void> {
+        let url_ = this.baseUrl + "/api/UserEmbeddings/{userId}/embed";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processEmbedSingleUser(_response);
+        });
+    }
+
+    protected processEmbedSingleUser(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class VideoCaptionsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -15822,6 +15947,206 @@ export class ChangeUserRoleCommand implements IChangeUserRoleCommand {
 export interface IChangeUserRoleCommand {
     userId?: string | undefined;
     newRole?: string | undefined;
+}
+
+export class ReturnResultOfUserEmbeddingSyncStatusDto implements IReturnResultOfUserEmbeddingSyncStatusDto {
+    result?: UserEmbeddingSyncStatusDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfUserEmbeddingSyncStatusDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? UserEmbeddingSyncStatusDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfUserEmbeddingSyncStatusDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfUserEmbeddingSyncStatusDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfUserEmbeddingSyncStatusDto {
+    result?: UserEmbeddingSyncStatusDto | undefined;
+    message?: string | undefined;
+}
+
+export class UserEmbeddingSyncStatusDto implements IUserEmbeddingSyncStatusDto {
+    totalUsers?: number;
+    totalEmbedded?: number;
+    totalMissing?: number;
+    data?: PaginatedListOfUserEmbeddingItemDto | undefined;
+
+    constructor(data?: IUserEmbeddingSyncStatusDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalUsers = _data["totalUsers"];
+            this.totalEmbedded = _data["totalEmbedded"];
+            this.totalMissing = _data["totalMissing"];
+            this.data = _data["data"] ? PaginatedListOfUserEmbeddingItemDto.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UserEmbeddingSyncStatusDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserEmbeddingSyncStatusDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalUsers"] = this.totalUsers;
+        data["totalEmbedded"] = this.totalEmbedded;
+        data["totalMissing"] = this.totalMissing;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUserEmbeddingSyncStatusDto {
+    totalUsers?: number;
+    totalEmbedded?: number;
+    totalMissing?: number;
+    data?: PaginatedListOfUserEmbeddingItemDto | undefined;
+}
+
+export class PaginatedListOfUserEmbeddingItemDto implements IPaginatedListOfUserEmbeddingItemDto {
+    items?: UserEmbeddingItemDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfUserEmbeddingItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(UserEmbeddingItemDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfUserEmbeddingItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfUserEmbeddingItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfUserEmbeddingItemDto {
+    items?: UserEmbeddingItemDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class UserEmbeddingItemDto implements IUserEmbeddingItemDto {
+    userId?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    isEmbedded?: boolean;
+
+    constructor(data?: IUserEmbeddingItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.isEmbedded = _data["isEmbedded"];
+        }
+    }
+
+    static fromJS(data: any): UserEmbeddingItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserEmbeddingItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["isEmbedded"] = this.isEmbedded;
+        return data;
+    }
+}
+
+export interface IUserEmbeddingItemDto {
+    userId?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    isEmbedded?: boolean;
 }
 
 export class VideoCaptionDto implements IVideoCaptionDto {

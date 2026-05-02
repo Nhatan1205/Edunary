@@ -8,6 +8,8 @@ const useGetQdrantCollections = () => {
       const client = new QdrantDashboardClient();
       return await client.getCollections();
     },
+    staleTime: 10_000,
+    keepPreviousData: true,
   });
 };
 

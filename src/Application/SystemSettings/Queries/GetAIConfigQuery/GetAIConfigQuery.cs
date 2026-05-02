@@ -1,4 +1,4 @@
-﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Constants;
 
 namespace Edunary.Application.SystemSettings.Queries.GetAIConfigQuery;
@@ -18,9 +18,16 @@ public class GetAIConfigQueryHandler : IRequestHandler<GetAIConfigQuery, AIConfi
     {
         var keys = new[]
         {
+            // AI Center
             SettingKey.AICenter_BaseUrl, SettingKey.AICenter_ApiKey,
+            // LLM
             SettingKey.LLM_ModelName, SettingKey.LLM_ApiKey,
             SettingKey.LLM_BaseUrl, SettingKey.LLM_Temperature, SettingKey.LLM_MaxTokens,
+            // Embedding
+            SettingKey.Embedding_Provider, SettingKey.Embedding_ModelName,
+            SettingKey.Embedding_ApiKey, SettingKey.Embedding_BaseUrl,
+            // Qdrant
+            SettingKey.Qdrant_Url, SettingKey.Qdrant_ApiKey, SettingKey.Qdrant_Collection,
         };
 
         var settings = await _context.SystemSettings
@@ -36,6 +43,13 @@ public class GetAIConfigQueryHandler : IRequestHandler<GetAIConfigQuery, AIConfi
             LLMBaseUrl = settings.GetValueOrDefault(SettingKey.LLM_BaseUrl, ""),
             LLMTemperature = double.TryParse(settings.GetValueOrDefault(SettingKey.LLM_Temperature), out var temp) ? temp : 0.7,
             LLMMaxTokens = int.TryParse(settings.GetValueOrDefault(SettingKey.LLM_MaxTokens), out var tokens) ? tokens : 2048,
+            EmbeddingProvider = settings.GetValueOrDefault(SettingKey.Embedding_Provider, ""),
+            EmbeddingModelName = settings.GetValueOrDefault(SettingKey.Embedding_ModelName, ""),
+            EmbeddingApiKey = settings.GetValueOrDefault(SettingKey.Embedding_ApiKey, ""),
+            EmbeddingBaseUrl = settings.GetValueOrDefault(SettingKey.Embedding_BaseUrl, ""),
+            QdrantUrl = settings.GetValueOrDefault(SettingKey.Qdrant_Url, ""),
+            QdrantApiKey = settings.GetValueOrDefault(SettingKey.Qdrant_ApiKey, ""),
+            QdrantCollection = settings.GetValueOrDefault(SettingKey.Qdrant_Collection, "edunary_docs")!,
         };
     }
 }

@@ -54,6 +54,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<LearnerProfile> LearnerProfiles => Set<LearnerProfile>();
 
+    public DbSet<KnowledgeDocument> KnowledgeDocuments => Set<KnowledgeDocument>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

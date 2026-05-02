@@ -110,7 +110,7 @@ function CourseSetting() {
                     <LoadingSpinner size={20} />
                   </Box>
                 ) : (
-                  courseData?.status === 0 ? "Unpublish" : "Publish"
+                  courseData?.status === 0 ? "Publish" : "Unpublish"
                 )}
               </Button>
               <Typography

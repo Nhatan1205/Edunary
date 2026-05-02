@@ -35,12 +35,18 @@ function DataGridNoData({ searchQuery, colSpan = 7 }) {
           </Box>
 
           <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#1C252E" }}>
-            No results found
+            {searchQuery ? "No results found" : "No data available"}
           </Typography>
           <Typography variant="body2" sx={{ color: "#6B7280", textAlign: "center", maxWidth: 300 }}>
-            No results for <strong>&quot;{searchQuery}&quot;</strong>.
-            <br />
-            Check for typos or try different keywords.
+            {searchQuery ? (
+              <>
+                No results for <strong>&quot;{searchQuery}&quot;</strong>.
+                <br />
+                Check for typos or try different keywords.
+              </>
+            ) : (
+              "There is no data to display at the moment."
+            )}
           </Typography>
         </Box>
       </TableCell>

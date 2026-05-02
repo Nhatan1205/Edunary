@@ -95,6 +95,23 @@ const TABS = [
           "LLM_MaxTokens"
         ]
       },
+      {
+        header: "Embedding Configuration",
+        keys: [
+          "Embedding_Provider",
+          "Embedding_ModelName",
+          "Embedding_ApiKey",
+          "Embedding_BaseUrl"
+        ]
+      },
+      {
+        header: "Qdrant Vector Store",
+        keys: [
+          "Qdrant_Url",
+          "Qdrant_ApiKey",
+          "Qdrant_Collection"
+        ]
+      },
     ],
   },
 ];

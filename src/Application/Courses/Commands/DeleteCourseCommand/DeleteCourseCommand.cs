@@ -18,17 +18,20 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
     private readonly ICurrentUserService _currentUserService;
     private readonly IUploadFileService _uploadFileService;
     private readonly ISender _sender;
-    
+    private readonly ICourseEmbeddingJobService _embeddingJobService;
+
     public DeleteCourseCommandHandler(
-        IApplicationDbContext context, 
-        ICurrentUserService currentUserService, 
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
         IUploadFileService uploadFileService,
-        ISender sender)
+        ISender sender,
+        ICourseEmbeddingJobService embeddingJobService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _uploadFileService = uploadFileService;
         _sender = sender;
+        _embeddingJobService = embeddingJobService;
     }
     public async Task<Result> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
     {
@@ -76,6 +79,10 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
                 var imgId = $"{userId}-{request.Id}-{courseTitle}";
                 await _uploadFileService.DeleteImageInCloudinary(imgId);
             }
+
+            // Enqueue Qdrant embedding deletion before the DB record is gone
+            _embeddingJobService.EnqueueCourseEmbeddingDeletion(request.Id);
+
             var result = await _context.SaveChangesAsync(cancellationToken);
             if (result > 0)
             {

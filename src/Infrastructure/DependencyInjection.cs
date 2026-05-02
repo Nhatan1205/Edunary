@@ -79,6 +79,8 @@ public static class DependencyInjection
         services.AddScoped<IVideoProcessorService, VideoProcessorService>();
         services.AddScoped<IProcessMediaFileJobService, ProcessMediaFileJobService>();
         services.AddScoped<IUserStatusJobService, UserStatusJobService>();
+        services.AddScoped<IKnowledgeBaseJobService, KnowledgeBaseJobService>();
+        services.AddScoped<ICourseEmbeddingJobService, CourseEmbeddingJobService>();
         services.AddSingleton<IActivityLogService, ActivityLogService>();
         services.AddScoped<IAICenterClient, AICenterClient>();
 

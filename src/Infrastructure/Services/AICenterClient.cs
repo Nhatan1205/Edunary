@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Text;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Helpers;
@@ -19,7 +19,7 @@ public class AICenterClient : IAICenterClient
 
     public async Task<(bool IsSuccess, string Body)> PostAsync(string url, string apiKey, string jsonBody, CancellationToken ct = default)
     {
-        var client = _httpClientFactory.CreateClient();
+        var client = _httpClientFactory.CreateClient("AICenterClient");
 
         //Using HMAC
         //1. Timestamp

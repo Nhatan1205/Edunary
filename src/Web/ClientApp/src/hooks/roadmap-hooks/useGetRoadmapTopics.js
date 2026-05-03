@@ -6,7 +6,7 @@ const useGetRoadmapTopics = () => {
     queryKey: ["roadmap-topics"],
     queryFn: async () => {
       const roadmapsClient = new RoadmapsClient();
-      return await roadmapsClient.getTopics();
+      return await roadmapsClient.getRoadmapTopics();
     },
     staleTime: 1000 * 60 * 10, // 10 minutes — topics don't change often
   });

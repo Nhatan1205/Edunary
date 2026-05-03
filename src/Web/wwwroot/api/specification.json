@@ -8672,9 +8672,9 @@
             "type": "string",
             "nullable": true
           },
-          "roadmapTopicName": {
-            "type": "string",
-            "nullable": true
+          "roadmapTopicId": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

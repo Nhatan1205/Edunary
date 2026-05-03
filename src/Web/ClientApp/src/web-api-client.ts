@@ -12495,7 +12495,7 @@ export interface IGeneratedAIRoadmapDto {
 
 export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
     description?: string | undefined;
-    roadmapTopicName?: string | undefined;
+    roadmapTopicId?: number;
 
     constructor(data?: IGenerateAIRoadmapCommand) {
         if (data) {
@@ -12509,7 +12509,7 @@ export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
     init(_data?: any) {
         if (_data) {
             this.description = _data["description"];
-            this.roadmapTopicName = _data["roadmapTopicName"];
+            this.roadmapTopicId = _data["roadmapTopicId"];
         }
     }
 
@@ -12523,14 +12523,14 @@ export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["description"] = this.description;
-        data["roadmapTopicName"] = this.roadmapTopicName;
+        data["roadmapTopicId"] = this.roadmapTopicId;
         return data;
     }
 }
 
 export interface IGenerateAIRoadmapCommand {
     description?: string | undefined;
-    roadmapTopicName?: string | undefined;
+    roadmapTopicId?: number;
 }
 
 export class UpdateRoadmapCommand implements IUpdateRoadmapCommand {

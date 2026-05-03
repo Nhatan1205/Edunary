@@ -351,7 +351,7 @@ function ActivityLogsDataGrid({
 
                 {/* ── Table ── */}
                 <TableContainer sx={{ maxHeight: 580, overflowY: "auto", overflowX: "auto" }}>
-                    <Table stickyHeader sx={{ minWidth: 800 }}>
+                    <Table stickyHeader sx={{ minWidth: 800, tableLayout: "fixed" }}>
                         <DataGridHead
                             order={table.order}
                             orderBy={table.orderBy}
@@ -390,7 +390,7 @@ function ActivityLogsDataGrid({
                                     viewLink={null}
                                 >
                                     {/* User — Avatar + FullName + Email */}
-                                    <TableCell sx={{ ...bCell, py: "10px" }}>
+                                    <TableCell sx={{ ...bCell, py: "10px", overflow: "hidden" }}>
                                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                                             <Avatar
                                                 src={row.avatar || undefined}
@@ -422,7 +422,7 @@ function ActivityLogsDataGrid({
                                     </TableCell>
 
                                     {/* Description */}
-                                    <TableCell sx={{ ...bCell, maxWidth: 320 }}>
+                                    <TableCell sx={{ ...bCell, overflow: "hidden" }}>
                                         <Typography
                                             variant="body2"
                                             sx={{ color: "text.primary", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}

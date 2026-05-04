@@ -3999,6 +3999,49 @@ export class RoadmapsClient {
         return Promise.resolve<ReturnResultOfGeneratedAIRoadmapDto>(null as any);
     }
 
+    getStudentRoadmaps(pageNumber: number, pageSize: number): Promise<PaginatedListOfStudentRoadmapDto> {
+        let url_ = this.baseUrl + "/api/Roadmaps/my-roadmaps?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetStudentRoadmaps(_response);
+        });
+    }
+
+    protected processGetStudentRoadmaps(response: Response): Promise<PaginatedListOfStudentRoadmapDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfStudentRoadmapDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfStudentRoadmapDto>(null as any);
+    }
+
     getRoadmapDetail(id: number): Promise<RoadmapDetailDto> {
         let url_ = this.baseUrl + "/api/Roadmaps/{id}";
         if (id === undefined || id === null)
@@ -4122,8 +4165,18 @@ export class RoadmapsClient {
         return Promise.resolve<PublicRoadmapDetailDto>(null as any);
     }
 
-    getRoadmapTopics(): Promise<RoadmapTopicDto[]> {
-        let url_ = this.baseUrl + "/api/Roadmaps/public/topics";
+    getRoadmapTopics(searchQuery: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfRoadmapTopicDto> {
+        let url_ = this.baseUrl + "/api/Roadmaps/public/topics?";
+        if (searchQuery !== undefined && searchQuery !== null)
+            url_ += "SearchQuery=" + encodeURIComponent("" + searchQuery) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -4138,7 +4191,7 @@ export class RoadmapsClient {
         });
     }
 
-    protected processGetRoadmapTopics(response: Response): Promise<RoadmapTopicDto[]> {
+    protected processGetRoadmapTopics(response: Response): Promise<PaginatedListOfRoadmapTopicDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -4146,14 +4199,7 @@ export class RoadmapsClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(RoadmapTopicDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = PaginatedListOfRoadmapTopicDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -4161,7 +4207,7 @@ export class RoadmapsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<RoadmapTopicDto[]>(null as any);
+        return Promise.resolve<PaginatedListOfRoadmapTopicDto>(null as any);
     }
 
     getRelatedRoadmapsByCourseId(courseId: number): Promise<RelatedRoadmapDto[]> {
@@ -12745,6 +12791,126 @@ export interface IRoadmapAuthorDto {
     topicCount?: number;
 }
 
+export class PaginatedListOfStudentRoadmapDto implements IPaginatedListOfStudentRoadmapDto {
+    items?: StudentRoadmapDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfStudentRoadmapDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(StudentRoadmapDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfStudentRoadmapDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfStudentRoadmapDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfStudentRoadmapDto {
+    items?: StudentRoadmapDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class StudentRoadmapDto implements IStudentRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: string | undefined;
+    created?: Date;
+
+    constructor(data?: IStudentRoadmapDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.description = _data["description"];
+            this.level = _data["level"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): StudentRoadmapDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StudentRoadmapDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["description"] = this.description;
+        data["level"] = this.level;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IStudentRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: string | undefined;
+    created?: Date;
+}
+
 export class RoadmapDetailDto implements IRoadmapDetailDto {
     id?: number;
     title?: string | undefined;
@@ -13323,6 +13489,70 @@ export interface IPublicCreatorDto {
     id?: string | undefined;
     name?: string | undefined;
     avatar?: string | undefined;
+}
+
+export class PaginatedListOfRoadmapTopicDto implements IPaginatedListOfRoadmapTopicDto {
+    items?: RoadmapTopicDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfRoadmapTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(RoadmapTopicDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfRoadmapTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfRoadmapTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfRoadmapTopicDto {
+    items?: RoadmapTopicDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
 }
 
 export class RoadmapTopicDto implements IRoadmapTopicDto {

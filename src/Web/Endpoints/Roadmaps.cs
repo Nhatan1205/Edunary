@@ -8,6 +8,7 @@ using Edunary.Application.Roadmaps.Queries.GetPublicRoadmapsQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapDetailQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapsAuthorQuery;
 using Edunary.Application.Roadmaps.Queries.GetRoadmapTopicsQuery;
+using Edunary.Application.Roadmaps.Queries.GetStudentRoadmapsQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Edunary.Application.Roadmaps.Commands.GenerateAIRoadmapCommand;
@@ -25,6 +26,7 @@ public class Roadmaps : EndpointGroupBase
             .MapPut(UpdateRoadmap)
             .MapDelete(DeleteRoadmap)
             .MapGet(GetRoadmapsAuthor)
+            .MapGet(GetStudentRoadmaps, "my-roadmaps")
             .MapGet(GetRoadmapDetail, "{id}");
 
         app.MapGroup(this)
@@ -39,9 +41,9 @@ public class Roadmaps : EndpointGroupBase
         return await sender.Send(command);
     }
 
-    public async Task<List<RoadmapTopicDto>> GetRoadmapTopics(ISender sender)
+    public async Task<PaginatedList<RoadmapTopicDto>> GetRoadmapTopics(ISender sender, [AsParameters] GetRoadmapTopicsQuery query)
     {
-        return await sender.Send(new GetRoadmapTopicsQuery());
+        return await sender.Send(query);
     }
 
     public async Task<IResult> UpdateRoadmap(ISender sender, UpdateRoadmapCommand command)
@@ -52,6 +54,11 @@ public class Roadmaps : EndpointGroupBase
     }
 
     public async Task<PaginatedList<RoadmapAuthorDto>> GetRoadmapsAuthor(ISender sender, [AsParameters] GetRoadmapsAuthorQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<PaginatedList<StudentRoadmapDto>> GetStudentRoadmaps(ISender sender, [AsParameters] GetStudentRoadmapsQuery query)
     {
         return await sender.Send(query);
     }

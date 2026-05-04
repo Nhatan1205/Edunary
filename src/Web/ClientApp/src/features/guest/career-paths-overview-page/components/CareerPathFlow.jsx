@@ -62,12 +62,12 @@ export default function CareerPathFlow({ nodes, edges }) {
 
     return (
         <Box sx={{ py: 6, px: { xs: 2, md: 4 } }}>
-            <Typography variant="h3" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
+            {/* <Typography variant="h3" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
                 Learning Roadmap
             </Typography>
             <Typography variant="body1" sx={{ color: 'text.tertiary', mb: 4 }}>
                 Follow this guided path to master every skill needed for your career.
-            </Typography>
+            </Typography> */}
 
             <Box
                 sx={{

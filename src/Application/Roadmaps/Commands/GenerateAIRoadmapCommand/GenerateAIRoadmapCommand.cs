@@ -213,15 +213,25 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
             };
 
             // 9. Save Roadmap
+            // Use AI-generated summary as description (richer than raw user prompt).
+            // Fall back to original request description if AI didn't return one.
+            var aiSummary = data.TryGetProperty("summary", out var summaryEl)
+                ? summaryEl.GetString()
+                : null;
+            var finalDescription = !string.IsNullOrWhiteSpace(aiSummary)
+                ? aiSummary
+                : request.Description;
+
             var roadmap = new Roadmap
             {
-                Title = "Your AI Roadmap",
+                Title = $"{roadmapTopicName} Career Path",
                 Subtitle = $"Personalized {skillLevel} path · {roadmapTopicName}",
-                Description = request.Description,
+                Description = finalDescription,
                 Level = skillLevel,
                 IsPublic = false,
                 RoadmapTopicId = request.RoadmapTopicId,
                 GraphData = JsonSerializer.Serialize(graphData),
+                Source = RoadmapSource.AIGenerated,
             };
 
             _context.Roadmaps.Add(roadmap);

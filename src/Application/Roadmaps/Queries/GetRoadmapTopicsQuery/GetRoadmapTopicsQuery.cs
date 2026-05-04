@@ -1,10 +1,17 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Mappings;
+using Edunary.Application.Common.Models;
 
 namespace Edunary.Application.Roadmaps.Queries.GetRoadmapTopicsQuery;
 
-public class GetRoadmapTopicsQuery : IRequest<List<RoadmapTopicDto>> { }
+public class GetRoadmapTopicsQuery : IRequest<PaginatedList<RoadmapTopicDto>>
+{
+    public string SearchQuery { get; init; }
+    public int PageNumber { get; init; } = 1;
+    public int PageSize { get; init; } = 16;
+}
 
-public class GetRoadmapTopicsQueryHandler : IRequestHandler<GetRoadmapTopicsQuery, List<RoadmapTopicDto>>
+public class GetRoadmapTopicsQueryHandler : IRequestHandler<GetRoadmapTopicsQuery, PaginatedList<RoadmapTopicDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -15,12 +22,16 @@ public class GetRoadmapTopicsQueryHandler : IRequestHandler<GetRoadmapTopicsQuer
         _mapper = mapper;
     }
 
-    public async Task<List<RoadmapTopicDto>> Handle(GetRoadmapTopicsQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<RoadmapTopicDto>> Handle(GetRoadmapTopicsQuery request, CancellationToken cancellationToken)
     {
-        return await _context.RoadmapTopics
+        var query = _context.RoadmapTopics.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.SearchQuery))
+            query = query.Where(t => t.Title.Contains(request.SearchQuery));
+
+        return await query
             .OrderBy(t => t.Title)
             .ProjectTo<RoadmapTopicDto>(_mapper.ConfigurationProvider)
-            .ToListAsync(cancellationToken);
+            .PaginatedListAsync(request.PageNumber, request.PageSize);
     }
 }
-

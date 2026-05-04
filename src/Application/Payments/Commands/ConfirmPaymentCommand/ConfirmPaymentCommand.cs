@@ -186,8 +186,6 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
                     CourseId = courseId,
                     Progress = course.Content
                 }, cancellationToken);
-
-                await _notifyService.JoinGroupCourse(courseId);
             }
             else
             {

@@ -72,6 +72,7 @@ public static class DependencyInjection
         services.AddTransient<IEmailService, EmailService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<IUploadFileService, UploadFileService>();
+        services.AddSingleton<IAppHubService, AppHubService>();
         services.AddScoped<INotifyService, NotifyService>();
         services.AddScoped<IFilterService, FilterService>();
         services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
@@ -122,7 +123,7 @@ public static class DependencyInjection
                     var path = context.HttpContext.Request.Path;
 
                     if (!string.IsNullOrEmpty(accessToken) &&
-                        path.StartsWithSegments("/NotificationHub"))
+                        path.StartsWithSegments("/hubs/app"))
                     {
                         context.Token = accessToken;
                     }

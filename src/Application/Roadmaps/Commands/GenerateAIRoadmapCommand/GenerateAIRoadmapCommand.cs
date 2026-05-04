@@ -259,6 +259,7 @@ public class GenerateAIRoadmapCommandHandler : IRequestHandler<GenerateAIRoadmap
 
     private Task SendProgress(string userId, int percent, string message)
     {
-        return _notifyService.SendToUser(userId, "RoadmapProgress", new { percent, message });
+        // Roadmap progress SignalR will be implemented later
+        return Task.CompletedTask;
     }
 }

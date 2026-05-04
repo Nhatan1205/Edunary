@@ -25,6 +25,7 @@ import AvatarImage from "../../assets/images/avatar.jpg";
 import { useAuth } from "../../context/AuthContext";
 import NotificationPopup from "../notification-popup/NotificationPopup";
 import useGetNotificationsByUserId from "../../hooks/notifications-hooks/useGetNotificationByUserId";
+import useRealtimeNotifications from "../../hooks/notifications-hooks/useRealtimeNotifications";
 import { useNavigate } from "react-router";
 import { useCart } from "../../hooks/cart-hooks/useCart";
 import useGetBasicUserInfo from "../../hooks/auth-hooks/useGetBasicUserInfor";
@@ -67,6 +68,8 @@ function Header() {
 
   //notification state
   const { data: dataNofications } = useGetNotificationsByUserId();
+  // Real-time: invalidate cache when server pushes new notification
+  useRealtimeNotifications();
 
   return (
     <Box sx={{ flexGrow: 1, position: "sticky", top: 0, zIndex: 1000 }}>

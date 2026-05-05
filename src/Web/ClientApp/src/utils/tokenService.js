@@ -2,6 +2,7 @@
 const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const REQUIRES_PASSWORD_CHANGE_KEY = 'requires_password_change';
+const IS_FIRST_LOGIN_KEY = 'is_first_login';
 
 export const tokenService = {
   // Get access token
@@ -25,11 +26,15 @@ export const tokenService = {
       value: token,
     };
     localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenData));
-    
+
     // Extract and store requiresPasswordChange from token
     const decoded = this.decodeToken(token);
     if (decoded && decoded.requiresPasswordChange !== undefined) {
       this.setRequiresPasswordChange(decoded.requiresPasswordChange === 'true' || decoded.requiresPasswordChange === true);
+    }
+    // Extract and store isFirstLogin from token
+    if (decoded && decoded.isFirstLogin !== undefined) {
+      localStorage.setItem(IS_FIRST_LOGIN_KEY, JSON.stringify(decoded.isFirstLogin === 'true' || decoded.isFirstLogin === true));
     }
   },
 
@@ -39,9 +44,9 @@ export const tokenService = {
     if (!tokenData) return null;
     try {
       const parsed = JSON.parse(tokenData);
-      return parsed.value || tokenData; 
+      return parsed.value || tokenData;
     } catch {
-      return tokenData; 
+      return tokenData;
     }
   },
 
@@ -61,6 +66,7 @@ export const tokenService = {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(REQUIRES_PASSWORD_CHANGE_KEY);
+    localStorage.removeItem(IS_FIRST_LOGIN_KEY);
   },
 
   // Check if user is authenticated
@@ -89,11 +95,27 @@ export const tokenService = {
     localStorage.removeItem(REQUIRES_PASSWORD_CHANGE_KEY);
   },
 
+  // Get isFirstLogin flag (set once on login, read by Homepage)
+  getIsFirstLogin() {
+    const value = localStorage.getItem(IS_FIRST_LOGIN_KEY);
+    if (value === null) return false;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return false;
+    }
+  },
+
+  // Clear isFirstLogin flag after redirect
+  clearIsFirstLogin() {
+    localStorage.removeItem(IS_FIRST_LOGIN_KEY);
+  },
+
   // Get default password from token (for first login)
   getDefaultPassword() {
     const token = this.getToken();
     if (!token) return null;
-    
+
     const decoded = this.decodeToken(token);
     return decoded?.defaultPassword || null;
   },
@@ -143,7 +165,7 @@ export const tokenService = {
   getUserRole() {
     const token = this.getToken();
     if (!token) return null;
-    
+
     const decoded = this.decodeToken(token);
     // JWT claims có thể chứa role dưới tên: role, roles, 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
     return decoded?.role || decoded?.roles || decoded?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
@@ -153,12 +175,12 @@ export const tokenService = {
   isAdmin() {
     const role = this.getUserRole();
     if (!role) return false;
-    
+
     // Handle both string and array roles
     if (Array.isArray(role)) {
       return role.some(r => r?.toLowerCase() === 'admin' || r?.toLowerCase() === 'administrator');
     }
-    
+
     return role.toLowerCase() === 'admin' || role.toLowerCase() === 'administrator';
   },
 };

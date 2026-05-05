@@ -17,10 +17,10 @@ public static class InitialiserExtensions
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
 
         // Turn off InitialiseAsync and SeedAsync + turn on await Task.CompletedTask; to run migrate
-        // await initialiser.InitialiseAsync();
+        await initialiser.InitialiseAsync();
 
-        // await initialiser.SeedAsync();
-        await Task.CompletedTask;
+        await initialiser.SeedAsync();
+        // await Task.CompletedTask;
     }
 }
 
@@ -141,6 +141,54 @@ public class ApplicationDbContextInitialiser
                 new RoadmapTopic { Title = "iOS" },
                 new RoadmapTopic { Title = "Blockchain" },
                 new RoadmapTopic { Title = "UX Design" }
+            );
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.Topics.Any())
+        {
+            _context.Topics.AddRange(
+                new Topic { Name = "Web Development" },
+                new Topic { Name = "Mobile Development" },
+                new Topic { Name = "Data Science" },
+                new Topic { Name = "Machine Learning" },
+                new Topic { Name = "Artificial Intelligence" },
+                new Topic { Name = "Deep Learning" },
+                new Topic { Name = "Natural Language Processing" },
+                new Topic { Name = "Computer Vision" },
+                new Topic { Name = "Cloud Computing" },
+                new Topic { Name = "DevOps" },
+                new Topic { Name = "Cybersecurity" },
+                new Topic { Name = "Networking" },
+                new Topic { Name = "Database Management" },
+                new Topic { Name = "Backend Development" },
+                new Topic { Name = "Frontend Development" },
+                new Topic { Name = "Full Stack Development" },
+                new Topic { Name = "React" },
+                new Topic { Name = "Angular" },
+                new Topic { Name = "Vue.js" },
+                new Topic { Name = "Node.js" },
+                new Topic { Name = "Python" },
+                new Topic { Name = "Java" },
+                new Topic { Name = "C#" },
+                new Topic { Name = "C++" },
+                new Topic { Name = "JavaScript" },
+                new Topic { Name = "TypeScript" },
+                new Topic { Name = "Flutter" },
+                new Topic { Name = "React Native" },
+                new Topic { Name = "Swift" },
+                new Topic { Name = "Kotlin" },
+                new Topic { Name = "Game Development" },
+                new Topic { Name = "UI/UX Design" },
+                new Topic { Name = "Graphic Design" },
+                new Topic { Name = "3D Modeling" },
+                new Topic { Name = "Video Editing" },
+                new Topic { Name = "Photography" },
+                new Topic { Name = "Digital Marketing" },
+                new Topic { Name = "Business Analytics" },
+                new Topic { Name = "Project Management" },
+                new Topic { Name = "Blockchain" }
             );
 
             await _context.SaveChangesAsync();

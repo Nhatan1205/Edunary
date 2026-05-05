@@ -81,7 +81,11 @@ public static class DependencyInjection
         services.AddScoped<IVideoProcessorService, VideoProcessorService>();
         services.AddScoped<IProcessMediaFileJobService, ProcessMediaFileJobService>();
         services.AddScoped<IUserStatusJobService, UserStatusJobService>();
+        services.AddScoped<IKnowledgeBaseJobService, KnowledgeBaseJobService>();
+        services.AddScoped<ICourseEmbeddingJobService, CourseEmbeddingJobService>();
+        services.AddScoped<IUserEmbeddingJobService, UserEmbeddingJobService>();
         services.AddSingleton<IActivityLogService, ActivityLogService>();
+        services.AddScoped<IAICenterClient, AICenterClient>();
 
         // Redis configuration
         services.Configure<RedisSetting>(configuration.GetSection("RedisSetting"));

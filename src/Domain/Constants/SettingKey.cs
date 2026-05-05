@@ -1,24 +1,17 @@
 namespace Edunary.Domain.Constants;
 
-/// <summary>
-/// String constants cho System Setting keys.
-/// Dùng static class thay vì enum để:
-/// - DB lưu string trực tiếp, dễ query/debug
-/// - Frontend dùng string luôn, không cần mapping số
-/// - Thêm key mới không ảnh hưởng giá trị cũ
-/// </summary>
 public static class SettingKey
 {
-    // === Stripe ===
+    // Stripe 
     public const string Stripe_PublishableKey = "Stripe_PublishableKey";
     public const string Stripe_SecretKey = "Stripe_SecretKey";
 
-    // === Cloudinary ===
+    // Cloudinary 
     public const string Cloudinary_CloudName = "Cloudinary_CloudName";
     public const string Cloudinary_ApiKey = "Cloudinary_ApiKey";
     public const string Cloudinary_ApiSecret = "Cloudinary_ApiSecret";
 
-    // === DigitalOcean ===
+    // DigitalOcean 
     public const string DigitalOcean_AccessKey = "DigitalOcean_AccessKey";
     public const string DigitalOcean_SecretKey = "DigitalOcean_SecretKey";
     public const string DigitalOcean_SpaceName = "DigitalOcean_SpaceName";
@@ -26,7 +19,7 @@ public static class SettingKey
     public const string DigitalOcean_Endpoint = "DigitalOcean_Endpoint";
     public const string DigitalOcean_CDNEndpoint = "DigitalOcean_CDNEndpoint";
 
-    // === Email ===
+    // Email 
     public const string Email_Host = "Email_Host";
     public const string Email_Port = "Email_Port";
     public const string Email_Username = "Email_Username";
@@ -35,8 +28,27 @@ public static class SettingKey
     public const string Email_FromName = "Email_FromName";
     public const string Email_FromAddress = "Email_FromAddress";
 
-    // === Chatbot ===
-    public const string Chatbot_ServiceUrl = "Chatbot_ServiceUrl";
+    // AI Center 
+    public const string AICenter_BaseUrl = "AICenter_BaseUrl";
+    public const string AICenter_ApiKey = "AICenter_ApiKey";
+
+    // LLM Config 
+    public const string LLM_ModelName = "LLM_ModelName";
+    public const string LLM_ApiKey = "LLM_ApiKey";
+    public const string LLM_BaseUrl = "LLM_BaseUrl";
+    public const string LLM_Temperature = "LLM_Temperature";
+    public const string LLM_MaxTokens = "LLM_MaxTokens";
+
+    // Embedding Config
+    public const string Embedding_Provider = "Embedding_Provider";
+    public const string Embedding_ModelName = "Embedding_ModelName";
+    public const string Embedding_ApiKey = "Embedding_ApiKey";
+    public const string Embedding_BaseUrl = "Embedding_BaseUrl";
+
+    // Qdrant Config
+    public const string Qdrant_Url = "Qdrant_Url";
+    public const string Qdrant_ApiKey = "Qdrant_ApiKey";
+    public const string Qdrant_Collection = "Qdrant_Collection";
 
     // Redis Config
     public const string Redis_Host = "Redis_Host";
@@ -47,7 +59,7 @@ public static class SettingKey
     // use for whitelist key
     private static readonly HashSet<string> _publicKeys = new()
     {
-        Chatbot_ServiceUrl, 
+        AICenter_BaseUrl,
     };
 
     public static bool IsPublicKey(string key)

@@ -5,8 +5,8 @@ import useGetPublicSystemSettings from '../../hooks/system-settings-hooks/useGet
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const iframeRef = useRef(null);
-  const { data: settings } = useGetPublicSystemSettings(["Chatbot_ServiceUrl"]);
-  const chatbotUrl = settings?.["Chatbot_ServiceUrl"] || "nothing";
+  const { data: settings } = useGetPublicSystemSettings(["AICenter_BaseUrl"]);
+  const chatbotUrl = settings?.["AICenter_BaseUrl"] || "nothing";
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);

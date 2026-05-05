@@ -6,10 +6,13 @@ import EventNoteOutlinedIcon from "@mui/icons-material/EventNoteOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
+import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
+import AutoFixHighOutlinedIcon from "@mui/icons-material/AutoFixHighOutlined";
+import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 
 const adminMenuConfig = {
   items: [
@@ -104,6 +107,12 @@ const adminMenuConfig = {
               title: "Category",
               type: "item",
               url: "/admin/course/category",
+            },
+            {
+              id: "topic",
+              title: "Topic",
+              type: "item",
+              url: "/admin/course/topic",
             }
           ],
         },
@@ -154,6 +163,46 @@ const adminMenuConfig = {
           type: "item",
           url: "/admin/system-settings",
           icon: SettingsOutlinedIcon,
+        },
+      ],
+    },
+    {
+      id: "ai-center-group",
+      title: "AI Center",
+      type: "group",
+      children: [
+        {
+          id: "knowledge-base",
+          title: "Knowledge Base",
+          type: "item",
+          url: "/admin/knowledge-base",
+          icon: MenuBookOutlinedIcon,
+        },
+        {
+          id: "embedding",
+          title: "Embedding",
+          type: "collapse",
+          icon: AutoFixHighOutlinedIcon,
+          children: [
+            {
+              id: "qdrant-dashboard",
+              title: "Qdrant Dashboard",
+              type: "item",
+              url: "/admin/qdrant-dashboard",
+            },
+            {
+              id: "course-embeddings",
+              title: "Course Embeddings",
+              type: "item",
+              url: "/admin/course-embeddings",
+            },
+            {
+              id: "user-embeddings",
+              title: "User Embeddings",
+              type: "item",
+              url: "/admin/user-embeddings",
+            },
+          ],
         },
       ],
     },

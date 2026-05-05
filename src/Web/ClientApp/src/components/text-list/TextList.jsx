@@ -125,7 +125,7 @@ export default function TextList({ items: initialItems = [], onChange, minItemLe
                     },
                   }}
                   onFocus={(e) =>
-                    (e.target.closest(".sortable-item").style.borderColor = theme.palette.secondaryBrand.main)
+                    (e.target.closest(".sortable-item").style.borderColor = theme.palette.brand.main)
                   }
                   onBlur={(e) =>
                     (e.target.closest(".sortable-item").style.borderColor = "#e0e0e0")

@@ -761,6 +761,7 @@ public class IdentityService : IIdentityService
                     new Claim("picture",user.Avatar == null ? "" :user.Avatar),
                     new Claim("requiresPasswordChange", requiresPasswordChange.ToString().ToLower()),
                     new Claim("fullName", user.FullName == null ? "" : user.FullName.ToString()),
+                    new Claim("isFirstLogin", isFirstLogin.ToString().ToLower()),
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(expiredTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

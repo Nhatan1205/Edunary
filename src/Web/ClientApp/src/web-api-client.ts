@@ -744,7 +744,7 @@ export class CategoriesClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getCategories(pageNumber: number, pageSize: number): Promise<PaginatedListOfCategoryDto> {
+    getCategories(pageNumber: number, pageSize: number, searchText: string | null | undefined): Promise<PaginatedListOfCategoryDto> {
         let url_ = this.baseUrl + "/api/Categories?";
         if (pageNumber === undefined || pageNumber === null)
             throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
@@ -754,6 +754,8 @@ export class CategoriesClient {
             throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
         else
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -1031,6 +1033,165 @@ export class CourseDraftsClient {
             });
         }
         return Promise.resolve<GetCourseByIdDto>(null as any);
+    }
+}
+
+export class CourseEmbeddingsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    batchEmbed(): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseEmbeddings/batch-embed";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processBatchEmbed(_response);
+        });
+    }
+
+    protected processBatchEmbed(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getSyncStatus(searchText: string | null | undefined, statusFilter: string | null, pageNumber: number, pageSize: number): Promise<ReturnResultOfCourseEmbeddingSyncStatusDto> {
+        let url_ = this.baseUrl + "/api/CourseEmbeddings/sync-status?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (statusFilter === undefined)
+            throw new Error("The parameter 'statusFilter' must be defined.");
+        else if(statusFilter !== null)
+            url_ += "StatusFilter=" + encodeURIComponent("" + statusFilter) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetSyncStatus(_response);
+        });
+    }
+
+    protected processGetSyncStatus(response: Response): Promise<ReturnResultOfCourseEmbeddingSyncStatusDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCourseEmbeddingSyncStatusDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCourseEmbeddingSyncStatusDto>(null as any);
+    }
+
+    embedSingle(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseEmbeddings/{id}/embed";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processEmbedSingle(_response);
+        });
+    }
+
+    protected processEmbedSingle(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteSingle(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseEmbeddings/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteSingle(_response);
+        });
+    }
+
+    protected processDeleteSingle(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -2114,6 +2275,41 @@ export class InstructorWalletClient {
         return Promise.resolve<PaginatedListOfInstructorWalletTransactionDto>(null as any);
     }
 
+    withdraw(command: WithdrawFromInstructorWalletCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/withdraw";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processWithdraw(_response);
+        });
+    }
+
+    protected processWithdraw(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     getAdminWithdrawalRequests(pageNumber: number, pageSize: number, status: InstructorWalletTransactionStatus | null | undefined, fromDate: Date | null | undefined, toDate: Date | null | undefined, instructorName: string | null | undefined, instructorEmail: string | null | undefined, bankNumber: string | null | undefined, bankAccountHolder: string | null | undefined): Promise<PaginatedListOfAdminWithdrawalRequestDto> {
         let url_ = this.baseUrl + "/api/InstructorWallet/admin/withdrawal-requests?";
         if (pageNumber === undefined || pageNumber === null)
@@ -2206,41 +2402,6 @@ export class InstructorWalletClient {
         return Promise.resolve<AdminWithdrawalRequestStatusCountsDto>(null as any);
     }
 
-    withdraw(command: WithdrawFromInstructorWalletCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/InstructorWallet/withdraw";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processWithdraw(_response);
-        });
-    }
-
-    protected processWithdraw(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
     approveWithdrawal(id: number): Promise<void> {
         let url_ = this.baseUrl + "/api/InstructorWallet/withdrawals/{id}/approve";
         if (id === undefined || id === null)
@@ -2294,6 +2455,211 @@ export class InstructorWalletClient {
     }
 
     protected processCancelWithdrawal(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class KnowledgeBaseClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getDocuments(pageNumber: number, pageSize: number): Promise<PaginatedListOfKnowledgeDocumentDto> {
+        let url_ = this.baseUrl + "/api/KnowledgeBase?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDocuments(_response);
+        });
+    }
+
+    protected processGetDocuments(response: Response): Promise<PaginatedListOfKnowledgeDocumentDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfKnowledgeDocumentDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfKnowledgeDocumentDto>(null as any);
+    }
+
+    uploadDocument(file: FileParameter | null | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/KnowledgeBase";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file !== null && file !== undefined)
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUploadDocument(_response);
+        });
+    }
+
+    protected processUploadDocument(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteDocument(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/KnowledgeBase/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteDocument(_response);
+        });
+    }
+
+    protected processDeleteDocument(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class LearnerProfilesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getMyProfile(): Promise<LearnerProfileDto> {
+        let url_ = this.baseUrl + "/api/LearnerProfiles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyProfile(_response);
+        });
+    }
+
+    protected processGetMyProfile(response: Response): Promise<LearnerProfileDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LearnerProfileDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LearnerProfileDto>(null as any);
+    }
+
+    upsertProfile(command: UpsertLearnerProfileCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/LearnerProfiles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpsertProfile(_response);
+        });
+    }
+
+    protected processUpsertProfile(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -4125,6 +4491,45 @@ export class RoadmapsClient {
         return Promise.resolve<PaginatedListOfRoadmapAuthorDto>(null as any);
     }
 
+    generateAIRoadmap(command: GenerateAIRoadmapCommand | undefined): Promise<ReturnResultOfGeneratedAIRoadmapDto> {
+        let url_ = this.baseUrl + "/api/Roadmaps/generate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGenerateAIRoadmap(_response);
+        });
+    }
+
+    protected processGenerateAIRoadmap(response: Response): Promise<ReturnResultOfGeneratedAIRoadmapDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfGeneratedAIRoadmapDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfGeneratedAIRoadmapDto>(null as any);
+    }
+
     getRoadmapDetail(id: number): Promise<RoadmapDetailDto> {
         let url_ = this.baseUrl + "/api/Roadmaps/{id}";
         if (id === undefined || id === null)
@@ -4248,7 +4653,7 @@ export class RoadmapsClient {
         return Promise.resolve<PublicRoadmapDetailDto>(null as any);
     }
 
-    getTopics(): Promise<RoadmapTopicDto[]> {
+    getRoadmapTopics(): Promise<RoadmapTopicDto[]> {
         let url_ = this.baseUrl + "/api/Roadmaps/public/topics";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -4260,11 +4665,11 @@ export class RoadmapsClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetTopics(_response);
+            return this.processGetRoadmapTopics(_response);
         });
     }
 
-    protected processGetTopics(response: Response): Promise<RoadmapTopicDto[]> {
+    protected processGetRoadmapTopics(response: Response): Promise<RoadmapTopicDto[]> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -4839,6 +5244,179 @@ export class TodoListsClient {
             });
         }
         return Promise.resolve<void>(null as any);
+    }
+}
+
+export class TopicsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getTopics(searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfGetTopicDto> {
+        let url_ = this.baseUrl + "/api/Topics?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTopics(_response);
+        });
+    }
+
+    protected processGetTopics(response: Response): Promise<PaginatedListOfGetTopicDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfGetTopicDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfGetTopicDto>(null as any);
+    }
+
+    createTopic(command: CreateTopicCommand | undefined): Promise<ReturnResultOfCreatedTopicDto> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateTopic(_response);
+        });
+    }
+
+    protected processCreateTopic(response: Response): Promise<ReturnResultOfCreatedTopicDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCreatedTopicDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCreatedTopicDto>(null as any);
+    }
+
+    updateTopic(command: UpdateTopicCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateTopic(_response);
+        });
+    }
+
+    protected processUpdateTopic(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    deleteTopic(command: DeleteTopicCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/Topics/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteTopic(_response);
+        });
+    }
+
+    protected processDeleteTopic(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
     }
 }
 
@@ -5517,6 +6095,131 @@ export class UserClient {
     }
 
     protected processAdminCreateUser(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class UserEmbeddingsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    batchEmbedUsers(): Promise<void> {
+        let url_ = this.baseUrl + "/api/UserEmbeddings/user-batch-embed";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processBatchEmbedUsers(_response);
+        });
+    }
+
+    protected processBatchEmbedUsers(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getUserEmbeddingSyncStatus(searchText: string | null | undefined, statusFilter: string | null, pageNumber: number, pageSize: number): Promise<ReturnResultOfUserEmbeddingSyncStatusDto> {
+        let url_ = this.baseUrl + "/api/UserEmbeddings/sync-status?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (statusFilter === undefined)
+            throw new Error("The parameter 'statusFilter' must be defined.");
+        else if(statusFilter !== null)
+            url_ += "StatusFilter=" + encodeURIComponent("" + statusFilter) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUserEmbeddingSyncStatus(_response);
+        });
+    }
+
+    protected processGetUserEmbeddingSyncStatus(response: Response): Promise<ReturnResultOfUserEmbeddingSyncStatusDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfUserEmbeddingSyncStatusDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfUserEmbeddingSyncStatusDto>(null as any);
+    }
+
+    embedSingleUser(userId: string | null): Promise<void> {
+        let url_ = this.baseUrl + "/api/UserEmbeddings/{userId}/embed";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processEmbedSingleUser(_response);
+        });
+    }
+
+    protected processEmbedSingleUser(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -7277,7 +7980,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -7306,7 +8009,11 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             this.description = _data["description"];
             this.level = _data["level"];
             this.status = _data["status"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(TopicItemDto.fromJS(item));
+            }
             this.learningObjectives = _data["learningObjectives"];
             this.requirements = _data["requirements"];
             this.targetAudience = _data["targetAudience"];
@@ -7335,7 +8042,11 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["description"] = this.description;
         data["level"] = this.level;
         data["status"] = this.status;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
         data["learningObjectives"] = this.learningObjectives;
         data["requirements"] = this.requirements;
         data["targetAudience"] = this.targetAudience;
@@ -7357,7 +8068,7 @@ export interface IGetCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -7380,6 +8091,246 @@ export enum CourseLevel {
 export enum CourseStatus {
     Draft = 0,
     Public = 1,
+}
+
+export class TopicItemDto implements ITopicItemDto {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: ITopicItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): TopicItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TopicItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ITopicItemDto {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class ReturnResultOfCourseEmbeddingSyncStatusDto implements IReturnResultOfCourseEmbeddingSyncStatusDto {
+    result?: CourseEmbeddingSyncStatusDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCourseEmbeddingSyncStatusDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CourseEmbeddingSyncStatusDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCourseEmbeddingSyncStatusDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCourseEmbeddingSyncStatusDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCourseEmbeddingSyncStatusDto {
+    result?: CourseEmbeddingSyncStatusDto | undefined;
+    message?: string | undefined;
+}
+
+export class CourseEmbeddingSyncStatusDto implements ICourseEmbeddingSyncStatusDto {
+    totalPublicCourses?: number;
+    totalEmbedded?: number;
+    totalMissing?: number;
+    data?: PaginatedListOfCourseEmbeddingItemDto | undefined;
+
+    constructor(data?: ICourseEmbeddingSyncStatusDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalPublicCourses = _data["totalPublicCourses"];
+            this.totalEmbedded = _data["totalEmbedded"];
+            this.totalMissing = _data["totalMissing"];
+            this.data = _data["data"] ? PaginatedListOfCourseEmbeddingItemDto.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CourseEmbeddingSyncStatusDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseEmbeddingSyncStatusDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalPublicCourses"] = this.totalPublicCourses;
+        data["totalEmbedded"] = this.totalEmbedded;
+        data["totalMissing"] = this.totalMissing;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICourseEmbeddingSyncStatusDto {
+    totalPublicCourses?: number;
+    totalEmbedded?: number;
+    totalMissing?: number;
+    data?: PaginatedListOfCourseEmbeddingItemDto | undefined;
+}
+
+export class PaginatedListOfCourseEmbeddingItemDto implements IPaginatedListOfCourseEmbeddingItemDto {
+    items?: CourseEmbeddingItemDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfCourseEmbeddingItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CourseEmbeddingItemDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfCourseEmbeddingItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfCourseEmbeddingItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfCourseEmbeddingItemDto {
+    items?: CourseEmbeddingItemDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class CourseEmbeddingItemDto implements ICourseEmbeddingItemDto {
+    courseId?: number;
+    title?: string | undefined;
+    instructorName?: string | undefined;
+    isEmbedded?: boolean;
+
+    constructor(data?: ICourseEmbeddingItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.instructorName = _data["instructorName"];
+            this.isEmbedded = _data["isEmbedded"];
+        }
+    }
+
+    static fromJS(data: any): CourseEmbeddingItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseEmbeddingItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["instructorName"] = this.instructorName;
+        data["isEmbedded"] = this.isEmbedded;
+        return data;
+    }
+}
+
+export interface ICourseEmbeddingItemDto {
+    courseId?: number;
+    title?: string | undefined;
+    instructorName?: string | undefined;
+    isEmbedded?: boolean;
 }
 
 export class CourseNoteDto implements ICourseNoteDto {
@@ -8626,7 +9577,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
     description?: string | undefined;
     level?: number;
     status?: number;
-    topic?: string | undefined;
+    topicIds?: number[] | undefined;
     learningObjectives?: string[] | undefined;
     requirements?: string[] | undefined;
     targetAudience?: string[] | undefined;
@@ -8654,7 +9605,11 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
             this.description = _data["description"];
             this.level = _data["level"];
             this.status = _data["status"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topicIds"])) {
+                this.topicIds = [] as any;
+                for (let item of _data["topicIds"])
+                    this.topicIds!.push(item);
+            }
             if (Array.isArray(_data["learningObjectives"])) {
                 this.learningObjectives = [] as any;
                 for (let item of _data["learningObjectives"])
@@ -8694,7 +9649,11 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
         data["description"] = this.description;
         data["level"] = this.level;
         data["status"] = this.status;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topicIds)) {
+            data["topicIds"] = [];
+            for (let item of this.topicIds)
+                data["topicIds"].push(item);
+        }
         if (Array.isArray(this.learningObjectives)) {
             data["learningObjectives"] = [];
             for (let item of this.learningObjectives)
@@ -8727,7 +9686,7 @@ export interface IUpdateCourseCommand {
     description?: string | undefined;
     level?: number;
     status?: number;
-    topic?: string | undefined;
+    topicIds?: number[] | undefined;
     learningObjectives?: string[] | undefined;
     requirements?: string[] | undefined;
     targetAudience?: string[] | undefined;
@@ -8848,7 +9807,7 @@ export class GetCourseDto implements IGetCourseDto {
     imageUrl?: string | undefined;
     level?: CourseLevel;
     learningObjectives?: string | undefined;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     isEnrolled?: boolean;
@@ -8875,7 +9834,11 @@ export class GetCourseDto implements IGetCourseDto {
             this.imageUrl = _data["imageUrl"];
             this.level = _data["level"];
             this.learningObjectives = _data["learningObjectives"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(TopicItemDto.fromJS(item));
+            }
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
             this.isEnrolled = _data["isEnrolled"];
@@ -8902,7 +9865,11 @@ export class GetCourseDto implements IGetCourseDto {
         data["imageUrl"] = this.imageUrl;
         data["level"] = this.level;
         data["learningObjectives"] = this.learningObjectives;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
         data["isEnrolled"] = this.isEnrolled;
@@ -8922,7 +9889,7 @@ export interface IGetCourseDto {
     imageUrl?: string | undefined;
     level?: CourseLevel;
     learningObjectives?: string | undefined;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     isEnrolled?: boolean;
@@ -9125,7 +10092,6 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
     level?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -9153,7 +10119,6 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
             this.level = _data["level"];
             this.description = _data["description"];
             this.learningObjectives = _data["learningObjectives"];
-            this.topic = _data["topic"];
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
             this.createdBy = _data["createdBy"];
@@ -9181,7 +10146,6 @@ export class GetHomepageCoursesDto implements IGetHomepageCoursesDto {
         data["level"] = this.level;
         data["description"] = this.description;
         data["learningObjectives"] = this.learningObjectives;
-        data["topic"] = this.topic;
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
         data["createdBy"] = this.createdBy;
@@ -9202,7 +10166,6 @@ export interface IGetHomepageCoursesDto {
     level?: string | undefined;
     description?: string | undefined;
     learningObjectives?: string | undefined;
-    topic?: string | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -9217,7 +10180,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -9252,7 +10215,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.description = _data["description"];
             this.level = _data["level"];
             this.status = _data["status"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(TopicItemDto.fromJS(item));
+            }
             this.learningObjectives = _data["learningObjectives"];
             this.requirements = _data["requirements"];
             this.targetAudience = _data["targetAudience"];
@@ -9287,7 +10254,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["description"] = this.description;
         data["level"] = this.level;
         data["status"] = this.status;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
         data["learningObjectives"] = this.learningObjectives;
         data["requirements"] = this.requirements;
         data["targetAudience"] = this.targetAudience;
@@ -9315,7 +10286,7 @@ export interface IGetPublicCourseByIdDto {
     description?: string | undefined;
     level?: CourseLevel;
     status?: CourseStatus;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     learningObjectives?: string | undefined;
     requirements?: string | undefined;
     targetAudience?: string | undefined;
@@ -9449,7 +10420,7 @@ export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
     price?: number;
     imageUrl?: string | undefined;
     level?: string | undefined;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -9471,7 +10442,11 @@ export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
             this.price = _data["price"];
             this.imageUrl = _data["imageUrl"];
             this.level = _data["level"];
-            this.topic = _data["topic"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(TopicItemDto.fromJS(item));
+            }
             this.ratings = _data["ratings"];
             this.totalStudents = _data["totalStudents"];
             this.createdBy = _data["createdBy"];
@@ -9493,7 +10468,11 @@ export class PublicCoursesByUserIdDto implements IPublicCoursesByUserIdDto {
         data["price"] = this.price;
         data["imageUrl"] = this.imageUrl;
         data["level"] = this.level;
-        data["topic"] = this.topic;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
         data["ratings"] = this.ratings;
         data["totalStudents"] = this.totalStudents;
         data["createdBy"] = this.createdBy;
@@ -9508,7 +10487,7 @@ export interface IPublicCoursesByUserIdDto {
     price?: number;
     imageUrl?: string | undefined;
     level?: string | undefined;
-    topic?: string | undefined;
+    topics?: TopicItemDto[] | undefined;
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
@@ -9732,6 +10711,46 @@ export enum InstructorWalletTransactionStatus {
     Cancelled = 2,
 }
 
+export class WithdrawFromInstructorWalletCommand implements IWithdrawFromInstructorWalletCommand {
+    amount?: number;
+    currency?: string | undefined;
+
+    constructor(data?: IWithdrawFromInstructorWalletCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): WithdrawFromInstructorWalletCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new WithdrawFromInstructorWalletCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IWithdrawFromInstructorWalletCommand {
+    amount?: number;
+    currency?: string | undefined;
+}
+
 export class PaginatedListOfAdminWithdrawalRequestDto implements IPaginatedListOfAdminWithdrawalRequestDto {
     items?: AdminWithdrawalRequestDto[] | undefined;
     pageNumber?: number;
@@ -9920,11 +10939,15 @@ export interface IAdminWithdrawalRequestStatusCountsDto {
     cancelled?: number;
 }
 
-export class WithdrawFromInstructorWalletCommand implements IWithdrawFromInstructorWalletCommand {
-    amount?: number;
-    currency?: string | undefined;
+export class PaginatedListOfKnowledgeDocumentDto implements IPaginatedListOfKnowledgeDocumentDto {
+    items?: KnowledgeDocumentDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
 
-    constructor(data?: IWithdrawFromInstructorWalletCommand) {
+    constructor(data?: IPaginatedListOfKnowledgeDocumentDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -9935,29 +10958,261 @@ export class WithdrawFromInstructorWalletCommand implements IWithdrawFromInstruc
 
     init(_data?: any) {
         if (_data) {
-            this.amount = _data["amount"];
-            this.currency = _data["currency"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(KnowledgeDocumentDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
         }
     }
 
-    static fromJS(data: any): WithdrawFromInstructorWalletCommand {
+    static fromJS(data: any): PaginatedListOfKnowledgeDocumentDto {
         data = typeof data === 'object' ? data : {};
-        let result = new WithdrawFromInstructorWalletCommand();
+        let result = new PaginatedListOfKnowledgeDocumentDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["amount"] = this.amount;
-        data["currency"] = this.currency;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
         return data;
     }
 }
 
-export interface IWithdrawFromInstructorWalletCommand {
-    amount?: number;
-    currency?: string | undefined;
+export interface IPaginatedListOfKnowledgeDocumentDto {
+    items?: KnowledgeDocumentDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class KnowledgeDocumentDto implements IKnowledgeDocumentDto {
+    id?: number;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    fileSizeBytes?: number;
+    status?: string | undefined;
+    chunkCount?: number | undefined;
+    errorMessage?: string | undefined;
+    qdrantCollection?: string | undefined;
+    created?: Date;
+    lastModified?: Date;
+
+    constructor(data?: IKnowledgeDocumentDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fileName = _data["fileName"];
+            this.fileUrl = _data["fileUrl"];
+            this.contentType = _data["contentType"];
+            this.fileSizeBytes = _data["fileSizeBytes"];
+            this.status = _data["status"];
+            this.chunkCount = _data["chunkCount"];
+            this.errorMessage = _data["errorMessage"];
+            this.qdrantCollection = _data["qdrantCollection"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): KnowledgeDocumentDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new KnowledgeDocumentDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fileName"] = this.fileName;
+        data["fileUrl"] = this.fileUrl;
+        data["contentType"] = this.contentType;
+        data["fileSizeBytes"] = this.fileSizeBytes;
+        data["status"] = this.status;
+        data["chunkCount"] = this.chunkCount;
+        data["errorMessage"] = this.errorMessage;
+        data["qdrantCollection"] = this.qdrantCollection;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IKnowledgeDocumentDto {
+    id?: number;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+    contentType?: string | undefined;
+    fileSizeBytes?: number;
+    status?: string | undefined;
+    chunkCount?: number | undefined;
+    errorMessage?: string | undefined;
+    qdrantCollection?: string | undefined;
+    created?: Date;
+    lastModified?: Date;
+}
+
+export class LearnerProfileDto implements ILearnerProfileDto {
+    goal?: string | undefined;
+    skillLevel?: string | undefined;
+    preferredCategoryIds?: number[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number;
+
+    constructor(data?: ILearnerProfileDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.goal = _data["goal"];
+            this.skillLevel = _data["skillLevel"];
+            if (Array.isArray(_data["preferredCategoryIds"])) {
+                this.preferredCategoryIds = [] as any;
+                for (let item of _data["preferredCategoryIds"])
+                    this.preferredCategoryIds!.push(item);
+            }
+            if (Array.isArray(_data["preferredTopicIds"])) {
+                this.preferredTopicIds = [] as any;
+                for (let item of _data["preferredTopicIds"])
+                    this.preferredTopicIds!.push(item);
+            }
+            this.weeklyHours = _data["weeklyHours"];
+        }
+    }
+
+    static fromJS(data: any): LearnerProfileDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LearnerProfileDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["goal"] = this.goal;
+        data["skillLevel"] = this.skillLevel;
+        if (Array.isArray(this.preferredCategoryIds)) {
+            data["preferredCategoryIds"] = [];
+            for (let item of this.preferredCategoryIds)
+                data["preferredCategoryIds"].push(item);
+        }
+        if (Array.isArray(this.preferredTopicIds)) {
+            data["preferredTopicIds"] = [];
+            for (let item of this.preferredTopicIds)
+                data["preferredTopicIds"].push(item);
+        }
+        data["weeklyHours"] = this.weeklyHours;
+        return data;
+    }
+}
+
+export interface ILearnerProfileDto {
+    goal?: string | undefined;
+    skillLevel?: string | undefined;
+    preferredCategoryIds?: number[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number;
+}
+
+export class UpsertLearnerProfileCommand implements IUpsertLearnerProfileCommand {
+    goal?: string | undefined;
+    skillLevel?: string | undefined;
+    preferredCategoryIds?: number[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number | undefined;
+
+    constructor(data?: IUpsertLearnerProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.goal = _data["goal"];
+            this.skillLevel = _data["skillLevel"];
+            if (Array.isArray(_data["preferredCategoryIds"])) {
+                this.preferredCategoryIds = [] as any;
+                for (let item of _data["preferredCategoryIds"])
+                    this.preferredCategoryIds!.push(item);
+            }
+            if (Array.isArray(_data["preferredTopicIds"])) {
+                this.preferredTopicIds = [] as any;
+                for (let item of _data["preferredTopicIds"])
+                    this.preferredTopicIds!.push(item);
+            }
+            this.weeklyHours = _data["weeklyHours"];
+        }
+    }
+
+    static fromJS(data: any): UpsertLearnerProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpsertLearnerProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["goal"] = this.goal;
+        data["skillLevel"] = this.skillLevel;
+        if (Array.isArray(this.preferredCategoryIds)) {
+            data["preferredCategoryIds"] = [];
+            for (let item of this.preferredCategoryIds)
+                data["preferredCategoryIds"].push(item);
+        }
+        if (Array.isArray(this.preferredTopicIds)) {
+            data["preferredTopicIds"] = [];
+            for (let item of this.preferredTopicIds)
+                data["preferredTopicIds"].push(item);
+        }
+        data["weeklyHours"] = this.weeklyHours;
+        return data;
+    }
+}
+
+export interface IUpsertLearnerProfileCommand {
+    goal?: string | undefined;
+    skillLevel?: string | undefined;
+    preferredCategoryIds?: number[] | undefined;
+    preferredTopicIds?: number[] | undefined;
+    weeklyHours?: number | undefined;
 }
 
 export class MediaFileDto implements IMediaFileDto {
@@ -13229,6 +14484,130 @@ export interface ICreateRoadmapCommand {
     skillLevel?: CourseLevel;
 }
 
+export class ReturnResultOfGeneratedAIRoadmapDto implements IReturnResultOfGeneratedAIRoadmapDto {
+    result?: GeneratedAIRoadmapDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfGeneratedAIRoadmapDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? GeneratedAIRoadmapDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfGeneratedAIRoadmapDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfGeneratedAIRoadmapDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfGeneratedAIRoadmapDto {
+    result?: GeneratedAIRoadmapDto | undefined;
+    message?: string | undefined;
+}
+
+export class GeneratedAIRoadmapDto implements IGeneratedAIRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    nodeCount?: number;
+
+    constructor(data?: IGeneratedAIRoadmapDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.nodeCount = _data["nodeCount"];
+        }
+    }
+
+    static fromJS(data: any): GeneratedAIRoadmapDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GeneratedAIRoadmapDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["nodeCount"] = this.nodeCount;
+        return data;
+    }
+}
+
+export interface IGeneratedAIRoadmapDto {
+    id?: number;
+    title?: string | undefined;
+    nodeCount?: number;
+}
+
+export class GenerateAIRoadmapCommand implements IGenerateAIRoadmapCommand {
+    description?: string | undefined;
+    roadmapTopicName?: string | undefined;
+
+    constructor(data?: IGenerateAIRoadmapCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["description"];
+            this.roadmapTopicName = _data["roadmapTopicName"];
+        }
+    }
+
+    static fromJS(data: any): GenerateAIRoadmapCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateAIRoadmapCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["description"] = this.description;
+        data["roadmapTopicName"] = this.roadmapTopicName;
+        return data;
+    }
+}
+
+export interface IGenerateAIRoadmapCommand {
+    description?: string | undefined;
+    roadmapTopicName?: string | undefined;
+}
+
 export class UpdateRoadmapCommand implements IUpdateRoadmapCommand {
     id?: number;
     title?: string | undefined;
@@ -14872,6 +16251,306 @@ export interface IUpdateTodoListCommand {
     title?: string | undefined;
 }
 
+export class PaginatedListOfGetTopicDto implements IPaginatedListOfGetTopicDto {
+    items?: GetTopicDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetTopicDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetTopicDto {
+    items?: GetTopicDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class GetTopicDto implements IGetTopicDto {
+    id?: number;
+    name?: string | undefined;
+    courseCount?: number;
+
+    constructor(data?: IGetTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.courseCount = _data["courseCount"];
+        }
+    }
+
+    static fromJS(data: any): GetTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["courseCount"] = this.courseCount;
+        return data;
+    }
+}
+
+export interface IGetTopicDto {
+    id?: number;
+    name?: string | undefined;
+    courseCount?: number;
+}
+
+export class ReturnResultOfCreatedTopicDto implements IReturnResultOfCreatedTopicDto {
+    result?: CreatedTopicDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCreatedTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CreatedTopicDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCreatedTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCreatedTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCreatedTopicDto {
+    result?: CreatedTopicDto | undefined;
+    message?: string | undefined;
+}
+
+export class CreatedTopicDto implements ICreatedTopicDto {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: ICreatedTopicDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreatedTopicDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatedTopicDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ICreatedTopicDto {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class CreateTopicCommand implements ICreateTopicCommand {
+    name?: string | undefined;
+
+    constructor(data?: ICreateTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreateTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ICreateTopicCommand {
+    name?: string | undefined;
+}
+
+export class UpdateTopicCommand implements IUpdateTopicCommand {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: IUpdateTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): UpdateTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IUpdateTopicCommand {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class DeleteTopicCommand implements IDeleteTopicCommand {
+    id?: number;
+
+    constructor(data?: IDeleteTopicCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): DeleteTopicCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteTopicCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IDeleteTopicCommand {
+    id?: number;
+}
+
 export class CreateUserCommand implements ICreateUserCommand {
     userName?: string | undefined;
     phoneNumber?: string | undefined;
@@ -16218,6 +17897,206 @@ export class ChangeUserRoleCommand implements IChangeUserRoleCommand {
 export interface IChangeUserRoleCommand {
     userId?: string | undefined;
     newRole?: string | undefined;
+}
+
+export class ReturnResultOfUserEmbeddingSyncStatusDto implements IReturnResultOfUserEmbeddingSyncStatusDto {
+    result?: UserEmbeddingSyncStatusDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfUserEmbeddingSyncStatusDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? UserEmbeddingSyncStatusDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfUserEmbeddingSyncStatusDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfUserEmbeddingSyncStatusDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfUserEmbeddingSyncStatusDto {
+    result?: UserEmbeddingSyncStatusDto | undefined;
+    message?: string | undefined;
+}
+
+export class UserEmbeddingSyncStatusDto implements IUserEmbeddingSyncStatusDto {
+    totalUsers?: number;
+    totalEmbedded?: number;
+    totalMissing?: number;
+    data?: PaginatedListOfUserEmbeddingItemDto | undefined;
+
+    constructor(data?: IUserEmbeddingSyncStatusDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalUsers = _data["totalUsers"];
+            this.totalEmbedded = _data["totalEmbedded"];
+            this.totalMissing = _data["totalMissing"];
+            this.data = _data["data"] ? PaginatedListOfUserEmbeddingItemDto.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UserEmbeddingSyncStatusDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserEmbeddingSyncStatusDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalUsers"] = this.totalUsers;
+        data["totalEmbedded"] = this.totalEmbedded;
+        data["totalMissing"] = this.totalMissing;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUserEmbeddingSyncStatusDto {
+    totalUsers?: number;
+    totalEmbedded?: number;
+    totalMissing?: number;
+    data?: PaginatedListOfUserEmbeddingItemDto | undefined;
+}
+
+export class PaginatedListOfUserEmbeddingItemDto implements IPaginatedListOfUserEmbeddingItemDto {
+    items?: UserEmbeddingItemDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfUserEmbeddingItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(UserEmbeddingItemDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfUserEmbeddingItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfUserEmbeddingItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfUserEmbeddingItemDto {
+    items?: UserEmbeddingItemDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class UserEmbeddingItemDto implements IUserEmbeddingItemDto {
+    userId?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    isEmbedded?: boolean;
+
+    constructor(data?: IUserEmbeddingItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.isEmbedded = _data["isEmbedded"];
+        }
+    }
+
+    static fromJS(data: any): UserEmbeddingItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserEmbeddingItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["isEmbedded"] = this.isEmbedded;
+        return data;
+    }
+}
+
+export interface IUserEmbeddingItemDto {
+    userId?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    isEmbedded?: boolean;
 }
 
 export class VideoCaptionDto implements IVideoCaptionDto {

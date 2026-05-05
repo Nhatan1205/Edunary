@@ -1,6 +1,7 @@
 import { Help, Language, Logout, School, Settings } from "@mui/icons-material";
 import LocalLibraryOutlinedIcon from "@mui/icons-material/LocalLibraryOutlined";
 import MobileDropDownProfile from "./Mobile/MobileDropDownProfile";
+import InterestsIcon from '@mui/icons-material/Interests';
 import DesktopDropDownProfile from "./Desktop/DesktopDropDownProfile";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router";
@@ -31,6 +32,11 @@ const MENU_ITEMS = [
     title: "Help",
     icon: <Help fontSize="small" />,
     path: "/help",
+  },
+  {
+    title: "Add/Edit your interests",
+    icon: <InterestsIcon fontSize="small" />,
+    path: "/personalize",
   },
 ];
 

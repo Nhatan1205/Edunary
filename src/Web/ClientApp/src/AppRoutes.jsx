@@ -62,6 +62,12 @@ import UserDetailPage from "./features/admin/user-section/user-detail-page/UserD
 import UserOverviewPage from "./features/admin/user-section/user-overview-page/UserOverviewPage";
 import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/ActivityLogsPage";
 import WithdrawalRequestsPage from "./features/admin/withdrawal-requests/WithdrawalRequestsPage";
+import TopicPage from "./features/admin/course-section/topic-section/TopicPage";
+import ProfileSetupPage from "./features/user/profile-setup/ProfileSetupPage";
+import KnowledgeBasePage from "./features/admin/knowledge-base/KnowledgeBasePage";
+import QdrantDashboardPage from "./features/admin/qdrant-dashboard/QdrantDashboardPage";
+import CourseEmbeddingPage from "./features/admin/course-embedding/CourseEmbeddingPage";
+import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage";
 
 const router = createBrowserRouter([
   {
@@ -85,8 +91,17 @@ const router = createBrowserRouter([
         element: <SystemSettingsPage />,
       },
       {
-        path: "course/category",
-        element: <CategoryPage />,
+        path: "course",
+        children: [
+          {
+            path: "category",
+            element: <CategoryPage />,
+          },
+          {
+            path: "topic",
+            element: <TopicPage />,
+          },
+        ]
       },
       {
         path: "user",
@@ -123,7 +138,23 @@ const router = createBrowserRouter([
       {
         path: "invoice/withdrawal-requests",
         element: <WithdrawalRequestsPage />,
-      }
+      },
+      {
+        path: "knowledge-base",
+        element: <KnowledgeBasePage />,
+      },
+      {
+        path: "qdrant-dashboard",
+        element: <QdrantDashboardPage />,
+      },
+      {
+        path: "course-embeddings",
+        element: <CourseEmbeddingPage />,
+      },
+      {
+        path: "user-embeddings",
+        element: <UserEmbeddingPage />,
+      },
     ],
   },
   {
@@ -352,6 +383,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <InstructorCoursePreviewPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/personalize",
+    element: (
+      <ProtectedRoute>
+        <ProfileSetupPage />
       </ProtectedRoute>
     ),
   },

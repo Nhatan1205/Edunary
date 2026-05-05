@@ -14,6 +14,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
     public DbSet<Course> Courses => Set<Course>();
+
+    public DbSet<Topic> Topics => Set<Topic>();
     public DbSet<Category> Categories => Set<Category>();
 
     public DbSet<Payment> Payments => Set<Payment>();

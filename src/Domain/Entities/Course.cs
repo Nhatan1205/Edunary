@@ -12,8 +12,6 @@ public class Course : BaseAuditableEntity
 
     public CourseStatus Status { get; set; }
 
-    public string Topic { get; set; }
-
     public string LearningObjectives { get; set; }
 
     public string Requirements { get; set; }
@@ -51,6 +49,8 @@ public class Course : BaseAuditableEntity
     public ICollection<RatingCourse> RatingCourses { get; set; } = new List<RatingCourse>();
 
     public ICollection<CourseNote> CourseNotes { get; set; } = new List<CourseNote>();
+
+    public ICollection<Topic> Topics { get; set; } = new List<Topic>();
 
     public void UpdateTotalStudents()
     {

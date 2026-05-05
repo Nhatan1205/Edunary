@@ -79,7 +79,40 @@ const TABS = [
     label: "AI services",
     Icon: SmartToyOutlinedIcon,
     sections: [
-      { header: "Chatbot service", keys: ["Chatbot_ServiceUrl"] },
+      {
+        header: "AI Center Configuration",
+        keys: [
+          "AICenter_BaseUrl",
+          "AICenter_ApiKey"
+        ]
+      },
+      {
+        header: "LLM Configuration",
+        keys: [
+          "LLM_ModelName",
+          "LLM_ApiKey",
+          "LLM_BaseUrl",
+          "LLM_Temperature",
+          "LLM_MaxTokens"
+        ]
+      },
+      {
+        header: "Embedding Configuration",
+        keys: [
+          "Embedding_Provider",
+          "Embedding_ModelName",
+          "Embedding_ApiKey",
+          "Embedding_BaseUrl"
+        ]
+      },
+      {
+        header: "Qdrant Vector Store",
+        keys: [
+          "Qdrant_Url",
+          "Qdrant_ApiKey",
+          "Qdrant_Collection"
+        ]
+      },
     ],
   },
   {
@@ -157,7 +190,7 @@ function SettingRow({ setting, isEditing, register }) {
         slotProps={{
           htmlInput: {
             readOnly: !isEditing,
-            autoComplete: "off",
+            autoComplete: "new-password",
           },
           input: {
             endAdornment: (
@@ -324,7 +357,7 @@ function SystemSettingsPage() {
   const currentTab = TABS[activeTab];
 
   return (
-    <Box style={{ paddingLeft: "240px", paddingRight: "240px" }}>
+    <Box sx={{ px: { xs: 2, sm: 3, md: "40px", lg: "120px", xl: "240px" } }}>
       <Box component={isEditing ? "form" : "div"} onSubmit={isEditing ? handleSubmit(onSubmit) : undefined}>
 
         {/* ── Header ── */}

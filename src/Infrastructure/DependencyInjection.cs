@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
+
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
@@ -80,6 +82,16 @@ public static class DependencyInjection
         services.AddScoped<IProcessMediaFileJobService, ProcessMediaFileJobService>();
         services.AddScoped<IUserStatusJobService, UserStatusJobService>();
         services.AddSingleton<IActivityLogService, ActivityLogService>();
+
+        // Redis configuration
+        services.Configure<RedisSetting>(configuration.GetSection("RedisSetting"));
+        services.AddSingleton<RedisService>();
+        services.AddSingleton<IRedisService>(sp => sp.GetRequiredService<RedisService>());
+        services.AddSingleton<IRedisConnectionProvider>(sp => sp.GetRequiredService<RedisService>());
+        services.AddScoped<IQuizCacheService, QuizCacheService>();
+        services.AddScoped<IQuizSnapshotJobService, QuizSnapshotJobService>();
+
+
 
         services.AddAuthorization(options =>
         {

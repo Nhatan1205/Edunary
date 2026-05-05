@@ -14,6 +14,7 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useParams, useNavigate } from "react-router-dom";
 import useGetLearningSidebar from "../../../../hooks/course-progress-hooks/useGetLearningSidebar";
@@ -113,7 +114,9 @@ function CourseLearnSidebar({ onClose }) {
   };
 
   const getItemIcon = (item) => {
-    if (item.contentType === 'video') {
+    if (item.type === 'quiz') {
+      return <QuizOutlinedIcon sx={{ fontSize: 18, color: 'brand.main' }} />;
+    } else if (item.contentType === 'video') {
       return <PlayCircleOutlineIcon sx={{ fontSize: 18, color: 'text.secondary' }} />;
     } else if (item.contentType === 'article') {
       return <ArticleOutlinedIcon sx={{ fontSize: 18, color: 'text.secondary' }} />;

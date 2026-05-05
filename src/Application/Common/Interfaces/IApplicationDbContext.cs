@@ -46,6 +46,15 @@ public interface IApplicationDbContext
     public DbSet<InstructorWalletTransaction> InstructorWalletTransactions { get; }
     public DbSet<WithdrawalRequest> WithdrawalRequests { get; }
     public DbSet<PendingRegistration> PendingRegistrations { get; }
+    public DbSet<LearnerProfile> LearnerProfiles { get; }
+    public DbSet<KnowledgeDocument> KnowledgeDocuments { get; }
+    public DbSet<Quiz> Quizzes { get; }
+    public DbSet<Question> Questions { get; }
+    public DbSet<Choice> Choices { get; }
+    public DbSet<QuizAttemptSnapshot> QuizAttemptSnapshots { get; }
+    public DbSet<QuizAttempt> QuizAttempts { get; }
+    public DbSet<QuizAttemptAnswer> QuizAttemptAnswers { get; }
+    public DbSet<QuizAttemptAnswerChoice> QuizAttemptAnswerChoices { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

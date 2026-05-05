@@ -20,6 +20,13 @@ builder.Services.AddSignalR(); //add websocket services
 
 var app = builder.Build();
 
+// Initialize Redis Singleton
+using (var scope = app.Services.CreateScope())
+{
+    var redisProvider = scope.ServiceProvider.GetRequiredService<IRedisConnectionProvider>();
+    await redisProvider.InitializeAsync();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

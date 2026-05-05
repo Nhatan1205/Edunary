@@ -35,6 +35,8 @@ public static class DependencyInjection
         services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
 
+
+
         services.AddEndpointsApiExplorer();
 
         services.AddOpenApiDocument((configure, sp) =>

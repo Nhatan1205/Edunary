@@ -38,6 +38,12 @@ public static class SettingKey
     // === Chatbot ===
     public const string Chatbot_ServiceUrl = "Chatbot_ServiceUrl";
 
+    // Redis Config
+    public const string Redis_Host = "Redis_Host";
+    public const string Redis_Port = "Redis_Port";
+    public const string Redis_Password = "Redis_Password";
+
+
     // use for whitelist key
     private static readonly HashSet<string> _publicKeys = new()
     {

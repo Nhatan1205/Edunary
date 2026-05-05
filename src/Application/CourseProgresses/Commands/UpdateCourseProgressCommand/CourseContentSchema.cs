@@ -72,6 +72,9 @@ public class ItemSchema
     public double LastPosition { get; set; } = 0;
     [JsonPropertyName("thumbnailUrl")]
     public string ThumbnailUrl { get; set; } = String.Empty;
+    /// <summary>Reference to Quiz.Id in the Quizzes table. 0 = not a quiz item.</summary>
+    [JsonPropertyName("quizId")]
+    public int QuizId { get; set; } = 0;
 }
 
 public class ResourseSchema

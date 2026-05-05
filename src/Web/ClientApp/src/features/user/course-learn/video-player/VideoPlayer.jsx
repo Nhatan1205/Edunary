@@ -305,17 +305,19 @@ function VideoPlayer() {
   };
 
   const handleArticleInteraction = async () => {
-    if (currentItem?.contentType === 'article' && !currentItem?.isCompleted) {
+    console.log("current item: ", currentItem)
+    if (currentItem?.contentType === 'article') {
       try {
+        const newCompletedState = !currentItem.isCompleted;
+
         await updateProgressMutation.mutateAsync({
           courseId,
           itemId: contentId,
-          isCompleted: true,
+          isCompleted: newCompletedState,
           lastPosition: 0
         });
 
-        // Nếu có bài tiếp theo, hiển thị màn hình đếm ngược (như khi xem xong video)
-        if (itemData?.navigation?.next) {
+        if (newCompletedState && itemData?.navigation?.next) {
           overlayTriggerItemRef.current = contentId;
           setShowOverlay(true);
           startCountdown();

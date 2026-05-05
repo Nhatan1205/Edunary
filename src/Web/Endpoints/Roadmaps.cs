@@ -1,4 +1,3 @@
-using Edunary.Application.Common.Models;
 using Edunary.Application.Roadmaps.Commands.CreateRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.DeleteRoadmapCommand;
 using Edunary.Application.Roadmaps.Commands.UpdateRoadmapCommand;
@@ -12,6 +11,7 @@ using Edunary.Application.Roadmaps.Queries.GetStudentRoadmapsQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Edunary.Application.Roadmaps.Commands.GenerateAIRoadmapCommand;
+using Edunary.Application.Common.Models;
 
 namespace Edunary.Web.Endpoints;
 
@@ -90,9 +90,10 @@ public class Roadmaps : EndpointGroupBase
         return await sender.Send(new GetRelatedRoadmapsByCourseIdQuery { CourseId = courseId });
     }
 
-    public async Task<ReturnResult<GeneratedAIRoadmapDto>> GenerateAIRoadmap(ISender sender, [FromBody] GenerateAIRoadmapCommand command)
+    public async Task<IResult> GenerateAIRoadmap(ISender sender, [FromBody] GenerateAIRoadmapCommand command)
     {
-        return await sender.Send(command);
+        var started = await sender.Send(command);
+        return started ? Results.Ok() : Results.Unauthorized();
     }
 }
 

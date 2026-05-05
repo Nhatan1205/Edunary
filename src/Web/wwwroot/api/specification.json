@@ -3672,14 +3672,7 @@
         },
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReturnResultOfGeneratedAIRoadmapDto"
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -8703,42 +8696,6 @@
           }
         }
       },
-      "ReturnResultOfGeneratedAIRoadmapDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "result": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/GeneratedAIRoadmapDto"
-              }
-            ]
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "GeneratedAIRoadmapDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "nodeCount": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
       "GenerateAIRoadmapCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -8910,6 +8867,10 @@
           "created": {
             "type": "string",
             "format": "date-time"
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -8941,11 +8902,20 @@
             "type": "string",
             "nullable": true
           },
-          "skillLevel": {
-            "$ref": "#/components/schemas/CourseLevel"
+          "level": {
+            "type": "string",
+            "nullable": true
           },
           "isPublic": {
             "type": "boolean"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32"
           },
           "graphData": {
             "nullable": true,

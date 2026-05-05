@@ -1,9 +1,13 @@
 import { Box, Typography, TextField, Button } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import AlertBox from "../../../../../components/AlertBox";
+
+const MAX_LENGTH = 1000;
 
 export default function StepDescription({ value, onChange, onNext }) {
-    const isValid = value.trim().length >= 20;
+    const isOverLimit = value.length > MAX_LENGTH;
+    const isValid = value.trim().length >= 20 && !isOverLimit;
 
     return (
         <Box sx={{ maxWidth: 640, mx: 'auto', width: '100%', px: 2 }}>
@@ -47,9 +51,18 @@ export default function StepDescription({ value, onChange, onNext }) {
                     },
                 }}
             />
-            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 4, textAlign: 'right' }}>
-                {value.length} characters · minimum 20
+            <Typography
+                variant="caption"
+                sx={{ color: isOverLimit ? 'error.main' : 'text.secondary', display: 'block', textAlign: 'right' }}
+            >
+                {value.length} / {MAX_LENGTH} characters
             </Typography>
+
+            {isOverLimit && (
+                <AlertBox severity="error" sx={{ mb: 3 }}>
+                    Description is too long. Please keep it under {MAX_LENGTH} characters.
+                </AlertBox>
+            )}
 
             <Button
                 fullWidth

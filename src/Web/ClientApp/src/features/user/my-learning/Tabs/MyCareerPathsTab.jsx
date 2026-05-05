@@ -18,7 +18,7 @@ const LEVEL_COLORS = {
     All: { bg: 'grey.200', color: 'grey.700' },
 };
 
-// ── Career path card (row style, matches CareerPathCard reference) ─────────────
+
 function CareerPathCard({ path }) {
     const navigate = useNavigate();
     const level = LEVEL_COLORS[path.level] ?? LEVEL_COLORS.All;
@@ -134,7 +134,7 @@ export default function MyCareerPathsTab() {
                 <Button
                     variant="contained"
                     startIcon={<AutoAwesomeIcon />}
-                    onClick={() => navigate('/user/career-paths')}
+                    onClick={() => navigate('/ai/career-path')}
                     sx={{
                         borderRadius: '10px', px: 2.5, py: 1.25, fontWeight: 600,
                         background: 'linear-gradient(135deg, #00A76F 0%, #007867 100%)',

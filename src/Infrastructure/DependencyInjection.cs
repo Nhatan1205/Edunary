@@ -82,6 +82,7 @@ public static class DependencyInjection
         services.AddScoped<IUserStatusJobService, UserStatusJobService>();
         services.AddScoped<IKnowledgeBaseJobService, KnowledgeBaseJobService>();
         services.AddScoped<ICourseEmbeddingJobService, CourseEmbeddingJobService>();
+        services.AddScoped<IRoadmapJobService, RoadmapJobService>();
         services.AddSingleton<IActivityLogService, ActivityLogService>();
         services.AddScoped<IAICenterClient, AICenterClient>();
 

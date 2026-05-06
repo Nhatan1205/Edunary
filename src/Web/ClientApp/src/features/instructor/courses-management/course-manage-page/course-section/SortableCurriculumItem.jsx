@@ -6,7 +6,7 @@ import {
   Button,
   IconButton,
   Paper,
-  Tooltip,
+  Tooltip
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -17,14 +17,15 @@ import {
 } from "@mui/icons-material";
 import TitleInputForm from "./TitleInputForm";
 import LectureItem from "./lecture-item/LectureItem";
+import QuizItem from "./quiz-item/QuizItem";
 
-function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
+function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate, sections = [] }) {
   const {
     setNodeRef,
     transform,
     transition,
     attributes,
-    listeners, 
+    listeners,
     isDragging,
   } = useSortable({ id: item.itemId });
 
@@ -44,8 +45,8 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
 
   const handleAddItem = (data) => {
     if (onUpdate) {
-      onUpdate(item.itemId, { 
-        type: itemType, 
+      onUpdate(item.itemId, {
+        type: itemType,
         isPendingType: false,
         title: data.title
       });
@@ -104,9 +105,9 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
           boxShadow: 0,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>    
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Box sx={{ display: "flex", gap: 1, flex: 1 }}>
-            {/* Lecture - Enabled */}
+            {/* Lecture */}
             <Button
               variant="outlined"
               startIcon={<VideoIcon />}
@@ -125,22 +126,24 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
               Lecture
             </Button>
 
-            {/* Quiz - Disabled */}
-            <Tooltip title="Coming soon" arrow>
-              <span>
-                <Button
-                  variant="outlined"
-                  startIcon={<QuizIcon />}
-                  disabled
-                  sx={{
-                    textTransform: "none",
-                    fontWeight: 600,
-                  }}
-                >
-                  Quiz
-                </Button>
-              </span>
-            </Tooltip>
+            {/* Quiz */}
+            <Button
+              variant="outlined"
+              startIcon={<QuizIcon />}
+              onClick={() => handleSelectType("quiz")}
+              sx={{
+                textTransform: "none",
+                fontWeight: 600,
+                borderColor: "brand.main",
+                color: "brand.main",
+                "&:hover": {
+                  borderColor: "brand.dark",
+                  bgcolor: "brand.lighter",
+                },
+              }}
+            >
+              Quiz
+            </Button>
 
             {/* Coding Exercise - Disabled */}
             <Tooltip title="Coming soon" arrow>
@@ -206,8 +209,20 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate }) {
         />
       );
     case "quiz":
-      // TODO: Implement QuizItem
-      return null;
+      return (
+        <QuizItem
+          item={item}
+          globalIndex={globalIndex}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
+          dndRef={setNodeRef}
+          dndStyle={style}
+          dndAttributes={attributes}
+          dndListeners={listeners}
+          isDragging={isDragging}
+          sections={sections}
+        />
+      );
     case "coding_exercise":
       // TODO: Implement CodingExerciseItem
       return null;

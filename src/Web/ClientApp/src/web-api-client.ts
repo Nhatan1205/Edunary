@@ -3661,6 +3661,537 @@ export class QdrantDashboardClient {
     }
 }
 
+export class QuizAttemptsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    startAttempt(quizId: number): Promise<ReturnResultOfStartAttemptResultDto> {
+        let url_ = this.baseUrl + "/api/QuizAttempts/start/{quizId}";
+        if (quizId === undefined || quizId === null)
+            throw new Error("The parameter 'quizId' must be defined.");
+        url_ = url_.replace("{quizId}", encodeURIComponent("" + quizId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processStartAttempt(_response);
+        });
+    }
+
+    protected processStartAttempt(response: Response): Promise<ReturnResultOfStartAttemptResultDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfStartAttemptResultDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfStartAttemptResultDto>(null as any);
+    }
+
+    cacheAnswer(command: CacheQuizAnswerCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/QuizAttempts/cache-answer";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCacheAnswer(_response);
+        });
+    }
+
+    protected processCacheAnswer(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getCachedAnswers(attemptId: number, quizId: number): Promise<CachedAnswersDto> {
+        let url_ = this.baseUrl + "/api/QuizAttempts/cached-answers/{attemptId}/{quizId}";
+        if (attemptId === undefined || attemptId === null)
+            throw new Error("The parameter 'attemptId' must be defined.");
+        url_ = url_.replace("{attemptId}", encodeURIComponent("" + attemptId));
+        if (quizId === undefined || quizId === null)
+            throw new Error("The parameter 'quizId' must be defined.");
+        url_ = url_.replace("{quizId}", encodeURIComponent("" + quizId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCachedAnswers(_response);
+        });
+    }
+
+    protected processGetCachedAnswers(response: Response): Promise<CachedAnswersDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CachedAnswersDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CachedAnswersDto>(null as any);
+    }
+
+    submitAttempt(command: SubmitQuizAttemptCommand | undefined): Promise<ReturnResultOfSubmitResultDto> {
+        let url_ = this.baseUrl + "/api/QuizAttempts/submit";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSubmitAttempt(_response);
+        });
+    }
+
+    protected processSubmitAttempt(response: Response): Promise<ReturnResultOfSubmitResultDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfSubmitResultDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfSubmitResultDto>(null as any);
+    }
+
+    getAttemptResult(attemptId: number): Promise<AttemptResultDto> {
+        let url_ = this.baseUrl + "/api/QuizAttempts/result/{attemptId}";
+        if (attemptId === undefined || attemptId === null)
+            throw new Error("The parameter 'attemptId' must be defined.");
+        url_ = url_.replace("{attemptId}", encodeURIComponent("" + attemptId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAttemptResult(_response);
+        });
+    }
+
+    protected processGetAttemptResult(response: Response): Promise<AttemptResultDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AttemptResultDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AttemptResultDto>(null as any);
+    }
+
+    getAttemptHistory(quizId: number): Promise<AttemptHistoryItemDto[]> {
+        let url_ = this.baseUrl + "/api/QuizAttempts/history/{quizId}";
+        if (quizId === undefined || quizId === null)
+            throw new Error("The parameter 'quizId' must be defined.");
+        url_ = url_.replace("{quizId}", encodeURIComponent("" + quizId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAttemptHistory(_response);
+        });
+    }
+
+    protected processGetAttemptHistory(response: Response): Promise<AttemptHistoryItemDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(AttemptHistoryItemDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AttemptHistoryItemDto[]>(null as any);
+    }
+}
+
+export class QuizzesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getQuizByItemId(courseId: number, itemId: string | null): Promise<QuizDto> {
+        let url_ = this.baseUrl + "/api/Quizzes/item/{courseId}/{itemId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        if (itemId === undefined || itemId === null)
+            throw new Error("The parameter 'itemId' must be defined.");
+        url_ = url_.replace("{itemId}", encodeURIComponent("" + itemId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetQuizByItemId(_response);
+        });
+    }
+
+    protected processGetQuizByItemId(response: Response): Promise<QuizDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = QuizDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<QuizDto>(null as any);
+    }
+
+    getQuizzesByCourse(courseId: number): Promise<QuizSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Quizzes/course/{courseId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetQuizzesByCourse(_response);
+        });
+    }
+
+    protected processGetQuizzesByCourse(response: Response): Promise<QuizSummaryDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(QuizSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<QuizSummaryDto[]>(null as any);
+    }
+
+    createQuiz(command: CreateQuizCommand | undefined): Promise<ReturnResultOfInteger> {
+        let url_ = this.baseUrl + "/api/Quizzes";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateQuiz(_response);
+        });
+    }
+
+    protected processCreateQuiz(response: Response): Promise<ReturnResultOfInteger> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfInteger.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfInteger>(null as any);
+    }
+
+    updateQuiz(quizId: number, command: UpdateQuizCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Quizzes/settings/{quizId}";
+        if (quizId === undefined || quizId === null)
+            throw new Error("The parameter 'quizId' must be defined.");
+        url_ = url_.replace("{quizId}", encodeURIComponent("" + quizId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateQuiz(_response);
+        });
+    }
+
+    protected processUpdateQuiz(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    updateQuizQuestions(quizId: number, command: UpdateQuizQuestionsCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Quizzes/questions/{quizId}";
+        if (quizId === undefined || quizId === null)
+            throw new Error("The parameter 'quizId' must be defined.");
+        url_ = url_.replace("{quizId}", encodeURIComponent("" + quizId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateQuizQuestions(_response);
+        });
+    }
+
+    protected processUpdateQuizQuestions(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    linkQuizToItem(quizId: number, command: LinkQuizToItemCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Quizzes/link/{quizId}";
+        if (quizId === undefined || quizId === null)
+            throw new Error("The parameter 'quizId' must be defined.");
+        url_ = url_.replace("{quizId}", encodeURIComponent("" + quizId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processLinkQuizToItem(_response);
+        });
+    }
+
+    protected processLinkQuizToItem(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteQuiz(quizId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/Quizzes/{quizId}";
+        if (quizId === undefined || quizId === null)
+            throw new Error("The parameter 'quizId' must be defined.");
+        url_ = url_.replace("{quizId}", encodeURIComponent("" + quizId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteQuiz(_response);
+        });
+    }
+
+    protected processDeleteQuiz(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class RatingCourseClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -12172,6 +12703,1428 @@ export class QdrantPointDto implements IQdrantPointDto {
 export interface IQdrantPointDto {
     id?: string;
     payload?: { [key: string]: any; } | undefined;
+}
+
+export class ReturnResultOfStartAttemptResultDto implements IReturnResultOfStartAttemptResultDto {
+    result?: StartAttemptResultDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfStartAttemptResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? StartAttemptResultDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfStartAttemptResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfStartAttemptResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfStartAttemptResultDto {
+    result?: StartAttemptResultDto | undefined;
+    message?: string | undefined;
+}
+
+export class StartAttemptResultDto implements IStartAttemptResultDto {
+    attemptId?: number;
+    quizId?: number;
+    quizTitle?: string | undefined;
+    quizDescription?: string | undefined;
+    timeLimitMinutes?: number;
+    passingScore?: number;
+    maxAttempts?: number;
+    attemptNumber?: number;
+    startTime?: Date;
+    expiryTime?: Date | undefined;
+    isResumed?: boolean;
+    questions?: StudentQuestionDto[] | undefined;
+
+    constructor(data?: IStartAttemptResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attemptId = _data["attemptId"];
+            this.quizId = _data["quizId"];
+            this.quizTitle = _data["quizTitle"];
+            this.quizDescription = _data["quizDescription"];
+            this.timeLimitMinutes = _data["timeLimitMinutes"];
+            this.passingScore = _data["passingScore"];
+            this.maxAttempts = _data["maxAttempts"];
+            this.attemptNumber = _data["attemptNumber"];
+            this.startTime = _data["startTime"] ? new Date(_data["startTime"].toString()) : <any>undefined;
+            this.expiryTime = _data["expiryTime"] ? new Date(_data["expiryTime"].toString()) : <any>undefined;
+            this.isResumed = _data["isResumed"];
+            if (Array.isArray(_data["questions"])) {
+                this.questions = [] as any;
+                for (let item of _data["questions"])
+                    this.questions!.push(StudentQuestionDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): StartAttemptResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StartAttemptResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attemptId"] = this.attemptId;
+        data["quizId"] = this.quizId;
+        data["quizTitle"] = this.quizTitle;
+        data["quizDescription"] = this.quizDescription;
+        data["timeLimitMinutes"] = this.timeLimitMinutes;
+        data["passingScore"] = this.passingScore;
+        data["maxAttempts"] = this.maxAttempts;
+        data["attemptNumber"] = this.attemptNumber;
+        data["startTime"] = this.startTime ? this.startTime.toISOString() : <any>undefined;
+        data["expiryTime"] = this.expiryTime ? this.expiryTime.toISOString() : <any>undefined;
+        data["isResumed"] = this.isResumed;
+        if (Array.isArray(this.questions)) {
+            data["questions"] = [];
+            for (let item of this.questions)
+                data["questions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IStartAttemptResultDto {
+    attemptId?: number;
+    quizId?: number;
+    quizTitle?: string | undefined;
+    quizDescription?: string | undefined;
+    timeLimitMinutes?: number;
+    passingScore?: number;
+    maxAttempts?: number;
+    attemptNumber?: number;
+    startTime?: Date;
+    expiryTime?: Date | undefined;
+    isResumed?: boolean;
+    questions?: StudentQuestionDto[] | undefined;
+}
+
+export class StudentQuestionDto implements IStudentQuestionDto {
+    id?: number;
+    name?: string | undefined;
+    type?: string | undefined;
+    sortOrder?: number;
+    choices?: StudentChoiceDto[] | undefined;
+
+    constructor(data?: IStudentQuestionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.type = _data["type"];
+            this.sortOrder = _data["sortOrder"];
+            if (Array.isArray(_data["choices"])) {
+                this.choices = [] as any;
+                for (let item of _data["choices"])
+                    this.choices!.push(StudentChoiceDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): StudentQuestionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StudentQuestionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["type"] = this.type;
+        data["sortOrder"] = this.sortOrder;
+        if (Array.isArray(this.choices)) {
+            data["choices"] = [];
+            for (let item of this.choices)
+                data["choices"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IStudentQuestionDto {
+    id?: number;
+    name?: string | undefined;
+    type?: string | undefined;
+    sortOrder?: number;
+    choices?: StudentChoiceDto[] | undefined;
+}
+
+export class StudentChoiceDto implements IStudentChoiceDto {
+    id?: number;
+    text?: string | undefined;
+
+    constructor(data?: IStudentChoiceDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): StudentChoiceDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StudentChoiceDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IStudentChoiceDto {
+    id?: number;
+    text?: string | undefined;
+}
+
+export class CacheQuizAnswerCommand implements ICacheQuizAnswerCommand {
+    attemptId?: number;
+    quizId?: number;
+    questionId?: number;
+    selectedChoiceIds?: number[] | undefined;
+
+    constructor(data?: ICacheQuizAnswerCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attemptId = _data["attemptId"];
+            this.quizId = _data["quizId"];
+            this.questionId = _data["questionId"];
+            if (Array.isArray(_data["selectedChoiceIds"])) {
+                this.selectedChoiceIds = [] as any;
+                for (let item of _data["selectedChoiceIds"])
+                    this.selectedChoiceIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CacheQuizAnswerCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CacheQuizAnswerCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attemptId"] = this.attemptId;
+        data["quizId"] = this.quizId;
+        data["questionId"] = this.questionId;
+        if (Array.isArray(this.selectedChoiceIds)) {
+            data["selectedChoiceIds"] = [];
+            for (let item of this.selectedChoiceIds)
+                data["selectedChoiceIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICacheQuizAnswerCommand {
+    attemptId?: number;
+    quizId?: number;
+    questionId?: number;
+    selectedChoiceIds?: number[] | undefined;
+}
+
+export class CachedAnswersDto implements ICachedAnswersDto {
+    answers?: { [key: string]: number[]; } | undefined;
+
+    constructor(data?: ICachedAnswersDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (_data["answers"]) {
+                this.answers = {} as any;
+                for (let key in _data["answers"]) {
+                    if (_data["answers"].hasOwnProperty(key))
+                        (<any>this.answers)![key] = _data["answers"][key] !== undefined ? _data["answers"][key] : [];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): CachedAnswersDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CachedAnswersDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.answers) {
+            data["answers"] = {};
+            for (let key in this.answers) {
+                if (this.answers.hasOwnProperty(key))
+                    (<any>data["answers"])[key] = (<any>this.answers)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface ICachedAnswersDto {
+    answers?: { [key: string]: number[]; } | undefined;
+}
+
+export class ReturnResultOfSubmitResultDto implements IReturnResultOfSubmitResultDto {
+    result?: SubmitResultDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfSubmitResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? SubmitResultDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfSubmitResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfSubmitResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfSubmitResultDto {
+    result?: SubmitResultDto | undefined;
+    message?: string | undefined;
+}
+
+export class SubmitResultDto implements ISubmitResultDto {
+    attemptId?: number;
+    score?: number;
+    isPassed?: boolean;
+    correctCount?: number;
+    totalQuestions?: number;
+    passingScore?: number;
+
+    constructor(data?: ISubmitResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attemptId = _data["attemptId"];
+            this.score = _data["score"];
+            this.isPassed = _data["isPassed"];
+            this.correctCount = _data["correctCount"];
+            this.totalQuestions = _data["totalQuestions"];
+            this.passingScore = _data["passingScore"];
+        }
+    }
+
+    static fromJS(data: any): SubmitResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubmitResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attemptId"] = this.attemptId;
+        data["score"] = this.score;
+        data["isPassed"] = this.isPassed;
+        data["correctCount"] = this.correctCount;
+        data["totalQuestions"] = this.totalQuestions;
+        data["passingScore"] = this.passingScore;
+        return data;
+    }
+}
+
+export interface ISubmitResultDto {
+    attemptId?: number;
+    score?: number;
+    isPassed?: boolean;
+    correctCount?: number;
+    totalQuestions?: number;
+    passingScore?: number;
+}
+
+export class SubmitQuizAttemptCommand implements ISubmitQuizAttemptCommand {
+    attemptId?: number;
+    answers?: SubmitAnswerDto[] | undefined;
+
+    constructor(data?: ISubmitQuizAttemptCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attemptId = _data["attemptId"];
+            if (Array.isArray(_data["answers"])) {
+                this.answers = [] as any;
+                for (let item of _data["answers"])
+                    this.answers!.push(SubmitAnswerDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SubmitQuizAttemptCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubmitQuizAttemptCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attemptId"] = this.attemptId;
+        if (Array.isArray(this.answers)) {
+            data["answers"] = [];
+            for (let item of this.answers)
+                data["answers"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ISubmitQuizAttemptCommand {
+    attemptId?: number;
+    answers?: SubmitAnswerDto[] | undefined;
+}
+
+export class SubmitAnswerDto implements ISubmitAnswerDto {
+    questionId?: number;
+    selectedChoiceIds?: number[] | undefined;
+
+    constructor(data?: ISubmitAnswerDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.questionId = _data["questionId"];
+            if (Array.isArray(_data["selectedChoiceIds"])) {
+                this.selectedChoiceIds = [] as any;
+                for (let item of _data["selectedChoiceIds"])
+                    this.selectedChoiceIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): SubmitAnswerDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubmitAnswerDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["questionId"] = this.questionId;
+        if (Array.isArray(this.selectedChoiceIds)) {
+            data["selectedChoiceIds"] = [];
+            for (let item of this.selectedChoiceIds)
+                data["selectedChoiceIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ISubmitAnswerDto {
+    questionId?: number;
+    selectedChoiceIds?: number[] | undefined;
+}
+
+export class AttemptResultDto implements IAttemptResultDto {
+    attemptId?: number;
+    quizId?: number;
+    quizTitle?: string | undefined;
+    score?: number;
+    isPassed?: boolean;
+    correctCount?: number;
+    totalQuestions?: number;
+    passingScore?: number;
+    showCorrectAnswers?: boolean;
+    questions?: AttemptQuestionResultDto[] | undefined;
+
+    constructor(data?: IAttemptResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attemptId = _data["attemptId"];
+            this.quizId = _data["quizId"];
+            this.quizTitle = _data["quizTitle"];
+            this.score = _data["score"];
+            this.isPassed = _data["isPassed"];
+            this.correctCount = _data["correctCount"];
+            this.totalQuestions = _data["totalQuestions"];
+            this.passingScore = _data["passingScore"];
+            this.showCorrectAnswers = _data["showCorrectAnswers"];
+            if (Array.isArray(_data["questions"])) {
+                this.questions = [] as any;
+                for (let item of _data["questions"])
+                    this.questions!.push(AttemptQuestionResultDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AttemptResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AttemptResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attemptId"] = this.attemptId;
+        data["quizId"] = this.quizId;
+        data["quizTitle"] = this.quizTitle;
+        data["score"] = this.score;
+        data["isPassed"] = this.isPassed;
+        data["correctCount"] = this.correctCount;
+        data["totalQuestions"] = this.totalQuestions;
+        data["passingScore"] = this.passingScore;
+        data["showCorrectAnswers"] = this.showCorrectAnswers;
+        if (Array.isArray(this.questions)) {
+            data["questions"] = [];
+            for (let item of this.questions)
+                data["questions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAttemptResultDto {
+    attemptId?: number;
+    quizId?: number;
+    quizTitle?: string | undefined;
+    score?: number;
+    isPassed?: boolean;
+    correctCount?: number;
+    totalQuestions?: number;
+    passingScore?: number;
+    showCorrectAnswers?: boolean;
+    questions?: AttemptQuestionResultDto[] | undefined;
+}
+
+export class AttemptQuestionResultDto implements IAttemptQuestionResultDto {
+    questionId?: number;
+    name?: string | undefined;
+    type?: string | undefined;
+    explanation?: string | undefined;
+    isCorrect?: boolean;
+    choices?: AttemptChoiceResultDto[] | undefined;
+
+    constructor(data?: IAttemptQuestionResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.questionId = _data["questionId"];
+            this.name = _data["name"];
+            this.type = _data["type"];
+            this.explanation = _data["explanation"];
+            this.isCorrect = _data["isCorrect"];
+            if (Array.isArray(_data["choices"])) {
+                this.choices = [] as any;
+                for (let item of _data["choices"])
+                    this.choices!.push(AttemptChoiceResultDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AttemptQuestionResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AttemptQuestionResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["questionId"] = this.questionId;
+        data["name"] = this.name;
+        data["type"] = this.type;
+        data["explanation"] = this.explanation;
+        data["isCorrect"] = this.isCorrect;
+        if (Array.isArray(this.choices)) {
+            data["choices"] = [];
+            for (let item of this.choices)
+                data["choices"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAttemptQuestionResultDto {
+    questionId?: number;
+    name?: string | undefined;
+    type?: string | undefined;
+    explanation?: string | undefined;
+    isCorrect?: boolean;
+    choices?: AttemptChoiceResultDto[] | undefined;
+}
+
+export class AttemptChoiceResultDto implements IAttemptChoiceResultDto {
+    choiceId?: number;
+    text?: string | undefined;
+    isCorrect?: boolean;
+    wasSelected?: boolean;
+
+    constructor(data?: IAttemptChoiceResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.choiceId = _data["choiceId"];
+            this.text = _data["text"];
+            this.isCorrect = _data["isCorrect"];
+            this.wasSelected = _data["wasSelected"];
+        }
+    }
+
+    static fromJS(data: any): AttemptChoiceResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AttemptChoiceResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["choiceId"] = this.choiceId;
+        data["text"] = this.text;
+        data["isCorrect"] = this.isCorrect;
+        data["wasSelected"] = this.wasSelected;
+        return data;
+    }
+}
+
+export interface IAttemptChoiceResultDto {
+    choiceId?: number;
+    text?: string | undefined;
+    isCorrect?: boolean;
+    wasSelected?: boolean;
+}
+
+export class AttemptHistoryItemDto implements IAttemptHistoryItemDto {
+    attemptId?: number;
+    score?: number;
+    isPassed?: boolean;
+    isActive?: boolean;
+    startTime?: Date;
+    expiryTime?: Date | undefined;
+    completed?: Date;
+
+    constructor(data?: IAttemptHistoryItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attemptId = _data["attemptId"];
+            this.score = _data["score"];
+            this.isPassed = _data["isPassed"];
+            this.isActive = _data["isActive"];
+            this.startTime = _data["startTime"] ? new Date(_data["startTime"].toString()) : <any>undefined;
+            this.expiryTime = _data["expiryTime"] ? new Date(_data["expiryTime"].toString()) : <any>undefined;
+            this.completed = _data["completed"] ? new Date(_data["completed"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AttemptHistoryItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AttemptHistoryItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attemptId"] = this.attemptId;
+        data["score"] = this.score;
+        data["isPassed"] = this.isPassed;
+        data["isActive"] = this.isActive;
+        data["startTime"] = this.startTime ? this.startTime.toISOString() : <any>undefined;
+        data["expiryTime"] = this.expiryTime ? this.expiryTime.toISOString() : <any>undefined;
+        data["completed"] = this.completed ? this.completed.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IAttemptHistoryItemDto {
+    attemptId?: number;
+    score?: number;
+    isPassed?: boolean;
+    isActive?: boolean;
+    startTime?: Date;
+    expiryTime?: Date | undefined;
+    completed?: Date;
+}
+
+export class QuizDto implements IQuizDto {
+    id?: number;
+    title?: string | undefined;
+    description?: string | undefined;
+    courseId?: number;
+    itemId?: string | undefined;
+    relatedItemId?: string | undefined;
+    isBeingConvertToSnapshot?: boolean;
+    timeLimitMinutes?: number;
+    passingScore?: number;
+    maxAttempts?: number;
+    showCorrectAnswers?: boolean;
+    randomizeQuestions?: boolean;
+    questions?: QuizQuestionDto[] | undefined;
+
+    constructor(data?: IQuizDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.courseId = _data["courseId"];
+            this.itemId = _data["itemId"];
+            this.relatedItemId = _data["relatedItemId"];
+            this.isBeingConvertToSnapshot = _data["isBeingConvertToSnapshot"];
+            this.timeLimitMinutes = _data["timeLimitMinutes"];
+            this.passingScore = _data["passingScore"];
+            this.maxAttempts = _data["maxAttempts"];
+            this.showCorrectAnswers = _data["showCorrectAnswers"];
+            this.randomizeQuestions = _data["randomizeQuestions"];
+            if (Array.isArray(_data["questions"])) {
+                this.questions = [] as any;
+                for (let item of _data["questions"])
+                    this.questions!.push(QuizQuestionDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QuizDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["courseId"] = this.courseId;
+        data["itemId"] = this.itemId;
+        data["relatedItemId"] = this.relatedItemId;
+        data["isBeingConvertToSnapshot"] = this.isBeingConvertToSnapshot;
+        data["timeLimitMinutes"] = this.timeLimitMinutes;
+        data["passingScore"] = this.passingScore;
+        data["maxAttempts"] = this.maxAttempts;
+        data["showCorrectAnswers"] = this.showCorrectAnswers;
+        data["randomizeQuestions"] = this.randomizeQuestions;
+        if (Array.isArray(this.questions)) {
+            data["questions"] = [];
+            for (let item of this.questions)
+                data["questions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IQuizDto {
+    id?: number;
+    title?: string | undefined;
+    description?: string | undefined;
+    courseId?: number;
+    itemId?: string | undefined;
+    relatedItemId?: string | undefined;
+    isBeingConvertToSnapshot?: boolean;
+    timeLimitMinutes?: number;
+    passingScore?: number;
+    maxAttempts?: number;
+    showCorrectAnswers?: boolean;
+    randomizeQuestions?: boolean;
+    questions?: QuizQuestionDto[] | undefined;
+}
+
+export class QuizQuestionDto implements IQuizQuestionDto {
+    id?: number;
+    name?: string | undefined;
+    type?: string | undefined;
+    explanation?: string | undefined;
+    sortOrder?: number;
+    choices?: QuizChoiceDto[] | undefined;
+
+    constructor(data?: IQuizQuestionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.type = _data["type"];
+            this.explanation = _data["explanation"];
+            this.sortOrder = _data["sortOrder"];
+            if (Array.isArray(_data["choices"])) {
+                this.choices = [] as any;
+                for (let item of _data["choices"])
+                    this.choices!.push(QuizChoiceDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QuizQuestionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizQuestionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["type"] = this.type;
+        data["explanation"] = this.explanation;
+        data["sortOrder"] = this.sortOrder;
+        if (Array.isArray(this.choices)) {
+            data["choices"] = [];
+            for (let item of this.choices)
+                data["choices"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IQuizQuestionDto {
+    id?: number;
+    name?: string | undefined;
+    type?: string | undefined;
+    explanation?: string | undefined;
+    sortOrder?: number;
+    choices?: QuizChoiceDto[] | undefined;
+}
+
+export class QuizChoiceDto implements IQuizChoiceDto {
+    id?: number;
+    text?: string | undefined;
+    isCorrect?: boolean;
+    sortOrder?: number;
+
+    constructor(data?: IQuizChoiceDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.text = _data["text"];
+            this.isCorrect = _data["isCorrect"];
+            this.sortOrder = _data["sortOrder"];
+        }
+    }
+
+    static fromJS(data: any): QuizChoiceDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizChoiceDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["text"] = this.text;
+        data["isCorrect"] = this.isCorrect;
+        data["sortOrder"] = this.sortOrder;
+        return data;
+    }
+}
+
+export interface IQuizChoiceDto {
+    id?: number;
+    text?: string | undefined;
+    isCorrect?: boolean;
+    sortOrder?: number;
+}
+
+export class QuizSummaryDto implements IQuizSummaryDto {
+    id?: number;
+    title?: string | undefined;
+    itemId?: string | undefined;
+    relatedItemId?: string | undefined;
+
+    constructor(data?: IQuizSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.itemId = _data["itemId"];
+            this.relatedItemId = _data["relatedItemId"];
+        }
+    }
+
+    static fromJS(data: any): QuizSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["itemId"] = this.itemId;
+        data["relatedItemId"] = this.relatedItemId;
+        return data;
+    }
+}
+
+export interface IQuizSummaryDto {
+    id?: number;
+    title?: string | undefined;
+    itemId?: string | undefined;
+    relatedItemId?: string | undefined;
+}
+
+export class ReturnResultOfInteger implements IReturnResultOfInteger {
+    result?: number;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfInteger) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfInteger {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfInteger();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfInteger {
+    result?: number;
+    message?: string | undefined;
+}
+
+export class CreateQuizCommand implements ICreateQuizCommand {
+    courseId?: number;
+    itemId?: string | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    relatedItemId?: string | undefined;
+    timeLimitMinutes?: number;
+    passingScore?: number;
+    maxAttempts?: number;
+    showCorrectAnswers?: boolean;
+    randomizeQuestions?: boolean;
+
+    constructor(data?: ICreateQuizCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.itemId = _data["itemId"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.relatedItemId = _data["relatedItemId"];
+            this.timeLimitMinutes = _data["timeLimitMinutes"];
+            this.passingScore = _data["passingScore"];
+            this.maxAttempts = _data["maxAttempts"];
+            this.showCorrectAnswers = _data["showCorrectAnswers"];
+            this.randomizeQuestions = _data["randomizeQuestions"];
+        }
+    }
+
+    static fromJS(data: any): CreateQuizCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateQuizCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["itemId"] = this.itemId;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["relatedItemId"] = this.relatedItemId;
+        data["timeLimitMinutes"] = this.timeLimitMinutes;
+        data["passingScore"] = this.passingScore;
+        data["maxAttempts"] = this.maxAttempts;
+        data["showCorrectAnswers"] = this.showCorrectAnswers;
+        data["randomizeQuestions"] = this.randomizeQuestions;
+        return data;
+    }
+}
+
+export interface ICreateQuizCommand {
+    courseId?: number;
+    itemId?: string | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    relatedItemId?: string | undefined;
+    timeLimitMinutes?: number;
+    passingScore?: number;
+    maxAttempts?: number;
+    showCorrectAnswers?: boolean;
+    randomizeQuestions?: boolean;
+}
+
+export class UpdateQuizCommand implements IUpdateQuizCommand {
+    quizId?: number;
+    title?: string | undefined;
+    description?: string | undefined;
+    relatedItemId?: string | undefined;
+    timeLimitMinutes?: number;
+    passingScore?: number;
+    maxAttempts?: number;
+    showCorrectAnswers?: boolean;
+    randomizeQuestions?: boolean;
+
+    constructor(data?: IUpdateQuizCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.quizId = _data["quizId"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.relatedItemId = _data["relatedItemId"];
+            this.timeLimitMinutes = _data["timeLimitMinutes"];
+            this.passingScore = _data["passingScore"];
+            this.maxAttempts = _data["maxAttempts"];
+            this.showCorrectAnswers = _data["showCorrectAnswers"];
+            this.randomizeQuestions = _data["randomizeQuestions"];
+        }
+    }
+
+    static fromJS(data: any): UpdateQuizCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateQuizCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["quizId"] = this.quizId;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["relatedItemId"] = this.relatedItemId;
+        data["timeLimitMinutes"] = this.timeLimitMinutes;
+        data["passingScore"] = this.passingScore;
+        data["maxAttempts"] = this.maxAttempts;
+        data["showCorrectAnswers"] = this.showCorrectAnswers;
+        data["randomizeQuestions"] = this.randomizeQuestions;
+        return data;
+    }
+}
+
+export interface IUpdateQuizCommand {
+    quizId?: number;
+    title?: string | undefined;
+    description?: string | undefined;
+    relatedItemId?: string | undefined;
+    timeLimitMinutes?: number;
+    passingScore?: number;
+    maxAttempts?: number;
+    showCorrectAnswers?: boolean;
+    randomizeQuestions?: boolean;
+}
+
+export class UpdateQuizQuestionsCommand implements IUpdateQuizQuestionsCommand {
+    quizId?: number;
+    questions?: QuestionDto[] | undefined;
+
+    constructor(data?: IUpdateQuizQuestionsCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.quizId = _data["quizId"];
+            if (Array.isArray(_data["questions"])) {
+                this.questions = [] as any;
+                for (let item of _data["questions"])
+                    this.questions!.push(QuestionDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateQuizQuestionsCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateQuizQuestionsCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["quizId"] = this.quizId;
+        if (Array.isArray(this.questions)) {
+            data["questions"] = [];
+            for (let item of this.questions)
+                data["questions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IUpdateQuizQuestionsCommand {
+    quizId?: number;
+    questions?: QuestionDto[] | undefined;
+}
+
+export class QuestionDto implements IQuestionDto {
+    id?: number | undefined;
+    name?: string | undefined;
+    type?: QuestionType;
+    explanation?: string | undefined;
+    sortOrder?: number;
+    choices?: ChoiceDto[] | undefined;
+
+    constructor(data?: IQuestionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.type = _data["type"];
+            this.explanation = _data["explanation"];
+            this.sortOrder = _data["sortOrder"];
+            if (Array.isArray(_data["choices"])) {
+                this.choices = [] as any;
+                for (let item of _data["choices"])
+                    this.choices!.push(ChoiceDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QuestionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuestionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["type"] = this.type;
+        data["explanation"] = this.explanation;
+        data["sortOrder"] = this.sortOrder;
+        if (Array.isArray(this.choices)) {
+            data["choices"] = [];
+            for (let item of this.choices)
+                data["choices"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IQuestionDto {
+    id?: number | undefined;
+    name?: string | undefined;
+    type?: QuestionType;
+    explanation?: string | undefined;
+    sortOrder?: number;
+    choices?: ChoiceDto[] | undefined;
+}
+
+export enum QuestionType {
+    SingleChoice = 0,
+    MultipleChoice = 1,
+    TrueFalse = 2,
+}
+
+export class ChoiceDto implements IChoiceDto {
+    id?: number | undefined;
+    text?: string | undefined;
+    isCorrect?: boolean;
+    sortOrder?: number;
+
+    constructor(data?: IChoiceDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.text = _data["text"];
+            this.isCorrect = _data["isCorrect"];
+            this.sortOrder = _data["sortOrder"];
+        }
+    }
+
+    static fromJS(data: any): ChoiceDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChoiceDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["text"] = this.text;
+        data["isCorrect"] = this.isCorrect;
+        data["sortOrder"] = this.sortOrder;
+        return data;
+    }
+}
+
+export interface IChoiceDto {
+    id?: number | undefined;
+    text?: string | undefined;
+    isCorrect?: boolean;
+    sortOrder?: number;
+}
+
+export class LinkQuizToItemCommand implements ILinkQuizToItemCommand {
+    quizId?: number;
+    courseId?: number;
+    newItemId?: string | undefined;
+    relatedItemId?: string | undefined;
+
+    constructor(data?: ILinkQuizToItemCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.quizId = _data["quizId"];
+            this.courseId = _data["courseId"];
+            this.newItemId = _data["newItemId"];
+            this.relatedItemId = _data["relatedItemId"];
+        }
+    }
+
+    static fromJS(data: any): LinkQuizToItemCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new LinkQuizToItemCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["quizId"] = this.quizId;
+        data["courseId"] = this.courseId;
+        data["newItemId"] = this.newItemId;
+        data["relatedItemId"] = this.relatedItemId;
+        return data;
+    }
+}
+
+export interface ILinkQuizToItemCommand {
+    quizId?: number;
+    courseId?: number;
+    newItemId?: string | undefined;
+    relatedItemId?: string | undefined;
 }
 
 export class UpsertRatingCourseCommand implements IUpsertRatingCourseCommand {

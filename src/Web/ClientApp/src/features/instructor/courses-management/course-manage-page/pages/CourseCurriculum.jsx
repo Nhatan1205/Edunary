@@ -192,7 +192,7 @@ function CourseCurriculum() {
           type: null,
           isPendingType: true,
           downloadable: false,
-          resources: []
+          resources: [],
         };
         setNextItemId(nextItemId + 1);
         return {
@@ -669,6 +669,7 @@ function CourseCurriculum() {
                       globalIndex={getGlobalIndex(sectionIndex, itemIndex)}
                       onDelete={(itemId) => deleteCurriculumItem(section.sectionId, itemId)}
                       onUpdate={(itemId, data) => updateCurriculumItem(section.sectionId, itemId, data)}
+                      sections={sections}
                     />
                   ))}
                 </SortableContext>

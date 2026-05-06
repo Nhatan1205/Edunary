@@ -21,6 +21,7 @@ import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import CloudOutlinedIcon from "@mui/icons-material/CloudOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
+import DnsOutlinedIcon from "@mui/icons-material/DnsOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
@@ -111,6 +112,20 @@ const TABS = [
           "Qdrant_ApiKey",
           "Qdrant_Collection"
         ]
+      },
+    ],
+  },
+  {
+    label: "Redis",
+    Icon: DnsOutlinedIcon,
+    sections: [
+      {
+        header: "Redis Connection",
+        keys: [
+          "Redis_Host",
+          "Redis_Port",
+          "Redis_Password"
+        ],
       },
     ],
   },

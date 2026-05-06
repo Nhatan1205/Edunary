@@ -55,9 +55,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<LearnerProfile> LearnerProfiles => Set<LearnerProfile>();
 
     public DbSet<KnowledgeDocument> KnowledgeDocuments => Set<KnowledgeDocument>();
+    public DbSet<Quiz> Quizzes => Set<Quiz>();
+    public DbSet<Question> Questions => Set<Question>();
+    public DbSet<Choice> Choices => Set<Choice>();
+    public DbSet<QuizAttemptSnapshot> QuizAttemptSnapshots => Set<QuizAttemptSnapshot>();
+    public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
+    public DbSet<QuizAttemptAnswer> QuizAttemptAnswers => Set<QuizAttemptAnswer>();
+    public DbSet<QuizAttemptAnswerChoice> QuizAttemptAnswerChoices => Set<QuizAttemptAnswerChoice>();
 
     protected override void OnModelCreating(ModelBuilder builder)
-    {        
+    {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }

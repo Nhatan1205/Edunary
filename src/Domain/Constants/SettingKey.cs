@@ -50,6 +50,12 @@ public static class SettingKey
     public const string Qdrant_ApiKey = "Qdrant_ApiKey";
     public const string Qdrant_Collection = "Qdrant_Collection";
 
+    // Redis Config
+    public const string Redis_Host = "Redis_Host";
+    public const string Redis_Port = "Redis_Port";
+    public const string Redis_Password = "Redis_Password";
+
+
     // use for whitelist key
     private static readonly HashSet<string> _publicKeys = new()
     {

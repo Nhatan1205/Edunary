@@ -30,7 +30,6 @@ const ArticleContent = ({ item, onMarkAsComplete }) => {
         />
       </Container>
       
-      {/* Checkbox đánh dấu hoàn thành sau khi đã đọc xong nội dung */}
       <Box sx={{ 
         width: '100%', 
         p: 3, 
@@ -45,7 +44,6 @@ const ArticleContent = ({ item, onMarkAsComplete }) => {
             <Checkbox
               checked={item.isCompleted || false}
               onChange={onMarkAsComplete}
-              disabled={item.isCompleted}
               size="large"
               sx={{
                 color: "text.disabled",

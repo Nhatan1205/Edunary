@@ -107,6 +107,15 @@ public class StartQuizAttemptCommandHandler : IRequestHandler<StartQuizAttemptCo
                 snapshot.QuizQuestions,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
 
+            // Shuffle questions and choices for new attempts only.
+            // Resumed attempts keep original order so cached answers stay in sync.
+            if (quiz.RandomizeQuestions && !isResumed)
+            {
+                snapshotQuestions = snapshotQuestions.OrderBy(_ => Guid.NewGuid()).ToList();
+                foreach (var q in snapshotQuestions)
+                    q.Choices = q.Choices.OrderBy(_ => Guid.NewGuid()).ToList();
+            }
+
             int attemptNumber = await _context.QuizAttempts
                 .CountAsync(a => a.QuizId == request.QuizId && a.UserId == userId, cancellationToken);
 

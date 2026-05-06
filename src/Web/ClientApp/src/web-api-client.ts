@@ -12494,6 +12494,8 @@ export interface IOrderItemDto {
 }
 
 export class QdrantCollectionListDto implements IQdrantCollectionListDto {
+    collections?: CollectionSummaryDto[] | undefined;
+    total?: number;
 
     constructor(data?: IQdrantCollectionListDto) {
         if (data) {
@@ -14127,6 +14129,7 @@ export interface ILinkQuizToItemCommand {
 
 export class UpsertRatingCourseCommand implements IUpsertRatingCourseCommand {
     courseId?: number;
+    rating?: number;
     review?: string | undefined;
 
     constructor(data?: IUpsertRatingCourseCommand) {

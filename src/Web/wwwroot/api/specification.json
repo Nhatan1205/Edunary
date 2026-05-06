@@ -9068,78 +9068,6 @@
           }
         }
       },
-      "UpsertRatingCourseCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "pointsCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "vectorsCount": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "vectorSize": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "distance": {
-            "type": "string",
-            "nullable": true
-          },
-          "segmentsCount": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
-      "QdrantPointListDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "points": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/QdrantPointDto"
-            }
-          },
-          "nextOffset": {
-            "type": "string",
-            "nullable": true
-          },
-          "total": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
-      "QdrantPointDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object",
-            "nullable": true,
-            "additionalProperties": {}
-          }
-        }
-      },
       "ReturnResultOfStartAttemptResultDto": {
         "type": "object",
         "additionalProperties": false,
@@ -9857,6 +9785,7 @@
       },
       "UpsertRatingCourseCommand": {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
           "courseId": {
             "type": "integer",

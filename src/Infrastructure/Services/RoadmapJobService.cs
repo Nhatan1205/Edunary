@@ -17,6 +17,7 @@ public class RoadmapJobService : IRoadmapJobService
     private readonly ISender _sender;
     private readonly IAICenterClient _aiCenterClient;
     private readonly IAppHubService _hub;
+    private readonly INotifyService _notifyService;
     private readonly ILogger<RoadmapJobService> _logger;
 
     public RoadmapJobService(
@@ -24,12 +25,14 @@ public class RoadmapJobService : IRoadmapJobService
         ISender sender,
         IAICenterClient aiCenterClient,
         IAppHubService hub,
+        INotifyService notifyService,
         ILogger<RoadmapJobService> logger)
     {
         _context = context;
         _sender = sender;
         _aiCenterClient = aiCenterClient;
         _hub = hub;
+        _notifyService = notifyService;
         _logger = logger;
     }
 
@@ -130,7 +133,7 @@ public class RoadmapJobService : IRoadmapJobService
             }
 
             await SendProgress(userId, 80, "Validating and optimizing results...");
-            await Task.Delay(900);
+            await Task.Delay(1200);
 
             // 6. Parse response
             var aiResponse = JsonSerializer.Deserialize<JsonElement>(body);
@@ -187,13 +190,20 @@ public class RoadmapJobService : IRoadmapJobService
             _context.Roadmaps.Add(roadmap);
             await _context.SaveChangesAsync(default);
 
-            // 9. Notify done — include roadmapId so frontend can navigate
             await _hub.SendAsync($"Roadmap.Progress:{userId}", new
             {
                 percent = 100,
                 message = "Your career path is ready!",
                 roadmapId = roadmap.Id
             });
+
+
+            await _notifyService.NotifyUserAsync(
+                userId,
+                title: "Career Path Ready",
+                message: $"Your personalized \"{roadmap.Title}\" career path has been generated successfully.",
+                type: "roadmap",
+                payload: new { roadmapId = roadmap.Id });
         }
         catch (Exception ex)
         {

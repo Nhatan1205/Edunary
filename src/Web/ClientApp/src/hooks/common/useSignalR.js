@@ -19,13 +19,21 @@ function getConnection() {
 }
 
 async function ensureConnected() {
+  if (!tokenService.getToken()) return null;
+
   const conn = getConnection();
   if (conn.state === signalR.HubConnectionState.Disconnected) {
     if (!connectionPromise) {
-      connectionPromise = conn.start().then(() => {
-        connectionPromise = null;
-        // console.log('[SignalR] Connected. State:', conn.state);
-      });
+      connectionPromise = conn
+        .start()
+        .then(() => {
+          connectionPromise = null;
+        })
+        .catch((err) => {
+          connectionPromise = null;
+          sharedConnection = null;
+          throw err;
+        });
     }
     await connectionPromise;
   }
@@ -52,7 +60,7 @@ export function useSignalR() {
     let cancelled = false;
 
     ensureConnected().then((conn) => {
-      if (cancelled) return;
+      if (cancelled || !conn) return;
       conn.on(eventName, callback);
     });
 

@@ -20,6 +20,11 @@ public static class DependencyInjection
 
         services.AddHttpClient();
 
+        services.AddHttpClient("AICenterClient", client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(10);
+        });
+
         services.AddScoped<IUser, CurrentUser>();
 
         services.AddHttpContextAccessor();

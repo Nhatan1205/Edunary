@@ -22,7 +22,11 @@ export default function GenerateCareerPathPage() {
     // Navigate when server signals completion
     useEffect(() => {
         if (percent === 100 && roadmapId) {
-            navigate(`/user/career-path/${roadmapId}`, { replace: true });
+            // Wait for LoadingScreen to finish animating to 100% before navigating
+            const timer = setTimeout(() => {
+                navigate(`/user/career-path/${roadmapId}`, { replace: true });
+            }, 1500);
+            return () => clearTimeout(timer);
         }
         if (percent === -1) {
             toast.error(stepLabel || 'Generation failed.');

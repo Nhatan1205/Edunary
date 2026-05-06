@@ -49,8 +49,8 @@ function CareerPathSection() {
               mb: 1.5,
             }}
           >
-            Our Career Paths give you a step-by-step roadmap to go from any
-            background to job-ready. Pick one of the most popular paths below or{" "}
+            Our Career Paths give you a step-by-step roadmap to go from any background to job-ready.
+            Pick one of the most popular paths below,{" "}
             <Button
               component={RouterLink}
               to="/career-paths"
@@ -62,10 +62,31 @@ function CareerPathSection() {
                 fontWeight: 600,
                 fontSize: "1rem",
                 textDecoration: "underline",
+                verticalAlign: "baseline",
+                lineHeight: "inherit",
                 "&:hover": { bgcolor: "transparent", color: "brand.darker" },
               }}
             >
-              explore all career paths here
+              explore all career paths
+            </Button>
+            , or{" "}
+            <Button
+              component={RouterLink}
+              to="/ai/career-path"
+              variant="text"
+              sx={{
+                p: 0,
+                minWidth: 0,
+                color: "brand.dark",
+                fontWeight: 600,
+                fontSize: "1rem",
+                textDecoration: "underline",
+                verticalAlign: "baseline",
+                lineHeight: "inherit",
+                "&:hover": { bgcolor: "transparent", color: "brand.darker" },
+              }}
+            >
+              generate one tailored to you
             </Button>
             .
           </Typography>

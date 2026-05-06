@@ -39,12 +39,14 @@ public class GetRoadmapDetailQueryHandler : IRequestHandler<GetRoadmapDetailQuer
             Description = roadmap.Description,
             RoadmapTopicId = roadmap.RoadmapTopicId,
             TopicTitle = roadmap.RoadmapTopic?.Title,
-            SkillLevel = roadmap.Level,
+            Level = roadmap.Level.ToString(),
             IsPublic = roadmap.IsPublic,
+            Created = roadmap.Created,
         };
 
         // Enrich GraphData with live course info
         dto.GraphData = await EnrichGraphDataAsync(roadmap.GraphData, cancellationToken);
+        dto.NodeCount = dto.GraphData?.Nodes?.Count ?? 0;
 
         return dto;
     }

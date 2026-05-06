@@ -41,14 +41,18 @@ const CareerPathOverviewPage = () => {
     return (
         <Box sx={{ bgcolor: 'background.alt', minHeight: '100vh', py: 4 }}>
             <Container>
-                {/* White card: Hero + Stats + About */}
+                {/* Elevated card: Hero + Stats + About */}
                 <Box
                     sx={{
                         bgcolor: 'background.paper',
-                        borderRadius: 3,
+                        borderRadius: 4,
                         px: { xs: 2, md: 4 },
                         pb: 4,
                         mb: 4,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04)',
+                        transition: 'box-shadow 0.2s ease',
                     }}
                 >
                     <CareerPathHero careerPath={roadmap} />

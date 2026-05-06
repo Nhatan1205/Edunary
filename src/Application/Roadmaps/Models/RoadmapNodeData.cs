@@ -5,6 +5,8 @@ public class RoadmapNodeData
 
     public int CourseId { get; set; }
 
+    public string Reason { get; set; } = string.Empty;
+
     public double PositionX { get; set; }
 
     public double PositionY { get; set; }

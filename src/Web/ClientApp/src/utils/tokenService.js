@@ -171,6 +171,14 @@ export const tokenService = {
     return decoded?.role || decoded?.roles || decoded?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
   },
 
+  // Get current user ID from token (sub claim)
+  getUserId() {
+    const token = this.getToken();
+    if (!token) return null;
+    const decoded = this.decodeToken(token);
+    return decoded?.sub || decoded?.nameid || decoded?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || null;
+  },
+
   // Check if user is admin
   isAdmin() {
     const role = this.getUserRole();

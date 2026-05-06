@@ -7,6 +7,7 @@ import Wishlist from './Tabs/Wishlist';
 import Certifications from './Tabs/Certifications';
 import Archived from './Tabs/Archived';
 import LearningTools from './Tabs/LearningTools';
+import MyCareerPathsTab from './Tabs/MyCareerPathsTab';
 
 function MyLearning() {
   const [activeTab, setActiveTab] = useState(0);
@@ -58,6 +59,7 @@ function MyLearning() {
             <Tab label="Wishlist" />
             <Tab label="Certifications" />
             <Tab label="Archived" />
+            <Tab label="Career Paths" />
             <Tab label="Learning tools" />
           </Tabs>
         </Container>
@@ -68,7 +70,8 @@ function MyLearning() {
         {activeTab === 2 && <Wishlist />}
         {activeTab === 3 && <Certifications />}
         {activeTab === 4 && <Archived />}
-        {activeTab === 5 && <LearningTools />}
+        {activeTab === 5 && <MyCareerPathsTab />}
+        {activeTab === 6 && <LearningTools />}
       </Container>
     </Box>
   )

@@ -33,7 +33,7 @@ public class GetRoadmapsAuthorQueryHandler : IRequestHandler<GetRoadmapsAuthorQu
         var userId = _currentUserService?.UserId;
 
         var query = _context.Roadmaps
-            .Where(r => r.CreatedBy == userId)
+            .Where(r => r.CreatedBy == userId && r.Source == RoadmapSource.Manual)
             .AsQueryable();
 
         // search by title

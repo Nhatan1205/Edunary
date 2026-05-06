@@ -5,7 +5,6 @@ import { ToastContainer } from "react-toastify";
 import router from "./AppRoutes";
 import queryClient from "./configs/reactQuery";
 import { useAuth } from "./context/AuthContext";
-import { SignalRProvider } from "./context/SignalRContext";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -28,11 +27,7 @@ function App() {
     </QueryClientProvider>
   );
 
-  return isAuthenticated ? (
-    <SignalRProvider>{AppContent}</SignalRProvider>
-  ) : (
-    AppContent
-  );
+  return AppContent;
 }
 
 export default App;

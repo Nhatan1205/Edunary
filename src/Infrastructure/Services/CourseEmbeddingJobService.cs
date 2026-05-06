@@ -206,7 +206,7 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
             if (!isSuccess)
             {
                 _logger.LogError("AI Center batch embed failed: {Body}", body);
-                await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Failed");
+                //await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Failed");
                 return;
             }
 
@@ -225,12 +225,12 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
                 _logger.LogInformation("Batch embedding completed for {Count} courses.", courses.Count);
             }
 
-            await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Completed");
+            //await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Completed");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Batch course embedding job failed.");
-            await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Failed");
+            //await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Failed");
         }
     }
 
@@ -277,24 +277,24 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
         };
     }
 
-    private async Task NotifyAdminAsync(string eventName, int courseId, string title, string state)
-    {
-        try
-        {
-            await _notifyService.SendMessage(
-                sender: "system",
-                message: JsonSerializer.Serialize(new
-                {
-                    courseId,
-                    title,
-                    state,
-                    timestamp = DateTime.UtcNow
-                }),
-                method: eventName);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Could not send SignalR notification for CourseEmbeddingUpdate.");
-        }
-    }
+    //private async Task NotifyAdminAsync(string eventName, int courseId, string title, string state)
+    //{
+    //    try
+    //    {
+    //        await _notifyService.SendMessage(
+    //            sender: "system",
+    //            message: JsonSerializer.Serialize(new
+    //            {
+    //                courseId,
+    //                title,
+    //                state,
+    //                timestamp = DateTime.UtcNow
+    //            }),
+    //            method: eventName);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogWarning(ex, "Could not send SignalR notification for CourseEmbeddingUpdate.");
+    //    }
+    //}
 }

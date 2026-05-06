@@ -1,15 +1,18 @@
 import usePaymentClient from "./usePaymentClient"
 import { useNavigate } from "react-router"
 import { toast } from "react-toastify"
+import { useQueryClient } from "@tanstack/react-query"
 
 export default function usePaymentConfirmation() {
   const { confirmPayment } = usePaymentClient()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const confirmPaymentAndNavigate = async (paymentIntentId, courses = [], totalAmount = 0) => {
     try {
       const confirmResponse = await confirmPayment(paymentIntentId)
       if (confirmResponse?.success) {
+        queryClient.invalidateQueries(["cart"])
         navigate('/payment-success', {
           state: {
             paymentIntentId,

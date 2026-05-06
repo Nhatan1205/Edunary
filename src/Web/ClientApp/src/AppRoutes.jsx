@@ -69,6 +69,7 @@ import QdrantDashboardPage from "./features/admin/qdrant-dashboard/QdrantDashboa
 import CourseEmbeddingPage from "./features/admin/course-embedding/CourseEmbeddingPage";
 import MyCareerPathDetailPage from "./features/user/career-paths/MyCareerPathDetailPage";
 import GenerateCareerPathPage from "./features/user/career-paths/generate-career-path/GenerateCareerPathPage";
+import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage";
 
 const router = createBrowserRouter([
   {
@@ -151,6 +152,10 @@ const router = createBrowserRouter([
       {
         path: "course-embeddings",
         element: <CourseEmbeddingPage />,
+      },
+      {
+        path: "user-embeddings",
+        element: <UserEmbeddingPage />,
       },
     ],
   },

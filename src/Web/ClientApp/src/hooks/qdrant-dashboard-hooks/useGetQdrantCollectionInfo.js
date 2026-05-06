@@ -9,6 +9,8 @@ const useGetQdrantCollectionInfo = (name) => {
       return await client.getCollectionInfo(name);
     },
     enabled: !!name,
+    staleTime: 30_000,
+    keepPreviousData: true,
   });
 };
 

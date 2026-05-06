@@ -12,6 +12,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import AutoFixHighOutlinedIcon from "@mui/icons-material/AutoFixHighOutlined";
+import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 
 const adminMenuConfig = {
   items: [
@@ -163,6 +164,13 @@ const adminMenuConfig = {
           url: "/admin/system-settings",
           icon: SettingsOutlinedIcon,
         },
+      ],
+    },
+    {
+      id: "ai-center-group",
+      title: "AI Center",
+      type: "group",
+      children: [
         {
           id: "knowledge-base",
           title: "Knowledge Base",
@@ -171,18 +179,30 @@ const adminMenuConfig = {
           icon: MenuBookOutlinedIcon,
         },
         {
-          id: "qdrant-dashboard",
-          title: "Qdrant Dashboard",
-          type: "item",
-          url: "/admin/qdrant-dashboard",
-          icon: StorageOutlinedIcon,
-        },
-        {
-          id: "course-embeddings",
-          title: "Course Embeddings",
-          type: "item",
-          url: "/admin/course-embeddings",
+          id: "embedding",
+          title: "Embedding",
+          type: "collapse",
           icon: AutoFixHighOutlinedIcon,
+          children: [
+            {
+              id: "qdrant-dashboard",
+              title: "Qdrant Dashboard",
+              type: "item",
+              url: "/admin/qdrant-dashboard",
+            },
+            {
+              id: "course-embeddings",
+              title: "Course Embeddings",
+              type: "item",
+              url: "/admin/course-embeddings",
+            },
+            {
+              id: "user-embeddings",
+              title: "User Embeddings",
+              type: "item",
+              url: "/admin/user-embeddings",
+            },
+          ],
         },
       ],
     },

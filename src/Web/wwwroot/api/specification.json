@@ -5150,6 +5150,120 @@
         ]
       }
     },
+    "/api/UserEmbeddings/user-batch-embed": {
+      "post": {
+        "tags": [
+          "UserEmbeddings"
+        ],
+        "operationId": "BatchEmbedUsers",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/UserEmbeddings/sync-status": {
+      "get": {
+        "tags": [
+          "UserEmbeddings"
+        ],
+        "operationId": "GetUserEmbeddingSyncStatus",
+        "parameters": [
+          {
+            "name": "SearchText",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "StatusFilter",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfUserEmbeddingSyncStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/UserEmbeddings/{userId}/embed": {
+      "post": {
+        "tags": [
+          "UserEmbeddings"
+        ],
+        "operationId": "EmbedSingleUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/VideoCaptions/caption-language": {
       "get": {
         "tags": [
@@ -10390,6 +10504,102 @@
           "newRole": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "ReturnResultOfUserEmbeddingSyncStatusDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserEmbeddingSyncStatusDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UserEmbeddingSyncStatusDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalEmbedded": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalMissing": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfUserEmbeddingItemDto"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfUserEmbeddingItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/UserEmbeddingItemDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserEmbeddingItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isEmbedded": {
+            "type": "boolean"
           }
         }
       },

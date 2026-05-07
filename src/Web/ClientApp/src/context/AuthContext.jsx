@@ -9,6 +9,7 @@ import {
 import { tokenService } from "../utils/tokenService";
 import { AuthClient } from "../web-api-client.ts";
 import queryClient from "../configs/reactQuery.js";
+import { disconnectSignalR } from "../hooks/common/useSignalR.js";
 
 const AuthContext = createContext(null);
 
@@ -44,6 +45,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     queryClient.clear();
+    disconnectSignalR();
   }, []);
 
   // Setup token refresh - wrapped in useCallback to avoid recreating
@@ -65,7 +67,7 @@ export const AuthProvider = ({ children }) => {
     }
     // Get time until expiry in seconds
     const timeUntilExpiry = tokenService.getTimeUntilExpiry(token);
-    
+
     // If token expires in less than 10 seconds, it's too late to refresh reliably
     if (timeUntilExpiry < 10) {
       logout();

@@ -1,4 +1,4 @@
-﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -43,7 +43,10 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
                 var utcNow = _dateTime.GetUtcNow();
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedBy = _user.Id;
+                    if (string.IsNullOrEmpty(entry.Entity.CreatedBy))
+                    {
+                        entry.Entity.CreatedBy = _user.Id;
+                    }
                     entry.Entity.Created = utcNow;
                 }
                 entry.Entity.LastModifiedBy = _user.Id;

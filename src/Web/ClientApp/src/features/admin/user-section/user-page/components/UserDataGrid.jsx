@@ -399,7 +399,7 @@ function UserDataGrid({
             />
 
             <TableContainer sx={{ maxHeight: 580, overflowY: "auto", overflowX: "auto" }}>
-                <Table stickyHeader sx={{ minWidth: 800 }}>
+                <Table stickyHeader sx={{ minWidth: 800, tableLayout: "fixed" }}>
                     <DataGridHead
                         order={table.order}
                         orderBy={table.orderBy}
@@ -438,7 +438,7 @@ function UserDataGrid({
                                 viewLink={null}
                             >
                                 {/* User — Avatar + Name + Email + online dot */}
-                                <TableCell sx={{ ...bCell, py: "10px" }}>
+                                <TableCell sx={{ ...bCell, py: "10px", overflow: "hidden" }}>
                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                                         <Box sx={{ position: "relative", flexShrink: 0 }}>
                                             <Avatar src={row.avatar || undefined} alt={row.fullName} sx={{ width: 38, height: 38, fontSize: "0.9rem" }}>

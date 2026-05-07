@@ -1,4 +1,4 @@
-﻿namespace Edunary.Domain.Entities;
+namespace Edunary.Domain.Entities;
 public class Roadmap : BaseAuditableEntity
 {
     public string Title { get; set; }
@@ -14,6 +14,8 @@ public class Roadmap : BaseAuditableEntity
     public string GraphData { get; set; }
 
     public int RoadmapTopicId { get; set; }
+
+    public RoadmapSource Source { get; set; } = RoadmapSource.Manual;
 
     // Navigation Properties
 

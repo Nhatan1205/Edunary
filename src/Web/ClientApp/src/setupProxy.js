@@ -30,12 +30,12 @@ module.exports = function (app) {
     },
   });
   app.use(appProxy);
-  const notificationProxy = createProxyMiddleware("/NotificationHub", {
+  const hubProxy = createProxyMiddleware("/hubs", {
     target,
     secure: false,
     changeOrigin: true,
-    ws: true, //add support for proxying websockets
+    ws: true, // WebSocket support required for SignalR
     onError,
   });
-  app.use(notificationProxy);
+  app.use(hubProxy);
 };

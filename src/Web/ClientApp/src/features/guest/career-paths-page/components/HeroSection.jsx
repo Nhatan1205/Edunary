@@ -1,5 +1,7 @@
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Button } from "@mui/material";
 import { Container, Row, Col } from "reactstrap";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { Link as RouterLink } from "react-router";
 
 function HeroSection() {
     return (
@@ -64,12 +66,37 @@ function HeroSection() {
                                 color: "text.tertiary",
                                 maxWidth: 480,
                                 lineHeight: 1.7,
+                                mb: 3,
                             }}
                         >
                             Shape your tech career with structured paths crafted by leading
                             experts. Learn today's core skills and tomorrow's fundamentals.
                             Earn industry-recognised credentials and see proven career impact.
                         </Typography>
+
+                        <Button
+                            component={RouterLink}
+                            to="/ai/career-path"
+                            variant="outlined"
+                            size="small"
+                            startIcon={<AutoAwesomeIcon sx={{ fontSize: 16 }} />}
+                            sx={{
+                                borderColor: "brand.main",
+                                color: "brand.dark",
+                                fontWeight: 600,
+                                fontSize: 13,
+                                borderRadius: "8px",
+                                textTransform: "none",
+                                px: 2.5,
+                                py: 0.9,
+                                "&:hover": {
+                                    borderColor: "brand.darker",
+                                    bgcolor: "background.muted",
+                                },
+                            }}
+                        >
+                            Generate my own with AI
+                        </Button>
                     </Col>
 
                     {/* Right illustration */}

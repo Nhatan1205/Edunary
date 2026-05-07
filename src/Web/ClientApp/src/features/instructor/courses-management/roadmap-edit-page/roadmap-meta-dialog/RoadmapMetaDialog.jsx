@@ -131,7 +131,7 @@ export default function RoadmapMetadataDialog({
                     px: 3,
                 }}
             >
-                <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
+                <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
                     {isCreate ? "Create New Roadmap" : "Edit Roadmap Info"}
                 </Typography>
                 <IconButton size="small" onClick={handleClose}>

@@ -220,7 +220,7 @@ public class UserEmbeddingJobService : IUserEmbeddingJobService
             if (!isSuccess)
             {
                 _logger.LogError("AI Center batch user embed failed: {Body}", body);
-                await NotifyAdminAsync("UserEmbeddingUpdate", "Failed");
+                //await NotifyAdminAsync("UserEmbeddingUpdate", "Failed");
                 return;
             }
 
@@ -238,12 +238,12 @@ public class UserEmbeddingJobService : IUserEmbeddingJobService
                 _logger.LogInformation("Batch user embedding completed for {Count} profiles.", profiles.Count);
             }
 
-            await NotifyAdminAsync("UserEmbeddingUpdate", "Completed");
+            //await NotifyAdminAsync("UserEmbeddingUpdate", "Completed");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Batch user profile embedding job failed.");
-            await NotifyAdminAsync("UserEmbeddingUpdate", "Failed");
+            //await NotifyAdminAsync("UserEmbeddingUpdate", "Failed");
         }
     }
 
@@ -292,22 +292,22 @@ public class UserEmbeddingJobService : IUserEmbeddingJobService
         };
     }
 
-    private async Task NotifyAdminAsync(string eventName, string state)
-    {
-        try
-        {
-            await _notifyService.SendMessage(
-                sender: "system",
-                message: JsonSerializer.Serialize(new
-                {
-                    state,
-                    timestamp = DateTime.UtcNow
-                }),
-                method: eventName);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Could not send SignalR notification for {Event}.", eventName);
-        }
-    }
+    //private async Task NotifyAdminAsync(string eventName, string state)
+    //{
+    //    try
+    //    {
+    //        await _notifyService.SendMessage(
+    //            sender: "system",
+    //            message: JsonSerializer.Serialize(new
+    //            {
+    //                state,
+    //                timestamp = DateTime.UtcNow
+    //            }),
+    //            method: eventName);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogWarning(ex, "Could not send SignalR notification for {Event}.", eventName);
+    //    }
+    //}
 }

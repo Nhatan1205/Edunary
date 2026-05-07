@@ -1382,6 +1382,9 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Property<int>("RoadmapTopicId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
+
                     b.Property<string>("Subtitle")
                         .HasColumnType("nvarchar(max)");
 

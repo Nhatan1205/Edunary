@@ -68,6 +68,8 @@ import ProfileSetupPage from "./features/user/profile-setup/ProfileSetupPage";
 import KnowledgeBasePage from "./features/admin/knowledge-base/KnowledgeBasePage";
 import QdrantDashboardPage from "./features/admin/qdrant-dashboard/QdrantDashboardPage";
 import CourseEmbeddingPage from "./features/admin/course-embedding/CourseEmbeddingPage";
+import MyCareerPathDetailPage from "./features/user/career-paths/MyCareerPathDetailPage";
+import GenerateCareerPathPage from "./features/user/career-paths/generate-career-path/GenerateCareerPathPage";
 import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage";
 
 const router = createBrowserRouter([
@@ -303,6 +305,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <MyLearning />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/ai/career-path",
+        element: (
+          <ProtectedRoute>
+            <GenerateCareerPathPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/user/career-path/:id",
+        element: (
+          <ProtectedRoute>
+            <MyCareerPathDetailPage />
           </ProtectedRoute>
         ),
       },

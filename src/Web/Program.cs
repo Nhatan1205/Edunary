@@ -64,6 +64,7 @@ app.MapFallbackToFile("index.html");
 
 
 app.MapEndpoints();
+app.MapHub<AppHub>("/hubs/app");
 
 
 

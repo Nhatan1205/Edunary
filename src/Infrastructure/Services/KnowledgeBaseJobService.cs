@@ -110,7 +110,7 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
                 document.Status = KnowledgeDocumentStatus.Failed;
                 document.ErrorMessage = $"AI Center returned failure: {body}";
                 await _context.SaveChangesAsync(default);
-                await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Failed");
+                //await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Failed");
                 return;
             }
 
@@ -139,7 +139,7 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
                 "RAG ingestion completed for document {Id} ({FileName}). Chunks: {ChunkCount}",
                 documentId, document.FileName, chunkCount);
 
-            await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Completed");
+            //await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Completed");
         }
         catch (Exception ex)
         {
@@ -147,7 +147,7 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
             document.Status = KnowledgeDocumentStatus.Failed;
             document.ErrorMessage = ex.Message;
             await _context.SaveChangesAsync(default);
-            await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Failed");
+            //await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Failed");
         }
     }
 
@@ -207,7 +207,7 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
             await _context.SaveChangesAsync(default);
 
             _logger.LogInformation("Knowledge document {Id} ({FileName}) deleted successfully.", documentId, document.FileName);
-            await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Deleted");
+            //await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Deleted");
         }
         catch (Exception ex)
         {
@@ -216,24 +216,24 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
         }
     }
 
-    private async Task NotifyAdminAsync(string eventName, int documentId, string fileName, string state)
-    {
-        try
-        {
-            await _notifyService.SendMessage(
-                sender: "system",
-                message: System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    documentId,
-                    fileName,
-                    state,
-                    timestamp = DateTime.UtcNow
-                }),
-                method: eventName);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Could not send SignalR notification for KnowledgeBaseUpdate.");
-        }
-    }
+    //private async Task NotifyAdminAsync(string eventName, int documentId, string fileName, string state)
+    //{
+    //    try
+    //    {
+    //        await _notifyService.SendMessage(
+    //            sender: "system",
+    //            message: System.Text.Json.JsonSerializer.Serialize(new
+    //            {
+    //                documentId,
+    //                fileName,
+    //                state,
+    //                timestamp = DateTime.UtcNow
+    //            }),
+    //            method: eventName);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogWarning(ex, "Could not send SignalR notification for KnowledgeBaseUpdate.");
+    //    }
+    //}
 }

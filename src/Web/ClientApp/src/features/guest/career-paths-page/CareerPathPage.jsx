@@ -12,7 +12,7 @@ export default function CareerPathPage() {
   const [activeTopicId, setActiveTopicId] = useState(null); // null = All
 
   const { data: topicsData } = useGetRoadmapTopics();
-  const topics = topicsData ?? [];
+  const topics = topicsData?.items ?? [];
 
   const { data: roadmapsData, isLoading, isError } = useGetPublicRoadmaps({
     roadmapTopicId: activeTopicId ?? undefined,

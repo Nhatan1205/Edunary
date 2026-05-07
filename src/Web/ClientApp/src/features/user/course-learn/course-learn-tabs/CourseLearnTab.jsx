@@ -3,6 +3,7 @@ import { Box, Typography, Button } from "@mui/material";
 import RatingTab from "../../../../components/rating-tab/RatingTab";
 import OverviewTab from "./OverviewTab";
 import NotesArea from "./NotesArea";
+import QATab from "./qa-tab/QATab";
 import { useParams } from "react-router-dom";
 
 function CourseLearnTab({ courseId: courseIdProp, contentId, currentItem, currentTime, onSeek, onPauseVideo }) {
@@ -39,6 +40,24 @@ function CourseLearnTab({ courseId: courseIdProp, contentId, currentItem, curren
           }}
         >
           Overview
+        </Button>
+        <Button
+          onClick={() => setActive("qa")}
+          sx={{
+            textTransform: "none",
+            fontWeight: 700,
+            borderRadius: "999px",
+            px: 2.5,
+            py: 0.7,
+            color: active === "qa" ? "text.inverse" : "text.primary",
+            bgcolor: active === "qa" ? "brand.main" : "transparent",
+            boxShadow: active === "qa" ? 2 : "none",
+            "&:hover": {
+              bgcolor: active === "qa" ? "brand.dark" : "action.hover",
+            },
+          }}
+        >
+          Q&amp;A
         </Button>
         <Button
           onClick={() => setActive("reviews")}
@@ -85,6 +104,14 @@ function CourseLearnTab({ courseId: courseIdProp, contentId, currentItem, curren
             <br /> Đây là nơi hiển thị thông tin tổng quan của khóa học.
           </Typography> */}
           <OverviewTab courseId={courseId} />
+        </Box>
+      )}
+      {active === "qa" && (
+        <Box sx={{ p: 4 }}>
+          <QATab
+            courseId={courseId}
+            currentItem={currentItem}
+          />
         </Box>
       )}
 

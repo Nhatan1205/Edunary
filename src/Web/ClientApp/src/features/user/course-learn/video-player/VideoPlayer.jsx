@@ -305,7 +305,6 @@ function VideoPlayer() {
   };
 
   const handleArticleInteraction = async () => {
-    console.log("current item: ", currentItem)
     if (currentItem?.contentType === 'article') {
       try {
         const newCompletedState = !currentItem.isCompleted;

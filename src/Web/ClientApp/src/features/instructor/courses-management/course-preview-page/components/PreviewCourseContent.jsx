@@ -1,9 +1,10 @@
 import React from "react";
 import { Box, Typography, Container } from "@mui/material";
 import PreviewVideoPlayer from "../../../../guest/course-overview/components/PreviewVideoPlayer";
-import PreviewCourseLearnTab from "./PreviewCourseLearnTab"
+import PreviewCourseLearnTab from "./PreviewCourseLearnTab";
+import PreviewQuizPlayer from "./PreviewQuizPlayer";
 
-export default function PreviewCourseContent({ selectedItem }) {
+export default function PreviewCourseContent({ selectedItem, courseId }) {
   if (!selectedItem) {
     return (
       <Box sx={{ p: 4, display: "flex", justifyContent: "center", alignItems: "center", height: "100%", color: "text.secondary" }}>
@@ -14,14 +15,13 @@ export default function PreviewCourseContent({ selectedItem }) {
 
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column", bgcolor: "#1c1d1f" }}>
-      {selectedItem.contentType === 'video' && selectedItem.videoId ? (
+      {(selectedItem.contentType === 'video' || selectedItem.type === 'video') && selectedItem.videoId ? (
         <Box sx={{ width: "100%", bgcolor: "black", display: "flex", justifyContent: "center" }}>
           <PreviewVideoPlayer contentId={selectedItem.videoId} onEnded={() => {}} />
         </Box>
-      ) : selectedItem.contentType === 'quiz' ? (
-        <Box sx={{ p: 4, color: "white", flex: 1 }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>{selectedItem.title} (Quiz)</Typography>
-          <Typography variant="body1">Quiz player will be fully rendered here in Student mode.</Typography>
+      ) : (selectedItem.contentType === 'quiz' || selectedItem.type === 'quiz') ? (
+        <Box sx={{ width: "100%", bgcolor: "#fff", display: "flex", justifyContent: "center", flex: 1, minHeight: 0 }}>
+          <PreviewQuizPlayer courseId={courseId} contentId={selectedItem.itemId} />
         </Box>
       ) : (
         <Box sx={{ 

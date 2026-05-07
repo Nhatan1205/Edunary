@@ -9,25 +9,31 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 import ReplayIcon from "@mui/icons-material/Replay";
-import useGetAttemptResult from "../../../../hooks/quiz-attempt-hooks/useGetAttemptResult";
-import useGetAttemptHistory from "../../../../hooks/quiz-attempt-hooks/useGetAttemptHistory";
 
 // ─── Review choice row ────────────────────────────────────────────────────────
-function ReviewChoiceRow({ choice }) {
-  const { text, isCorrect, wasSelected } = choice;
+function ReviewChoiceRow({ choice, showCorrectAnswers }) {
+  const { text, isCorrect, isSelected } = choice;
   let borderColor = "divider";
   let bgcolor = "background.paper";
   let icon = null;
 
-  if (wasSelected && isCorrect) {
-    borderColor = "success.main"; bgcolor = "rgba(0,167,111,0.07)";
-    icon = <CheckCircleIcon color="success" fontSize="small" />;
-  } else if (wasSelected && !isCorrect) {
-    borderColor = "error.main"; bgcolor = "rgba(255,86,48,0.07)";
-    icon = <CancelIcon color="error" fontSize="small" />;
-  } else if (!wasSelected && isCorrect) {
-    borderColor = "success.light"; bgcolor = "rgba(0,167,111,0.03)";
-    icon = <CheckCircleOutlineIcon color="success" fontSize="small" />;
+  if (showCorrectAnswers) {
+    if (isSelected && isCorrect) {
+      borderColor = "success.main"; bgcolor = "rgba(0,167,111,0.07)";
+      icon = <CheckCircleIcon color="success" fontSize="small" />;
+    } else if (isSelected && !isCorrect) {
+      borderColor = "error.main"; bgcolor = "rgba(255,86,48,0.07)";
+      icon = <CancelIcon color="error" fontSize="small" />;
+    } else if (!isSelected && isCorrect) {
+      borderColor = "success.light"; bgcolor = "rgba(0,167,111,0.03)";
+      icon = <CheckCircleOutlineIcon color="success" fontSize="small" />;
+    }
+  } else {
+    // If showCorrectAnswers is false, only show what user selected
+    if (isSelected) {
+      borderColor = "brand.main"; bgcolor = "rgba(0,167,111,0.07)";
+      icon = <CheckCircleIcon color="brand.main" fontSize="small" />;
+    }
   }
 
   return (
@@ -37,36 +43,20 @@ function ReviewChoiceRow({ choice }) {
       border: "1.5px solid", borderColor, bgcolor,
     }}>
       <Box sx={{ width: 20, flexShrink: 0 }}>{icon}</Box>
-      <Typography variant="body2" fontWeight={wasSelected ? 600 : 400}>{text}</Typography>
+      <Typography variant="body2" fontWeight={isSelected ? 600 : 400}>{text}</Typography>
     </Box>
   );
 }
 
-// ─── QuizResult ───────────────────────────────────────────────────────────────
-function QuizResult({ attemptId, quizId, onRetry, onDone }) {
-  const { data: result, isLoading, isError } = useGetAttemptResult(attemptId);
-  const { data: history } = useGetAttemptHistory(quizId);
+// ─── PreviewQuizResult ───────────────────────────────────────────────────────────────
+export default function PreviewQuizResult({ result, onRetry, onDone }) {
   const [reviewIndex, setReviewIndex] = useState(0);
 
-  if (isLoading) {
-    return (
-      <Box sx={{ height: "500px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  if (!result) return null;
 
-  if (isError || !result) {
-    return (
-      <Box sx={{ height: "500px", display: "flex", alignItems: "center", justifyContent: "center", p: 3 }}>
-        <Alert severity="error">Could not load result. Please try again.</Alert>
-      </Box>
-    );
-  }
-
-  const passed = result.isPassed;
-  const attemptsUsed = history?.length ?? 0;
-  const hasReview = result.showCorrectAnswers && result.questions?.length > 0;
+  const passed = result.passed;
+  const showCorrectAnswers = result.showCorrectAnswers;
+  const hasReview = result.questions?.length > 0;
   const reviewQ = hasReview ? result.questions[reviewIndex] : null;
   const totalReview = result.questions?.length ?? 0;
 
@@ -99,7 +89,7 @@ function QuizResult({ attemptId, quizId, onRetry, onDone }) {
             />
             <CircularProgress
               variant="determinate"
-              value={result.score}
+              value={result.scorePercentage}
               size={96}
               thickness={3}
               sx={{ color: passed ? "success.main" : "error.main" }}
@@ -112,7 +102,7 @@ function QuizResult({ attemptId, quizId, onRetry, onDone }) {
             }}>
               <Typography variant="h5" fontWeight={800} lineHeight={1}
                 color={passed ? "success.dark" : "error.dark"}>
-                {result.score}%
+                {Math.round(result.scorePercentage)}%
               </Typography>
             </Box>
           </Box>
@@ -134,7 +124,7 @@ function QuizResult({ attemptId, quizId, onRetry, onDone }) {
             {/* Stat pills */}
             <Stack direction="row" gap={1} flexWrap="wrap">
               <Chip
-                label={`${result.correctCount}/${result.totalQuestions} correct`}
+                label={`${result.correctAnswers}/${result.totalQuestions} correct`}
                 variant="outlined"
                 size="small"
                 sx={{ fontWeight: 600, borderColor: passed ? "success.main" : "error.main", color: passed ? "success.dark" : "error.dark" }}
@@ -145,14 +135,6 @@ function QuizResult({ attemptId, quizId, onRetry, onDone }) {
                 size="small"
                 sx={{ fontWeight: 600 }}
               />
-              {attemptsUsed > 0 && (
-                <Chip
-                  label={`Attempt #${attemptsUsed}`}
-                  variant="outlined"
-                  size="small"
-                  sx={{ fontWeight: 600 }}
-                />
-              )}
             </Stack>
           </Box>
 
@@ -198,19 +180,21 @@ function QuizResult({ attemptId, quizId, onRetry, onDone }) {
                   <Typography fontWeight={700} fontSize={15} lineHeight={1.6} sx={{ flex: 1, pr: 1 }}>
                     {reviewIndex + 1}. {reviewQ.name}
                   </Typography>
-                  <Chip
-                    label={reviewQ.isCorrect ? "Correct ✓" : "Incorrect ✗"}
-                    color={reviewQ.isCorrect ? "success" : "error"}
-                    size="small"
-                    sx={{ flexShrink: 0 }}
-                  />
+                  {showCorrectAnswers && (
+                    <Chip
+                      label={reviewQ.isCorrect ? "Correct ✓" : "Incorrect ✗"}
+                      color={reviewQ.isCorrect ? "success" : "error"}
+                      size="small"
+                      sx={{ flexShrink: 0 }}
+                    />
+                  )}
                 </Stack>
 
                 {reviewQ.choices.map((c) => (
-                  <ReviewChoiceRow key={c.choiceId} choice={c} />
+                  <ReviewChoiceRow key={c.id} choice={c} showCorrectAnswers={showCorrectAnswers} />
                 ))}
 
-                {reviewQ.explanation && (
+                {reviewQ.explanation && showCorrectAnswers && (
                   <Box sx={{ mt: 2, p: 1.5, bgcolor: "action.hover", borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
                     <Typography variant="caption" color="text.secondary">
                       <strong>Explanation:</strong> {reviewQ.explanation}
@@ -246,7 +230,7 @@ function QuizResult({ attemptId, quizId, onRetry, onDone }) {
                         width: i === reviewIndex ? 20 : 8, height: 8, borderRadius: "999px",
                         bgcolor: i === reviewIndex
                           ? "brand.main"
-                          : (result.questions[i]?.isCorrect ? "rgba(0,167,111,0.4)" : "rgba(255,86,48,0.4)"),
+                          : (!showCorrectAnswers ? "rgba(0,167,111,0.2)" : (result.questions[i]?.isCorrect ? "rgba(0,167,111,0.4)" : "rgba(255,86,48,0.4)")),
                         cursor: "pointer", transition: "all 0.2s",
                       }}
                     />
@@ -254,33 +238,34 @@ function QuizResult({ attemptId, quizId, onRetry, onDone }) {
                 </Stack>
               )}
 
-              <Button
-                variant="contained"
-                endIcon={reviewIndex < totalReview - 1 ? <ArrowForwardIosIcon sx={{ fontSize: "14px !important" }} /> : null}
-                onClick={() => {
-                  if (reviewIndex < totalReview - 1) {
-                    setReviewIndex((i) => i + 1);
-                  } else {
-                    if (onDone) onDone();
-                  }
-                }}
-                sx={{ borderRadius: "999px", px: 2.5, textTransform: "none", minWidth: 110 }}
-              >
-                {reviewIndex === totalReview - 1 ? "Done" : "Next"}
-              </Button>
+              {reviewIndex === totalReview - 1 ? (
+                <Button
+                  variant="contained"
+                  onClick={onDone}
+                  sx={{ borderRadius: "999px", px: 4, textTransform: "none", minWidth: 110 }}
+                >
+                  Done
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  endIcon={<ArrowForwardIosIcon sx={{ fontSize: "14px !important" }} />}
+                  onClick={() => setReviewIndex((i) => Math.min(totalReview - 1, i + 1))}
+                  sx={{ borderRadius: "999px", px: 2.5, textTransform: "none", minWidth: 110 }}
+                >
+                  Next
+                </Button>
+              )}
             </Stack>
           </Box>
         </>
       ) : (
-        /* No review — centered empty state */
         <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Typography color="text.secondary" variant="body2">
-            {passed ? "Great job! Keep it up." : "Review is not available for this quiz."}
+            {!showCorrectAnswers ? "Review is disabled for this quiz." : "No questions to review."}
           </Typography>
         </Box>
       )}
     </Box>
   );
 }
-
-export default QuizResult;

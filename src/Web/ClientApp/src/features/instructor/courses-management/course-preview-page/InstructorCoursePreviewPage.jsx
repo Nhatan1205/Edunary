@@ -72,7 +72,7 @@ export default function InstructorCoursePreviewPage() {
       {/* Body */}
       <Box sx={{ display: "flex", flex: 1, position: "relative" }}>
         <Box sx={{ flex: 1, bgcolor: "#1c1d1f", position: "relative", transition: "all 0.3s ease", display: "flex", flexDirection: "column", minHeight: `calc(100vh - 72px)` }}>
-          <PreviewCourseContent selectedItem={selectedItem} />
+          <PreviewCourseContent selectedItem={selectedItem} courseId={courseId} />
 
           {!isSidebarOpen && (
             <Box sx={{ position: "absolute", top: "20px", right: "0", zIndex: 10 }}>

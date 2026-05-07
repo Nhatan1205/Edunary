@@ -154,7 +154,14 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
   };
 
   return (
-    <Box sx={{ pt: 2, pb: 1 }}>
+    <Box sx={{
+      pt: 2, pb: 1,
+      "& .MuiOutlinedInput-root": {
+        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
+        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
+      },
+      "& .MuiInputLabel-root.Mui-focused": { color: "brand.main" }
+    }}>
       {/* Settings */}
       <Typography variant="subtitle2" fontWeight={700} mb={1.5} color="text.secondary">
         Quiz Settings

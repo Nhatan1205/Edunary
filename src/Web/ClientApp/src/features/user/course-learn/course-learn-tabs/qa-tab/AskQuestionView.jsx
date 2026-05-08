@@ -1,42 +1,44 @@
-import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import {
   Box,
   Typography,
-  Avatar,
-  Stack,
-  IconButton,
   Button,
   TextField,
-  Divider,
-  Chip,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import CloseIcon from "@mui/icons-material/Close";
 import TextEditor from "../../../../../components/TextEditor";
-import { CURRENT_USER } from "./mockQAData";
+import useCreateCourseQuestion from "../../../../../hooks/course-qa-hooks/useCreateCourseQuestion";
 
 const TITLE_MAX = 300;
 
-// Minimal WYSIWYG buttons matching the Udemy-like image
 const DETAIL_BUTTONS = [
   "bold", "italic", "|",
   "link", "image", "|",
   "source",
 ];
 
-export default function AskQuestionView({ onSubmit, onBack, currentLectureName }) {
-  const [title, setTitle] = useState("");
-  const [detail, setDetail] = useState("");
+function stripHtml(html) {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
+}
 
-  const canSubmit = title.trim().length > 0;
+export default function AskQuestionView({ courseId, itemId, onBack, onSuccess, currentLectureName }) {
+  const { control, register, handleSubmit, watch, formState: { errors } } = useForm({
+    defaultValues: { title: "", detail: "" },
+  });
 
-  function handleSubmit() {
-    if (!canSubmit) return;
-    onSubmit({ title: title.trim(), detail });
+  const titleValue = watch("title", "");
+  const createQuestion = useCreateCourseQuestion();
+
+  function onSubmit({ title, detail }) {
+    createQuestion.mutate(
+      { courseId, itemId, title: title.trim(), detail: detail || null },
+      { onSuccess: () => onSuccess?.() }
+    );
   }
 
   return (
-    <Box>
+    <Box component="form" onSubmit={handleSubmit(onSubmit)}>
       {/* Back button */}
       <Box sx={{ mb: 3 }}>
         <Button
@@ -44,6 +46,7 @@ export default function AskQuestionView({ onSubmit, onBack, currentLectureName }
           size="small"
           startIcon={<ArrowBackIcon />}
           onClick={onBack}
+          type="button"
           sx={{
             textTransform: "none",
             borderColor: "brand.main",
@@ -80,9 +83,10 @@ export default function AskQuestionView({ onSubmit, onBack, currentLectureName }
             fullWidth
             size="small"
             placeholder="e.g. Why do we use fit_transform() for training_set?"
-            value={title}
-            onChange={(e) => setTitle(e.target.value.slice(0, TITLE_MAX))}
             inputProps={{ maxLength: TITLE_MAX }}
+            error={!!errors.title}
+            helperText={errors.title?.message}
+            {...register("title", { required: "Title is required", maxLength: TITLE_MAX })}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: 1.5,
@@ -95,10 +99,10 @@ export default function AskQuestionView({ onSubmit, onBack, currentLectureName }
                 <Typography
                   component="span"
                   variant="caption"
-                  color={title.length > TITLE_MAX * 0.9 ? "warning.main" : "text.disabled"}
+                  color={titleValue.length > TITLE_MAX * 0.9 ? "warning.main" : "text.disabled"}
                   sx={{ whiteSpace: "nowrap", pr: 0.5, fontSize: "0.78rem" }}
                 >
-                  {TITLE_MAX - title.length}
+                  {TITLE_MAX - titleValue.length}
                 </Typography>
               ),
             }}
@@ -123,22 +127,28 @@ export default function AskQuestionView({ onSubmit, onBack, currentLectureName }
               transition: "border-color 0.15s",
             }}
           >
-            <TextEditor
-              value={detail}
-              onChange={(val) => setDetail(val)}
-              buttons={DETAIL_BUTTONS}
+            <Controller
+              name="detail"
+              control={control}
+              render={({ field }) => (
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  buttons={DETAIL_BUTTONS}
+                />
+              )}
             />
           </Box>
         </Box>
 
-        {/* ── Publish button (full width, brand-colored) ── */}
+        {/* ── Publish button ── */}
         <Button
           fullWidth
+          type="submit"
           variant="contained"
-          onClick={handleSubmit}
-          disabled={!canSubmit}
+          disabled={createQuestion.isPending}
           sx={{
-            bgcolor: canSubmit ? "brand.main" : "brand.light",
+            bgcolor: "brand.main",
             color: "white",
             "&:hover": { bgcolor: "brand.dark" },
             "&:disabled": { bgcolor: "brand.light", color: "white", cursor: "not-allowed", pointerEvents: "auto" },
@@ -151,7 +161,7 @@ export default function AskQuestionView({ onSubmit, onBack, currentLectureName }
             transition: "all 0.2s",
           }}
         >
-          Publish
+          {createQuestion.isPending ? "Publishing..." : "Publish"}
         </Button>
       </Box>
     </Box>

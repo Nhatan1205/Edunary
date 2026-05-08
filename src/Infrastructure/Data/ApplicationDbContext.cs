@@ -63,6 +63,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<QuizAttemptAnswer> QuizAttemptAnswers => Set<QuizAttemptAnswer>();
     public DbSet<QuizAttemptAnswerChoice> QuizAttemptAnswerChoices => Set<QuizAttemptAnswerChoice>();
 
+    public DbSet<CourseQuestion> CourseQuestions => Set<CourseQuestion>();
+    public DbSet<CourseAnswer> CourseAnswers => Set<CourseAnswer>();
+    public DbSet<QuestionUpvote> QuestionUpvotes => Set<QuestionUpvote>();
+    public DbSet<AnswerUpvote> AnswerUpvotes => Set<AnswerUpvote>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

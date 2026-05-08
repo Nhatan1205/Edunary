@@ -1,4 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { useNavigate } from "react-router";
 import {
   Box,
   Typography,
@@ -6,11 +8,11 @@ import {
   Stack,
   IconButton,
   Button,
-  TextField,
   Chip,
   Divider,
   Menu,
   MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
@@ -20,25 +22,16 @@ import StarIcon from "@mui/icons-material/Star";
 import SchoolIcon from "@mui/icons-material/School";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import SendIcon from "@mui/icons-material/Send";
-import { STUDENT_MOCK_ANSWERS, CURRENT_USER } from "./mockQAData";
+import { formatTimeAgo, stripHtml } from "../../../../../utils/helpers";
+import TextEditor from "../../../../../components/TextEditor";
+import useGetCourseAnswers from "../../../../../hooks/course-qa-hooks/useGetCourseAnswers";
+import useCreateCourseAnswer from "../../../../../hooks/course-qa-hooks/useCreateCourseAnswer";
+import CustomPagination from "../../../../../components/pagination/CustomPagination";
 
-function formatRelativeTime(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 2) return "just now";
-  if (mins < 60) return `${mins} minutes ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hours ago`;
-  return `${Math.floor(hrs / 24)} days ago`;
-}
-
-function stripHtml(html) {
-  if (!html) return "";
-  return html.replace(/<[^>]*>/g, "").trim();
-}
 
 // Single answer row
 function AnswerRow({ answer }) {
+  const navigate = useNavigate();
   const [upvoted, setUpvoted] = useState(false);
   const [upvoteCount, setUpvoteCount] = useState(answer.upvoteCount);
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -64,7 +57,8 @@ function AnswerRow({ answer }) {
               <Typography
                 variant="body2"
                 component="span"
-                sx={{ fontWeight: 700, color: answer.isInstructor ? "brand.dark" : "text.primary", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+                onClick={() => navigate(`/profile/${answer.createdBy}`)}
+                sx={{ fontWeight: 700, color: answer.isInstructor ? "brand.dark" : "text.primary", cursor: "pointer", textDecoration: "underline" }}
               >
                 {answer.authorName}
               </Typography>
@@ -114,7 +108,7 @@ function AnswerRow({ answer }) {
           </Stack>
 
           <Typography variant="caption" color="text.disabled" sx={{ display: "block", mb: 1 }}>
-            {formatRelativeTime(answer.createdAt)}
+            {formatTimeAgo(answer.created)}
           </Typography>
 
           {/* Answer body (HTML) */}
@@ -137,32 +131,37 @@ function AnswerRow({ answer }) {
   );
 }
 
-// Answer thread view (image 2)
-export function QuestionDetailView({ question, onBack }) {
-  const [replyText, setReplyText] = useState("");
-  const [localAnswers, setLocalAnswers] = useState(null);
+export function QuestionDetailView({ question, lectureName, onBack }) {
+  const navigate = useNavigate();
+  const [answersPage, setAnswersPage] = useState(1);
+  const PAGE_SIZE = 10;
 
-  const baseAnswers = STUDENT_MOCK_ANSWERS[question.id] || [];
-  const answers = localAnswers ?? baseAnswers;
+  const { data: answersData, isLoading: answersLoading } = useGetCourseAnswers(question?.id, answersPage, PAGE_SIZE);
+  const answers = answersData?.items ?? [];
+  const totalPages = answersData?.totalPages ?? 1;
+  const totalCount = answersData?.totalCount ?? 0;
+  const createAnswer = useCreateCourseAnswer();
 
-  const topAnswers = answers.filter((a) => a.isTopAnswer).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  const otherAnswers = answers.filter((a) => !a.isTopAnswer).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  // top answers first (already sorted by backend), then others
+  const topAnswers = answers.filter((a) => a.isTopAnswer);
+  const otherAnswers = answers.filter((a) => !a.isTopAnswer);
 
-  function handlePost() {
-    if (!replyText.trim()) return;
-    const newAnswer = {
-      id: Date.now(),
-      questionId: question.id,
-      body: `<p>${replyText.trim()}</p>`,
-      isTopAnswer: false,
-      upvoteCount: 0,
-      authorName: CURRENT_USER.name,
-      authorAvatar: CURRENT_USER.avatar,
-      isInstructor: false,
-      createdAt: new Date().toISOString(),
-    };
-    setLocalAnswers([...(localAnswers ?? baseAnswers), newAnswer]);
-    setReplyText("");
+  const { control, handleSubmit, reset, watch } = useForm({
+    defaultValues: { body: "" },
+  });
+  const bodyValue = watch("body");
+  const canPost = stripHtml(bodyValue).trim().length > 0 && !createAnswer.isPending;
+
+  function onSubmitReply({ body }) {
+    createAnswer.mutate(
+      { questionId: question.id, body },
+      {
+        onSuccess: () => {
+          reset({ body: "" });
+          setAnswersPage(1);
+        }
+      }
+    );
   }
 
   return (
@@ -211,28 +210,37 @@ export function QuestionDetailView({ question, onBack }) {
             <Stack direction="row" alignItems="center" spacing={0.6} flexWrap="wrap">
               <Typography
                 variant="caption"
-                sx={{ color: "brand.dark", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+                onClick={() => window.open(`/profile/${question.createdBy}`, "_blank")}
+                sx={{ color: "brand.dark", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
               >
                 {question.authorName}
               </Typography>
-              {question.lectureName && (
+              {lectureName && (
                 <>
                   <Typography variant="caption" color="text.disabled">·</Typography>
-                  <Typography variant="caption" sx={{ color: "brand.dark", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}>
-                    {question.lectureName}
+                  <Typography variant="caption" sx={{ color: "brand.dark" }}>
+                    {lectureName}
                   </Typography>
                 </>
               )}
               <Typography variant="caption" color="text.disabled">·</Typography>
-              <Typography variant="caption" color="text.disabled">{formatRelativeTime(question.createdAt)}</Typography>
+              <Typography variant="caption" color="text.disabled">{formatTimeAgo(question.created)}</Typography>
             </Stack>
+            {/* Full question detail as WYSIWYG HTML */}
             {question.detail && (
-              <Typography
-                variant="body2"
-                sx={{ mt: 1, color: "brand.dark", cursor: "pointer", "&:hover": { textDecoration: "underline" }, fontSize: "0.875rem" }}
-              >
-                {stripHtml(question.detail).slice(0, 80)}{stripHtml(question.detail).length > 80 ? "..." : ""}
-              </Typography>
+              <Box
+                sx={{
+                  mt: 1.5,
+                  fontSize: "0.9rem",
+                  color: "text.primary",
+                  lineHeight: 1.8,
+                  "& img": { maxWidth: "100%", borderRadius: 1, mt: 1 },
+                  "& pre": { bgcolor: "grey.100", p: 1.5, borderRadius: 1, fontSize: "0.8rem", overflowX: "auto" },
+                  "& code": { bgcolor: "grey.100", px: 0.5, borderRadius: 0.5, fontSize: "0.82rem" },
+                  "& p": { mt: 0.5, mb: 0 },
+                }}
+                dangerouslySetInnerHTML={{ __html: question.detail }}
+              />
             )}
           </Box>
         </Stack>
@@ -249,64 +257,90 @@ export function QuestionDetailView({ question, onBack }) {
         </Stack>
       </Box>
 
-      {/* Replies count + following label */}
+      {/* Replies count */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Typography variant="body2" fontWeight={700} color="text.primary">
-          {answers.length} {answers.length === 1 ? "reply" : "replies"}
+          {answersLoading ? "Loading..." : `${totalCount} ${totalCount === 1 ? "reply" : "replies"}`}
         </Typography>
       </Stack>
 
-      {/* Top Answers first */}
-      {topAnswers.map((a) => <AnswerRow key={a.id} answer={a} />)}
-      {topAnswers.length > 0 && otherAnswers.length > 0 && <Divider sx={{ my: 1 }} />}
-      {otherAnswers.map((a) => <AnswerRow key={a.id} answer={a} />)}
+      {/* Answers loading */}
+      {answersLoading && (
+        <Box sx={{ py: 4, textAlign: "center" }}>
+          <CircularProgress size={28} sx={{ color: "brand.main" }} />
+        </Box>
+      )}
 
-      {answers.length === 0 && (
+      {/* Top Answers first */}
+      {!answersLoading && topAnswers.map((a) => <AnswerRow key={a.id} answer={a} />)}
+      {!answersLoading && topAnswers.length > 0 && otherAnswers.length > 0 && <Divider sx={{ my: 1 }} />}
+      {!answersLoading && otherAnswers.map((a) => <AnswerRow key={a.id} answer={a} />)}
+
+      {!answersLoading && answers.length === 0 && (
         <Box sx={{ py: 4, textAlign: "center" }}>
           <Typography variant="body2" color="text.secondary">No answers yet. Be the first to reply!</Typography>
         </Box>
       )}
 
-      {/* Reply input */}
-      <Box sx={{ mt: 3, pt: 2.5, borderTop: "1px solid", borderColor: "divider" }}>
-        <Stack direction="row" spacing={1.5} alignItems="flex-end">
-          <Avatar src={CURRENT_USER.avatar} sx={{ width: 34, height: 34, flexShrink: 0, mb: 0.3 }} />
-          <TextField
-            fullWidth
-            multiline
-            minRows={2}
-            maxRows={6}
-            placeholder="Post a public answer..."
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handlePost(); } }}
-            size="small"
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-                fontSize: "0.875rem",
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
-              },
-            }}
+      {/* Answers pagination */}
+      {!answersLoading && totalPages > 1 && (
+        <CustomPagination
+          count={totalPages}
+          page={answersPage}
+          onChange={(_, value) => setAnswersPage(value)}
+        />
+      )}
+
+      {/* Reply form using TextEditor + RHF */}
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmitReply)}
+        sx={{ mt: 3, pt: 2.5, borderTop: "1px solid", borderColor: "divider" }}
+      >
+        <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
+          Post a public answer
+        </Typography>
+        <Box
+          sx={{
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 1.5,
+            overflow: "hidden",
+            mb: 1.5,
+            "&:focus-within": { borderColor: "brand.main" },
+            transition: "border-color 0.15s",
+          }}
+        >
+          <Controller
+            name="body"
+            control={control}
+            render={({ field }) => (
+              <TextEditor
+                value={field.value}
+                onChange={field.onChange}
+                buttons={["bold", "italic", "|", "link", "image", "|", "source"]}
+              />
+            )}
           />
-          <Button
-            variant="contained"
-            onClick={handlePost}
-            disabled={!replyText.trim()}
-            sx={{
-              flexShrink: 0,
-              bgcolor: "brand.main",
-              "&:hover": { bgcolor: "brand.dark" },
-              "&:disabled": { bgcolor: "grey.300" },
-              borderRadius: 2,
-              px: 2,
-              py: 1,
-              minWidth: "auto",
-            }}
-          >
-            <SendIcon sx={{ fontSize: 18 }} />
-          </Button>
-        </Stack>
+        </Box>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={!canPost}
+          endIcon={<SendIcon sx={{ fontSize: 16 }} />}
+          sx={{
+            bgcolor: "brand.main",
+            "&:hover": { bgcolor: "brand.dark" },
+            "&:disabled": { bgcolor: "brand.light", color: "white", cursor: "not-allowed", pointerEvents: "auto" },
+            textTransform: "none",
+            fontWeight: 700,
+            borderRadius: 2,
+            px: 3,
+            py: 1,
+          }}
+        >
+          {createAnswer.isPending ? "Posting..." : "Post Answer"}
+        </Button>
       </Box>
     </Box>
   );

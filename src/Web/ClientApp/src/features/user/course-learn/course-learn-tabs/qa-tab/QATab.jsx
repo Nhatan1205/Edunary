@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router";
 import {
   Box,
   Typography,
@@ -12,6 +13,7 @@ import {
   MenuItem,
   FormControl,
   Chip,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
@@ -21,34 +23,16 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import { STUDENT_MOCK_QUESTIONS, CURRENT_USER } from "./mockQAData";
+import { formatTimeAgo, stripHtml, buildItemLabelMap } from "../../../../../utils/helpers";
+import useGetCourseQuestions from "../../../../../hooks/course-qa-hooks/useGetCourseQuestions";
+import useGetLearningSidebar from "../../../../../hooks/course-progress-hooks/useGetLearningSidebar";
+import CustomPagination from "../../../../../components/pagination/CustomPagination";
 import { QuestionDetailView } from "./QuestionDetailView";
 import AskQuestionView from "./AskQuestionView";
 
-function formatRelativeTime(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 2) return "just now";
-  if (mins < 60) return `${mins} minutes ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hours ago`;
-  return `${Math.floor(hrs / 24)} days ago`;
-}
 
-function stripHtml(html) {
-  if (!html) return "";
-  return html.replace(/<[^>]*>/g, "").trim();
-}
-
-function getRecommendedScore(q) {
-  const diff = Date.now() - new Date(q.createdAt).getTime();
-  const hrs = diff / 3600000;
-  const recency = hrs < 24 ? 5 : hrs < 168 ? 3 : hrs < 720 ? 1 : 0;
-  return q.upvoteCount * 2 + q.answerCount * 1.5 + recency;
-}
-
-// ── Question card row ──────────────────────────────────────────────────────
-function QuestionCard({ question, onSelect, currentItemId }) {
+function QuestionCard({ question, lectureName, onSelect }) {
+  const navigate = useNavigate();
   const [upvoted, setUpvoted] = useState(false);
   const [upvoteCount, setUpvoteCount] = useState(question.upvoteCount);
 
@@ -65,7 +49,6 @@ function QuestionCard({ question, onSelect, currentItemId }) {
 
   return (
     <Box
-      onClick={() => onSelect(question)}
       sx={{
         display: "flex",
         alignItems: "flex-start",
@@ -74,7 +57,6 @@ function QuestionCard({ question, onSelect, currentItemId }) {
         px: 2,
         mx: -2,
         borderRadius: 2,
-        cursor: "pointer",
         borderBottom: "1px solid",
         borderColor: "divider",
         transition: "background 0.15s",
@@ -123,25 +105,27 @@ function QuestionCard({ question, onSelect, currentItemId }) {
           <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.8 }} flexWrap="wrap">
             <Typography
               variant="caption"
-              sx={{ color: "brand.dark", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
-              onClick={(e) => e.stopPropagation()}
+              sx={{ color: "brand.dark", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(`/profile/${question.createdBy}`, "_blank");
+              }}
             >
               {question.authorName}
             </Typography>
-            {question.lectureName && (
+            {lectureName && (
               <>
                 <Typography variant="caption" color="text.disabled">·</Typography>
                 <Typography
                   variant="caption"
-                  sx={{ color: "brand.dark", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
-                  onClick={(e) => e.stopPropagation()}
+                  sx={{ color: "brand.dark" }}
                 >
-                  {question.lectureName}
+                  {lectureName}
                 </Typography>
               </>
             )}
             <Typography variant="caption" color="text.disabled">·</Typography>
-            <Typography variant="caption" color="text.disabled">{formatRelativeTime(question.createdAt)}</Typography>
+            <Typography variant="caption" color="text.disabled">{formatTimeAgo(question.created)}</Typography>
           </Stack>
         </Box>
       </Stack>
@@ -185,68 +169,69 @@ function QuestionCard({ question, onSelect, currentItemId }) {
   );
 }
 
-// ── Main QA Tab ─────────────────────────────────────────────────────────────
 export default function QATab({ courseId, currentItem }) {
   const currentItemId = currentItem?.itemId ?? null;
   const currentLectureName = currentItem?.title ?? null;
+
+  // ── Sidebar data for lecture label lookup ──
+  const { data: sidebarData } = useGetLearningSidebar(Number(courseId));
+  const itemLabelMap = useMemo(() => buildItemLabelMap(sidebarData), [sidebarData]);
 
   // "list" | "detail" | "ask"
   const [view, setView] = useState("list");
   const [selectedQuestion, setSelectedQuestion] = useState(null);
 
   const [searchText, setSearchText] = useState("");
+  const [committedSearch, setCommittedSearch] = useState("");
   const [lectureFilter, setLectureFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recommended");
   const [filterBy, setFilterBy] = useState("all");
-  const [localQuestions, setLocalQuestions] = useState(STUDENT_MOCK_QUESTIONS);
+  const [questionsPage, setQuestionsPage] = useState(1);
+  const PAGE_SIZE = 15;
 
-  const { featured, all } = useMemo(() => {
-    let list = localQuestions.filter((q) => {
-      if (lectureFilter === "current" && q.itemId !== currentItemId) return false;
-      if (filterBy === "myQuestions" && q.authorName !== CURRENT_USER.name) return false;
-      if (filterBy === "noResponses" && q.answerCount > 0) return false;
-      if (
-        searchText &&
-        !q.title.toLowerCase().includes(searchText.toLowerCase()) &&
-        !stripHtml(q.detail).toLowerCase().includes(searchText.toLowerCase())
-      ) return false;
-      return true;
-    });
+  // ── Fetch questions from API (server-side filter + sort + paginate) ──
+  const { data: questionsData, isLoading, isError } = useGetCourseQuestions({
+    courseId: Number(courseId),
+    itemId: lectureFilter === "current" ? currentItemId : undefined,
+    sortBy,
+    filterBy,
+    searchText: committedSearch || undefined,
+    pageNumber: questionsPage,
+    pageSize: PAGE_SIZE,
+  });
 
-    list = [...list].sort((a, b) => {
-      if (sortBy === "mostRecent") return new Date(b.createdAt) - new Date(a.createdAt);
-      if (sortBy === "mostUpvoted") return b.upvoteCount - a.upvoteCount;
-      return getRecommendedScore(b) - getRecommendedScore(a);
-    });
+  const allQuestions = questionsData?.items ?? [];
+  const totalPages = questionsData?.totalPages ?? 1;
 
-    return {
-      featured: list.filter((q) => q.isFeatured),
-      all: list.filter((q) => !q.isFeatured),
-    };
-  }, [localQuestions, lectureFilter, filterBy, sortBy, searchText, currentItemId]);
+  const featured = allQuestions.filter((q) => q.isFeatured);
+  const all = allQuestions.filter((q) => !q.isFeatured);
 
   function handleSelectQuestion(q) {
     setSelectedQuestion(q);
     setView("detail");
   }
 
-  function handleSubmitQuestion({ title, detail }) {
-    const newQ = {
-      id: Date.now(),
-      courseId: Number(courseId),
-      itemId: currentItemId,
-      lectureName: currentLectureName,
-      title,
-      detail: detail || null,
-      authorName: CURRENT_USER.name,
-      authorAvatar: CURRENT_USER.avatar,
-      answerCount: 0,
-      upvoteCount: 0,
-      isFeatured: false,
-      isRead: true,
-      createdAt: new Date().toISOString(),
-    };
-    setLocalQuestions((prev) => [newQ, ...prev]);
+  function handleFilterChange(setter) {
+    return (value) => { setter(value); setQuestionsPage(1); };
+  }
+
+  function handleSearch() {
+    setCommittedSearch(searchText);
+    setQuestionsPage(1);
+  }
+
+  function handleSearchKeyDown(e) {
+    if (e.key === "Enter") handleSearch();
+  }
+
+  function handleClearSearch() {
+    setSearchText("");
+    setCommittedSearch("");
+    setQuestionsPage(1);
+  }
+
+  function handleQuestionPosted() {
+    setQuestionsPage(1);
     setView("list");
   }
 
@@ -254,8 +239,10 @@ export default function QATab({ courseId, currentItem }) {
   if (view === "ask") {
     return (
       <AskQuestionView
-        onSubmit={handleSubmitQuestion}
+        courseId={Number(courseId)}
+        itemId={currentItemId}
         onBack={() => setView("list")}
+        onSuccess={handleQuestionPosted}
         currentLectureName={currentLectureName}
       />
     );
@@ -266,12 +253,29 @@ export default function QATab({ courseId, currentItem }) {
     return (
       <QuestionDetailView
         question={selectedQuestion}
+        lectureName={itemLabelMap[selectedQuestion.itemId] ?? null}
         onBack={() => { setView("list"); setSelectedQuestion(null); }}
       />
     );
   }
 
   // ── List view ──
+  if (isLoading) {
+    return (
+      <Box sx={{ py: 8, textAlign: "center" }}>
+        <CircularProgress size={32} sx={{ color: "brand.main" }} />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Box sx={{ py: 6, textAlign: "center" }}>
+        <Typography variant="body2" color="error">Failed to load questions. Please try again.</Typography>
+      </Box>
+    );
+  }
+
   const totalCount = featured.length + all.length;
 
   return (
@@ -284,10 +288,11 @@ export default function QATab({ courseId, currentItem }) {
           placeholder="Search all course questions"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
           InputProps={{
             endAdornment: searchText ? (
               <InputAdornment position="end">
-                <IconButton size="small" onClick={() => setSearchText("")} sx={{ color: "grey.400" }}>
+                <IconButton size="small" onClick={handleClearSearch} sx={{ color: "grey.400" }}>
                   <CloseIcon sx={{ fontSize: 16 }} />
                 </IconButton>
               </InputAdornment>
@@ -303,7 +308,7 @@ export default function QATab({ courseId, currentItem }) {
         />
         {/* Search icon button */}
         <IconButton
-          onClick={() => { }}
+          onClick={handleSearch}
           sx={{
             bgcolor: "brand.main",
             color: "white",
@@ -325,7 +330,7 @@ export default function QATab({ courseId, currentItem }) {
           <FormControl size="small">
             <Select
               value={lectureFilter}
-              onChange={(e) => setLectureFilter(e.target.value)}
+              onChange={(e) => handleFilterChange(setLectureFilter)(e.target.value)}
               sx={{
                 fontSize: "0.82rem", borderRadius: 1.5, minWidth: 200,
                 "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
@@ -334,7 +339,7 @@ export default function QATab({ courseId, currentItem }) {
             >
               <MenuItem value="all" sx={{ fontSize: "0.82rem" }}>All lectures</MenuItem>
               <MenuItem value="current" sx={{ fontSize: "0.82rem" }}>
-                Current lecture{currentLectureName ? ` (${currentLectureName})` : ""}
+                Current lecture
               </MenuItem>
             </Select>
           </FormControl>
@@ -345,7 +350,7 @@ export default function QATab({ courseId, currentItem }) {
           <FormControl size="small">
             <Select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={(e) => handleFilterChange(setSortBy)(e.target.value)}
               sx={{
                 fontSize: "0.82rem", borderRadius: 1.5, minWidth: 180,
                 "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
@@ -365,7 +370,7 @@ export default function QATab({ courseId, currentItem }) {
           <FormControl size="small">
             <Select
               value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
+              onChange={(e) => handleFilterChange(setFilterBy)(e.target.value)}
               displayEmpty
               sx={{
                 fontSize: "0.82rem",
@@ -397,7 +402,12 @@ export default function QATab({ courseId, currentItem }) {
             <Typography variant="body2" color="text.disabled">({featured.length})</Typography>
           </Stack>
           {featured.map((q) => (
-            <QuestionCard key={q.id} question={q} onSelect={handleSelectQuestion} currentItemId={currentItemId} />
+            <QuestionCard
+              key={q.id}
+              question={q}
+              lectureName={itemLabelMap[q.itemId] ?? null}
+              onSelect={handleSelectQuestion}
+            />
           ))}
         </Box>
       )}
@@ -423,7 +433,12 @@ export default function QATab({ courseId, currentItem }) {
             </Box>
           ) : (
             all.map((q) => (
-              <QuestionCard key={q.id} question={q} onSelect={handleSelectQuestion} currentItemId={currentItemId} />
+              <QuestionCard
+                key={q.id}
+                question={q}
+                lectureName={itemLabelMap[q.itemId] ?? null}
+                onSelect={handleSelectQuestion}
+              />
             ))
           )}
         </Box>
@@ -440,8 +455,17 @@ export default function QATab({ courseId, currentItem }) {
         </Box>
       )}
 
+      {/* Questions pagination */}
+      {totalPages > 1 && (
+        <CustomPagination
+          count={totalPages}
+          page={questionsPage}
+          onChange={(_, value) => setQuestionsPage(value)}
+        />
+      )}
+
       {/* Ask a new question — pinned at bottom */}
-      <Box sx={{ mt: 4, pt: 2, borderTop: "1px solid", borderColor: "divider" }}>
+      <Box sx={{ mt: 4, pt: 2 }}>
         <Button
           fullWidth
           variant="outlined"

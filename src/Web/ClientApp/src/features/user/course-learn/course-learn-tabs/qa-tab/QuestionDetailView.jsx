@@ -26,15 +26,37 @@ import { formatTimeAgo, stripHtml } from "../../../../../utils/helpers";
 import TextEditor from "../../../../../components/TextEditor";
 import useGetCourseAnswers from "../../../../../hooks/course-qa-hooks/useGetCourseAnswers";
 import useCreateCourseAnswer from "../../../../../hooks/course-qa-hooks/useCreateCourseAnswer";
+import useToggleQuestionUpvote from "../../../../../hooks/course-qa-hooks/useToggleQuestionUpvote";
+import useToggleAnswerUpvote from "../../../../../hooks/course-qa-hooks/useToggleAnswerUpvote";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
 
 
 // Single answer row
 function AnswerRow({ answer }) {
   const navigate = useNavigate();
-  const [upvoted, setUpvoted] = useState(false);
+  const toggleUpvote = useToggleAnswerUpvote();
+
+  const [upvoted, setUpvoted] = useState(answer.hasUpvoted ?? false);
   const [upvoteCount, setUpvoteCount] = useState(answer.upvoteCount);
   const [menuAnchor, setMenuAnchor] = useState(null);
+
+  function handleUpvote() {
+    const wasUpvoted = upvoted;
+    setUpvoted(!wasUpvoted);
+    setUpvoteCount((p) => wasUpvoted ? p - 1 : p + 1);
+    toggleUpvote.mutate(answer.id, {
+      onSuccess: (data) => {
+        if (data?.result) {
+          setUpvoteCount(data.result.upvoteCount);
+          setUpvoted(data.result.hasUpvoted);
+        }
+      },
+      onError: () => {
+        setUpvoted(wasUpvoted);
+        setUpvoteCount((p) => wasUpvoted ? p + 1 : p - 1);
+      },
+    });
+  }
 
   return (
     <Box
@@ -89,11 +111,8 @@ function AnswerRow({ answer }) {
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.85rem", fontWeight: 600 }}>{upvoteCount}</Typography>
               <IconButton
                 size="small"
-                onClick={() => { setUpvoted((p) => !p); setUpvoteCount((p) => upvoted ? p - 1 : p + 1); }}
-                sx={{
-                  p: 0.5,
-                  color: "grey.500",
-                }}
+                onClick={handleUpvote}
+                sx={{ p: 0.5, color: "grey.500" }}
               >
                 {upvoted ? <ArrowCircleUpTwoToneIcon sx={{ fontSize: 20 }} /> : <ArrowCircleUpIcon sx={{ fontSize: 20 }} />}
               </IconButton>
@@ -133,6 +152,11 @@ function AnswerRow({ answer }) {
 
 export function QuestionDetailView({ question, lectureName, onBack }) {
   const navigate = useNavigate();
+  const toggleQuestionUpvote = useToggleQuestionUpvote();
+
+  const [qUpvoted, setQUpvoted] = useState(question.hasUpvoted ?? false);
+  const [qUpvoteCount, setQUpvoteCount] = useState(question.upvoteCount);
+
   const [answersPage, setAnswersPage] = useState(1);
   const PAGE_SIZE = 10;
 
@@ -247,9 +271,29 @@ export function QuestionDetailView({ question, lectureName, onBack }) {
 
         {/* Upvote on question */}
         <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flexShrink: 0, ml: 2 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.85rem", fontWeight: 600 }}>{question.upvoteCount}</Typography>
-          <IconButton size="small" sx={{ p: 0.5, color: "grey.500", "&:hover": { color: "brand.main" } }}>
-            <ArrowCircleUpIcon sx={{ fontSize: 22 }} />
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.85rem", fontWeight: 600 }}>{qUpvoteCount}</Typography>
+          <IconButton
+            size="small"
+            onClick={() => {
+              const wasUpvoted = qUpvoted;
+              setQUpvoted(!wasUpvoted);
+              setQUpvoteCount((p) => wasUpvoted ? p - 1 : p + 1);
+              toggleQuestionUpvote.mutate(question.id, {
+                onSuccess: (data) => {
+                  if (data?.result) {
+                    setQUpvoteCount(data.result.upvoteCount);
+                    setQUpvoted(data.result.hasUpvoted);
+                  }
+                },
+                onError: () => {
+                  setQUpvoted(wasUpvoted);
+                  setQUpvoteCount((p) => wasUpvoted ? p + 1 : p - 1);
+                },
+              });
+            }}
+            sx={{ p: 0.5, color: "grey.500" }}
+          >
+            {qUpvoted ? <ArrowCircleUpTwoToneIcon sx={{ fontSize: 22 }} /> : <ArrowCircleUpIcon sx={{ fontSize: 22 }} />}
           </IconButton>
           <IconButton size="small" sx={{ p: 0.5, color: "grey.500", "&:hover": { color: "grey.800" } }}>
             <MoreVertIcon sx={{ fontSize: 20 }} />

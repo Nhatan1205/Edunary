@@ -65,4 +65,9 @@ public class CourseQuestion : BaseAuditableEntity
     {
         IsRead = true;
     }
+
+    public void MarkAsUnread()
+    {
+        IsRead = false;
+    }
 }

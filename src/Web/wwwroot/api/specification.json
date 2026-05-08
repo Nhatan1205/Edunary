@@ -988,6 +988,66 @@
         ]
       }
     },
+    "/api/CourseAnswers/{answerId}/upvote": {
+      "post": {
+        "tags": [
+          "CourseAnswers"
+        ],
+        "operationId": "ToggleAnswerUpvote",
+        "parameters": [
+          {
+            "name": "answerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseAnswers/{answerId}/top-answer": {
+      "put": {
+        "tags": [
+          "CourseAnswers"
+        ],
+        "operationId": "ToggleTopAnswer",
+        "parameters": [
+          {
+            "name": "answerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/CourseDrafts/{id}": {
       "get": {
         "tags": [
@@ -1739,6 +1799,96 @@
           },
           "x-position": 1
         },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseQuestions/{questionId}/upvote": {
+      "post": {
+        "tags": [
+          "CourseQuestions"
+        ],
+        "operationId": "ToggleQuestionUpvote",
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseQuestions/{questionId}/featured": {
+      "put": {
+        "tags": [
+          "CourseQuestions"
+        ],
+        "operationId": "ToggleFeatured",
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseQuestions/{questionId}/read-status": {
+      "put": {
+        "tags": [
+          "CourseQuestions"
+        ],
+        "operationId": "ToggleReadStatus",
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -6996,6 +7146,9 @@
           },
           "isInstructor": {
             "type": "boolean"
+          },
+          "hasUpvoted": {
+            "type": "boolean"
           }
         }
       },
@@ -7673,6 +7826,9 @@
           "authorAvatar": {
             "type": "string",
             "nullable": true
+          },
+          "hasUpvoted": {
+            "type": "boolean"
           }
         }
       },

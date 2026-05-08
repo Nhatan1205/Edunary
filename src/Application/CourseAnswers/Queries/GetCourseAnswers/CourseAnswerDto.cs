@@ -15,6 +15,7 @@ public class CourseAnswerDto
     public string AuthorName { get; set; }
     public string AuthorAvatar { get; set; }
     public bool IsInstructor { get; set; }
+    public bool HasUpvoted { get; set; }
 
     private class Mapping : Profile
     {

@@ -94,6 +94,13 @@ public class GetCourseQuestionsQueryHandler
         var users = await _identityService.GetUserIdentitiesByIdsAsync(authorIds, cancellationToken);
         var userMap = users.ToDictionary(u => u.Id);
 
+        // check user's upvote for each question
+        var questionIds = courseQuestionDto.Items.Select(q => q.Id).ToList();
+        var upvotedIds = await _context.QuestionUpvotes
+            .Where(u => u.VoterId == userId && questionIds.Contains(u.QuestionId))
+            .Select(u => u.QuestionId)
+            .ToHashSetAsync(cancellationToken);
+
         foreach (var item in courseQuestionDto.Items)
         {
             if (userMap.TryGetValue(item.CreatedBy, out var user))
@@ -101,6 +108,7 @@ public class GetCourseQuestionsQueryHandler
                 item.AuthorName = user.FullName;
                 item.AuthorAvatar = user.Avatar;
             }
+            item.HasUpvoted = upvotedIds.Contains(item.Id);
         }
 
         return courseQuestionDto;

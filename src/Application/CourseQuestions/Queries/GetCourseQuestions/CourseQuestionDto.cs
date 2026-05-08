@@ -17,6 +17,7 @@ public class CourseQuestionDto
     public string CreatedBy { get; set; } = string.Empty;
     public string AuthorName { get; set; }
     public string AuthorAvatar { get; set; }
+    public bool HasUpvoted { get; set; }
 
     private class Mapping : Profile
     {

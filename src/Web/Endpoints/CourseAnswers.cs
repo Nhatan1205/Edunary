@@ -1,6 +1,8 @@
 using Edunary.Application.Common.Models;
 using Edunary.Application.CourseAnswers.Commands.CreateCourseAnswerCommand;
 using Edunary.Application.CourseAnswers.Commands.DeleteCourseAnswerCommand;
+using Edunary.Application.CourseAnswers.Commands.ToggleAnswerUpvoteCommand;
+using Edunary.Application.CourseAnswers.Commands.ToggleTopAnswerCommand;
 using Edunary.Application.CourseAnswers.Queries.GetCourseAnswers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,10 +16,12 @@ public class CourseAnswers : EndpointGroupBase
             .RequireAuthorization()
             .MapGet(GetCourseAnswers)
             .MapPost(CreateCourseAnswer)
-            .MapDelete(DeleteCourseAnswer, "/{answerId}");
+            .MapDelete(DeleteCourseAnswer, "/{answerId}")
+            .MapPost(ToggleAnswerUpvote, "/{answerId}/upvote")
+            .MapPut(ToggleTopAnswer, "/{answerId}/top-answer");
     }
 
-    public async Task<PaginatedList<CourseAnswerDto>> GetCourseAnswers(ISender sender,[AsParameters] GetCourseAnswersQuery query)
+    public async Task<PaginatedList<CourseAnswerDto>> GetCourseAnswers(ISender sender, [AsParameters] GetCourseAnswersQuery query)
     {
         return await sender.Send(query);
     }
@@ -31,6 +35,26 @@ public class CourseAnswers : EndpointGroupBase
     {
         var result = await sender.Send(command);
         if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
+
+    public async Task<IResult> ToggleAnswerUpvote(ISender sender, int answerId)
+    {
+        var result = await sender.Send(new ToggleAnswerUpvoteCommand { AnswerId = answerId });
+        if (result.Result is null)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
+
+    public async Task<IResult> ToggleTopAnswer(ISender sender, int answerId)
+    {
+        var result = await sender.Send(new ToggleTopAnswerCommand { AnswerId = answerId });
+        if (result.Result is null)
         {
             return Results.BadRequest(result);
         }

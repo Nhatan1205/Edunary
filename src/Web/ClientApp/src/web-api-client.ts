@@ -1117,6 +1117,74 @@ export class CourseAnswersClient {
         }
         return Promise.resolve<void>(null as any);
     }
+
+    toggleAnswerUpvote(answerId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseAnswers/{answerId}/upvote";
+        if (answerId === undefined || answerId === null)
+            throw new Error("The parameter 'answerId' must be defined.");
+        url_ = url_.replace("{answerId}", encodeURIComponent("" + answerId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processToggleAnswerUpvote(_response);
+        });
+    }
+
+    protected processToggleAnswerUpvote(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    toggleTopAnswer(answerId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseAnswers/{answerId}/top-answer";
+        if (answerId === undefined || answerId === null)
+            throw new Error("The parameter 'answerId' must be defined.");
+        url_ = url_.replace("{answerId}", encodeURIComponent("" + answerId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processToggleTopAnswer(_response);
+        });
+    }
+
+    protected processToggleTopAnswer(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
 }
 
 export class CourseDraftsClient {
@@ -1933,6 +2001,108 @@ export class CourseQuestionsClient {
     }
 
     protected processDeleteCourseQuestion(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    toggleQuestionUpvote(questionId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseQuestions/{questionId}/upvote";
+        if (questionId === undefined || questionId === null)
+            throw new Error("The parameter 'questionId' must be defined.");
+        url_ = url_.replace("{questionId}", encodeURIComponent("" + questionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processToggleQuestionUpvote(_response);
+        });
+    }
+
+    protected processToggleQuestionUpvote(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    toggleFeatured(questionId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseQuestions/{questionId}/featured";
+        if (questionId === undefined || questionId === null)
+            throw new Error("The parameter 'questionId' must be defined.");
+        url_ = url_.replace("{questionId}", encodeURIComponent("" + questionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processToggleFeatured(_response);
+        });
+    }
+
+    protected processToggleFeatured(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    toggleReadStatus(questionId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseQuestions/{questionId}/read-status";
+        if (questionId === undefined || questionId === null)
+            throw new Error("The parameter 'questionId' must be defined.");
+        url_ = url_.replace("{questionId}", encodeURIComponent("" + questionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processToggleReadStatus(_response);
+        });
+    }
+
+    protected processToggleReadStatus(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -8362,6 +8532,7 @@ export class CourseAnswerDto implements ICourseAnswerDto {
     authorName?: string | undefined;
     authorAvatar?: string | undefined;
     isInstructor?: boolean;
+    hasUpvoted?: boolean;
 
     constructor(data?: ICourseAnswerDto) {
         if (data) {
@@ -8384,6 +8555,7 @@ export class CourseAnswerDto implements ICourseAnswerDto {
             this.authorName = _data["authorName"];
             this.authorAvatar = _data["authorAvatar"];
             this.isInstructor = _data["isInstructor"];
+            this.hasUpvoted = _data["hasUpvoted"];
         }
     }
 
@@ -8406,6 +8578,7 @@ export class CourseAnswerDto implements ICourseAnswerDto {
         data["authorName"] = this.authorName;
         data["authorAvatar"] = this.authorAvatar;
         data["isInstructor"] = this.isInstructor;
+        data["hasUpvoted"] = this.hasUpvoted;
         return data;
     }
 }
@@ -8421,6 +8594,7 @@ export interface ICourseAnswerDto {
     authorName?: string | undefined;
     authorAvatar?: string | undefined;
     isInstructor?: boolean;
+    hasUpvoted?: boolean;
 }
 
 export class ReturnResultOfCreatedCourseAnswerDto implements IReturnResultOfCreatedCourseAnswerDto {
@@ -9665,6 +9839,7 @@ export class CourseQuestionDto implements ICourseQuestionDto {
     createdBy?: string | undefined;
     authorName?: string | undefined;
     authorAvatar?: string | undefined;
+    hasUpvoted?: boolean;
 
     constructor(data?: ICourseQuestionDto) {
         if (data) {
@@ -9690,6 +9865,7 @@ export class CourseQuestionDto implements ICourseQuestionDto {
             this.createdBy = _data["createdBy"];
             this.authorName = _data["authorName"];
             this.authorAvatar = _data["authorAvatar"];
+            this.hasUpvoted = _data["hasUpvoted"];
         }
     }
 
@@ -9715,6 +9891,7 @@ export class CourseQuestionDto implements ICourseQuestionDto {
         data["createdBy"] = this.createdBy;
         data["authorName"] = this.authorName;
         data["authorAvatar"] = this.authorAvatar;
+        data["hasUpvoted"] = this.hasUpvoted;
         return data;
     }
 }
@@ -9733,6 +9910,7 @@ export interface ICourseQuestionDto {
     createdBy?: string | undefined;
     authorName?: string | undefined;
     authorAvatar?: string | undefined;
+    hasUpvoted?: boolean;
 }
 
 export class ReturnResultOfCreatedCourseQuestionDto implements IReturnResultOfCreatedCourseQuestionDto {

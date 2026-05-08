@@ -26,6 +26,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { formatTimeAgo, stripHtml, buildItemLabelMap } from "../../../../../utils/helpers";
 import useGetCourseQuestions from "../../../../../hooks/course-qa-hooks/useGetCourseQuestions";
 import useGetLearningSidebar from "../../../../../hooks/course-progress-hooks/useGetLearningSidebar";
+import useToggleQuestionUpvote from "../../../../../hooks/course-qa-hooks/useToggleQuestionUpvote";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
 import { QuestionDetailView } from "./QuestionDetailView";
 import AskQuestionView from "./AskQuestionView";
@@ -33,13 +34,33 @@ import AskQuestionView from "./AskQuestionView";
 
 function QuestionCard({ question, lectureName, onSelect }) {
   const navigate = useNavigate();
-  const [upvoted, setUpvoted] = useState(false);
+  const toggleUpvote = useToggleQuestionUpvote();
+
+  // Optimistic local state — initialised from API data
+  const [upvoted, setUpvoted] = useState(question.hasUpvoted ?? false);
   const [upvoteCount, setUpvoteCount] = useState(question.upvoteCount);
 
   function handleUpvote(e) {
     e.stopPropagation();
-    setUpvoted((p) => !p);
-    setUpvoteCount((p) => (upvoted ? p - 1 : p + 1));
+    // Optimistic update
+    const wasUpvoted = upvoted;
+    setUpvoted(!wasUpvoted);
+    setUpvoteCount((p) => wasUpvoted ? p - 1 : p + 1);
+
+    toggleUpvote.mutate(question.id, {
+      onSuccess: (data) => {
+        // Reconcile with server response
+        if (data?.result) {
+          setUpvoteCount(data.result.upvoteCount);
+          setUpvoted(data.result.hasUpvoted);
+        }
+      },
+      onError: () => {
+        // Rollback on error
+        setUpvoted(wasUpvoted);
+        setUpvoteCount((p) => wasUpvoted ? p + 1 : p - 1);
+      },
+    });
   }
 
   function handleChatClick(e) {
@@ -415,7 +436,7 @@ export default function QATab({ courseId, currentItem }) {
       {featured.length > 0 && all.length > 0 && <Box sx={{ mt: 3 }} />}
 
       {/* All questions */}
-      {(featured.length === 0 || all.length > 0) && (
+      {all.length > 0 && (
         <Box>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
             <Typography variant="body1" fontWeight={700} color="text.primary">
@@ -423,34 +444,28 @@ export default function QATab({ courseId, currentItem }) {
             </Typography>
             <Typography variant="body2" color="text.disabled">({all.length})</Typography>
           </Stack>
-          {all.length === 0 ? (
-            <Box sx={{ py: 6, textAlign: "center" }}>
-              <HelpOutlineIcon sx={{ fontSize: 48, color: "grey.300", mb: 1.5 }} />
-              <Typography variant="body1" color="text.secondary" fontWeight={500}>No questions found</Typography>
-              <Typography variant="body2" color="text.disabled" sx={{ mt: 0.5 }}>
-                {searchText ? "Try a different search term" : "Be the first to ask a question!"}
-              </Typography>
-            </Box>
-          ) : (
-            all.map((q) => (
-              <QuestionCard
-                key={q.id}
-                question={q}
-                lectureName={itemLabelMap[q.itemId] ?? null}
-                onSelect={handleSelectQuestion}
-              />
-            ))
-          )}
+          {all.map((q) => (
+            <QuestionCard
+              key={q.id}
+              question={q}
+              lectureName={itemLabelMap[q.itemId] ?? null}
+              onSelect={handleSelectQuestion}
+            />
+          ))}
         </Box>
       )}
 
-      {/* Global empty state */}
-      {featured.length === 0 && all.length === 0 && !searchText && (
+      {/* Empty states */}
+      {featured.length === 0 && all.length === 0 && (
         <Box sx={{ py: 8, textAlign: "center" }}>
-          <HelpOutlineIcon sx={{ fontSize: 56, color: "grey.200", mb: 2 }} />
-          <Typography variant="body1" fontWeight={600} color="text.secondary">No questions yet</Typography>
+          <HelpOutlineIcon sx={{ fontSize: 56, color: "grey.600", mb: 2 }} />
+          <Typography variant="body1" fontWeight={600} color="text.secondary">
+            {searchText || filterBy !== "all" || lectureFilter !== "all" ? "No questions found" : "No questions yet"}
+          </Typography>
           <Typography variant="body2" color="text.disabled" sx={{ mt: 0.5, mb: 3 }}>
-            Ask the first question and start the discussion!
+            {searchText || filterBy !== "all" || lectureFilter !== "all"
+              ? "Try adjusting your search or filters."
+              : "Ask the first question and start the discussion!"}
           </Typography>
         </Box>
       )}

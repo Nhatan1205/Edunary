@@ -42,11 +42,19 @@ public class ToggleQuestionUpvoteCommandHandler
 
             var userId = _currentUserService.UserId;
 
+            // Allow enrolled students OR the course instructor
+            var course = await _context.Courses
+                .Where(c => c.Id == question.CourseId)
+                .Select(c => new { c.CreatedBy })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            var isInstructor = course?.CreatedBy == userId;
+
             // Enrollment check
             var isEnrolled = await _context.Enrollments
                 .AnyAsync(e => e.CourseId == question.CourseId && e.StudentId == userId, cancellationToken);
 
-            if (!isEnrolled)
+            if (!isEnrolled && !isInstructor)
             {
                 return new ReturnResult<ToggleUpvoteDto>
                 {

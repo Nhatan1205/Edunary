@@ -1,75 +1,36 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   Box,
   Typography,
   Avatar,
   IconButton,
-  TextField,
-  InputAdornment,
-  MenuItem,
-  Select,
-  FormControl,
   Stack,
   Chip,
   Tooltip,
   Menu,
+  MenuItem,
   CircularProgress,
+  Divider,
 } from "@mui/material";
-import StarIcon from '@mui/icons-material/Star';
-import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
+import ArrowCircleUpIcon from "@mui/icons-material/ArrowCircleUp";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import { MOCK_QUESTIONS } from "../mockData";
-
-function formatRelativeTime(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins} minutes ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hours ago`;
-  return `${Math.floor(hrs / 24)} days ago`;
-}
-
-function stripHtml(html) {
-  if (!html) return "";
-  return html.replace(/<[^>]*>/g, "").trim();
-}
+import { formatTimeAgo, stripHtml } from "../../../../../utils/helpers";
+import useToggleFeatured from "../../../../../hooks/course-qa-hooks/useToggleFeatured";
+import useToggleReadStatus from "../../../../../hooks/course-qa-hooks/useToggleReadStatus";
 
 export default function QuestionListPanel({
-  selectedCourseId,
+  questions,
+  isLoading,
   selectedQuestion,
   onSelectQuestion,
-  filterBy,
-  sortBy,
-  searchText,
 }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [menuQuestion, setMenuQuestion] = useState(null);
-  const [localFeatured, setLocalFeatured] = useState({});
 
-  const filtered = useMemo(() => {
-    let list = MOCK_QUESTIONS.filter((q) => {
-      if (selectedCourseId !== null && q.courseId !== selectedCourseId) return false;
-      if (filterBy === "unread" && q.isRead) return false;
-      if (filterBy === "noAnswers" && q.answerCount > 0) return false;
-      if (filterBy === "featured" && !q.isFeatured) return false;
-      if (
-        searchText &&
-        !q.title.toLowerCase().includes(searchText.toLowerCase()) &&
-        !stripHtml(q.detail).toLowerCase().includes(searchText.toLowerCase())
-      ) return false;
-      return true;
-    });
-
-    list = [...list].sort((a, b) => {
-      if (sortBy === "oldestFirst") return new Date(a.createdAt) - new Date(b.createdAt);
-      if (sortBy === "mostUpvoted") return b.upvoteCount - a.upvoteCount;
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-
-    return list;
-  }, [selectedCourseId, filterBy, sortBy, searchText]);
+  const toggleFeatured = useToggleFeatured();
+  const toggleReadStatus = useToggleReadStatus();
 
   function handleOpenMenu(e, question) {
     e.stopPropagation();
@@ -82,9 +43,32 @@ export default function QuestionListPanel({
     setMenuQuestion(null);
   }
 
-  function handleToggleFeatured(questionId) {
-    setLocalFeatured((prev) => ({ ...prev, [questionId]: !prev[questionId] }));
+  function handleToggleFeatured() {
+    if (!menuQuestion) return;
+    toggleFeatured.mutate(menuQuestion.id);
     handleCloseMenu();
+  }
+
+  function handleToggleReadStatus() {
+    if (!menuQuestion) return;
+    // Flip local state in both directions
+    const currentRead = localRead[menuQuestion.id] !== undefined
+      ? localRead[menuQuestion.id]
+      : menuQuestion.isRead;
+    setLocalRead((prev) => ({ ...prev, [menuQuestion.id]: !currentRead }));
+    toggleReadStatus.mutate(menuQuestion.id);
+    handleCloseMenu();
+  }
+
+  const [localRead, setLocalRead] = useState({});
+
+  function handleSelectQuestion(q) {
+    const effectiveRead = localRead[q.id] !== undefined ? localRead[q.id] : q.isRead;
+    if (!effectiveRead) {
+      setLocalRead((prev) => ({ ...prev, [q.id]: true }));
+      toggleReadStatus.mutate(q.id);
+    }
+    onSelectQuestion(q);
   }
 
   return (
@@ -93,14 +77,16 @@ export default function QuestionListPanel({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        borderRight: "1px solid",
-        borderColor: "divider",
         bgcolor: "background.default",
       }}
     >
       {/* Question list */}
       <Box sx={{ flex: 1, overflowY: "auto" }}>
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <Box sx={{ p: 4, textAlign: "center" }}>
+            <CircularProgress size={28} sx={{ color: "brand.main" }} />
+          </Box>
+        ) : questions.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <ChatBubbleOutlineIcon sx={{ fontSize: 40, color: "grey.300", mb: 1 }} />
             <Typography variant="body2" color="text.secondary">
@@ -108,14 +94,14 @@ export default function QuestionListPanel({
             </Typography>
           </Box>
         ) : (
-          filtered.map((q) => {
-            const isFeatured = localFeatured[q.id] !== undefined ? localFeatured[q.id] : q.isFeatured;
+          questions.map((q) => {
             const isSelected = selectedQuestion?.id === q.id;
+            const effectiveRead = localRead[q.id] !== undefined ? localRead[q.id] : q.isRead;
 
             return (
               <Box
                 key={q.id}
-                onClick={() => onSelectQuestion(q)}
+                onClick={() => handleSelectQuestion(q)}
                 sx={{
                   px: 2,
                   py: 1.8,
@@ -125,9 +111,7 @@ export default function QuestionListPanel({
                   borderColor: "divider",
                   bgcolor: isSelected ? "grey.100" : "transparent",
                   transition: "background-color 0.12s",
-                  "&:hover": {
-                    bgcolor: "grey.100",
-                  },
+                  "&:hover": { bgcolor: "grey.100" },
                 }}
               >
                 <Stack direction="row" spacing={1.5} alignItems="flex-start">
@@ -137,7 +121,7 @@ export default function QuestionListPanel({
                   />
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     {/* Title row */}
-                    <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={0.5}>
+                    <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={0.5} >
                       <Typography
                         variant="body2"
                         sx={{
@@ -155,9 +139,9 @@ export default function QuestionListPanel({
                         {q.title}
                       </Typography>
                       <Stack direction="row" alignItems="center" spacing={0.3} sx={{ flexShrink: 0 }}>
-                        {!q.isRead && (
+                        {!effectiveRead && (
                           <Tooltip title="Unread">
-                            <FiberManualRecordIcon sx={{ fontSize: 10, color: "brand.main" }} />
+                            <FiberManualRecordIcon sx={{ fontSize: 14, color: "brand.main" }} />
                           </Tooltip>
                         )}
                         <IconButton
@@ -180,8 +164,10 @@ export default function QuestionListPanel({
                           WebkitLineClamp: 1,
                           WebkitBoxOrient: "vertical",
                           overflow: "hidden",
-                          mt: 0.3,
+                          mt: 1,
                           lineHeight: 1.4,
+                          fontWeight: !effectiveRead ? 700 : 400,
+                          color: !effectiveRead ? "text.primary" : "text.secondary",
                         }}
                       >
                         {stripHtml(q.detail)}
@@ -190,16 +176,15 @@ export default function QuestionListPanel({
 
                     {/* Author + time */}
                     <Typography variant="caption" color="text.disabled" sx={{ mt: 0.4, display: "block" }}>
-                      {q.authorName} · {formatRelativeTime(q.createdAt)}
+                      {q.authorName} · {formatTimeAgo(q.created)}
                     </Typography>
 
                     {/* Badges + counts */}
                     <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 0.8, flexWrap: "wrap", gap: 0.5 }}>
-                      {isFeatured && (
+                      {q.isFeatured && (
                         <Chip
-                          label="Featured"
+                          label="Featured question"
                           size="small"
-                          icon={<StarIcon sx={{ fontSize: "12px !important", color: "warning.main !important" }} />}
                           sx={{
                             height: 18,
                             fontSize: "0.65rem",
@@ -208,7 +193,6 @@ export default function QuestionListPanel({
                             color: "warning.dark",
                             border: "1px solid",
                             borderColor: "warning.light",
-                            "& .MuiChip-icon": { ml: 0.5 },
                           }}
                         />
                       )}
@@ -219,7 +203,7 @@ export default function QuestionListPanel({
                         </Typography>
                       </Stack>
                       <Stack direction="row" alignItems="center" spacing={0.4}>
-                        <ThumbUpOutlinedIcon sx={{ fontSize: 12, color: "text.disabled" }} />
+                        <ArrowCircleUpIcon sx={{ fontSize: 13, color: "text.disabled" }} />
                         <Typography variant="caption" color="text.disabled" sx={{ fontSize: "0.7rem" }}>
                           {q.upvoteCount}
                         </Typography>
@@ -243,15 +227,15 @@ export default function QuestionListPanel({
         }}
       >
         <MenuItem
-          onClick={() => handleToggleFeatured(menuQuestion?.id)}
+          onClick={handleToggleFeatured}
           sx={{ fontSize: "0.875rem", py: 1 }}
         >
           {menuQuestion?.isFeatured ? "Remove from featured questions" : "Add to featured questions"}
         </MenuItem>
-        <MenuItem onClick={handleCloseMenu} sx={{ fontSize: "0.875rem", py: 1 }}>
-          <FiberManualRecordIcon sx={{ fontSize: 12, mr: 1.5, color: "brand.main" }} />
-          Mark as Unread
+        <MenuItem onClick={handleToggleReadStatus} sx={{ fontSize: "0.875rem", py: 1 }}>
+          {menuQuestion?.isRead ? "Mark as Unread" : "Mark as Read"}
         </MenuItem>
+        <Divider />
         <MenuItem onClick={handleCloseMenu} sx={{ fontSize: "0.875rem", py: 1, color: "error.main" }}>
           Delete
         </MenuItem>

@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseQuestions.Commands.DeleteCourseQuestionCommand;
 
@@ -31,8 +32,14 @@ public class DeleteCourseQuestionCommandHandler : IRequestHandler<DeleteCourseQu
 
             Guard.Against.NotFound(request.QuestionId, question);
 
-            // Only owner or instructor can delete
-            if (question.CreatedBy != _currentUserService.UserId)
+            var userId = _currentUserService.UserId;
+
+            // Author OR course instructor can delete
+            var isInstructor = await _context.Courses
+                .Where(c => c.Id == question.CourseId)
+                .AnyAsync(c => c.CreatedBy == userId, cancellationToken);
+
+            if (question.CreatedBy != userId && !isInstructor)
             {
                 return Result.Failure("Not authorized to delete this question.");
             }

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -10,42 +10,51 @@ import {
   Menu,
   MenuItem,
   Button,
-  TextField,
-  Paper,
+  CircularProgress,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import StarIcon from "@mui/icons-material/Star";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
+import ArrowCircleUpIcon from "@mui/icons-material/ArrowCircleUp";
+import ArrowCircleUpTwoToneIcon from "@mui/icons-material/ArrowCircleUpTwoTone";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import SendIcon from "@mui/icons-material/Send";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import SchoolIcon from "@mui/icons-material/School";
-import { MOCK_ANSWERS } from "../mockData";
+import { formatTimeAgo, stripHtml } from "../../../../../utils/helpers";
+import useGetCourseAnswers from "../../../../../hooks/course-qa-hooks/useGetCourseAnswers";
+import useCreateCourseAnswer from "../../../../../hooks/course-qa-hooks/useCreateCourseAnswer";
+import useUpdateCourseAnswer from "../../../../../hooks/course-qa-hooks/useUpdateCourseAnswer";
+import useDeleteCourseAnswer from "../../../../../hooks/course-qa-hooks/useDeleteCourseAnswer";
+import useUpdateCourseQuestion from "../../../../../hooks/course-qa-hooks/useUpdateCourseQuestion";
+import useDeleteCourseQuestion from "../../../../../hooks/course-qa-hooks/useDeleteCourseQuestion";
+import useToggleTopAnswer from "../../../../../hooks/course-qa-hooks/useToggleTopAnswer";
+import useToggleAnswerUpvote from "../../../../../hooks/course-qa-hooks/useToggleAnswerUpvote";
+import useToggleQuestionUpvote from "../../../../../hooks/course-qa-hooks/useToggleQuestionUpvote";
+import useToggleFeatured from "../../../../../hooks/course-qa-hooks/useToggleFeatured";
+import useToggleReadStatus from "../../../../../hooks/course-qa-hooks/useToggleReadStatus";
+import useGetBasicUserInfor from "../../../../../hooks/auth-hooks/useGetBasicUserInfor";
+import TextEditor from "../../../../../components/TextEditor";
 
-function formatRelativeTime(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins} minutes ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hours ago`;
-  return `${Math.floor(hrs / 24)} days ago`;
-}
-
-function stripHtml(html) {
-  if (!html) return "";
-  return html.replace(/<[^>]*>/g, "").trim();
-}
-
-function AnswerCard({ answer, onToggleTop }) {
+// ── Single answer card ─────────────────────────────────────────────────────
+function AnswerCard({ answer, onToggleTop, currentUserId }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const [upvoted, setUpvoted] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editBody, setEditBody] = useState(answer.body);
+  const toggleUpvote = useToggleAnswerUpvote();
+  const updateAnswer = useUpdateCourseAnswer();
+  const deleteAnswer = useDeleteCourseAnswer();
+  const [upvoted, setUpvoted] = useState(answer.hasUpvoted ?? false);
   const [upvoteCount, setUpvoteCount] = useState(answer.upvoteCount);
 
+  const isAuthor = currentUserId && answer.createdBy === currentUserId;
+
   function handleUpvote() {
-    setUpvoted((prev) => !prev);
-    setUpvoteCount((prev) => (upvoted ? prev - 1 : prev + 1));
+    const was = upvoted;
+    setUpvoted(!was);
+    setUpvoteCount((p) => was ? p - 1 : p + 1);
+    toggleUpvote.mutate(answer.id, {
+      onSuccess: (data) => { if (data?.result) { setUpvoteCount(data.result.upvoteCount); setUpvoted(data.result.hasUpvoted); } },
+      onError: () => { setUpvoted(was); setUpvoteCount((p) => was ? p + 1 : p - 1); },
+    });
   }
 
   return (
@@ -54,164 +63,235 @@ function AnswerCard({ answer, onToggleTop }) {
         <Avatar src={answer.authorAvatar} sx={{ width: 36, height: 36, flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
-                {answer.authorName}
-              </Typography>
+            <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+              <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>{answer.authorName}</Typography>
               {answer.isInstructor && (
-                <Chip
-                  label="Instructor"
-                  size="small"
+                <Chip label="Instructor" size="small"
                   icon={<SchoolIcon sx={{ fontSize: "12px !important", color: "brand.main !important" }} />}
-                  sx={{
-                    height: 18,
-                    fontSize: "0.65rem",
-                    fontWeight: 600,
-                    bgcolor: "background.muted",
-                    color: "brand.dark",
-                    border: "1px solid",
-                    borderColor: "brand.light",
-                    "& .MuiChip-icon": { ml: 0.5 },
-                  }}
+                  sx={{ height: 18, fontSize: "0.65rem", fontWeight: 600, bgcolor: "background.muted", color: "brand.dark", border: "1px solid", borderColor: "brand.light", "& .MuiChip-icon": { ml: 0.5 } }}
                 />
               )}
               {answer.isTopAnswer && (
-                <Chip
-                  label="Top Answer"
-                  size="small"
+                <Chip label="Top Answer" size="small"
                   icon={<WorkspacePremiumIcon sx={{ fontSize: "12px !important", color: "success.main !important" }} />}
-                  sx={{
-                    height: 18,
-                    fontSize: "0.65rem",
-                    fontWeight: 600,
-                    bgcolor: "success.lighter",
-                    color: "success.dark",
-                    border: "1px solid",
-                    borderColor: "success.light",
-                    "& .MuiChip-icon": { ml: 0.5 },
-                  }}
+                  sx={{ height: 18, fontSize: "0.65rem", fontWeight: 600, bgcolor: "success.lighter", color: "success.dark", border: "1px solid", borderColor: "success.light", "& .MuiChip-icon": { ml: 0.5 } }}
                 />
               )}
             </Stack>
             <Stack direction="row" alignItems="center" spacing={0.5}>
-              {/* Upvote */}
               <Stack direction="row" alignItems="center" spacing={0.3}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
-                  {upvoteCount}
-                </Typography>
-                <IconButton
-                  size="small"
-                  onClick={handleUpvote}
-                  sx={{
-                    p: 0.4,
-                    color: upvoted ? "brand.main" : "grey.400",
-                    "&:hover": { color: "brand.main", bgcolor: "background.muted" },
-                  }}
-                >
-                  {upvoted ? (
-                    <ThumbUpIcon sx={{ fontSize: 15 }} />
-                  ) : (
-                    <ThumbUpOutlinedIcon sx={{ fontSize: 15 }} />
-                  )}
-                </IconButton>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>{upvoteCount}</Typography>
+                <Box component="span" onClick={handleUpvote}
+                  sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", color: "grey.500", cursor: "pointer", transition: "all 0.15s" }}>
+                  {upvoted ? <ArrowCircleUpTwoToneIcon sx={{ fontSize: 20 }} /> : <ArrowCircleUpIcon sx={{ fontSize: 20 }} />}
+                </Box>
               </Stack>
-              <IconButton
-                size="small"
-                onClick={(e) => setMenuAnchor(e.currentTarget)}
-                sx={{ p: 0.4, color: "grey.400", "&:hover": { color: "grey.700" } }}
-              >
+              <IconButton size="small" onClick={(e) => setMenuAnchor(e.currentTarget)}
+                sx={{ p: 0.4, color: "grey.400", "&:hover": { color: "grey.700" } }}>
                 <MoreVertIcon sx={{ fontSize: 16 }} />
               </IconButton>
             </Stack>
           </Stack>
 
-          <Typography variant="caption" color="text.disabled" sx={{ mb: 1, display: "block" }}>
-            {formatRelativeTime(answer.createdAt)}
+          <Typography variant="caption" color="text.disabled" sx={{ display: "block", mb: 1 }}>
+            {formatTimeAgo(answer.created)}
           </Typography>
 
-          {/* Answer body — render HTML safely */}
-          <Box
-            sx={{ fontSize: "0.875rem", color: "text.primary", lineHeight: 1.7 }}
-            dangerouslySetInnerHTML={{ __html: answer.body }}
-          />
+          {editing ? (
+            <Box sx={{ mt: 1 }}>
+              <Box sx={{ border: "2px solid", borderColor: "brand.main", borderRadius: 1.5, overflow: "hidden", mb: 1.5 }}>
+                <TextEditor value={editBody} onChange={setEditBody} buttons={["bold", "italic", "|", "link", "image", "|", "source"]} />
+              </Box>
+              <Stack direction="row" spacing={1} justifyContent="flex-end">
+                <Button variant="outlined" size="small" onClick={() => { setEditing(false); setEditBody(answer.body); }}
+                  sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary", borderRadius: 1 }}>Cancel</Button>
+                <Button variant="contained" size="small"
+                  onClick={() => updateAnswer.mutate({ answerId: answer.id, body: editBody }, { onSuccess: () => setEditing(false) })}
+                  disabled={updateAnswer.isPending || stripHtml(editBody).trim().length === 0}
+                  endIcon={<SendIcon sx={{ fontSize: 14 }} />}
+                  sx={{ bgcolor: "brand.main", "&:hover": { bgcolor: "brand.dark" }, textTransform: "none", fontWeight: 700, borderRadius: 1 }}>
+                  {updateAnswer.isPending ? "Saving..." : "Save"}
+                </Button>
+              </Stack>
+            </Box>
+          ) : (
+            <Box sx={{ fontSize: "0.875rem", color: "text.primary", lineHeight: 1.7 }}
+              dangerouslySetInnerHTML={{ __html: answer.body }} />
+          )}
         </Box>
       </Stack>
 
-      {/* Answer menu */}
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={() => setMenuAnchor(null)}
-        PaperProps={{ sx: { minWidth: 200, borderRadius: 2, boxShadow: 3 } }}
-      >
-        <MenuItem
-          onClick={() => { onToggleTop(answer.id); setMenuAnchor(null); }}
-          sx={{ fontSize: "0.875rem", py: 1 }}
-        >
-          {answer.isTopAnswer ? (
-            <><StarOutlineIcon sx={{ fontSize: 18, mr: 1.5, color: "success.main" }} /> Unmark Top Answer</>
-          ) : (
-            <><WorkspacePremiumIcon sx={{ fontSize: 18, mr: 1.5, color: "success.main" }} /> Mark as Top Answer</>
-          )}
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}
+        PaperProps={{ sx: { minWidth: 200, borderRadius: 2, boxShadow: 3 } }}>
+        <MenuItem onClick={() => { onToggleTop(answer.id); setMenuAnchor(null); }} sx={{ fontSize: "0.875rem", py: 1 }}>
+          {answer.isTopAnswer ? "Unmark Top Answer" : "Mark as Top Answer"}
         </MenuItem>
-        <MenuItem onClick={() => setMenuAnchor(null)} sx={{ fontSize: "0.875rem", py: 1 }}>
-          Edit
-        </MenuItem>
+        {isAuthor && (
+          <MenuItem onClick={() => { setEditing(true); setMenuAnchor(null); }} sx={{ fontSize: "0.875rem", py: 1 }}>Edit</MenuItem>
+        )}
         <Divider />
-        <MenuItem onClick={() => setMenuAnchor(null)} sx={{ fontSize: "0.875rem", py: 1, color: "error.main" }}>
-          Delete
-        </MenuItem>
+        <MenuItem onClick={() => { deleteAnswer.mutate(answer.id); setMenuAnchor(null); }} sx={{ fontSize: "0.875rem", py: 1, color: "error.main" }}>Delete</MenuItem>
       </Menu>
     </Box>
   );
 }
 
-export default function AnswerPanel({ question }) {
+// ── Collapsed → expanded reply box (Udemy-style) ───────────────────────────
+function ReplyBox({ questionId, onPosted }) {
+  const [expanded, setExpanded] = useState(false);
+  const [body, setBody] = useState("");
+  const createAnswer = useCreateCourseAnswer();
+
+  const canPost = stripHtml(body).trim().length > 0 && !createAnswer.isPending;
+
+  function handlePost() {
+    if (!canPost) return;
+    createAnswer.mutate(
+      { questionId, body },
+      {
+        onSuccess: () => {
+          setBody("");
+          setExpanded(false);
+          onPosted?.();
+        },
+      }
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        px: 3,
+        pt: expanded ? 1.5 : 0,
+        pb: 1.5,
+        borderTop: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+        flexShrink: 0,
+        transition: "padding 0.2s",
+      }}
+    >
+      {/* Collapsed — simple placeholder row */}
+      {!expanded && (
+        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ py: 1 }}>
+          <Box
+            onClick={() => setExpanded(true)}
+            sx={{
+              flex: 1,
+              px: 2,
+              py: 1,
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 1,
+              cursor: "text",
+              color: "text.disabled",
+              fontSize: "0.875rem",
+              bgcolor: "background.default",
+              "&:hover": { borderColor: "brand.light" },
+              transition: "border-color 0.15s",
+            }}
+          >
+            Post a public answer...
+          </Box>
+          <Button
+            variant="contained"
+            disabled
+            sx={{
+              flexShrink: 0,
+              bgcolor: "brand.light",
+              color: "white",
+              borderRadius: 1,
+              textTransform: "none",
+              fontWeight: 700,
+              px: 2.5,
+              py: 0.9,
+            }}
+          >
+            Post
+          </Button>
+        </Stack>
+      )}
+
+      {/* Expanded — TextEditor */}
+      {expanded && (
+        <>
+          <Box
+            sx={{
+              border: "2px solid",
+              borderColor: "brand.main",
+              borderRadius: 1.5,
+              overflow: "hidden",
+              mb: 1.5,
+            }}
+          >
+            <TextEditor
+              value={body}
+              onChange={setBody}
+              buttons={["bold", "italic", "|", "link", "image", "|", "source"]}
+            />
+          </Box>
+          <Stack direction="row" justifyContent="flex-end" spacing={1}>
+            <Button
+              variant="outlined"
+              onClick={() => { setExpanded(false); setBody(""); }}
+              sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary", borderRadius: 1, px: 2 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handlePost}
+              disabled={!canPost}
+              endIcon={<SendIcon sx={{ fontSize: 16 }} />}
+              sx={{
+                bgcolor: "brand.main",
+                "&:hover": { bgcolor: "brand.dark" },
+                "&:disabled": { bgcolor: "brand.light", color: "white" },
+                textTransform: "none",
+                fontWeight: 700,
+                borderRadius: 1,
+                px: 2.5,
+              }}
+            >
+              Post
+            </Button>
+          </Stack>
+        </>
+      )}
+    </Box>
+  );
+}
+
+export default function AnswerPanel({ question, onQuestionDeleted }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const [replyText, setReplyText] = useState("");
-  const [localAnswers, setLocalAnswers] = useState(null);
-  const bottomRef = useRef(null);
+  const [answersPage] = useState(1);
+  const scrollRef = useRef(null);
+  const { data: currentUser } = useGetBasicUserInfor();
+  const currentUserId = currentUser?.userId;
+  const toggleQuestionUpvote = useToggleQuestionUpvote();
+  const toggleFeatured = useToggleFeatured();
+  const toggleReadStatus = useToggleReadStatus();
+  const deleteQuestion = useDeleteCourseQuestion();
+  const [qUpvoted, setQUpvoted] = useState(question?.hasUpvoted ?? false);
+  const [qUpvoteCount, setQUpvoteCount] = useState(question?.upvoteCount ?? 0);
 
-  const answers = localAnswers ?? (MOCK_ANSWERS[question?.id] || []);
-  const topAnswers = answers.filter((a) => a.isTopAnswer).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  const otherAnswers = answers.filter((a) => !a.isTopAnswer).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  const { data: answersData, isLoading: answersLoading } = useGetCourseAnswers(
+    question?.id,
+    answersPage,
+    50
+  );
+  const toggleTopAnswer = useToggleTopAnswer();
 
-  function handleToggleTop(answerId) {
-    const base = localAnswers ?? (MOCK_ANSWERS[question?.id] || []);
-    setLocalAnswers(base.map((a) => a.id === answerId ? { ...a, isTopAnswer: !a.isTopAnswer } : a));
+  const answers = answersData?.items ?? [];
+
+  function scrollToBottom() {
+    setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: "smooth" }), 150);
   }
 
-  function handlePostReply() {
-    if (!replyText.trim()) return;
-    const newAnswer = {
-      id: Date.now(),
-      questionId: question.id,
-      body: `<p>${replyText.trim()}</p>`,
-      isTopAnswer: false,
-      upvoteCount: 0,
-      authorName: "Instructor",
-      authorAvatar: "https://i.pravatar.cc/40?img=33",
-      isInstructor: true,
-      createdAt: new Date().toISOString(),
-    };
-    const base = localAnswers ?? (MOCK_ANSWERS[question?.id] || []);
-    setLocalAnswers([...base, newAnswer]);
-    setReplyText("");
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-  }
-
+  // Empty state
   if (!question) {
     return (
-      <Box
-        sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          bgcolor: "background.alt",
-        }}
-      >
+      <Box sx={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", bgcolor: "background.alt" }}>
         <ChatBubbleOutlineIcon sx={{ fontSize: 56, color: "grey.300", mb: 2 }} />
         <Typography variant="body1" color="text.secondary" fontWeight={500}>
           Select a question to view answers
@@ -224,212 +304,150 @@ export default function AnswerPanel({ question }) {
   }
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
-      {/* Header */}
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Box
         sx={{
           px: 3,
-          py: 2,
+          py: 1,
           borderBottom: "1px solid",
           borderColor: "divider",
           bgcolor: "background.paper",
           flexShrink: 0,
         }}
       >
-        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
-              <Typography variant="caption" color="text.disabled">
-                {question.courseTitle}
-                {question.lectureName && ` · ${question.lectureName}`}
-              </Typography>
-              {question.isFeatured && (
-                <Chip
-                  label="Featured"
-                  size="small"
-                  icon={<StarIcon sx={{ fontSize: "11px !important", color: "warning.main !important" }} />}
-                  sx={{
-                    height: 16,
-                    fontSize: "0.62rem",
-                    fontWeight: 600,
-                    bgcolor: "warning.lighter",
-                    color: "warning.dark",
-                    "& .MuiChip-icon": { ml: 0.3 },
-                  }}
-                />
-              )}
-            </Stack>
-            <Typography variant="body1" sx={{ fontWeight: 700, color: "text.primary", lineHeight: 1.4 }}>
-              {question.title}
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Box>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
+              Public question in course <Box component="span" sx={{ color: "brand.main", fontWeight: 700 }}>{question.courseName}</Box>
             </Typography>
+            {question.itemId && (
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem", mt: 0.3 }}>
+                Lecture <Box component="span" sx={{ color: "brand.main", fontWeight: 700 }}>{question.itemId}</Box>
+              </Typography>
+            )}
           </Box>
-
-          <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flexShrink: 0 }}>
-            <Stack direction="row" alignItems="center" spacing={0.4}>
-              <ThumbUpOutlinedIcon sx={{ fontSize: 15, color: "text.secondary" }} />
-              <Typography variant="caption" color="text.secondary">{question.upvoteCount}</Typography>
-            </Stack>
+          <Stack direction="row" alignItems="center" spacing={0.5}>
+            <Typography variant="caption" color="text.secondary">{qUpvoteCount}</Typography>
+            <Box
+              component="span"
+              onClick={() => {
+                if (!question) return;
+                const was = qUpvoted;
+                setQUpvoted(!was);
+                setQUpvoteCount((p) => was ? p - 1 : p + 1);
+                toggleQuestionUpvote.mutate(question.id, {
+                  onSuccess: (data) => { if (data?.result) { setQUpvoteCount(data.result.upvoteCount); setQUpvoted(data.result.hasUpvoted); } },
+                  onError: () => { setQUpvoted(was); setQUpvoteCount((p) => was ? p + 1 : p - 1); },
+                });
+              }}
+              sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", color: "grey.500", cursor: "pointer", transition: "all 0.15s" }}
+            >
+              {qUpvoted ? <ArrowCircleUpTwoToneIcon sx={{ fontSize: 20 }} /> : <ArrowCircleUpIcon sx={{ fontSize: 20 }} />}
+            </Box>
             <IconButton
               size="small"
               onClick={(e) => setMenuAnchor(e.currentTarget)}
               sx={{ color: "grey.500", "&:hover": { color: "grey.800", bgcolor: "grey.100" } }}
             >
-              <MoreVertIcon />
+              <MoreVertIcon sx={{ fontSize: 18 }} />
             </IconButton>
           </Stack>
         </Stack>
+      </Box>
 
-        {/* Question detail */}
-        {question.detail && (
-          <Box
-            sx={{ mt: 1.5, fontSize: "0.875rem", color: "text.secondary", lineHeight: 1.7 }}
-            dangerouslySetInnerHTML={{ __html: question.detail }}
-          />
-        )}
+      {/* ── Scrollable area: question + answers ── */}
+      <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto", px: 3 }}>
 
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1.5 }}>
-          <Avatar src={question.authorAvatar} sx={{ width: 24, height: 24 }} />
-          <Typography variant="caption" color="text.disabled">
-            {question.authorName} · {formatRelativeTime(question.createdAt)}
+        {/* Question block (scrolls with content) */}
+        <Box sx={{ py: 2.5, borderBottom: "1px solid", borderColor: "divider", mb: 1 }}>
+          {question.isFeatured && (
+            <Chip
+              label="Featured"
+              size="small"
+              sx={{ height: 16, fontSize: "0.62rem", fontWeight: 600, bgcolor: "warning.lighter", color: "warning.dark", mb: 1, "& .MuiChip-icon": { ml: 0.3 } }}
+            />
+          )}
+          <Typography variant="body1" sx={{ fontWeight: 700, color: "text.primary", lineHeight: 1.4, mb: 0.5 }}>
+            {question.title}
           </Typography>
-        </Stack>
-      </Box>
-
-      {/* Answers list */}
-      <Box sx={{ flex: 1, overflowY: "auto", px: 3 }}>
-        {/* Top Answers */}
-        {topAnswers.length > 0 && (
-          <>
-            <Box sx={{ py: 1.5 }}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Divider sx={{ flex: 1 }} />
-                <Typography variant="caption" color="success.main" fontWeight={700} sx={{ px: 1, letterSpacing: 0.5 }}>
-                  ⭐ TOP ANSWERS
-                </Typography>
-                <Divider sx={{ flex: 1 }} />
-              </Stack>
-            </Box>
-            {topAnswers.map((answer) => (
-              <Box key={answer.id}>
-                <AnswerCard answer={answer} onToggleTop={handleToggleTop} />
-                <Divider />
-              </Box>
-            ))}
-          </>
-        )}
-
-        {/* Other Answers */}
-        {otherAnswers.length > 0 && (
-          <>
-            <Box sx={{ py: 1.5 }}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Divider sx={{ flex: 1 }} />
-                <Typography variant="caption" color="text.disabled" fontWeight={600} sx={{ px: 1, letterSpacing: 0.5 }}>
-                  {answers.length} {answers.length === 1 ? "ANSWER" : "ANSWERS"}
-                </Typography>
-                <Divider sx={{ flex: 1 }} />
-              </Stack>
-            </Box>
-            {otherAnswers.map((answer) => (
-              <Box key={answer.id}>
-                <AnswerCard answer={answer} onToggleTop={handleToggleTop} />
-                <Divider />
-              </Box>
-            ))}
-          </>
-        )}
-
-        {answers.length === 0 && (
-          <Box sx={{ py: 6, textAlign: "center" }}>
-            <ChatBubbleOutlineIcon sx={{ fontSize: 36, color: "grey.300", mb: 1 }} />
-            <Typography variant="body2" color="text.secondary">
-              No answers yet. Be the first to reply!
+          {question.detail && (
+            <Box
+              sx={{ mt: 1, fontSize: "0.875rem", color: "text.secondary", lineHeight: 1.7 }}
+              dangerouslySetInnerHTML={{ __html: question.detail }}
+            />
+          )}
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1.5 }}>
+            <Avatar src={question.authorAvatar} sx={{ width: 22, height: 22 }} />
+            <Typography variant="caption" color="text.disabled">
+              {question.authorName} · {formatTimeAgo(question.created)}
             </Typography>
+          </Stack>
+        </Box>
+
+        {/* Answers */}
+        {answersLoading ? (
+          <Box sx={{ py: 4, textAlign: "center" }}>
+            <CircularProgress size={24} sx={{ color: "brand.main" }} />
           </Box>
+        ) : (
+          <>
+            {answers.length > 0 && (
+              <>
+                <Box sx={{ py: 1.5 }}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Divider sx={{ flex: 1 }} />
+                    <Typography variant="caption" color="text.disabled" fontWeight={600} sx={{ px: 1, letterSpacing: 0.5 }}>
+                      {answers.length} {answers.length === 1 ? "ANSWER" : "ANSWERS"}
+                    </Typography>
+                    <Divider sx={{ flex: 1 }} />
+                  </Stack>
+                </Box>
+                {answers.map((a) => (
+                  <Box key={a.id}>
+                    <AnswerCard answer={a} onToggleTop={(id) => toggleTopAnswer.mutate(id)} currentUserId={currentUserId} />
+                    <Divider />
+                  </Box>
+                ))}
+              </>
+            )}
+
+            {answers.length === 0 && (
+              <Box sx={{ py: 6, textAlign: "center" }}>
+                <ChatBubbleOutlineIcon sx={{ fontSize: 36, color: "grey.300", mb: 1 }} />
+                <Typography variant="body2" color="text.secondary">No answers yet. Be the first to reply!</Typography>
+              </Box>
+            )}
+          </>
         )}
-
-        <div ref={bottomRef} />
+        {/* Scroll anchor inside scrollable box */}
+        <div ref={scrollRef} />
       </Box>
 
-      {/* Reply Box */}
-      <Box
-        sx={{
-          px: 3,
-          py: 2,
-          borderTop: "1px solid",
-          borderColor: "divider",
-          bgcolor: "background.paper",
-          flexShrink: 0,
-        }}
-      >
-        <Stack direction="row" spacing={1.5} alignItems="flex-end">
-          <Avatar src="https://i.pravatar.cc/40?img=33" sx={{ width: 36, height: 36, flexShrink: 0, mb: 0.3 }} />
-          <TextField
-            fullWidth
-            multiline
-            minRows={1}
-            maxRows={4}
-            placeholder="Post a public answer..."
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handlePostReply();
-              }
-            }}
-            size="small"
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 3,
-                bgcolor: "background.surface",
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "brand.main",
-                },
-              },
-            }}
-          />
-          <Button
-            variant="contained"
-            onClick={handlePostReply}
-            disabled={!replyText.trim()}
-            sx={{
-              flexShrink: 0,
-              bgcolor: "brand.main",
-              "&:hover": { bgcolor: "brand.dark" },
-              "&:disabled": { bgcolor: "grey.300" },
-              borderRadius: 2,
-              px: 2,
-              py: 1,
-              minWidth: "auto",
-            }}
-          >
-            <SendIcon sx={{ fontSize: 18 }} />
-          </Button>
-        </Stack>
-      </Box>
+      {/* ── Sticky reply box (collapsed → expanded) ── */}
+      <ReplyBox questionId={question.id} onPosted={scrollToBottom} />
 
-      {/* Header 3-dot menu */}
+      {/* 3-dot menu */}
       <Menu
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}
         onClose={() => setMenuAnchor(null)}
         PaperProps={{ sx: { minWidth: 210, borderRadius: 2, boxShadow: 3 } }}
       >
-        <MenuItem onClick={() => setMenuAnchor(null)} sx={{ fontSize: "0.875rem", py: 1 }}>
-          <StarIcon sx={{ fontSize: 18, mr: 1.5, color: "warning.main" }} />
-          {question.isFeatured ? "Unmark Featured" : "Mark as Featured"}
+        <MenuItem onClick={() => { toggleFeatured.mutate(question.id); setMenuAnchor(null); }} sx={{ fontSize: "0.875rem", py: 1 }}>
+          {question.isFeatured ? "Remove from featured questions" : "Add to featured questions"}
         </MenuItem>
-        <MenuItem onClick={() => setMenuAnchor(null)} sx={{ fontSize: "0.875rem", py: 1 }}>
-          Mark as Unread
+        <MenuItem onClick={() => { toggleReadStatus.mutate(question.id); setMenuAnchor(null); }} sx={{ fontSize: "0.875rem", py: 1 }}>
+          {question.isRead ? "Mark as Unread" : "Mark as Read"}
         </MenuItem>
         <Divider />
-        <MenuItem onClick={() => setMenuAnchor(null)} sx={{ fontSize: "0.875rem", py: 1 }}>
-          Edit
-        </MenuItem>
-        <MenuItem onClick={() => setMenuAnchor(null)} sx={{ fontSize: "0.875rem", py: 1, color: "error.main" }}>
-          Delete
-        </MenuItem>
+        <MenuItem onClick={() => {
+          deleteQuestion.mutate(question.id, {
+            onSuccess: () => {
+              if (onQuestionDeleted) onQuestionDeleted();
+            }
+          });
+          setMenuAnchor(null);
+        }} sx={{ fontSize: "0.875rem", py: 1, color: "error.main" }}>Delete</MenuItem>
       </Menu>
     </Box>
   );

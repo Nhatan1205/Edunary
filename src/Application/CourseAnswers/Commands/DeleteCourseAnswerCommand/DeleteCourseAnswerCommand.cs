@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseAnswers.Commands.DeleteCourseAnswerCommand;
 
@@ -28,16 +29,23 @@ public class DeleteCourseAnswerCommandHandler
         try
         {
             var answer = await _context.CourseAnswers
-                .FindAsync(new object[] { request.AnswerId }, cancellationToken);
+                .Include(a => a.Question)
+                .FirstOrDefaultAsync(a => a.Id == request.AnswerId, cancellationToken);
 
             Guard.Against.NotFound(request.AnswerId, answer);
 
-            if (answer.CreatedBy != _currentUserService.UserId)
+            var userId = _currentUserService.UserId;
+
+            // Author or course instructor can delete
+            var isInstructor = await _context.Courses
+                .Where(c => c.Id == answer.Question.CourseId)
+                .AnyAsync(c => c.CreatedBy == userId, cancellationToken);
+
+            if (answer.CreatedBy != userId && !isInstructor)
             {
                 return Result.Failure("Not authorized to delete this answer.");
             }
 
-            // Decrement denormalized count on parent question
             var question = await _context.CourseQuestions
                 .FindAsync(new object[] { answer.QuestionId }, cancellationToken);
 

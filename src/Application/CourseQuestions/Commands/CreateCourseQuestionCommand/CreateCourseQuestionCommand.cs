@@ -37,11 +37,18 @@ public class CreateCourseQuestionCommandHandler
         {
             var userId = _currentUserService.UserId;
 
-            //check if user enrolled in this course
+            // Allow enrolled students OR the course instructor
+            var course = await _context.Courses
+                .Where(c => c.Id == request.CourseId)
+                .Select(c => new { c.CreatedBy })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            var isInstructor = course?.CreatedBy == userId;
+
             var isEnrolled = await _context.Enrollments
                 .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == userId, cancellationToken);
 
-            if (!isEnrolled)
+            if (!isEnrolled && !isInstructor)
             {
                 return new ReturnResult<CreatedCourseQuestionDto>
                 {

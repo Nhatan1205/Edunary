@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -6,10 +6,9 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   TextField,
   InputAdornment,
-  Chip,
+  IconButton,
   useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -18,7 +17,8 @@ import MainCard from "../../../../components/instructor-layout/MainCard";
 import PageTitle from "../../../../components/PageTitle";
 import QuestionListPanel from "./components/QuestionListPanel";
 import AnswerPanel from "./components/AnswerPanel";
-import { MOCK_COURSES, MOCK_QUESTIONS } from "./mockData";
+import useGetCoursesAuthor from "../../../../hooks/course-hooks/useGetCoursesAuthor";
+import useGetInstructorQuestions from "../../../../hooks/course-qa-hooks/useGetInstructorQuestions";
 
 const FILTER_OPTIONS = [
   { value: "all", label: "All Questions" },
@@ -37,26 +37,43 @@ const SORT_OPTIONS = [
 
 export default function QADashboardPage() {
   const [selectedCourseId, setSelectedCourseId] = useState(null);
-  const [filterBy, setFilterBy] = useState("all");
+  const [filterBy, setFilterBy] = useState("unread");
   const [sortBy, setSortBy] = useState("newestFirst");
   const [searchText, setSearchText] = useState("");
+  const [committedSearch, setCommittedSearch] = useState("");
   const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [page, setPage] = useState(1);
 
   const isSmall = useMediaQuery("(max-width:900px)");
 
-  // Stats derived from mock
-  const totalQ = MOCK_QUESTIONS.filter(
-    (q) => selectedCourseId === null || q.courseId === selectedCourseId
-  ).length;
-  const unansweredQ = MOCK_QUESTIONS.filter(
-    (q) =>
-      (selectedCourseId === null || q.courseId === selectedCourseId) &&
-      q.answerCount === 0
-  ).length;
-  const unreadQ = MOCK_QUESTIONS.filter(
-    (q) =>
-      (selectedCourseId === null || q.courseId === selectedCourseId) && !q.isRead
-  ).length;
+  // Fetch instructor's courses for the dropdown
+  const { data: coursesData } = useGetCoursesAuthor("", 0, 1, 100);
+  const courses = useMemo(() => {
+    const items = coursesData?.items ?? [];
+    return [{ id: null, title: "All courses" }, ...items.map((c) => ({ id: c.id, title: c.title }))];
+  }, [coursesData]);
+
+  // Fetch questions from API
+  const { data: questionsData, isLoading } = useGetInstructorQuestions({
+    courseId: selectedCourseId ?? undefined,
+    searchText: committedSearch || undefined,
+    sortBy,
+    filterBy,
+    pageNumber: page,
+    pageSize: 20,
+  });
+
+  const questions = questionsData?.items ?? [];
+  const totalCount = questionsData?.totalCount ?? 0;
+  const unansweredCount = questions.filter((q) => q.answerCount === 0).length;
+  const unreadCount = questions.filter((q) => !q.isRead).length;
+
+  function handleSearchKeyDown(e) {
+    if (e.key === "Enter") {
+      setCommittedSearch(searchText);
+      setPage(1);
+    }
+  }
 
   return (
     <MainCard>
@@ -78,9 +95,9 @@ export default function QADashboardPage() {
 
         {/* Quick stats */}
         <Stack direction="row" spacing={1.5} flexWrap="wrap">
-          <StatChip label="Total" value={totalQ} />
-          <StatChip label="Unanswered" value={unansweredQ} />
-          <StatChip label="Unread" value={unreadQ} />
+          <StatChip label="Total" value={isLoading ? "…" : totalCount} />
+          <StatChip label="Unanswered" value={isLoading ? "…" : unansweredCount} />
+          <StatChip label="Unread" value={isLoading ? "…" : unreadCount} />
         </Stack>
       </Stack>
 
@@ -101,6 +118,7 @@ export default function QADashboardPage() {
               const val = e.target.value;
               setSelectedCourseId(val === "all" ? null : val);
               setSelectedQuestion(null);
+              setPage(1);
             }}
             displayEmpty
             sx={{
@@ -112,7 +130,7 @@ export default function QADashboardPage() {
               fontWeight: 600,
             }}
           >
-            {MOCK_COURSES.map((c) => (
+            {courses.map((c) => (
               <MenuItem key={c.id ?? "all"} value={c.id ?? "all"} sx={{ fontSize: "0.875rem" }}>
                 {c.title}
               </MenuItem>
@@ -124,7 +142,7 @@ export default function QADashboardPage() {
         <FormControl size="small" sx={{ minWidth: 190 }}>
           <Select
             value={filterBy}
-            onChange={(e) => { setFilterBy(e.target.value); setSelectedQuestion(null); }}
+            onChange={(e) => { setFilterBy(e.target.value); setSelectedQuestion(null); setPage(1); }}
             sx={{
               borderRadius: 2,
               bgcolor: "background.paper",
@@ -145,7 +163,7 @@ export default function QADashboardPage() {
         <FormControl size="small" sx={{ minWidth: 170 }}>
           <Select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
             sx={{
               borderRadius: 2,
               bgcolor: "background.paper",
@@ -162,31 +180,40 @@ export default function QADashboardPage() {
           </Select>
         </FormControl>
 
-        {/* Search */}
-        <TextField
-          size="small"
-          placeholder="Search questions..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ fontSize: 18, color: "text.disabled" }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            flex: 1,
-            minWidth: 180,
-            "& .MuiOutlinedInput-root": {
+        {/* Search + button */}
+        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flex: 1, minWidth: 180 }}>
+          <TextField
+            size="small"
+            placeholder="Search questions..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            sx={{
+              flex: 1,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+                bgcolor: "background.paper",
+                "& fieldset": { borderColor: "divider" },
+                "&:hover fieldset": { borderColor: "brand.light" },
+                "&.Mui-focused fieldset": { borderColor: "brand.main" },
+              },
+            }}
+          />
+          <IconButton
+            onClick={() => { setCommittedSearch(searchText); setPage(1); }}
+            sx={{
+              bgcolor: "brand.main",
+              color: "white",
               borderRadius: 2,
-              bgcolor: "background.paper",
-              "& fieldset": { borderColor: "divider" },
-              "&:hover fieldset": { borderColor: "brand.light" },
-              "&.Mui-focused fieldset": { borderColor: "brand.main" },
-            },
-          }}
-        />
+              width: 36,
+              height: 36,
+              flexShrink: 0,
+              "&:hover": { bgcolor: "brand.dark" },
+            }}
+          >
+            <SearchIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+        </Stack>
       </Stack>
 
       {/* 2-Panel Layout */}
@@ -235,12 +262,10 @@ export default function QADashboardPage() {
           </Box>
           <Box sx={{ flex: 1, overflow: "hidden" }}>
             <QuestionListPanel
-              selectedCourseId={selectedCourseId}
+              questions={questions}
+              isLoading={isLoading}
               selectedQuestion={selectedQuestion}
               onSelectQuestion={setSelectedQuestion}
-              filterBy={filterBy}
-              sortBy={sortBy}
-              searchText={searchText}
             />
           </Box>
         </Box>
@@ -250,11 +275,17 @@ export default function QADashboardPage() {
           sx={{
             flex: 1,
             minWidth: 0,
+            minHeight: 0,
+            overflow: "hidden",
             display: isSmall && !selectedQuestion ? "none" : "flex",
             flexDirection: "column",
           }}
         >
-          <AnswerPanel question={selectedQuestion} />
+          <AnswerPanel
+            question={selectedQuestion}
+            onQuestionUpdate={(updatedQuestion) => setSelectedQuestion(updatedQuestion)}
+            onQuestionDeleted={() => setSelectedQuestion(null)}
+          />
         </Box>
       </Box>
     </MainCard>

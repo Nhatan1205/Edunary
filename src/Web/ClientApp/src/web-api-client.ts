@@ -1083,17 +1083,54 @@ export class CourseAnswersClient {
         return Promise.resolve<ReturnResultOfCreatedCourseAnswerDto>(null as any);
     }
 
-    deleteCourseAnswer(command: DeleteCourseAnswerCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/CourseAnswers";
+    updateCourseAnswer(answerId: number, command: UpdateCourseAnswerCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseAnswers/{answerId}";
+        if (answerId === undefined || answerId === null)
+            throw new Error("The parameter 'answerId' must be defined.");
+        url_ = url_.replace("{answerId}", encodeURIComponent("" + answerId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
 
         let options_: RequestInit = {
             body: content_,
-            method: "DELETE",
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCourseAnswer(_response);
+        });
+    }
+
+    protected processUpdateCourseAnswer(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteCourseAnswer(answerId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseAnswers/{answerId}";
+        if (answerId === undefined || answerId === null)
+            throw new Error("The parameter 'answerId' must be defined.");
+        url_ = url_.replace("{answerId}", encodeURIComponent("" + answerId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
             }
         };
 
@@ -1981,17 +2018,105 @@ export class CourseQuestionsClient {
         return Promise.resolve<ReturnResultOfCreatedCourseQuestionDto>(null as any);
     }
 
-    deleteCourseQuestion(command: DeleteCourseQuestionCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/CourseQuestions";
+    getInstructorQuestions(courseId: number | null | undefined, searchText: string | null | undefined, sortBy: string | null | undefined, filterBy: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfInstructorCourseQuestionDto> {
+        let url_ = this.baseUrl + "/api/CourseQuestions/instructor?";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (sortBy !== undefined && sortBy !== null)
+            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
+        if (filterBy !== undefined && filterBy !== null)
+            url_ += "FilterBy=" + encodeURIComponent("" + filterBy) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetInstructorQuestions(_response);
+        });
+    }
+
+    protected processGetInstructorQuestions(response: Response): Promise<PaginatedListOfInstructorCourseQuestionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfInstructorCourseQuestionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfInstructorCourseQuestionDto>(null as any);
+    }
+
+    updateCourseQuestion(questionId: number, command: UpdateCourseQuestionCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseQuestions/{questionId}";
+        if (questionId === undefined || questionId === null)
+            throw new Error("The parameter 'questionId' must be defined.");
+        url_ = url_.replace("{questionId}", encodeURIComponent("" + questionId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
 
         let options_: RequestInit = {
             body: content_,
-            method: "DELETE",
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCourseQuestion(_response);
+        });
+    }
+
+    protected processUpdateCourseQuestion(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteCourseQuestion(questionId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseQuestions/{questionId}";
+        if (questionId === undefined || questionId === null)
+            throw new Error("The parameter 'questionId' must be defined.");
+        url_ = url_.replace("{questionId}", encodeURIComponent("" + questionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
             }
         };
 
@@ -8745,10 +8870,11 @@ export interface ICreateCourseAnswerCommand {
     body?: string | undefined;
 }
 
-export class DeleteCourseAnswerCommand implements IDeleteCourseAnswerCommand {
+export class UpdateCourseAnswerCommand implements IUpdateCourseAnswerCommand {
     answerId?: number;
+    body?: string | undefined;
 
-    constructor(data?: IDeleteCourseAnswerCommand) {
+    constructor(data?: IUpdateCourseAnswerCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -8760,12 +8886,13 @@ export class DeleteCourseAnswerCommand implements IDeleteCourseAnswerCommand {
     init(_data?: any) {
         if (_data) {
             this.answerId = _data["answerId"];
+            this.body = _data["body"];
         }
     }
 
-    static fromJS(data: any): DeleteCourseAnswerCommand {
+    static fromJS(data: any): UpdateCourseAnswerCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new DeleteCourseAnswerCommand();
+        let result = new UpdateCourseAnswerCommand();
         result.init(data);
         return result;
     }
@@ -8773,12 +8900,14 @@ export class DeleteCourseAnswerCommand implements IDeleteCourseAnswerCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["answerId"] = this.answerId;
+        data["body"] = this.body;
         return data;
     }
 }
 
-export interface IDeleteCourseAnswerCommand {
+export interface IUpdateCourseAnswerCommand {
     answerId?: number;
+    body?: string | undefined;
 }
 
 export class GetCourseByIdDto implements IGetCourseByIdDto {
@@ -9913,6 +10042,158 @@ export interface ICourseQuestionDto {
     hasUpvoted?: boolean;
 }
 
+export class PaginatedListOfInstructorCourseQuestionDto implements IPaginatedListOfInstructorCourseQuestionDto {
+    items?: InstructorCourseQuestionDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfInstructorCourseQuestionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(InstructorCourseQuestionDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfInstructorCourseQuestionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfInstructorCourseQuestionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfInstructorCourseQuestionDto {
+    items?: InstructorCourseQuestionDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class InstructorCourseQuestionDto implements IInstructorCourseQuestionDto {
+    id?: number;
+    courseId?: number;
+    courseName?: string | undefined;
+    itemId?: string | undefined;
+    title?: string | undefined;
+    detail?: string | undefined;
+    answerCount?: number;
+    upvoteCount?: number;
+    isFeatured?: boolean;
+    isRead?: boolean;
+    created?: Date;
+    createdBy?: string | undefined;
+    authorName?: string | undefined;
+    authorAvatar?: string | undefined;
+
+    constructor(data?: IInstructorCourseQuestionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.courseName = _data["courseName"];
+            this.itemId = _data["itemId"];
+            this.title = _data["title"];
+            this.detail = _data["detail"];
+            this.answerCount = _data["answerCount"];
+            this.upvoteCount = _data["upvoteCount"];
+            this.isFeatured = _data["isFeatured"];
+            this.isRead = _data["isRead"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.authorName = _data["authorName"];
+            this.authorAvatar = _data["authorAvatar"];
+        }
+    }
+
+    static fromJS(data: any): InstructorCourseQuestionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorCourseQuestionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["courseName"] = this.courseName;
+        data["itemId"] = this.itemId;
+        data["title"] = this.title;
+        data["detail"] = this.detail;
+        data["answerCount"] = this.answerCount;
+        data["upvoteCount"] = this.upvoteCount;
+        data["isFeatured"] = this.isFeatured;
+        data["isRead"] = this.isRead;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["authorName"] = this.authorName;
+        data["authorAvatar"] = this.authorAvatar;
+        return data;
+    }
+}
+
+export interface IInstructorCourseQuestionDto {
+    id?: number;
+    courseId?: number;
+    courseName?: string | undefined;
+    itemId?: string | undefined;
+    title?: string | undefined;
+    detail?: string | undefined;
+    answerCount?: number;
+    upvoteCount?: number;
+    isFeatured?: boolean;
+    isRead?: boolean;
+    created?: Date;
+    createdBy?: string | undefined;
+    authorName?: string | undefined;
+    authorAvatar?: string | undefined;
+}
+
 export class ReturnResultOfCreatedCourseQuestionDto implements IReturnResultOfCreatedCourseQuestionDto {
     result?: CreatedCourseQuestionDto | undefined;
     message?: string | undefined;
@@ -10077,10 +10358,12 @@ export interface ICreateCourseQuestionCommand {
     detail?: string | undefined;
 }
 
-export class DeleteCourseQuestionCommand implements IDeleteCourseQuestionCommand {
+export class UpdateCourseQuestionCommand implements IUpdateCourseQuestionCommand {
     questionId?: number;
+    title?: string | undefined;
+    detail?: string | undefined;
 
-    constructor(data?: IDeleteCourseQuestionCommand) {
+    constructor(data?: IUpdateCourseQuestionCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -10092,12 +10375,14 @@ export class DeleteCourseQuestionCommand implements IDeleteCourseQuestionCommand
     init(_data?: any) {
         if (_data) {
             this.questionId = _data["questionId"];
+            this.title = _data["title"];
+            this.detail = _data["detail"];
         }
     }
 
-    static fromJS(data: any): DeleteCourseQuestionCommand {
+    static fromJS(data: any): UpdateCourseQuestionCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new DeleteCourseQuestionCommand();
+        let result = new UpdateCourseQuestionCommand();
         result.init(data);
         return result;
     }
@@ -10105,12 +10390,16 @@ export class DeleteCourseQuestionCommand implements IDeleteCourseQuestionCommand
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["questionId"] = this.questionId;
+        data["title"] = this.title;
+        data["detail"] = this.detail;
         return data;
     }
 }
 
-export interface IDeleteCourseQuestionCommand {
+export interface IUpdateCourseQuestionCommand {
     questionId?: number;
+    title?: string | undefined;
+    detail?: string | undefined;
 }
 
 export class ReturnResultOfCreatedCourseDto implements IReturnResultOfCreatedCourseDto {

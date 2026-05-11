@@ -18,6 +18,8 @@ public class InstructorCourseQuestionDto
     public string CreatedBy { get; set; } = string.Empty;
     public string AuthorName { get; set; }
     public string AuthorAvatar { get; set; }
+    public string LectureName { get; set; }
+    public bool HasUpvoted { get; set; }
 
     private class Mapping : Profile
     {
@@ -26,7 +28,8 @@ public class InstructorCourseQuestionDto
             CreateMap<CourseQuestion, InstructorCourseQuestionDto>()
                 .ForMember(d => d.CourseName, opt => opt.MapFrom(s => s.Course.Title))
                 .ForMember(d => d.AuthorName, opt => opt.Ignore())
-                .ForMember(d => d.AuthorAvatar, opt => opt.Ignore());
+                .ForMember(d => d.AuthorAvatar, opt => opt.Ignore())
+                .ForMember(d => d.LectureName, opt => opt.Ignore());
         }
     }
 }

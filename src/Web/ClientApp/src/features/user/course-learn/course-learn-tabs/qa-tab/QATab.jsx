@@ -323,6 +323,8 @@ export default function QATab({ courseId, currentItem }) {
             "& .MuiOutlinedInput-root": {
               borderRadius: 2,
               fontSize: "0.9rem",
+              "& fieldset": { borderColor: "divider" },
+              "&:hover fieldset": { borderColor: "brand.main" },
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
             },
           }}
@@ -355,6 +357,7 @@ export default function QATab({ courseId, currentItem }) {
               sx={{
                 fontSize: "0.82rem", borderRadius: 1.5, minWidth: 200,
                 "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
                 "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
               }}
             >
@@ -375,6 +378,7 @@ export default function QATab({ courseId, currentItem }) {
               sx={{
                 fontSize: "0.82rem", borderRadius: 1.5, minWidth: 180,
                 "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
                 "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
               }}
             >
@@ -400,8 +404,8 @@ export default function QATab({ courseId, currentItem }) {
                 fontWeight: 600,
                 color: "brand.main",
                 "& .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
-                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.dark" },
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.dark" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
                 "& .MuiSvgIcon-root": { color: "brand.main" },
               }}
             >

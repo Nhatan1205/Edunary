@@ -34,7 +34,35 @@ import useToggleReadStatus from "../../../../../hooks/course-qa-hooks/useToggleR
 import useGetBasicUserInfor from "../../../../../hooks/auth-hooks/useGetBasicUserInfor";
 import TextEditor from "../../../../../components/TextEditor";
 
-// ── Single answer card ─────────────────────────────────────────────────────
+// ── Question upvote button — key={question.id} forces re-mount on question change ──
+function QuestionUpvoteButton({ question }) {
+  const toggleQuestionUpvote = useToggleQuestionUpvote();
+  const [upvoted, setUpvoted] = useState(question?.hasUpvoted ?? false);
+  const [count, setCount] = useState(question?.upvoteCount ?? 0);
+
+  function handleUpvote() {
+    if (!question) return;
+    const was = upvoted;
+    setUpvoted(!was);
+    setCount((p) => was ? p - 1 : p + 1);
+    toggleQuestionUpvote.mutate(question.id, {
+      onSuccess: (data) => { if (data?.result) { setCount(data.result.upvoteCount); setUpvoted(data.result.hasUpvoted); } },
+      onError: () => { setUpvoted(was); setCount((p) => was ? p + 1 : p - 1); },
+    });
+  }
+
+  return (
+    <Stack direction="row" alignItems="center" spacing={0.3}>
+      <Typography variant="caption" color="text.secondary">{count}</Typography>
+      <Box component="span" onClick={handleUpvote}
+        sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", color: "grey.500", cursor: "pointer", transition: "all 0.15s" }}>
+        {upvoted ? <ArrowCircleUpTwoToneIcon sx={{ fontSize: 20 }} /> : <ArrowCircleUpIcon sx={{ fontSize: 20 }} />}
+      </Box>
+    </Stack>
+  );
+}
+
+
 function AnswerCard({ answer, onToggleTop, currentUserId }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -136,7 +164,6 @@ function AnswerCard({ answer, onToggleTop, currentUserId }) {
   );
 }
 
-// ── Collapsed → expanded reply box (Udemy-style) ───────────────────────────
 function ReplyBox({ questionId, onPosted }) {
   const [expanded, setExpanded] = useState(false);
   const [body, setBody] = useState("");
@@ -268,12 +295,9 @@ export default function AnswerPanel({ question, onQuestionDeleted }) {
   const scrollRef = useRef(null);
   const { data: currentUser } = useGetBasicUserInfor();
   const currentUserId = currentUser?.userId;
-  const toggleQuestionUpvote = useToggleQuestionUpvote();
   const toggleFeatured = useToggleFeatured();
   const toggleReadStatus = useToggleReadStatus();
   const deleteQuestion = useDeleteCourseQuestion();
-  const [qUpvoted, setQUpvoted] = useState(question?.hasUpvoted ?? false);
-  const [qUpvoteCount, setQUpvoteCount] = useState(question?.upvoteCount ?? 0);
 
   const { data: answersData, isLoading: answersLoading } = useGetCourseAnswers(
     question?.id,
@@ -322,28 +346,23 @@ export default function AnswerPanel({ question, onQuestionDeleted }) {
             </Typography>
             {question.itemId && (
               <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem", mt: 0.3 }}>
-                Lecture <Box component="span" sx={{ color: "brand.main", fontWeight: 700 }}>{question.itemId}</Box>
+                Lecture{" "}
+                <Typography
+                  component="span"
+                  variant="inherit"
+                  noWrap
+                  title={question.lectureName || question.itemId}
+                  sx={{ color: "brand.main", fontWeight: 700, maxWidth: 260, display: "inline-block", verticalAlign: "bottom" }}
+                >
+                  {question.lectureName ?? question.itemId}
+                </Typography>
               </Typography>
             )}
+
           </Box>
           <Stack direction="row" alignItems="center" spacing={0.5}>
-            <Typography variant="caption" color="text.secondary">{qUpvoteCount}</Typography>
-            <Box
-              component="span"
-              onClick={() => {
-                if (!question) return;
-                const was = qUpvoted;
-                setQUpvoted(!was);
-                setQUpvoteCount((p) => was ? p - 1 : p + 1);
-                toggleQuestionUpvote.mutate(question.id, {
-                  onSuccess: (data) => { if (data?.result) { setQUpvoteCount(data.result.upvoteCount); setQUpvoted(data.result.hasUpvoted); } },
-                  onError: () => { setQUpvoted(was); setQUpvoteCount((p) => was ? p + 1 : p - 1); },
-                });
-              }}
-              sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", color: "grey.500", cursor: "pointer", transition: "all 0.15s" }}
-            >
-              {qUpvoted ? <ArrowCircleUpTwoToneIcon sx={{ fontSize: 20 }} /> : <ArrowCircleUpIcon sx={{ fontSize: 20 }} />}
-            </Box>
+            {/* key=question.id forces re-mount → state resets correctly on question switch */}
+            <QuestionUpvoteButton key={question.id} question={question} />
             <IconButton
               size="small"
               onClick={(e) => setMenuAnchor(e.currentTarget)}

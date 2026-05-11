@@ -10121,6 +10121,8 @@ export class InstructorCourseQuestionDto implements IInstructorCourseQuestionDto
     createdBy?: string | undefined;
     authorName?: string | undefined;
     authorAvatar?: string | undefined;
+    lectureName?: string | undefined;
+    hasUpvoted?: boolean;
 
     constructor(data?: IInstructorCourseQuestionDto) {
         if (data) {
@@ -10147,6 +10149,8 @@ export class InstructorCourseQuestionDto implements IInstructorCourseQuestionDto
             this.createdBy = _data["createdBy"];
             this.authorName = _data["authorName"];
             this.authorAvatar = _data["authorAvatar"];
+            this.lectureName = _data["lectureName"];
+            this.hasUpvoted = _data["hasUpvoted"];
         }
     }
 
@@ -10173,6 +10177,8 @@ export class InstructorCourseQuestionDto implements IInstructorCourseQuestionDto
         data["createdBy"] = this.createdBy;
         data["authorName"] = this.authorName;
         data["authorAvatar"] = this.authorAvatar;
+        data["lectureName"] = this.lectureName;
+        data["hasUpvoted"] = this.hasUpvoted;
         return data;
     }
 }
@@ -10192,6 +10198,8 @@ export interface IInstructorCourseQuestionDto {
     createdBy?: string | undefined;
     authorName?: string | undefined;
     authorAvatar?: string | undefined;
+    lectureName?: string | undefined;
+    hasUpvoted?: boolean;
 }
 
 export class ReturnResultOfCreatedCourseQuestionDto implements IReturnResultOfCreatedCourseQuestionDto {

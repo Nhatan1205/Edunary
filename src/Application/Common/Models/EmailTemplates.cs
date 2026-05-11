@@ -189,4 +189,163 @@ public static class EmailTemplates
         </body>
         </html>";
     }
+
+    public static string BuildNewQuestionTemplate(string courseName, string questionTitle, string actionUrl, string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
+    {
+        var encodedCourse = System.Net.WebUtility.HtmlEncode(courseName);
+        var encodedTitle = System.Net.WebUtility.HtmlEncode(questionTitle);
+
+        return $@"<!doctype html>
+        <html lang=""en"">
+        <head>
+          <meta charset=""utf-8"" />
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+        </head>
+        <body style=""margin:0;padding:0;background:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1d1f;"">
+          <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;"">
+            <tr>
+              <td align=""center"" style=""padding:32px 20px 0;"">
+                <table role=""presentation"" width=""560"" cellpadding=""0"" cellspacing=""0"">
+
+                  <!-- Logo -->
+                  <tr>
+                    <td style=""padding-bottom:28px;"">
+                      <img src=""{logoUrl}"" alt=""Edunary"" width=""32"" height=""32""
+                        style=""display:inline-block;vertical-align:middle;margin-right:6px;border:0;"" />
+                      <span style=""font-size:20px;font-weight:700;vertical-align:middle;color:#00A76F;"">Edunary</span>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:28px;""></td></tr>
+
+                  <!-- Body -->
+                  <tr>
+                    <td>
+                      <p style=""margin:0 0 16px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        There is a new question in your course <strong>{encodedCourse}</strong>
+                      </p>
+                      <p style=""margin:0 0 24px;font-size:15px;line-height:1.6;color:#6a6f73;"">
+                        &ldquo;{encodedTitle}&rdquo;
+                      </p>
+                      <p style=""margin:0 0 24px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        Head over to your Q&amp;A dashboard to review and respond.
+                      </p>
+
+                      <!-- CTA -->
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""border-radius:4px;background:#00A76F;"">
+                            <a href=""{actionUrl}"" style=""display:inline-block;padding:12px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:4px;"">
+                              Go to Q&amp;A Dashboard
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:3px solid #e8e8e8;padding-top:24px;padding-bottom:8px;""></td></tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <p style=""margin:0;font-size:12px;line-height:1.6;color:#6a6f73;"">
+                        You're receiving this email because you are an instructor on Edunary.<br/>
+                        &copy; {DateTime.UtcNow.Year} Edunary Inc.
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+        ";
+    }
+
+    public static string BuildNewAnswerTemplate(string courseName, string questionTitle, bool isInstructorAnswer, string actionUrl, string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
+    {
+        var encodedCourse = System.Net.WebUtility.HtmlEncode(courseName);
+        var encodedTitle = System.Net.WebUtility.HtmlEncode(questionTitle);
+
+        var bodyLine = isInstructorAnswer
+            ? $"There is a new response from the <strong>instructor</strong> to &ldquo;{encodedTitle}&rdquo; in your course <strong>{encodedCourse}</strong>"
+            : $"There is a new response to &ldquo;{encodedTitle}&rdquo; in your course <strong>{encodedCourse}</strong>";
+
+        var subLine = isInstructorAnswer
+            ? "Use the button below to see the instructor's reply."
+            : "Use the button below to see the response and indicate if it was helpful.";
+
+        return $@"<!doctype html>
+        <html lang=""en"">
+        <head>
+          <meta charset=""utf-8"" />
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+        </head>
+        <body style=""margin:0;padding:0;background:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1d1f;"">
+          <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;"">
+            <tr>
+              <td align=""center"" style=""padding:32px 20px 0;"">
+                <table role=""presentation"" width=""560"" cellpadding=""0"" cellspacing=""0"">
+
+                  <!-- Logo -->
+                  <tr>
+                    <td style=""padding-bottom:28px;"">
+                      <img src=""{logoUrl}"" alt=""Edunary"" width=""32"" height=""32""
+                        style=""display:inline-block;vertical-align:middle;margin-right:6px;border:0;"" />
+                      <span style=""font-size:20px;font-weight:700;vertical-align:middle;color:#00A76F;"">Edunary</span>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:28px;""></td></tr>
+
+                  <!-- Body -->
+                  <tr>
+                    <td>
+                      <p style=""margin:0 0 16px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        {bodyLine}
+                      </p>
+                      <p style=""margin:0 0 24px;font-size:15px;line-height:1.6;color:#6a6f73;"">
+                        {subLine}
+                      </p>
+
+                      <!-- CTA -->
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""border-radius:4px;background:#00A76F;"">
+                            <a href=""{actionUrl}"" style=""display:inline-block;padding:12px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:4px;"">
+                              See Response
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:3px solid #e8e8e8;padding-top:24px;padding-bottom:8px;""></td></tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <p style=""margin:0;font-size:12px;line-height:1.6;color:#6a6f73;"">
+                        You're receiving this email because you asked a question on Edunary.<br/>
+                        &copy; {DateTime.UtcNow.Year} Edunary Inc.
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>";
+            }
 }
+

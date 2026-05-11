@@ -248,31 +248,21 @@ export function getRecommendedScore(q) {
   return q.upvoteCount * 2 + q.answerCount * 1.5 + recency;
 }
 
-//use for QA Tab in learning page
-export function getLectureLabel(itemId, type) {
-  if (!itemId) return null;
-  const match = String(itemId).match(/(\d+)$/);
-  if (!match) return null;
-  const num = match[1];
-  const kind = (type || "lecture").toLowerCase();
-  if (kind === "quiz") return `Quiz ${num}`;
-  return `Lecture ${num}`;
-}
-
-//use for QA Tab in learning page
 export function buildItemLabelMap(sidebarData) {
   const map = {};
   if (!sidebarData) return map;
 
-  // progress is stored as a JSON string in the API response
   let progress = sidebarData.progress;
   if (typeof progress === "string") {
     try { progress = JSON.parse(progress); } catch { return map; }
   }
 
+  let globalIndex = 1;
   for (const section of progress?.contents ?? []) {
     for (const item of section.items ?? []) {
-      map[item.itemId] = getLectureLabel(item.itemId, item.type);
+      const kind = (item.type || "lecture").toLowerCase();
+      map[item.itemId] = kind === "quiz" ? `Quiz ${globalIndex}` : `Lecture ${globalIndex}`;
+      globalIndex++;
     }
   }
   return map;

@@ -2,6 +2,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Edunary.Application.CourseQuestions.Queries.GetInstructorQuestions;
 
@@ -93,6 +94,12 @@ public class GetInstructorQuestionsQueryHandler
         var users = await _identityService.GetUserIdentitiesByIdsAsync(authorIds, cancellationToken);
         var userMap = users.ToDictionary(u => u.Id);
 
+        var questionIds = paged.Items.Select(q => q.Id).ToList();
+        var upvotedIds = await _context.QuestionUpvotes
+            .Where(u => u.VoterId == instructorId && questionIds.Contains(u.QuestionId))
+            .Select(u => u.QuestionId)
+            .ToHashSetAsync(cancellationToken);
+
         foreach (var item in paged.Items)
         {
             if (userMap.TryGetValue(item.CreatedBy, out var user))
@@ -100,8 +107,43 @@ public class GetInstructorQuestionsQueryHandler
                 item.AuthorName = user.FullName;
                 item.AuthorAvatar = user.Avatar;
             }
+            item.HasUpvoted = upvotedIds.Contains(item.Id);
+        }
+
+        var questionsWithItem = paged.Items.Where(q => !string.IsNullOrEmpty(q.ItemId)).ToList();
+        if (questionsWithItem.Count > 0)
+        {
+            var courseIdList = questionsWithItem.Select(q => q.CourseId).Distinct().ToList();
+
+            var courseContentMap = await _context.Courses
+                .Where(c => courseIdList.Contains(c.Id))
+                .Select(c => new { c.Id, c.Content })
+                .ToDictionaryAsync(c => c.Id, c => c.Content, cancellationToken);
+
+            foreach (var q in questionsWithItem)
+            {
+                if (courseContentMap.TryGetValue(q.CourseId, out var content))
+                    q.LectureName = FindLectureName(content, q.ItemId);
+            }
         }
 
         return paged;
+    }
+
+    private static string FindLectureName(string courseContent, string itemId)
+    {
+        if (string.IsNullOrEmpty(courseContent)) return null;
+        try
+        {
+            using var doc = JsonDocument.Parse(courseContent);
+            foreach (var section in doc.RootElement.GetProperty("contents").EnumerateArray())
+            foreach (var item in section.GetProperty("items").EnumerateArray())
+            {
+                if (item.GetProperty("itemId").GetString() == itemId)
+                    return item.GetProperty("title").GetString();
+            }
+        }
+        catch { }
+        return null;
     }
 }

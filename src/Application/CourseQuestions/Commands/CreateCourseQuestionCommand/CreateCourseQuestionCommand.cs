@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Events.CourseQuestions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseQuestions.Commands.CreateCourseQuestionCommand;
@@ -66,6 +67,7 @@ public class CreateCourseQuestionCommandHandler
             };
 
             _context.CourseQuestions.Add(question);
+            question.AddDomainEvent(new CourseQuestionCreatedEvent(question));
             var result = await _context.SaveChangesAsync(cancellationToken);
             var dto = _mapper.Map<CreatedCourseQuestionDto>(question);
 

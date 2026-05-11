@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Events.CourseAnswers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseAnswers.Commands.CreateCourseAnswerCommand;
@@ -33,7 +34,8 @@ public class CreateCourseAnswerCommandHandler : IRequestHandler<CreateCourseAnsw
         try
         {
             var question = await _context.CourseQuestions
-                .FindAsync(new object[] { request.QuestionId }, cancellationToken);
+                .Include(q => q.Course)
+                .FirstOrDefaultAsync(q => q.Id == request.QuestionId, cancellationToken);
 
             Guard.Against.NotFound(request.QuestionId, question);
 
@@ -69,7 +71,7 @@ public class CreateCourseAnswerCommandHandler : IRequestHandler<CreateCourseAnsw
 
             _context.CourseAnswers.Add(answer);
             question.AddAnswer();
-
+            answer.AddDomainEvent(new CourseAnswerCreatedEvent(answer));
             var result = await _context.SaveChangesAsync(cancellationToken);
             var dto = _mapper.Map<CreatedCourseAnswerDto>(answer);
 

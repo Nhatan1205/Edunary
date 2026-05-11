@@ -8092,6 +8092,13 @@
           "authorAvatar": {
             "type": "string",
             "nullable": true
+          },
+          "lectureName": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasUpvoted": {
+            "type": "boolean"
           }
         }
       },

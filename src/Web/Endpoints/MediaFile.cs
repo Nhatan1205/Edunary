@@ -40,11 +40,11 @@ public class MediaFile : EndpointGroupBase
             .MapPost(StartMultipartUpload, "/multipart/start")
             .MapPost(CompleteMultipartUpload, "/multipart/complete")
             .MapGet(GetDownloadUrl, "/{id}/download-url")
-            .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}")
+            // .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}")
             .MapGet(GetHlsVideoByCourseId, "/hls-video");
 
-        // app.MapGroup(this)
-        //     .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}");
+        app.MapGroup(this)
+            .MapGet(GetHlsStream, "/hls/{videoId}/{*fileName}");
 
         app.MapGroup(this)
             .RequireAuthorization()
@@ -57,7 +57,7 @@ public class MediaFile : EndpointGroupBase
             .MapPost(InitiateChunkedUpload, "/chunks/initiate")
             .MapPost(UploadChunk, "/chunks/upload")
             .MapGet(GetUploadStatus, "/chunks/{sessionId}/status");
-            
+
     }
 
     public async Task<List<MediaFileDto>> GetMediaFilesByUserId(ISender sender)
@@ -135,7 +135,7 @@ public class MediaFile : EndpointGroupBase
             return Results.BadRequest(result);
         }
     }
-    
+
     public async Task<ReturnResult<MediaFileDto>> AddLinkToMediaFile(ISender sender, AddLinkToMFCommand command)
     {
         var result = await sender.Send(command);

@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Models;
 using Edunary.Application.Quizzes.Commands.CreateQuizCommand;
 using Edunary.Application.Quizzes.Commands.DeleteQuizCommand;
+using Edunary.Application.Quizzes.Commands.GenerateQuizQuestionsCommand;
 using Edunary.Application.Quizzes.Commands.LinkQuizToItemCommand;
 using Edunary.Application.Quizzes.Commands.UpdateQuizCommand;
 using Edunary.Application.Quizzes.Commands.UpdateQuizQuestionsCommand;
@@ -22,7 +23,8 @@ public class Quizzes : EndpointGroupBase
             .MapPut(UpdateQuiz, "settings/{quizId}")
             .MapPut(UpdateQuizQuestions, "questions/{quizId}")
             .MapPut(LinkQuizToItem, "link/{quizId}")
-            .MapDelete(DeleteQuiz, "{quizId}");
+            .MapDelete(DeleteQuiz, "{quizId}")
+            .MapPost(GenerateQuizQuestions, "generate-questions");
     }
 
     public async Task<QuizDto> GetQuizByItemId(ISender sender, int courseId, string itemId)
@@ -65,5 +67,11 @@ public class Quizzes : EndpointGroupBase
     {
         Result result = await sender.Send(new DeleteQuizCommand { QuizId = quizId });
         return result.Succeeded ? Results.Ok() : Results.BadRequest(result);
+    }
+
+    public async Task<IResult> GenerateQuizQuestions(ISender sender, [FromBody] GenerateQuizQuestionsCommand command)
+    {
+        var started = await sender.Send(command);
+        return started ? Results.Ok() : Results.Unauthorized();
     }
 }

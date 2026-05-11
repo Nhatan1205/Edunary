@@ -96,6 +96,7 @@ public static class DependencyInjection
         services.AddSingleton<IRedisConnectionProvider>(sp => sp.GetRequiredService<RedisService>());
         services.AddScoped<IQuizCacheService, QuizCacheService>();
         services.AddScoped<IQuizSnapshotJobService, QuizSnapshotJobService>();
+        services.AddScoped<IQuizGenerationJobService, QuizGenerationJobService>();
 
 
 

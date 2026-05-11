@@ -113,6 +113,13 @@ const TABS = [
           "Qdrant_Collection"
         ]
       },
+      {
+        header: "Speech-to-Text (STT)",
+        keys: [
+          "STT_ApiKey",
+          "STT_ModelName"
+        ]
+      },
     ],
   },
   {

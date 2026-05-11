@@ -2,13 +2,16 @@ import { useState, useEffect, useRef } from "react";
 import {
   Box, Button, Typography, TextField, Switch, FormControlLabel,
   Divider, Stack, Alert, CircularProgress, Select, MenuItem, FormControl, InputLabel,
+  Badge,
 } from "@mui/material";
-import { Add as AddIcon, Check as CheckIcon } from "@mui/icons-material";
+import { Add as AddIcon, Check as CheckIcon, AutoAwesome as AutoAwesomeIcon } from "@mui/icons-material";
 import useCreateQuiz from "../../../../../../hooks/quiz-hooks/useCreateQuiz";
 import useUpdateQuiz from "../../../../../../hooks/quiz-hooks/useUpdateQuiz";
 import useUpdateQuizQuestions from "../../../../../../hooks/quiz-hooks/useUpdateQuizQuestions";
 import useGetQuizByItemId from "../../../../../../hooks/quiz-hooks/useGetQuizByItemId";
+import useQuizGenerateProgress from "../../../../../../hooks/quiz-hooks/useQuizGenerateProgress";
 import QuestionEditor from "./QuestionEditor";
+import AIQuizGeneratorDialog from "./AIQuizGeneratorDialog";
 
 const QUESTION_TYPE_MAP = {
   SingleChoice: 0,
@@ -69,6 +72,25 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(null);
 
+  // ── AI Generation state (lifted here so SignalR survives dialog close) ────────
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [pendingResult, setPendingResult] = useState(null); // results waiting when dialog was closed
+
+  const progress = useQuizGenerateProgress(generating);
+
+  // When generation completes/errors while dialog is closed → handle here
+  useEffect(() => {
+    if (aiDialogOpen) return; // dialog is open, it handles its own state
+    if (progress.percent === 100 && progress.questions) {
+      setPendingResult(progress.questions);
+      setGenerating(false);
+    } else if (progress.percent === -1) {
+      // Error arrived while dialog was closed — just stop generating
+      setGenerating(false);
+    }
+  }, [progress, aiDialogOpen]);
+
   const addQuestion = () => {
     setQuestions([
       ...questions,
@@ -83,6 +105,22 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
         ],
       },
     ]);
+  };
+
+  // Map AI-generated questions (from AI Center) to QuizEditor local state format
+  const handleApplyGenerated = (generatedQuestions, mode) => {
+    const mapped = generatedQuestions.map((q, qi) => ({
+      name: q.name,
+      type: q.type,
+      explanation: q.explanation ?? "",
+      sortOrder: qi,
+      choices: (q.choices || []).map((c, ci) => ({
+        text: c.text,
+        isCorrect: c.is_correct ?? c.isCorrect ?? false,
+        sortOrder: ci,
+      })),
+    }));
+    setQuestions(mode === "append" ? [...questions, ...mapped] : mapped);
   };
 
   const handleSave = async () => {
@@ -258,15 +296,31 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
         <Typography variant="subtitle2" fontWeight={700} color="text.secondary">
           Questions ({questions.length})
         </Typography>
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<AddIcon />}
-          onClick={addQuestion}
-          sx={{ textTransform: "none", borderColor: "brand.main", color: "brand.main" }}
-        >
-          Add Question
-        </Button>
+        <Stack direction="row" gap={1}>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={generating ? <CircularProgress size={14} /> : <AutoAwesomeIcon />}
+            onClick={() => setAiDialogOpen(true)}
+            sx={{
+              textTransform: "none",
+              borderColor: pendingResult ? "success.main" : "brand.main",
+              color: pendingResult ? "success.main" : "brand.main",
+              "&:hover": { borderColor: "brand.dark", bgcolor: "brand.lighter" },
+            }}
+          >
+            {generating ? "Generating..." : pendingResult ? "Results Ready" : "AI Generate"}
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={addQuestion}
+            sx={{ textTransform: "none", borderColor: "brand.main", color: "brand.main" }}
+          >
+            Add Question
+          </Button>
+        </Stack>
       </Stack>
 
       {questions.map((q, qi) => (
@@ -306,6 +360,21 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
           {saving ? "Saving..." : "Save Quiz"}
         </Button>
       </Box>
+
+      <AIQuizGeneratorDialog
+        open={aiDialogOpen}
+        onClose={() => setAiDialogOpen(false)}
+        item={item}
+        courseId={courseId}
+        relatedItemId={relatedItemId}
+        sections={sections}
+        onApply={handleApplyGenerated}
+        generating={generating}
+        setGenerating={setGenerating}
+        progress={progress}
+        pendingResult={pendingResult}
+        clearPendingResult={() => setPendingResult(null)}
+      />
     </Box>
   );
 }

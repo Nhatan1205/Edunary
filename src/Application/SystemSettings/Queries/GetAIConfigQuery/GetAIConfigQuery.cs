@@ -28,6 +28,8 @@ public class GetAIConfigQueryHandler : IRequestHandler<GetAIConfigQuery, AIConfi
             SettingKey.Embedding_ApiKey, SettingKey.Embedding_BaseUrl,
             // Qdrant
             SettingKey.Qdrant_Url, SettingKey.Qdrant_ApiKey, SettingKey.Qdrant_Collection,
+            // STT
+            SettingKey.STT_ApiKey, SettingKey.STT_ModelName,
         };
 
         var settings = await _context.SystemSettings
@@ -50,6 +52,8 @@ public class GetAIConfigQueryHandler : IRequestHandler<GetAIConfigQuery, AIConfi
             QdrantUrl = settings.GetValueOrDefault(SettingKey.Qdrant_Url, ""),
             QdrantApiKey = settings.GetValueOrDefault(SettingKey.Qdrant_ApiKey, ""),
             QdrantCollection = settings.GetValueOrDefault(SettingKey.Qdrant_Collection, "edunary_docs")!,
+            STTApiKey = settings.GetValueOrDefault(SettingKey.STT_ApiKey, ""),
+            STTModelName = settings.GetValueOrDefault(SettingKey.STT_ModelName, "whisper-1"),
         };
     }
 }

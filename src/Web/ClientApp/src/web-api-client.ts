@@ -3076,43 +3076,6 @@ export class MediaFileClient {
         return Promise.resolve<DownloadUrlDto>(null as any);
     }
 
-    getHlsStream(videoId: string | null, fileName: string | null): Promise<void> {
-        let url_ = this.baseUrl + "/api/MediaFile/hls/{videoId}";
-        if (videoId === undefined || videoId === null)
-            throw new Error("The parameter 'videoId' must be defined.");
-        url_ = url_.replace("{videoId}", encodeURIComponent("" + videoId));
-        if (fileName === undefined || fileName === null)
-            throw new Error("The parameter 'fileName' must be defined.");
-        url_ = url_.replace("{fileName}", encodeURIComponent("" + fileName));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetHlsStream(_response);
-        });
-    }
-
-    protected processGetHlsStream(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
     getHlsVideoByCourseId(courseId: number, language: number): Promise<HlsVideoCaptionDto[]> {
         let url_ = this.baseUrl + "/api/MediaFile/hls-video?";
         if (courseId === undefined || courseId === null)
@@ -3161,6 +3124,43 @@ export class MediaFileClient {
             });
         }
         return Promise.resolve<HlsVideoCaptionDto[]>(null as any);
+    }
+
+    getHlsStream(videoId: string | null, fileName: string | null): Promise<void> {
+        let url_ = this.baseUrl + "/api/MediaFile/hls/{videoId}";
+        if (videoId === undefined || videoId === null)
+            throw new Error("The parameter 'videoId' must be defined.");
+        url_ = url_.replace("{videoId}", encodeURIComponent("" + videoId));
+        if (fileName === undefined || fileName === null)
+            throw new Error("The parameter 'fileName' must be defined.");
+        url_ = url_.replace("{fileName}", encodeURIComponent("" + fileName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetHlsStream(_response);
+        });
+    }
+
+    protected processGetHlsStream(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     initiateChunkedUpload(command: InitiateChunkedUploadCommand | undefined): Promise<UploadSessionDto> {
@@ -4176,6 +4176,41 @@ export class QuizzesClient {
     }
 
     protected processDeleteQuiz(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    generateQuizQuestions(command: GenerateQuizQuestionsCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Quizzes/generate-questions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGenerateQuizQuestions(_response);
+        });
+    }
+
+    protected processGenerateQuizQuestions(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -14167,6 +14202,74 @@ export interface ILinkQuizToItemCommand {
     courseId?: number;
     newItemId?: string | undefined;
     relatedItemId?: string | undefined;
+}
+
+export class GenerateQuizQuestionsCommand implements IGenerateQuizQuestionsCommand {
+    courseId?: number;
+    itemId?: string | undefined;
+    relatedItemId?: string | undefined;
+    numQuestions?: number;
+    questionTypes?: string[] | undefined;
+    difficulty?: string | undefined;
+    promptDescription?: string | undefined;
+
+    constructor(data?: IGenerateQuizQuestionsCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.itemId = _data["itemId"];
+            this.relatedItemId = _data["relatedItemId"];
+            this.numQuestions = _data["numQuestions"];
+            if (Array.isArray(_data["questionTypes"])) {
+                this.questionTypes = [] as any;
+                for (let item of _data["questionTypes"])
+                    this.questionTypes!.push(item);
+            }
+            this.difficulty = _data["difficulty"];
+            this.promptDescription = _data["promptDescription"];
+        }
+    }
+
+    static fromJS(data: any): GenerateQuizQuestionsCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateQuizQuestionsCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["itemId"] = this.itemId;
+        data["relatedItemId"] = this.relatedItemId;
+        data["numQuestions"] = this.numQuestions;
+        if (Array.isArray(this.questionTypes)) {
+            data["questionTypes"] = [];
+            for (let item of this.questionTypes)
+                data["questionTypes"].push(item);
+        }
+        data["difficulty"] = this.difficulty;
+        data["promptDescription"] = this.promptDescription;
+        return data;
+    }
+}
+
+export interface IGenerateQuizQuestionsCommand {
+    courseId?: number;
+    itemId?: string | undefined;
+    relatedItemId?: string | undefined;
+    numQuestions?: number;
+    questionTypes?: string[] | undefined;
+    difficulty?: string | undefined;
+    promptDescription?: string | undefined;
 }
 
 export class UpsertRatingCourseCommand implements IUpsertRatingCourseCommand {

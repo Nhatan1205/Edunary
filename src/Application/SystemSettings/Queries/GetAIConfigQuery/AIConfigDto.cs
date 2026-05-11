@@ -23,4 +23,8 @@ public class AIConfigDto
     public string QdrantUrl { get; set; } = "";
     public string QdrantApiKey { get; set; } = "";
     public string QdrantCollection { get; set; } = "edunary_docs";
+
+    // STT (Speech-to-Text)
+    public string STTApiKey { get; set; } = "";
+    public string STTModelName { get; set; } = "whisper-1";
 }

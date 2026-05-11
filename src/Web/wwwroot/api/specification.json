@@ -2828,46 +2828,6 @@
         ]
       }
     },
-    "/api/MediaFile/hls/{videoId}": {
-      "get": {
-        "tags": [
-          "MediaFile"
-        ],
-        "operationId": "GetHlsStream",
-        "parameters": [
-          {
-            "name": "videoId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          },
-          {
-            "name": "fileName",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/MediaFile/hls-video": {
       "get": {
         "tags": [
@@ -2916,6 +2876,41 @@
             "JWT": []
           }
         ]
+      }
+    },
+    "/api/MediaFile/hls/{videoId}": {
+      "get": {
+        "tags": [
+          "MediaFile"
+        ],
+        "operationId": "GetHlsStream",
+        "parameters": [
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "fileName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
       }
     },
     "/api/MediaFile/chunks/initiate": {
@@ -3863,6 +3858,35 @@
             "x-position": 1
           }
         ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Quizzes/generate-questions": {
+      "post": {
+        "tags": [
+          "Quizzes"
+        ],
+        "operationId": "GenerateQuizQuestions",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateQuizQuestionsCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -9846,6 +9870,43 @@
             "nullable": true
           },
           "relatedItemId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GenerateQuizQuestionsCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "relatedItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "numQuestions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionTypes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "difficulty": {
+            "type": "string",
+            "nullable": true
+          },
+          "promptDescription": {
             "type": "string",
             "nullable": true
           }

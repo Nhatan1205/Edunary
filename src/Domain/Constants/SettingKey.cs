@@ -55,6 +55,10 @@ public static class SettingKey
     public const string Redis_Port = "Redis_Port";
     public const string Redis_Password = "Redis_Password";
 
+    // STT Config (Speech-to-Text — used by AI Quiz Generator)
+    public const string STT_ApiKey = "STT_ApiKey";
+    public const string STT_ModelName = "STT_ModelName";
+
 
     // use for whitelist key
     private static readonly HashSet<string> _publicKeys = new()

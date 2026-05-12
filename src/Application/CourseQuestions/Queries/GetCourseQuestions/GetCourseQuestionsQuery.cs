@@ -56,7 +56,7 @@ public class GetCourseQuestionsQueryHandler
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
-            var lower = request.SearchText.ToLower();
+            var lower = request.SearchText.ToLower().Trim();
             query = query.Where(q =>
                 q.Title.ToLower().Contains(lower) ||
                 (q.Detail != null && q.Detail.ToLower().Contains(lower)));

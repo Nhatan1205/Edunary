@@ -47,10 +47,10 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
             svc => svc.ProcessCourseEmbeddingDeletionAsync(courseId));
     }
 
-    public void EnqueueBatchCourseEmbedding(string userId)
+    public void EnqueueBatchCourseEmbedding()
     {
         BackgroundJob.Enqueue<ICourseEmbeddingJobService>(
-            svc => svc.ProcessBatchCourseEmbeddingAsync(userId));
+            svc => svc.ProcessBatchCourseEmbeddingAsync());
     }
 
 
@@ -105,16 +105,6 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
             {
                 _logger.LogInformation(
                     "Course {Id} ('{Title}') embedded successfully.", courseId, course.Title);
-
-                if (!string.IsNullOrEmpty(course.CreatedBy))
-                {
-                    await _notifyService.NotifyUserAsync(
-                        course.CreatedBy,
-                        "Course Embedding Completed",
-                        $"Your course '{course.Title}' has been successfully embedded and is now searchable.",
-                        "System",
-                        null);
-                }
             }
         }
         catch (Exception ex)
@@ -158,7 +148,7 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
         }
     }
 
-    public async Task ProcessBatchCourseEmbeddingAsync(string userId)
+    public async Task ProcessBatchCourseEmbeddingAsync()
     {
         _logger.LogInformation("Starting batch course embedding job (all Public courses)...");
 
@@ -216,17 +206,7 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
             if (!isSuccess)
             {
                 _logger.LogError("AI Center batch embed failed: {Body}", body);
-
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    await _notifyService.NotifyUserAsync(
-                        userId,
-                        "Batch Embedding Failed",
-                        "The batch course embedding job has failed. Please check the Hangfire dashboard for details.",
-                        "System",
-                        null);
-                }
-
+                //await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Failed");
                 return;
             }
 
@@ -245,29 +225,12 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
                 _logger.LogInformation("Batch embedding completed for {Count} courses.", courses.Count);
             }
 
-            if (!string.IsNullOrEmpty(userId))
-            {
-                await _notifyService.NotifyUserAsync(
-                    userId,
-                    "Batch Embedding Completed",
-                    $"Batch course embedding has completed. {courses.Count} course(s) were processed.",
-                    "System",
-                    null);
-            }
+            //await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Completed");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Batch course embedding job failed.");
-
-            if (!string.IsNullOrEmpty(userId))
-            {
-                await _notifyService.NotifyUserAsync(
-                    userId,
-                    "Batch Embedding Failed",
-                    "The batch course embedding job has encountered an error. Please check the Hangfire dashboard for details.",
-                    "System",
-                    null);
-            }
+            //await NotifyAdminAsync("CourseEmbeddingUpdate", 0, "Batch", "Failed");
         }
     }
 
@@ -314,5 +277,24 @@ public class CourseEmbeddingJobService : ICourseEmbeddingJobService
         };
     }
 
-
+    //private async Task NotifyAdminAsync(string eventName, int courseId, string title, string state)
+    //{
+    //    try
+    //    {
+    //        await _notifyService.SendMessage(
+    //            sender: "system",
+    //            message: JsonSerializer.Serialize(new
+    //            {
+    //                courseId,
+    //                title,
+    //                state,
+    //                timestamp = DateTime.UtcNow
+    //            }),
+    //            method: eventName);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogWarning(ex, "Could not send SignalR notification for CourseEmbeddingUpdate.");
+    //    }
+    //}
 }

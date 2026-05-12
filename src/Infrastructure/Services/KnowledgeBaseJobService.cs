@@ -110,17 +110,7 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
                 document.Status = KnowledgeDocumentStatus.Failed;
                 document.ErrorMessage = $"AI Center returned failure: {body}";
                 await _context.SaveChangesAsync(default);
-
-                if (!string.IsNullOrEmpty(document.CreatedBy))
-                {
-                    await _notifyService.NotifyUserAsync(
-                        document.CreatedBy,
-                        "Document Ingestion Failed",
-                        $"Failed to ingest document '{document.FileName}'. The AI Center returned an error.",
-                        "System",
-                        null);
-                }
-
+                //await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Failed");
                 return;
             }
 
@@ -149,15 +139,7 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
                 "RAG ingestion completed for document {Id} ({FileName}). Chunks: {ChunkCount}",
                 documentId, document.FileName, chunkCount);
 
-            if (!string.IsNullOrEmpty(document.CreatedBy))
-            {
-                await _notifyService.NotifyUserAsync(
-                    document.CreatedBy,
-                    "Document Ingestion Completed",
-                    $"Your document '{document.FileName}' has been successfully ingested with {chunkCount} chunk(s).",
-                    "System",
-                    null);
-            }
+            //await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Completed");
         }
         catch (Exception ex)
         {
@@ -165,16 +147,7 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
             document.Status = KnowledgeDocumentStatus.Failed;
             document.ErrorMessage = ex.Message;
             await _context.SaveChangesAsync(default);
-
-            if (!string.IsNullOrEmpty(document.CreatedBy))
-            {
-                await _notifyService.NotifyUserAsync(
-                    document.CreatedBy,
-                    "Document Ingestion Failed",
-                    $"An error occurred while ingesting '{document.FileName}': {ex.Message}",
-                    "System",
-                    null);
-            }
+            //await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Failed");
         }
     }
 
@@ -234,16 +207,7 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
             await _context.SaveChangesAsync(default);
 
             _logger.LogInformation("Knowledge document {Id} ({FileName}) deleted successfully.", documentId, document.FileName);
-
-            if (!string.IsNullOrEmpty(document.CreatedBy))
-            {
-                await _notifyService.NotifyUserAsync(
-                    document.CreatedBy,
-                    "Document Deleted",
-                    $"Your document '{document.FileName}' has been successfully deleted from the knowledge base.",
-                    "System",
-                    null);
-            }
+            //await NotifyAdminAsync("KnowledgeBaseUpdate", documentId, document.FileName, "Deleted");
         }
         catch (Exception ex)
         {
@@ -252,4 +216,24 @@ public class KnowledgeBaseJobService : IKnowledgeBaseJobService
         }
     }
 
+    //private async Task NotifyAdminAsync(string eventName, int documentId, string fileName, string state)
+    //{
+    //    try
+    //    {
+    //        await _notifyService.SendMessage(
+    //            sender: "system",
+    //            message: System.Text.Json.JsonSerializer.Serialize(new
+    //            {
+    //                documentId,
+    //                fileName,
+    //                state,
+    //                timestamp = DateTime.UtcNow
+    //            }),
+    //            method: eventName);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogWarning(ex, "Could not send SignalR notification for KnowledgeBaseUpdate.");
+    //    }
+    //}
 }

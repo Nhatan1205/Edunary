@@ -64,8 +64,13 @@ public class GetAdminUsersWithPaginationQueryHandler
             .Select(g => new { UserId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.UserId, x => x.Count, cancellationToken);
 
-        //5. Get online status from connection manager
-        var onlineUserIds = _connectionManager.GetAllOnlineUserIds();
+        //5. Get online status — N parallel checks, pipelined by Redis client (~1 RTT)
+        bool[] onlineResults = await Task.WhenAll(
+            users.Select(u => _connectionManager.IsConnectedAsync(u.Id)));
+
+        var onlineMap = users
+            .Zip(onlineResults, (u, isOnline) => (u.Id, isOnline))
+            .ToDictionary(x => x.Id, x => x.isOnline);
 
         //6. Map to Dto
         var items = users.Select(u => new AdminUserListItemDto
@@ -82,7 +87,7 @@ public class GetAdminUsersWithPaginationQueryHandler
             EnrolledCourseCount = enrollmentCountsTask.GetValueOrDefault(u.Id, 0),
             CreatedCourseCount = courseCountsTask.GetValueOrDefault(u.Id, 0),
 
-            IsOnline = onlineUserIds.Contains(u.Id),
+            IsOnline = onlineMap.GetValueOrDefault(u.Id, false),
         }).ToList();
 
         return new PaginatedList<AdminUserListItemDto>(items, totalCount, request.PageNumber, request.PageSize);

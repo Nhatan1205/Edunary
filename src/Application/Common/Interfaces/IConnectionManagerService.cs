@@ -1,9 +1,9 @@
 namespace Edunary.Application.Common.Interfaces;
+
 public interface IConnectionManagerService
 {
-    void AddConnection(string userId, string connectionId);
-    void RemoveConnection(string connectionId);
-    IReadOnlyList<string> GetConnections(string userId);
-    IReadOnlyList<string> GetAllOnlineUserIds();
-    int GetOnlineCount();
+    Task AddConnectionAsync(string userId, string connectionId);
+    Task RemoveConnectionAsync(string connectionId);
+    Task<bool> IsConnectedAsync(string userId);
+    Task<long> GetOnlineCountAsync();
 }

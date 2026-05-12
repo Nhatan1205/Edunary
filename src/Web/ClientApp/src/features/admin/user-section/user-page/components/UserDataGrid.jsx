@@ -25,6 +25,7 @@ import DataGridRow from "../../../../../components/datagrid/DataGridRow";
 import DataGridNoData from "../../../../../components/datagrid/DataGridNoData";
 import DataGridSkeletonRow from "../../../../../components/datagrid/DataGridSkeletonRow";
 import { formatShortDate, formatTimeAgo } from "../../../../../utils/helpers";
+import defaultAvatar from "../../../../../assets/images/avatar.jpg";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -441,9 +442,7 @@ function UserDataGrid({
                                 <TableCell sx={{ ...bCell, py: "10px", overflow: "hidden" }}>
                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                                         <Box sx={{ position: "relative", flexShrink: 0 }}>
-                                            <Avatar src={row.avatar || undefined} alt={row.fullName} sx={{ width: 38, height: 38, fontSize: "0.9rem" }}>
-                                                {!row.avatar && row.fullName?.charAt(0).toUpperCase()}
-                                            </Avatar>
+                                            <Avatar src={row.avatar || defaultAvatar} alt={row.fullName} sx={{ width: 38, height: 38, fontSize: "0.9rem" }} />
                                             <Box sx={{ position: "absolute", bottom: 0, right: 0, width: 10, height: 10, borderRadius: "50%", bgcolor: row.isOnline ? "success.main" : "grey.400", border: "2px solid #fff" }} />
                                         </Box>
                                         <Box sx={{ minWidth: 0 }}>

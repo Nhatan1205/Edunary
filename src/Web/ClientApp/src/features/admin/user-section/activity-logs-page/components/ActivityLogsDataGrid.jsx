@@ -21,6 +21,7 @@ import DataGridNoData from "../../../../../components/datagrid/DataGridNoData";
 import DataGridSkeletonRow from "../../../../../components/datagrid/DataGridSkeletonRow";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import { getActivityTypeLabel } from "../../../../../utils/helpers";
+import defaultAvatar from "../../../../../assets/images/avatar.jpg";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -393,12 +394,10 @@ function ActivityLogsDataGrid({
                                     <TableCell sx={{ ...bCell, py: "10px", overflow: "hidden" }}>
                                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                                             <Avatar
-                                                src={row.avatar || undefined}
+                                                src={row.avatar || defaultAvatar}
                                                 alt={row.fullName}
                                                 sx={{ width: 38, height: 38, fontSize: "0.9rem" }}
-                                            >
-                                                {!row.avatar && row.fullName?.charAt(0)?.toUpperCase()}
-                                            </Avatar>
+                                            />
                                             <Box sx={{ minWidth: 0 }}>
                                                 <Typography
                                                     variant="body2"

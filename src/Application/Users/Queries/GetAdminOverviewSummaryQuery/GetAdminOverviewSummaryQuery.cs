@@ -27,8 +27,8 @@ public class GetAdminOverviewSummaryQueryHandler
         // ── 1. Get overview stats
         var stats = await _identityService.GetOverviewStatsAsync(cancellationToken);
 
-        //2. Get online user in connection manager
-        var onlineNow = _connectionManager.GetOnlineCount();
+        //2. Get online user count from connection manager
+        var onlineNow = (int)await _connectionManager.GetOnlineCountAsync();
 
         //3. Get top 5 active users by enrollment count
         var topStudents = await _context.Enrollments

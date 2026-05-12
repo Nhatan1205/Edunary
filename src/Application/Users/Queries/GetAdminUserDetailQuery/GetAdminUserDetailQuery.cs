@@ -105,7 +105,7 @@ public class GetAdminUserDetailQueryHandler : IRequestHandler<GetAdminUserDetail
         }
 
         //5. get user online status based on connection manager
-        var onlineUserIds = _connectionManager.GetAllOnlineUserIds();
+        var isOnline = await _connectionManager.IsConnectedAsync(user.Id);
 
         //6. return dto
         return new AdminUserDetailDto
@@ -122,7 +122,7 @@ public class GetAdminUserDetailQueryHandler : IRequestHandler<GetAdminUserDetail
             Status = user.Status.ToString(),
             LastLoginTime = user.LastLoginTime,
             CreatedAt = user.CreatedAt,
-            IsOnline = onlineUserIds.Contains(user.Id),
+            IsOnline = isOnline,
 
             Stats = new AdminUserStatsDto
             {

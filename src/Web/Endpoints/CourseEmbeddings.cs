@@ -19,9 +19,9 @@ public class CourseEmbeddings : EndpointGroupBase
             .MapDelete(DeleteSingle, "{id:int}");
     }
 
-    public IResult BatchEmbed(ICourseEmbeddingJobService embeddingJobService)
+    public IResult BatchEmbed(ICourseEmbeddingJobService embeddingJobService, ICurrentUserService currentUserService)
     {
-        embeddingJobService.EnqueueBatchCourseEmbedding();
+        embeddingJobService.EnqueueBatchCourseEmbedding(currentUserService.UserId);
         return Results.Ok(new
         {
             message = "Batch course embedding job has been enqueued. Check the Hangfire dashboard for progress.",

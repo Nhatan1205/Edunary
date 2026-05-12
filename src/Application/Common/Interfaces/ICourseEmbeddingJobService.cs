@@ -6,6 +6,6 @@ public interface ICourseEmbeddingJobService
     Task ProcessCourseEmbeddingAsync(int courseId);
     void EnqueueCourseEmbeddingDeletion(int courseId);
     Task ProcessCourseEmbeddingDeletionAsync(int courseId);
-    void EnqueueBatchCourseEmbedding();
-    Task ProcessBatchCourseEmbeddingAsync();
+    void EnqueueBatchCourseEmbedding(string userId);
+    Task ProcessBatchCourseEmbeddingAsync(string userId);
 }

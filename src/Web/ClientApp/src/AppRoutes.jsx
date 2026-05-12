@@ -41,6 +41,7 @@ import PolicyPage from "./features/guest/policy-page/PolicyPage";
 import AnnouncementsPage from "./features/instructor/communication-section/announcements-page/AnnouncementsPage";
 import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
 import AnnouncementEditPage from "./features/instructor/communication-section/announcements-page/announcements-edit-page.jsx/AnnouncementEditPage";
+import QADashboardPage from "./features/instructor/communication-section/qa-page/QADashboardPage";
 import CourseInitialRedirect from "./features/user/my-learning/CourseInitialRedirect";
 import NotFound from "./components/NotFound";
 import ProfileManageLayout from "./layouts/ProfileManageLayout";
@@ -372,6 +373,10 @@ const router = createBrowserRouter([
           {
             index: true,
             element: <Navigate to="/instructor/communication/announcements" replace />,
+          },
+          {
+            path: "qa",
+            element: <QADashboardPage />,
           },
           {
             path: "announcements",

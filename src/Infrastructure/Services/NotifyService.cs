@@ -58,19 +58,19 @@ public class NotifyService : INotifyService
         }
     }
 
-    public async Task NotifyUserAsync(string userId, string title, string message, string type, object payload, CancellationToken cancellationToken = default)
+    public async Task NotifyUserAsync(string userId, string title, string message, string type, object payload, CancellationToken cancellationToken = default, int courseId = 0, string url = "")
     {
         try
         {
             var createCommand = new CreateNotificationCommand
             {
                 ImageUrl = string.Empty,
-                CourseId = 0,
+                CourseId = courseId,
                 Title = title,
                 Subject = string.Empty,
                 Message = message,
                 Type = type,
-                Url = string.Empty
+                Url = url
             };
 
             var resultNotification = await _sender.Send(createCommand, cancellationToken);

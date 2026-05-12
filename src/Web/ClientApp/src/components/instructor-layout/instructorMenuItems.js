@@ -48,10 +48,10 @@ const instructorMenuItems = {
       type: "group",
       children: [
         {
-          id: "qna",
+          id: "q&a",
           title: "Q&A",
           type: "item",
-          url: "/instructor/communication/qna",
+          url: "/instructor/communication/qa",
           icon: QuestionAnswerIcon,
         },
         {

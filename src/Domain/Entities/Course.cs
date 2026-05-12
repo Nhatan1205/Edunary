@@ -1,4 +1,4 @@
-﻿namespace Edunary.Domain.Entities;
+namespace Edunary.Domain.Entities;
 
 public class Course : BaseAuditableEntity
 {
@@ -51,6 +51,8 @@ public class Course : BaseAuditableEntity
     public ICollection<CourseNote> CourseNotes { get; set; } = new List<CourseNote>();
 
     public ICollection<Topic> Topics { get; set; } = new List<Topic>();
+
+    public ICollection<CourseQuestion> CourseQuestions { get; set; } = new List<CourseQuestion>();
 
     public void UpdateTotalStudents()
     {

@@ -131,7 +131,7 @@ function CourseLearnSidebar({ onClose }) {
     const totalDuration = section.items.reduce((acc, item) => {
       if (item.videoDuration && item.contentType === 'video') {
         const parts = item.videoDuration.replace(/\\"/g, '').split(':').map(Number);
-        
+
         let seconds = 0;
         if (parts.length === 3) {
           // HH:MM:SS
@@ -197,6 +197,7 @@ function CourseLearnSidebar({ onClose }) {
         {courseContents.map((section, sectionIndex) => {
           const { completedItems, totalItems, durationStr } = calculateSectionStats(section);
           const isExpanded = expandedSections[section.sectionId];
+          const sectionStartIndex = courseContents.slice(0, sectionIndex).reduce((sum, s) => sum + (s.items?.length || 0), 0);
 
           return (
             <Box key={section.sectionId} sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -248,13 +249,11 @@ function CourseLearnSidebar({ onClose }) {
                             : item.isCompleted
                               ? "background.muted"
                               : "background.paper",
-                          // bgcolor: item.isCompleted ? "background.muted" : "background.paper",
                           "&:hover": {
                             bgcolor: item.itemId === contentId
                               ? "brand.lighter"
                               : "background.alt"
                           },
-                          // "&:hover": { bgcolor: "background.alt" },
                           borderBottom: itemIndex < section.items.length - 1 ? 1 : 0,
                           borderColor: "divider",
                           borderLeft: item.itemId === contentId ? "4px solid" : "4px solid transparent",
@@ -284,7 +283,7 @@ function CourseLearnSidebar({ onClose }) {
                                 color: "text.primary",
                               }}
                             >
-                              {itemIndex + 1}. {item.title}
+                              {sectionStartIndex + itemIndex + 1}. {item.title}
                             </Typography>
                           </Box>
 

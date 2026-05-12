@@ -24,24 +24,15 @@ const CourseManagementSortBy = {
 };
 
 export function formatTimeAgo(date) {
-  const now = new Date();
-  const createdDate = new Date(date);
-  const diffMs = now - createdDate; // chênh lệch theo mili giây
-  const diffMinutes = Math.floor(diffMs / 1000 / 60);
-  const diffHours = Math.floor(diffMs / 1000 / 60 / 60);
-  const diffDays = Math.floor(diffMs / 1000 / 60 / 60 / 24);
-
-  if (diffMinutes < 10) {
-    return "Just now";
-  } else if (diffMinutes < 60) {
-    // Làm tròn xuống 15, 30, 45 phút
-    const rounded = Math.floor(diffMinutes / 15) * 15;
-    return `${rounded} minutes ago`;
-  } else if (diffHours < 24) {
-    return diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`;
-  } else {
-    return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
-  }
+  if (!date) return "";
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins} minutes ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hours ago`;
+  const days = Math.floor(hrs / 24);
+  return days === 1 ? "1 day ago" : `${days} days ago`;
 }
 
 export function formatDate(date) {
@@ -237,3 +228,42 @@ export function reactFlowToGraphData(nodes, edges) {
 
 
 export const getActivityTypeLabel = (value) => ActivityType[value] ?? "Unknown";
+
+/**
+ * Strip HTML tags from a string, returning plain text.
+ */
+export function stripHtml(html) {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
+/**
+ * Compute a recommendation score for a Q&A question.
+ * Used to sort questions by relevance (recency + engagement).
+ */
+export function getRecommendedScore(q) {
+  const diff = Date.now() - new Date(q.created).getTime();
+  const hrs = diff / 3600000;
+  const recency = hrs < 24 ? 5 : hrs < 168 ? 3 : hrs < 720 ? 1 : 0;
+  return q.upvoteCount * 2 + q.answerCount * 1.5 + recency;
+}
+
+export function buildItemLabelMap(sidebarData) {
+  const map = {};
+  if (!sidebarData) return map;
+
+  let progress = sidebarData.progress;
+  if (typeof progress === "string") {
+    try { progress = JSON.parse(progress); } catch { return map; }
+  }
+
+  let globalIndex = 1;
+  for (const section of progress?.contents ?? []) {
+    for (const item of section.items ?? []) {
+      const kind = (item.type || "lecture").toLowerCase();
+      map[item.itemId] = kind === "quiz" ? `Quiz ${globalIndex}` : `Lecture ${globalIndex}`;
+      globalIndex++;
+    }
+  }
+  return map;
+}

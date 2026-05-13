@@ -1,9 +1,6 @@
 ﻿
-using Edunary.Application.Courses.Commands.UpdateCourse;
-using Edunary.Application.Courses.Queries.GetPublicCourseById;
 using Edunary.Application.Notifications.Commands.UpdateNotificationIsReadCommand;
 using Edunary.Application.Notifications.Queries.GetNotificationsByUserIdQuery;
-using Edunary.Infrastructure.Hubs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Edunary.Web.Endpoints;
@@ -18,9 +15,9 @@ public class Notification : EndpointGroupBase
             .MapPut(UpdateNotificationStatus);
     }
 
-    public async Task<NotificationsVm> GetNotficationsByUserId(ISender sender)
+    public async Task<NotificationsVm> GetNotficationsByUserId(ISender sender, [AsParameters] GetNotificationsByUserIdQuery query)
     {
-        return await sender.Send(new GetNotificationsByUserIdQuery());
+        return await sender.Send(query);
     }
 
     public async Task<IResult> UpdateNotificationStatus(ISender sender, [FromBody] UpdateNotificationStatusCommand command)

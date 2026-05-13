@@ -1,4 +1,5 @@
 import { Box, Button, Divider, Menu, Typography } from "@mui/material";
+import { useNavigate } from "react-router";
 import MessageCard from "./MessageCard";
 import useUpdateNotificationStatus from "../../hooks/notifications-hooks/useUpdateNotificationStatus";
 
@@ -8,14 +9,21 @@ function NotificationPopup({
   handleClosePopup,
   notifications,
 }) {
+  const navigate = useNavigate();
   const updateNotificationStatusMutation = useUpdateNotificationStatus();
+  const items = notifications?.items || [];
 
   function handleMarkAll() {
-    if (!notifications || notifications.length === 0) return;
+    if (!items || items.length === 0) return;
 
-    const ids = notifications.filter((n) => !n.isRead).map((n) => n.id);
+    const ids = items.filter((n) => !n.isRead).map((n) => n.id);
     if (ids.length === 0) return;
     updateNotificationStatusMutation.mutate(ids);
+  }
+
+  function handleSeeAll() {
+    handleClosePopup();
+    navigate("/user/notifications");
   }
 
   return (
@@ -63,9 +71,13 @@ function NotificationPopup({
 
       <Divider />
       <Box sx={{ maxHeight: 400, overflowY: "auto" }}>
-        {notifications && notifications.length > 0 ? (
-          notifications.map((notification) => (
-            <MessageCard key={notification.id} notification={notification} />
+        {items && items.length > 0 ? (
+          items.map((notification) => (
+            <MessageCard
+              key={notification.id}
+              notification={notification}
+              onAfterClick={handleClosePopup}
+            />
           ))
         ) : (
           <Typography
@@ -123,7 +135,7 @@ function NotificationPopup({
               backgroundColor: "background.muted",
             },
           }}
-          onClick={handleClosePopup}
+          onClick={handleSeeAll}
         >
           See all
         </Button>

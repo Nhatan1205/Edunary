@@ -221,7 +221,7 @@ public static class EmailTemplates
 
                   <!-- Body -->
                   <tr>
-                    <td>
+                    <td style=""padding-bottom:32px;"">
                       <p style=""margin:0 0 16px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
                         There is a new question in your course <strong>{encodedCourse}</strong>
                       </p>
@@ -306,7 +306,7 @@ public static class EmailTemplates
 
                   <!-- Body -->
                   <tr>
-                    <td>
+                    <td style=""padding-bottom:32px;"">
                       <p style=""margin:0 0 16px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
                         {bodyLine}
                       </p>

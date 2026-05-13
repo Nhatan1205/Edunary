@@ -3,6 +3,5 @@ public interface IEmailService
 {
     Task SendEmailAsync(string toEmail, string subject, string content);
     Task SendBulkEmailsAsync(IEnumerable<string> toEmails, string subject, string content);
-    void EnqueueEmailAsync(string toEmail, string subject, string content);
 }
 

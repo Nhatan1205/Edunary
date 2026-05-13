@@ -203,7 +203,8 @@ public class RoadmapJobService : IRoadmapJobService
                 title: "Career Path Ready",
                 message: $"Your personalized \"{roadmap.Title}\" career path has been generated successfully.",
                 type: "roadmap",
-                payload: new { roadmapId = roadmap.Id });
+                payload: new { roadmapId = roadmap.Id },
+                url: $"/user/career-path/{roadmap.Id}");
         }
         catch (Exception ex)
         {

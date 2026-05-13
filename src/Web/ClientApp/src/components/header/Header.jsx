@@ -67,7 +67,7 @@ function Header() {
   const close = () => setIsOpen(false);
 
   //notification state
-  const { data: dataNofications } = useGetNotificationsByUserId();
+  const { data: dataNofications } = useGetNotificationsByUserId({ pageSize: 7 });
   // Real-time: invalidate cache when server pushes new notification
   useRealtimeNotifications();
 

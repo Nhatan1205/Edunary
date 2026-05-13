@@ -30,6 +30,7 @@ import CourseAccessiblity from "./features/instructor/courses-management/course-
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
 import MyLearning from "./features/user/my-learning/MyLearning";
+import NotificationsPage from "./features/user/notifications/NotificationsPage";
 import CourseLearnLayout from "./layouts/CourseLearnLayout";
 import VideoPlayerPage from "./features/user/course-learn/video-player/VideoPlayer";
 import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer";
@@ -202,7 +203,16 @@ const router = createBrowserRouter([
           { path: "profile", element: <ProfileInfoPage /> },
           { path: "photo", element: <ProfilePhotoPage /> },
           { path: "security", element: <AccountSecurityPage /> },
+
         ],
+      },
+      {
+        path: "/user/notifications",
+        element: (
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/cart",
@@ -308,6 +318,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+
       {
         path: "/ai/career-path",
         element: (

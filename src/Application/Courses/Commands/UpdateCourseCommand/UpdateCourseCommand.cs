@@ -102,7 +102,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
                     Subject = $"Update the course {entity.Title}",
                     Message = $"The course {entity.Title} has just been updated.",
                     Type = "course_updated",
-                    Url = $"/courses/{entity.Id}"
+                    Url = $"/course/{entity.Id}/learn"
                 };
                 await _notifyService.NotifyCourseUpdated(notification, cancellationToken);
             }

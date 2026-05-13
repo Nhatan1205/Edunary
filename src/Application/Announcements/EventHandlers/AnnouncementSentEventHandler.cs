@@ -77,7 +77,7 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
                 Subject = announcement.Subject,
                 Message = announcement.Content,
                 Type = "announcement",
-                Url = ""
+                Url = $"/course/{courseId}/learn/lecture/item-1?tab=announcements"
             };
             await _notifyService.NotifyCourseUpdated(notificationRequest, cancellationToken);
         }

@@ -18,7 +18,7 @@ const useUpdateNotificationStatus = () => {
     },
     onSuccess: () => {
       // toast.success("Notification status updated successfully!");
-      queryClient.invalidateQueries(["notifications"]);
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (error) => {
       const msg =

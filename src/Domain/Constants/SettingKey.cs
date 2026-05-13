@@ -38,6 +38,22 @@ public static class SettingKey
     // === Chatbot ===
     public const string Chatbot_ServiceUrl = "Chatbot_ServiceUrl";
 
+    // === Tax ===
+    public const string Tax_DefaultVatRate = "Tax_DefaultVatRate";
+    public const string Tax_DefaultWithholdingRate = "Tax_DefaultWithholdingRate";
+    public const string Tax_RefundHoldDays = "Tax_RefundHoldDays";
+
+    // === Coupon ===
+    public const string Coupon_AllowInstructorCoupons = "Coupon_AllowInstructorCoupons";
+    public const string Coupon_MaxActivePerCoursePerMonth = "Coupon_MaxActivePerCoursePerMonth";
+    public const string Coupon_MaxPercentageDiscount = "Coupon_MaxPercentageDiscount";
+    public const string Coupon_PlatformDefaultFunder = "Coupon_PlatformDefaultFunder";
+
+    // === Payout ===
+    public const string Payout_MinThresholdUsd = "Payout_MinThresholdUsd";
+    public const string Payout_BatchDayOfMonth = "Payout_BatchDayOfMonth";
+    public const string Payout_AutoRunBatch = "Payout_AutoRunBatch";
+
     // use for whitelist key
     private static readonly HashSet<string> _publicKeys = new()
     {

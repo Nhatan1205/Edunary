@@ -6479,6 +6479,35 @@
         ]
       }
     },
+    "/api/VideoCaptions/generate-ai": {
+      "post": {
+        "tags": [
+          "VideoCaptions"
+        ],
+        "operationId": "GenerateAICaption",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateAICaptionCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/VideoCaptions/{id}": {
       "delete": {
         "tags": [
@@ -12948,6 +12977,21 @@
           },
           "fileName": {
             "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GenerateAICaptionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mediaFileId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "targetLanguage": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           }
         }

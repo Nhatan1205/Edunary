@@ -97,6 +97,7 @@ public static class DependencyInjection
         services.AddScoped<IQuizCacheService, QuizCacheService>();
         services.AddScoped<IQuizSnapshotJobService, QuizSnapshotJobService>();
         services.AddScoped<IQuizGenerationJobService, QuizGenerationJobService>();
+        services.AddScoped<ICaptionGenerationJobService, CaptionGenerationJobService>();
 
 
 

@@ -23,6 +23,7 @@ public class QuizGenerationJobService : IQuizGenerationJobService
     private readonly IAppHubService _hub;
     private readonly INotifyService _notifyService;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ICaptionGenerationJobService _captionJobService;
     private readonly ILogger<QuizGenerationJobService> _logger;
 
     public QuizGenerationJobService(
@@ -32,6 +33,7 @@ public class QuizGenerationJobService : IQuizGenerationJobService
         IAppHubService hub,
         INotifyService notifyService,
         IHttpClientFactory httpClientFactory,
+        ICaptionGenerationJobService captionJobService,
         ILogger<QuizGenerationJobService> logger)
     {
         _context = context;
@@ -40,6 +42,7 @@ public class QuizGenerationJobService : IQuizGenerationJobService
         _hub = hub;
         _notifyService = notifyService;
         _httpClientFactory = httpClientFactory;
+        _captionJobService = captionJobService;
         _logger = logger;
     }
 
@@ -73,7 +76,7 @@ public class QuizGenerationJobService : IQuizGenerationJobService
             }
 
             // 2. Parse course content JSON to find section + lecture item
-            var (lectureContent, videoFileUrl, lectureTitle, sectionObjectives) =
+            var (lectureContent, videoFileUrl, lectureTitle, sectionObjectives, videoId) =
                 await ExtractLectureContentAsync(course, relatedItemId);
 
             if (string.IsNullOrWhiteSpace(lectureContent) && string.IsNullOrWhiteSpace(videoFileUrl))
@@ -82,6 +85,27 @@ public class QuizGenerationJobService : IQuizGenerationJobService
                     "No content found for this lecture. " +
                     "Add article content or video captions, or use the Prompt Description field.");
                 return;
+            }
+
+            // No caption exists for this video — transcribe first so Whisper is called only once
+            // and the source transcript is saved for all future quiz/caption operations.
+            if (string.IsNullOrWhiteSpace(lectureContent) && !string.IsNullOrWhiteSpace(videoFileUrl) && videoId > 0)
+            {
+                await SendProgress(userId, 15, "No caption found — transcribing video first...");
+                await _captionJobService.ProcessCaptionGenerationAsync(userId, videoId, null);
+
+                // Re-read the newly saved source transcript
+                var saved = await _context.VideoCaptions
+                    .AsNoTracking()
+                    .Where(c => c.MediaFileId == videoId && c.IsSourceTranscript && c.Status == CaptionStatus.COMPLETED)
+                    .FirstOrDefaultAsync();
+
+                if (saved != null && !string.IsNullOrEmpty(saved.FileUrl))
+                {
+                    lectureContent = await DownloadAndParseVttAsync(saved.FileUrl);
+                    videoFileUrl = string.Empty; // quiz endpoint no longer needs to call Whisper
+                }
+                // if transcription failed, fall through — AI Center will attempt Whisper as last resort
             }
 
             await SendProgress(userId, 25, "Analyzing learning objectives...");
@@ -188,11 +212,11 @@ public class QuizGenerationJobService : IQuizGenerationJobService
 
     // ── Content Extraction ────────────────────────────────────────────────────
 
-    private async Task<(string lectureContent, string videoFileUrl, string lectureTitle, string sectionObjectives)>
+    private async Task<(string lectureContent, string videoFileUrl, string lectureTitle, string sectionObjectives, int videoId)>
         ExtractLectureContentAsync(Course course, string relatedItemId)
     {
         if (string.IsNullOrEmpty(course.Content))
-            return ("", "", "", "");
+            return ("", "", "", "", 0);
 
 #nullable enable
         CourseContentJson parsed;
@@ -204,11 +228,11 @@ public class QuizGenerationJobService : IQuizGenerationJobService
         }
         catch
         {
-            return ("", "", "", "");
+            return ("", "", "", "", 0);
         }
 
         if (parsed?.Contents == null)
-            return ("", "", "", "");
+            return ("", "", "", "", 0);
 
         foreach (var section in parsed.Contents)
         {
@@ -222,7 +246,7 @@ public class QuizGenerationJobService : IQuizGenerationJobService
             if (item.ContentType == "article" && !string.IsNullOrWhiteSpace(item.Content))
             {
                 string plainText = StripHtml(item.Content);
-                return (plainText, "", lectureTitle, sectionObjectives);
+                return (plainText, "", lectureTitle, sectionObjectives, 0);
             }
 
             // Video — caption priority
@@ -235,9 +259,24 @@ public class QuizGenerationJobService : IQuizGenerationJobService
 
                 if (mediaFile != null)
                 {
-                    // Prefer English caption, then any available caption
+                    // Prefer source transcript (most accurate, already plain text from Whisper)
+                    // then English caption, then any other completed user-facing caption
+                    var sourceTranscript = mediaFile.VideoCaptions
+                        .FirstOrDefault(c => c.IsSourceTranscript && c.Status == CaptionStatus.COMPLETED);
+
+                    if (sourceTranscript != null && !string.IsNullOrEmpty(sourceTranscript.FileUrl))
+                    {
+                        string sourceText = await DownloadAndParseVttAsync(sourceTranscript.FileUrl);
+                        if (!string.IsNullOrWhiteSpace(sourceText))
+                        {
+                            _logger.LogInformation("Using source transcript for video {VideoId}", item.VideoId);
+                            return (sourceText, "", lectureTitle, sectionObjectives, item.VideoId);
+                        }
+                    }
+
+                    // Fallback: prefer English caption, then any available user-facing caption
                     var caption = mediaFile.VideoCaptions
-                        .Where(c => c.Status == CaptionStatus.COMPLETED)
+                        .Where(c => c.Status == CaptionStatus.COMPLETED && !c.IsSourceTranscript)
                         .OrderByDescending(c => c.Language == Languages.English ? 1 : 0)
                         .FirstOrDefault();
 
@@ -245,22 +284,22 @@ public class QuizGenerationJobService : IQuizGenerationJobService
                     {
                         string vttText = await DownloadAndParseVttAsync(caption.FileUrl);
                         if (!string.IsNullOrWhiteSpace(vttText))
-                            return (vttText, "", lectureTitle, sectionObjectives);
+                            return (vttText, "", lectureTitle, sectionObjectives, item.VideoId);
                     }
 
                     // No usable caption — send video URL for Whisper STT
                     if (!string.IsNullOrEmpty(mediaFile.FileUrl))
                     {
                         _logger.LogInformation("No caption found for video {VideoId} — using Whisper STT", item.VideoId);
-                        return ("", mediaFile.FileUrl, lectureTitle, sectionObjectives);
+                        return ("", mediaFile.FileUrl, lectureTitle, sectionObjectives, item.VideoId);
                     }
                 }
             }
 
-            return ("", "", lectureTitle, sectionObjectives);
+            return ("", "", lectureTitle, sectionObjectives, 0);
         }
 
-        return ("", "", "", "");
+        return ("", "", "", "", 0);
     }
 
     private async Task<string> DownloadAndParseVttAsync(string fileUrl)

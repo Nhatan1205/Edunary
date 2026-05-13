@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Container } from "reactstrap";
 import AlertBox from "../../../../../components/AlertBox";
 import InfoDialog from "../../../../../components/ConfirmDialogPopup/InfoDialog";
@@ -11,6 +11,9 @@ import useGetHlsVideoByCourseId from "../../../../../hooks/media-file-hooks/useG
 import useGetCaptionLanguage from "../../../../../hooks/video-caption-hooks/useGetCaptionLanguage";
 import useUpsertVideoCaption from "../../../../../hooks/video-caption-hooks/useUpsertVideoCaption";
 import useDeleteVideoCaption from "../../../../../hooks/video-caption-hooks/useDeleteVideoCaption";
+import useGenerateAICaption from "../../../../../hooks/video-caption-hooks/useGenerateAICaption";
+import useCaptionGenerateProgress from "../../../../../hooks/video-caption-hooks/useCaptionGenerateProgress";
+import queryClient from "../../../../../configs/reactQuery";
 import {
   ALL_CAPTION_LANGUAGES,
   DEFAULT_CAPTION_LANGUAGE,
@@ -45,6 +48,9 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
+import Tooltip from "@mui/material/Tooltip";
+import LinearProgress from "@mui/material/LinearProgress";
 
 const FILTER_OPTIONS = [
   { label: "All Status", value: "all" },
@@ -107,6 +113,37 @@ function CourseCaptions() {
 
   const upsertCaption = useUpsertVideoCaption();
   const deleteCaption = useDeleteVideoCaption();
+  const generateAICaption = useGenerateAICaption();
+
+  const handleComplete = useCallback((mediaFileId) => {
+    queryClient.invalidateQueries(["hlsVideos"]);
+    queryClient.invalidateQueries(["captionLanguages"]);
+  }, []);
+
+  const handleError = useCallback((mediaFileId, message) => {
+    // Could show a toast here if needed
+  }, []);
+
+  const { generatingRows, setGeneratingRows } = useCaptionGenerateProgress(handleComplete, handleError);
+
+  const handleGenerateAI = async (videoId) => {
+    setGeneratingRows((prev) => ({
+      ...prev,
+      [videoId]: { percent: 0, message: "Starting..." },
+    }));
+    try {
+      await generateAICaption.mutateAsync({
+        mediaFileId: videoId,
+        targetLanguage: selectedLanguage,
+      });
+    } catch (err) {
+      setGeneratingRows((prev) => {
+        const next = { ...prev };
+        delete next[videoId];
+        return next;
+      });
+    }
+  };
 
   const handleOpenPopover = (event) => {
     setAnchorEl(event.currentTarget);
@@ -260,14 +297,14 @@ function CourseCaptions() {
               onClose={handleClosePopover}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              PaperProps={{
+              slotProps={{ paper: {
                 sx: {
                   mt: 1,
                   minWidth: 220,
                   borderRadius: 2,
                   boxShadow: '0 0 2px 0 rgba(145, 158, 171, 0.2), 0 12px 24px -4px rgba(145, 158, 171, 0.12)',
                 }
-              }}
+              } }}
             >
               {popoverView === "list" ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', maxHeight: 350 }}>
@@ -426,51 +463,106 @@ function CourseCaptions() {
                       </TableCell>
 
                       {/* Status chip */}
-                      <TableCell>
-                        {isUploading ? (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <CircularProgress size={14} sx={{ color: 'brand.main' }} />
-                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>Uploading...</Typography>
-                          </Box>
-                        ) : (
-                          <Chip
-                            label={row.status}
-                            size="small"
-                            sx={{
-                              bgcolor: row.status === "Captioned" ? 'success.lighter' : 'warning.lighter',
-                              color: row.status === "Captioned" ? 'success.darker' : 'warning.darker',
-                              fontWeight: 700,
-                              borderRadius: 1,
-                              px: 0.5
-                            }}
-                          />
-                        )}
-                      </TableCell>
+                      {(() => {
+                        const aiState = generatingRows[row.id];
+                        return (
+                          <TableCell>
+                            {isUploading ? (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <CircularProgress size={14} sx={{ color: 'brand.main' }} />
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>Uploading...</Typography>
+                              </Box>
+                            ) : aiState ? (
+                              <Box sx={{ minWidth: 140 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <CircularProgress size={12} sx={{ color: 'brand.main' }} />
+                                  <Typography variant="caption" sx={{ color: 'brand.main', fontWeight: 600 }}>
+                                    {aiState.message}
+                                  </Typography>
+                                </Box>
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={aiState.percent}
+                                  sx={{
+                                    height: 4,
+                                    borderRadius: 2,
+                                    bgcolor: 'grey.200',
+                                    '& .MuiLinearProgress-bar': { bgcolor: 'brand.main' }
+                                  }}
+                                />
+                              </Box>
+                            ) : (
+                              <Chip
+                                label={row.status}
+                                size="small"
+                                sx={{
+                                  bgcolor: row.status === "Captioned" ? 'success.lighter' : 'warning.lighter',
+                                  color: row.status === "Captioned" ? 'success.darker' : 'warning.darker',
+                                  fontWeight: 700,
+                                  borderRadius: 1,
+                                  px: 0.5
+                                }}
+                              />
+                            )}
+                          </TableCell>
+                        );
+                      })()}
 
-                      {/* Upload button */}
-                      <TableCell align="right">
-                        <Button
-                          component="label"
-                          variant="outlined"
-                          startIcon={isUploading ? <CircularProgress size={14} /> : <CloudUploadIcon />}
-                          size="small"
-                          disabled={isUploading}
-                          sx={{
-                            color: 'brand.main',
-                            borderColor: 'brand.main',
-                            textTransform: 'none',
-                            '&:hover': { borderColor: 'brand.dark', bgcolor: 'brand.lighter' }
-                          }}
-                        >
-                          {isUploading ? "Uploading..." : "Upload .vtt"}
-                          <input
-                            type="file"
-                            style={{ display: 'none' }}
-                            accept=".vtt"
-                            onChange={(e) => handleFileUpload(e, row.id)}
-                          />
-                        </Button>
-                      </TableCell>
+                      {/* Actions: AI Generate + Upload .vtt */}
+                      {(() => {
+                        const aiState = generatingRows[row.id];
+                        const isGenerating = Boolean(aiState);
+                        return (
+                          <TableCell align="right">
+                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                              {/* AI Generate button — always visible */}
+                              <Tooltip title={isGenerating ? aiState.message : "Generate caption with AI (Whisper STT)"}>
+                                <span>
+                                  <Button
+                                    variant="outlined"
+                                    startIcon={isGenerating ? <CircularProgress size={14} /> : <SmartToyOutlinedIcon />}
+                                    size="small"
+                                    disabled={isGenerating || isUploading}
+                                    onClick={() => handleGenerateAI(row.id)}
+                                    id={`ai-generate-btn-${row.id}`}
+                                    sx={{
+                                      color: 'brand.main',
+                                      borderColor: 'brand.main',
+                                      textTransform: 'none',
+                                      '&:hover': { borderColor: 'brand.dark', bgcolor: 'brand.lighter' },
+                                    }}
+                                  >
+                                    {isGenerating ? "Generating..." : "AI Generate"}
+                                  </Button>
+                                </span>
+                              </Tooltip>
+
+                              {/* Upload .vtt button */}
+                              <Button
+                                component="label"
+                                variant="outlined"
+                                startIcon={isUploading ? <CircularProgress size={14} /> : <CloudUploadIcon />}
+                                size="small"
+                                disabled={isUploading || isGenerating}
+                                sx={{
+                                  color: 'brand.main',
+                                  borderColor: 'brand.main',
+                                  textTransform: 'none',
+                                  '&:hover': { borderColor: 'brand.dark', bgcolor: 'brand.lighter' }
+                                }}
+                              >
+                                {isUploading ? "Uploading..." : "Upload .vtt"}
+                                <input
+                                  type="file"
+                                  style={{ display: 'none' }}
+                                  accept=".vtt"
+                                  onChange={(e) => handleFileUpload(e, row.id)}
+                                />
+                              </Button>
+                            </Box>
+                          </TableCell>
+                        );
+                      })()}
 
                       {/* "⋮" menu — chỉ hiện khi đã có caption */}
                       <TableCell sx={{ width: 48, p: 0.5 }}>
@@ -508,13 +600,13 @@ function CourseCaptions() {
         onClose={handleCloseMenu}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
+        slotProps={{ paper: {
           sx: {
             minWidth: 180,
             borderRadius: 2,
             boxShadow: '0 0 2px 0 rgba(145,158,171,0.2), 0 12px 24px -4px rgba(145,158,171,0.12)',
           }
-        }}
+        } }}
       >
         <MenuItem
           onClick={handleDeleteRequest}

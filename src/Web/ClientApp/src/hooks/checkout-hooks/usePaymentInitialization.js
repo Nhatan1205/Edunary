@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import { toast } from "react-toastify"
 import usePaymentClient from "./usePaymentClient"
 
-export default function usePaymentInitialization(courses = []) {
+export default function usePaymentInitialization(courses = [], couponCode = "", billingCountryCode = "") {
   const navigate = useNavigate()
   const { createPaymentIntent, confirmPayment } = usePaymentClient()
 
@@ -12,6 +12,8 @@ export default function usePaymentInitialization(courses = []) {
   const [paymentIntentId, setPaymentIntentId] = useState("")
   const [initError, setInitError] = useState("")
   const [redirecting, setRedirecting] = useState(false)
+  const [vatAmount, setVatAmount] = useState(0)
+  const [vatRate, setVatRate] = useState(0)
 
   useEffect(() => {
     if (!courses || courses.length === 0) {
@@ -28,7 +30,11 @@ export default function usePaymentInitialization(courses = []) {
           .map((c) => Number(c.id || c.courseId))
           .filter((id) => Number.isFinite(id) && id > 0)
 
-        const response = await createPaymentIntent({ courseIds })
+        const response = await createPaymentIntent({
+          courseIds,
+          couponCode: couponCode || undefined,
+          billingCountryCode: billingCountryCode || undefined,
+        })
         if (!response?.result) {
           if (!cancelled) {
             toast.error(response?.message)
@@ -68,6 +74,8 @@ export default function usePaymentInitialization(courses = []) {
         if (!cancelled) {
           setClientSecret(paymentResult.clientSecret)
           setPaymentIntentId(paymentResult.paymentIntentId)
+          setVatAmount(paymentResult?.vatAmount ?? 0)
+          setVatRate(paymentResult?.vatRate ?? 0)
         }
       } catch (err) {
         console.error("Error initializing payment:", err)
@@ -85,7 +93,7 @@ export default function usePaymentInitialization(courses = []) {
     return () => {
       cancelled = true
     }
-  }, [courses, createPaymentIntent, confirmPayment, navigate])
+  }, [courses, couponCode, billingCountryCode, createPaymentIntent, confirmPayment, navigate])
 
-  return { loading, clientSecret, paymentIntentId, initError, redirecting }
+  return { loading, clientSecret, paymentIntentId, initError, redirecting, vatAmount, vatRate }
 }

@@ -4,9 +4,11 @@ using Microsoft.Extensions.Logging;
 using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Application.Finance.Models;
 using Edunary.Domain.Enums;
 using Edunary.Application.CourseProgresses.Commands.CreateCourseProgressCommand;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Constants;
 
 namespace Edunary.Application.Payments.Commands.ConfirmPaymentCommand;
 
@@ -24,14 +26,20 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
     private readonly INotifyService _notifyService;
     private readonly ISender _sender;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICouponService _couponService;
+    private readonly ILedgerService _ledgerService;
+    private readonly IRevenueSplitService _revenueSplitService;
 
     public ConfirmPaymentCommandHandler(
-        IApplicationDbContext context, 
+        IApplicationDbContext context,
         IPaymentService paymentService,
         ILogger<ConfirmPaymentCommandHandler> logger,
         INotifyService notifyService,
         ISender sender,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICouponService couponService,
+        ILedgerService ledgerService,
+        IRevenueSplitService revenueSplitService)
     {
         _context = context;
         _paymentService = paymentService;
@@ -39,6 +47,9 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         _notifyService = notifyService;
         _sender = sender;
         _currentUserService = currentUserService;
+        _couponService = couponService;
+        _ledgerService = ledgerService;
+        _revenueSplitService = revenueSplitService;
     }
 
     public async Task<ConfirmPaymentDto> Handle(ConfirmPaymentCommand request, CancellationToken cancellationToken)
@@ -72,6 +83,10 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         await CreditInstructorWalletsAsync(order, payment, parsedCourseIds, cancellationToken);
 
         await RemoveFromCartAsync(order, cancellationToken);
+
+        await _couponService.ConsumeAsync(order.Id, cancellationToken);
+
+        await PostOrderToLedgerAsync(order, parsedCourseIds, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -196,10 +211,10 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         return enrollmentsCreated;
     }
 
-    private async Task CreditInstructorWalletsAsync(Domain.Entities.Order order, Domain.Entities.Payment payment, 
+    private async Task CreditInstructorWalletsAsync(Domain.Entities.Order order, Domain.Entities.Payment payment,
         HashSet<int> courseIds, CancellationToken cancellationToken)
     {
-        if (courseIds.Count == 0 || order.TotalAmount <= 0)
+        if (courseIds.Count == 0)
             return;
 
         var courses = await _context.Courses
@@ -211,6 +226,10 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             .Where(c => !string.IsNullOrWhiteSpace(c.CreatedBy))
             .ToDictionary(c => c.Id, c => c.CreatedBy, EqualityComparer<int>.Default);
 
+        var occurredAt = order.CompletedDate.HasValue
+            ? new DateTimeOffset(order.CompletedDate.Value, TimeSpan.Zero)
+            : DateTimeOffset.UtcNow;
+
         foreach (var orderItem in order.OrderItems)
         {
             var courseId = orderItem.CourseId;
@@ -220,8 +239,19 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             if (!instructorByCourseId.TryGetValue(courseId, out var instructorId) || string.IsNullOrWhiteSpace(instructorId))
                 continue;
 
-            var creditAmount = Math.Round((decimal)orderItem.Price, 2);
-            if (creditAmount <= 0)
+            // Platform-funded coupon: instructor receives original price; platform absorbs the discount.
+            // Instructor-funded coupon or organic: instructor receives the discounted price they agreed to.
+            var baseAmount = orderItem.SalesChannel == SalesChannel.PlatformCoupon
+                ? Math.Round((decimal)orderItem.OriginalPrice, 2)
+                : Math.Round((decimal)orderItem.Price, 2);
+
+            if (baseAmount <= 0)
+                continue;
+
+            var split = await _revenueSplitService.SplitAsync(baseAmount, orderItem.SalesChannel, occurredAt, cancellationToken);
+            var instructorCredit = split.InstructorShare;
+
+            if (instructorCredit <= 0)
                 continue;
 
             var wallet = await _context.InstructorWallets
@@ -237,14 +267,14 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
                 _context.InstructorWallets.Add(wallet);
             }
 
-            wallet.Balance += creditAmount;
+            wallet.Balance += instructorCredit;
 
             _context.InstructorWalletTransactions.Add(new InstructorWalletTransaction
             {
                 InstructorWallet = wallet,
                 OrderId = order.Id,
                 CourseId = courseId,
-                Amount = creditAmount,
+                Amount = instructorCredit,
                 Currency = payment.Currency
             });
         }
@@ -261,6 +291,132 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         {
             _context.Carts.RemoveRange(cartItemsToRemove);
             _logger.LogInformation("Removed {Count} items from cart for UserId: {UserId}", cartItemsToRemove.Count, order.UserId);
+        }
+    }
+
+    private async Task PostOrderToLedgerAsync(Domain.Entities.Order order, HashSet<int> courseIds, CancellationToken cancellationToken)
+    {
+        if (courseIds.Count == 0)
+            return;
+
+        var courses = await _context.Courses
+            .Where(c => courseIds.Contains(c.Id))
+            .Select(c => new { c.Id, c.CreatedBy })
+            .ToListAsync(cancellationToken);
+
+        var instructorByCourseId = courses
+            .Where(c => !string.IsNullOrWhiteSpace(c.CreatedBy))
+            .ToDictionary(c => c.Id, c => c.CreatedBy, EqualityComparer<int>.Default);
+
+        var occurredAt = order.CompletedDate.HasValue
+            ? new DateTimeOffset(order.CompletedDate.Value, TimeSpan.Zero)
+            : DateTimeOffset.UtcNow;
+
+        foreach (var orderItem in order.OrderItems)
+        {
+            var courseId = orderItem.CourseId;
+            if (courseId <= 0)
+                continue;
+
+            if (!instructorByCourseId.TryGetValue(courseId, out var instructorId) || string.IsNullOrWhiteSpace(instructorId))
+                continue;
+
+            // Platform-funded coupon: instructor receives original price; platform absorbs the discount.
+            // Instructor-funded coupon or organic: instructor receives the discounted price they agreed to.
+            var baseAmount = orderItem.SalesChannel == SalesChannel.PlatformCoupon
+                ? Math.Round((decimal)orderItem.OriginalPrice, 2)
+                : Math.Round((decimal)orderItem.Price, 2);
+
+            if (baseAmount <= 0)
+                continue;
+
+            var split = await _revenueSplitService.SplitAsync(baseAmount, orderItem.SalesChannel, occurredAt, cancellationToken);
+            var instructorShare = split.InstructorShare;
+            var platformShare = split.PlatformShare;
+
+            var vatAmount = Math.Round((decimal)orderItem.VatAmount, 4);
+            var desc = $"Order {order.Id} / Course {courseId}";
+
+            // Transaction 1: payment received — Dr CASH_STRIPE, Cr VAT_LIABILITY + INSTRUCTOR_GROSS + PLATFORM_REVENUE
+            var paymentEntries = new List<LedgerEntryInput>
+            {
+                new LedgerEntryInput
+                {
+                    AccountCode = LedgerAccountCode.CashStripe,
+                    Side = EntrySide.Debit,
+                    Amount = baseAmount + vatAmount,
+                    Description = desc
+                }
+            };
+            if (vatAmount > 0)
+                paymentEntries.Add(new LedgerEntryInput
+                {
+                    AccountCode = LedgerAccountCode.VatLiability,
+                    Side = EntrySide.Credit,
+                    Amount = vatAmount,
+                    Description = desc
+                });
+            if (instructorShare > 0)
+                paymentEntries.Add(new LedgerEntryInput
+                {
+                    AccountCode = LedgerAccountCode.InstructorGrossEarnings,
+                    Side = EntrySide.Credit,
+                    Amount = instructorShare,
+                    UserId = instructorId,
+                    Description = desc
+                });
+            if (platformShare > 0)
+                paymentEntries.Add(new LedgerEntryInput
+                {
+                    AccountCode = LedgerAccountCode.PlatformRevenue,
+                    Side = EntrySide.Credit,
+                    Amount = platformShare,
+                    Description = desc
+                });
+
+            await _ledgerService.PostAsync(new LedgerPosting
+            {
+                TransactionType = LedgerTransactionType.OrderPaid,
+                ReferenceType = "Order",
+                ReferenceId = order.Id.ToString(),
+                Currency = "USD",
+                OccurredAt = occurredAt,
+                Entries = paymentEntries
+            }, cancellationToken);
+
+            if (instructorShare <= 0)
+                continue;
+
+            // Transaction 2: move gross earnings into instructor net balance (withholding happens at withdrawal time).
+            var allocationEntries = new List<LedgerEntryInput>
+            {
+                new LedgerEntryInput
+                {
+                    AccountCode = LedgerAccountCode.InstructorGrossEarnings,
+                    Side = EntrySide.Debit,
+                    Amount = instructorShare,
+                    UserId = instructorId,
+                    Description = $"Net allocation: {desc}"
+                },
+                new LedgerEntryInput
+                {
+                    AccountCode = LedgerAccountCode.InstructorNetBalance,
+                    Side = EntrySide.Credit,
+                    Amount = instructorShare,
+                    UserId = instructorId,
+                    Description = $"Net allocation: {desc}"
+                }
+            };
+
+            await _ledgerService.PostAsync(new LedgerPosting
+            {
+                TransactionType = LedgerTransactionType.Adjustment,
+                ReferenceType = "Order",
+                ReferenceId = order.Id.ToString(),
+                Currency = "USD",
+                OccurredAt = occurredAt,
+                Entries = allocationEntries
+            }, cancellationToken);
         }
     }
 }

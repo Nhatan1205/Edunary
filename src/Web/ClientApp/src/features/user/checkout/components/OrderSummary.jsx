@@ -1,6 +1,9 @@
-import { Box, Typography, Paper, Divider, Link, Card, CardContent } from "@mui/material"
+import { Box, Typography, Paper, Divider, Link, Card, CardContent, Chip } from "@mui/material"
+import LocalOfferIcon from "@mui/icons-material/LocalOffer"
 
-export default function OrderSummary({ courses, totalPrice }) {
+export default function OrderSummary({ courses, totalPrice, originalTotal, couponCode, couponDiscount, vatAmount = 0, vatRate = 0 }) {
+  const hasDiscount = couponDiscount > 0
+  const hasVat = vatAmount > 0
   return (
     <Box sx={{ position: "sticky", top: 20 }}>
       <Paper
@@ -39,15 +42,37 @@ export default function OrderSummary({ courses, totalPrice }) {
           ))}
         </Box>
 
+        {hasDiscount && (
+          <Box sx={{ mb: 2 }}>
+            <Chip
+              icon={<LocalOfferIcon fontSize="small" />}
+              label={couponCode}
+              color="success"
+              size="small"
+              variant="outlined"
+            />
+          </Box>
+        )}
+
         <Box sx={{ mb: 3 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
             <Typography color="text.secondary">Original Price:</Typography>
-            <Typography sx={{ fontWeight: 500 }}>${totalPrice.toLocaleString()}</Typography>
+            <Typography sx={{ fontWeight: 500, textDecoration: hasDiscount ? "line-through" : "none", color: hasDiscount ? "text.disabled" : "text.primary" }}>
+              ${(originalTotal ?? totalPrice).toLocaleString()}
+            </Typography>
           </Box>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-            <Typography color="text.secondary">Discount:</Typography>
-            <Typography sx={{ fontWeight: 500, color: "success.main" }}>-$0</Typography>
-          </Box>
+          {hasDiscount && (
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+              <Typography color="success.main">Coupon discount:</Typography>
+              <Typography sx={{ fontWeight: 500, color: "success.main" }}>-${couponDiscount.toFixed(2)}</Typography>
+            </Box>
+          )}
+          {hasVat && (
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+              <Typography color="text.secondary">VAT ({(vatRate * 100).toFixed(0)}%):</Typography>
+              <Typography sx={{ fontWeight: 500 }}>+${vatAmount.toFixed(2)}</Typography>
+            </Box>
+          )}
           <Divider sx={{ my: 2 }} />
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>

@@ -1,6 +1,26 @@
-import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from "@mui/material"
+import { useEffect, useRef, useState } from "react"
+import { Box, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress } from "@mui/material"
+import { PaymentClient } from "../../../../web-api-client.ts"
 
 export default function BillingAddress({ country, setCountry }) {
+  const [regions, setRegions] = useState([])
+  const [loadingRegions, setLoadingRegions] = useState(true)
+  const initialCountryRef = useRef(country)
+  const setCountryRef = useRef(setCountry)
+
+  useEffect(() => {
+    const client = new PaymentClient()
+    client.getCheckoutTaxRegions()
+      .then((data) => {
+        setRegions(data ?? [])
+        if (data?.length && !data.some((r) => r.countryCode === initialCountryRef.current)) {
+          setCountryRef.current(data[0].countryCode)
+        }
+      })
+      .catch(() => setRegions([]))
+      .finally(() => setLoadingRegions(false))
+  }, [])
+
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: "text.primary" }}>
@@ -17,15 +37,23 @@ export default function BillingAddress({ country, setCountry }) {
       }}>
         <InputLabel>Country</InputLabel>
         <Select
-          value={country}
+          value={loadingRegions ? "" : country}
           label="Country"
           onChange={(e) => setCountry(e.target.value)}
+          disabled={loadingRegions}
+          startAdornment={loadingRegions ? <CircularProgress size={16} sx={{ mr: 1 }} /> : null}
           sx={{ bgcolor: "background.paper" }}
         >
-          <MenuItem value="Vietnam">🇻🇳 Vietnam</MenuItem>
-          <MenuItem value="United States">🇺🇸 United States</MenuItem>
-          <MenuItem value="United Kingdom">🇬🇧 United Kingdom</MenuItem>
-          <MenuItem value="Canada">🇨🇦 Canada</MenuItem>
+          {regions.map((r) => (
+            <MenuItem key={r.countryCode} value={r.countryCode}>
+              {r.countryName || r.countryCode}
+              {r.vatRate > 0 && (
+                <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                  (VAT {(r.vatRate * 100).toFixed(0)}%)
+                </Typography>
+              )}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>

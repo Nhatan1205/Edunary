@@ -17,15 +17,18 @@ public class WithdrawFromInstructorWalletCommandHandler : IRequestHandler<Withdr
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IIdentityService _identityService;
+    private readonly ITaxCalculatorService _taxCalculatorService;
 
     public WithdrawFromInstructorWalletCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        ITaxCalculatorService taxCalculatorService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _identityService = identityService;
+        _taxCalculatorService = taxCalculatorService;
     }
 
     public async Task<Result> Handle(WithdrawFromInstructorWalletCommand request, CancellationToken cancellationToken)
@@ -91,10 +94,29 @@ public class WithdrawFromInstructorWalletCommandHandler : IRequestHandler<Withdr
             return Result.Failure("Amount exceeds your available balance");
         }
 
+        var taxProfile = await _context.TaxProfiles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.InstructorId == instructorId, cancellationToken);
+
+        var withholdingResult = await _taxCalculatorService
+            .CalculateWithholdingAsync(instructorId, amount, cancellationToken);
+
+        var withholdingAmount = Math.Round(withholdingResult.TaxAmount, 2, MidpointRounding.ToEven);
+        var netAmount = Math.Round(Math.Max(0m, amount - withholdingAmount), 2, MidpointRounding.ToEven);
+
+        if (netAmount <= 0)
+        {
+            return Result.Failure("Withdrawal amount is too small after withholding tax");
+        }
+
         var withdrawalRequest = new WithdrawalRequest
         {
             InstructorWallet = wallet,
             Amount = amount,
+            WithholdingRate = withholdingResult.Rate,
+            WithholdingAmount = withholdingAmount,
+            NetAmount = netAmount,
+            TaxCountryCode = taxProfile?.TaxCountryCode,
             Currency = request.Currency,
             Bank = user!.Bank!,
             BankNumber = user.BankNumber!,
@@ -111,7 +133,10 @@ public class WithdrawFromInstructorWalletCommandHandler : IRequestHandler<Withdr
         return Result.Success(new
         {
             withdrawalRequest.Id,
-            withdrawalRequest.Status
+            withdrawalRequest.Status,
+            withdrawalRequest.WithholdingRate,
+            withdrawalRequest.WithholdingAmount,
+            withdrawalRequest.NetAmount
         }, "Withdrawal request created");
     }
 }

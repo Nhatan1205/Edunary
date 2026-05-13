@@ -285,13 +285,45 @@ function WithdrawalRequestsPage() {
       },
       {
         field: "amount",
-        headerName: "Amount",
+        headerName: "Gross",
         flex: 0.95,
         minWidth: 150,
         align: "left",
         renderCell: (params) => (
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             {(params.row.amount ?? 0).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}{" "}
+            {params.row.currency || "USD"}
+          </Typography>
+        ),
+      },
+      {
+        field: "withholdingAmount",
+        headerName: "Withholding",
+        flex: 0.95,
+        minWidth: 150,
+        align: "left",
+        renderCell: (params) => (
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {(params.row.withholdingAmount ?? 0).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}{" "}
+            {params.row.currency || "USD"}
+          </Typography>
+        ),
+      },
+      {
+        field: "netAmount",
+        headerName: "Net",
+        flex: 0.95,
+        minWidth: 150,
+        align: "left",
+        renderCell: (params) => (
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {(params.row.netAmount ?? 0).toLocaleString("en-US", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}{" "}

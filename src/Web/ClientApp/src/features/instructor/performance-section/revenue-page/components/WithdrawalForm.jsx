@@ -14,6 +14,7 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
 import useGetInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useGetInstructorWallet';
+import useGetWithdrawalPreview from '../../../../../hooks/instructor-wallet-hooks/useGetWithdrawalPreview';
 import useWithdrawFromInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useWithdrawFromInstructorWallet';
 
 function WithdrawalForm({ user, isInfoEnough }) {
@@ -21,8 +22,10 @@ function WithdrawalForm({ user, isInfoEnough }) {
   const [error, setError] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingAmount, setPendingAmount] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   const { data: wallet } = useGetInstructorWallet();
+  const { mutateAsync: previewAsync, isPending: isPreviewing } = useGetWithdrawalPreview();
   const { mutateAsync: withdrawAsync, isPending } = useWithdrawFromInstructorWallet();
   const availableBalance = wallet?.balance ?? 0;
   const minWithdrawal = 1;
@@ -61,7 +64,7 @@ function WithdrawalForm({ user, isInfoEnough }) {
     return amount;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     setError('');
 
     if (!isInfoEnough) {
@@ -71,14 +74,21 @@ function WithdrawalForm({ user, isInfoEnough }) {
     const amount = validateAndGetAmount();
     if (amount == null) return;
 
-    setPendingAmount(amount);
-    setIsConfirmOpen(true);
+    try {
+      const result = await previewAsync({ amount, currency: currencyCode });
+      setPreview(result);
+      setPendingAmount(amount);
+      setIsConfirmOpen(true);
+    } catch (e) {
+      setError(e?.message || 'Failed to preview withdrawal. Please try again.');
+    }
   };
 
   const handleCancelConfirm = () => {
     if (isPending) return;
     setIsConfirmOpen(false);
     setPendingAmount(null);
+    setPreview(null);
   };
 
   const handleConfirmWithdrawal = async () => {
@@ -90,10 +100,12 @@ function WithdrawalForm({ user, isInfoEnough }) {
       await withdrawAsync({ amount: pendingAmount, currency: currencyCode });
       setIsConfirmOpen(false);
       setPendingAmount(null);
+      setPreview(null);
       setWithdrawalAmount('');
     } catch (e) {
       setIsConfirmOpen(false);
       setPendingAmount(null);
+      setPreview(null);
       setError(e?.message || 'Failed to withdraw. Please try again.');
     }
   };
@@ -195,12 +207,20 @@ function WithdrawalForm({ user, isInfoEnough }) {
               Free
             </Typography>
           </Box>
+          <Box display="flex" justifyContent="space-between" mb={1}>
+            <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary })}>
+              Withholding tax
+            </Typography>
+            <Typography variant="body2" sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
+              {currencySymbol}{Number(preview?.withholdingAmount ?? 0).toLocaleString('en-US')}
+            </Typography>
+          </Box>
           <Box display="flex" justifyContent="space-between">
             <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary })}>
               You'll receive
             </Typography>
             <Typography sx={(theme) => ({ fontWeight: 600, color: theme.palette.brand.main })}>
-              {currencySymbol}{withdrawalAmount ? parseFloat(withdrawalAmount).toLocaleString('en-US') : '0'}
+              {currencySymbol}{Number(preview?.netAmount ?? (withdrawalAmount ? parseFloat(withdrawalAmount) : 0)).toLocaleString('en-US')}
             </Typography>
           </Box>
         </Box>
@@ -211,7 +231,7 @@ function WithdrawalForm({ user, isInfoEnough }) {
           variant="contained"
           endIcon={<SendIcon />}
           onClick={handleContinue}
-          disabled={isPending || !isInfoEnough}
+          disabled={isPending || isPreviewing || !isInfoEnough}
           sx={(theme) => ({
             bgcolor: theme.palette.brand.main,
             color: theme.palette.text.inverse,
@@ -252,6 +272,24 @@ function WithdrawalForm({ user, isInfoEnough }) {
               </Typography>
               <Typography sx={{ fontWeight: 600 }}>
                 {currencySymbol}{(pendingAmount ?? 0).toLocaleString('en-US')} {currencyCode}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary, mb: 0.25 })}>
+                Withholding tax
+              </Typography>
+              <Typography sx={{ fontWeight: 600 }}>
+                {currencySymbol}{Number(preview?.withholdingAmount ?? 0).toLocaleString('en-US')} {currencyCode}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary, mb: 0.25 })}>
+                Net payout
+              </Typography>
+              <Typography sx={{ fontWeight: 600 }}>
+                {currencySymbol}{Number(preview?.netAmount ?? 0).toLocaleString('en-US')} {currencyCode}
               </Typography>
             </Box>
 

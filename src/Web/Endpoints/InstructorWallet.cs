@@ -2,6 +2,7 @@ using Edunary.Application.Common.Models;
 using Edunary.Application.InstructorWallets.Commands.ApproveWithdrawalRequest;
 using Edunary.Application.InstructorWallets.Commands.CancelWithdrawalRequest;
 using Edunary.Application.InstructorWallets.Commands.WithdrawFromInstructorWallet;
+using Edunary.Application.InstructorWallets.Queries.GetWithdrawalPreview;
 using Edunary.Application.InstructorWallets.Queries.GetInstructorWallet;
 using Edunary.Application.InstructorWallets.Queries.GetInstructorWalletTransactions;
 using Edunary.Application.InstructorWallets.Queries.GetWithdrawalRequestsForAdmin;
@@ -21,6 +22,7 @@ public class InstructorWallet : EndpointGroupBase
             .MapGet(GetTransactions, "transactions")
             .MapGet(GetAdminWithdrawalRequests, "admin/withdrawal-requests")
             .MapGet(GetAdminWithdrawalRequestStatusCounts, "admin/withdrawal-requests/status-counts")
+            .MapPost(GetWithdrawalPreview, "withdraw/preview")
             .MapPost(Withdraw, "withdraw")
             .MapPost(ApproveWithdrawal, "withdrawals/{id:int}/approve")
             .MapPost(CancelWithdrawal, "withdrawals/{id:int}/cancel");
@@ -53,6 +55,9 @@ public class InstructorWallet : EndpointGroupBase
         var result = await sender.Send(command);
         return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
     }
+
+    public async Task<WithdrawalPreviewDto> GetWithdrawalPreview(ISender sender, GetWithdrawalPreviewQuery query)
+        => await sender.Send(query);
 
     public async Task<IResult> ApproveWithdrawal(ISender sender, int id)
     {

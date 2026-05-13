@@ -60,6 +60,7 @@ import UserDetailPage from "./features/admin/user-section/user-detail-page/UserD
 import UserOverviewPage from "./features/admin/user-section/user-overview-page/UserOverviewPage";
 import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/ActivityLogsPage";
 import WithdrawalRequestsPage from "./features/admin/withdrawal-requests/WithdrawalRequestsPage";
+import CouponsPage from "./features/instructor/coupons-page/CouponsPage";
 
 const router = createBrowserRouter([
   {
@@ -121,7 +122,11 @@ const router = createBrowserRouter([
       {
         path: "invoice/withdrawal-requests",
         element: <WithdrawalRequestsPage />,
-      }
+      },
+      {
+        path: "coupons",
+        element: <CouponsPage isAdmin={true} />,
+      },
     ],
   },
   {
@@ -298,6 +303,10 @@ const router = createBrowserRouter([
             element: <RevenuePage />,
           }
         ],
+      },
+      {
+        path: "coupons",
+        element: <CouponsPage />,
       },
       {
         path: "communication",

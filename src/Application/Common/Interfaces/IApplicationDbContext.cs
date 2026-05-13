@@ -46,5 +46,8 @@ public interface IApplicationDbContext
     public DbSet<InstructorWalletTransaction> InstructorWalletTransactions { get; }
     public DbSet<WithdrawalRequest> WithdrawalRequests { get; }
 
+    public DbSet<Coupon> Coupons { get; }
+    public DbSet<CouponRedemption> CouponRedemptions { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

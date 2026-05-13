@@ -49,6 +49,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<InstructorWalletTransaction> InstructorWalletTransactions => Set<InstructorWalletTransaction>();
     public DbSet<WithdrawalRequest> WithdrawalRequests => Set<WithdrawalRequest>();
 
+    public DbSet<Coupon> Coupons => Set<Coupon>();
+    public DbSet<CouponRedemption> CouponRedemptions => Set<CouponRedemption>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

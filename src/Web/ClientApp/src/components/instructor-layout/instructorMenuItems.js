@@ -12,6 +12,7 @@ import RateReviewRoundedIcon from "@mui/icons-material/RateReviewRounded";
 import AnnouncementRoundedIcon from "@mui/icons-material/AnnouncementRounded";
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
 const instructorMenuItems = {
   items: [
@@ -33,6 +34,13 @@ const instructorMenuItems = {
           type: "item",
           url: "/instructor/roadmaps",
           icon: MapOutlinedIcon,
+        },
+        {
+          id: "coupons",
+          title: "Coupons",
+          type: "item",
+          url: "/instructor/coupons",
+          icon: LocalOfferIcon,
         },
         {
           id: "course-bundles",

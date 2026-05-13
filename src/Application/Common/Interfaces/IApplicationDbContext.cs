@@ -70,5 +70,8 @@ public interface IApplicationDbContext
     public DbSet<AssignmentSubmission> AssignmentSubmissions { get; }
     public DbSet<AssignmentFeedback> AssignmentFeedbacks { get; }
 
+    public DbSet<Coupon> Coupons { get; }
+    public DbSet<CouponRedemption> CouponRedemptions { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

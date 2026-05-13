@@ -77,6 +77,7 @@ import GenerateCareerPathPage from "./features/user/career-paths/generate-career
 import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage";
 import InvitationsPage from "./features/instructor/invitations-page/InvitationsPage";
 import ReviewsPage from "./features/instructor/performance-section/reviews-page/ReviewsPage";
+import CouponsPage from "./features/instructor/coupons-page/CouponsPage";
 
 const router = createBrowserRouter([
   {
@@ -163,6 +164,10 @@ const router = createBrowserRouter([
       {
         path: "user-embeddings",
         element: <UserEmbeddingPage />,
+      },
+      {
+        path: "coupons",
+        element: <CouponsPage isAdmin={true} />,
       },
     ],
   },
@@ -390,6 +395,10 @@ const router = createBrowserRouter([
             element: <StudentsPage />,
           },
         ],
+      },
+      {
+        path: "coupons",
+        element: <CouponsPage />,
       },
       {
         path: "communication",

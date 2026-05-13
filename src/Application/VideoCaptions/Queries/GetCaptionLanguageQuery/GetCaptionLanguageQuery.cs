@@ -30,6 +30,7 @@ public class GetCaptionLanguageQueryHandler : IRequestHandler<GetCaptionLanguage
                         !m.IsDeleted && 
                         m.UserId == userId)
             .SelectMany(m => m.VideoCaptions)
+            .Where(vc => !vc.IsSourceTranscript)
             .Select(vc => (int)vc.Language)   
             .Distinct()           
             .ToListAsync(cancellationToken);

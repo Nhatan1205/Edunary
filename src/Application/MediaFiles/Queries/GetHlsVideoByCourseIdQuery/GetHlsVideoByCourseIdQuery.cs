@@ -33,7 +33,8 @@ public class GetHlsVideoByCourseIdQueryHandler : IRequestHandler<GetHlsVideoByCo
                     {
                         Media = m,
                         Caption = m.VideoCaptions
-                                .Where(vc => vc.Language == (Languages)request.Language)
+                                .Where(vc => vc.Language == (Languages)request.Language
+                                          && !vc.IsSourceTranscript)
                                 .FirstOrDefault()
                     })
                     .Select(x => new HlsVideoCaptionDto

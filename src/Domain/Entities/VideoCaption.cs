@@ -13,6 +13,8 @@ public class VideoCaption : BaseAuditableEntity
     public string FileUrl { get; set; }
     public long FileSize { get; set; }
     public CaptionStatus Status { get; set; }
+    public bool IsAIGenerated { get; set; }
+    public bool IsSourceTranscript { get; set; }
 
     public MediaFile MediaFile { get; set; } = null!;
 }

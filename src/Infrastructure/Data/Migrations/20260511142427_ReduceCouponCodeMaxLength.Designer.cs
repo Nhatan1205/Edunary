@@ -4,6 +4,7 @@ using Edunary.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Edunary.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260511142427_ReduceCouponCodeMaxLength")]
+    partial class ReduceCouponCodeMaxLength
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,21 +38,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.HasIndex("CoursesId");
 
                     b.ToTable("AnnouncementCourse");
-                });
-
-            modelBuilder.Entity("CourseTopic", b =>
-                {
-                    b.Property<int>("CoursesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TopicsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CoursesId", "TopicsId");
-
-                    b.HasIndex("TopicsId");
-
-                    b.ToTable("CourseTopic");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.ActivityLog", b =>
@@ -134,219 +122,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("Announcements");
                 });
 
-            modelBuilder.Entity("Edunary.Domain.Entities.AnswerUpvote", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AnswerId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VoterId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnswerId", "VoterId")
-                        .IsUnique()
-                        .HasDatabaseName("UX_AnswerUpvotes_Answer_Voter");
-
-                    b.ToTable("AnswerUpvotes");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Assignment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<int>("EstimatedDurationMinutes")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Instructions")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ItemId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId", "ItemId")
-                        .IsUnique();
-
-                    b.ToTable("Assignments");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.AssignmentFeedback", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AssignmentSubmissionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignmentSubmissionId");
-
-                    b.ToTable("AssignmentFeedbacks");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.AssignmentQuestion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AssignmentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ExampleAnswer")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("QuestionText")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignmentId");
-
-                    b.ToTable("AssignmentQuestions");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.AssignmentSubmission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Answers")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("AssignmentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StudentId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignmentId", "StudentId")
-                        .IsUnique()
-                        .HasFilter("[StudentId] IS NOT NULL");
-
-                    b.ToTable("AssignmentSubmissions");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.Cart", b =>
                 {
                     b.Property<int>("Id")
@@ -410,47 +185,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Choice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsCorrect")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("Choices");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Coupon", b =>
@@ -657,6 +391,9 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Topic")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("TotalRating")
                         .HasColumnType("int");
 
@@ -674,98 +411,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Courses");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.CourseAnswer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(8000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsTopAnswer")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UpvoteCount")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId", "Created")
-                        .HasDatabaseName("IX_CourseAnswers_Question_Created");
-
-                    b.ToTable("CourseAnswers");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.CourseCollaborator", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("InviteStatus")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Permissions")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("RevenueSharePercent")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(5,2)")
-                        .HasDefaultValue(0m);
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("CourseCollaborators");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.CourseNote", b =>
@@ -860,65 +505,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("CourseProgress");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.CourseQuestion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AnswerCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Detail")
-                        .HasMaxLength(8000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsFeatured")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ItemId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<int>("UpvoteCount")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId", "Created")
-                        .HasDatabaseName("IX_CourseQuestions_Course_Created");
-
-                    b.HasIndex("CourseId", "ItemId")
-                        .HasDatabaseName("IX_CourseQuestions_Course_Item");
-
-                    b.ToTable("CourseQuestions");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Enrollment", b =>
@@ -1171,127 +757,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .HasFilter("[OrderId] > 0 AND [CourseId] > 0");
 
                     b.ToTable("InstructorWalletTransactions");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.KnowledgeDocument", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ChunkCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<string>("FileKey")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<long>("FileSizeBytes")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("QdrantCollection")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FileKey")
-                        .IsUnique();
-
-                    b.HasIndex("Status");
-
-                    b.ToTable("KnowledgeDocuments");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.LearnerProfile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Goal")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PreferredCategoryIds")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PreferredTopicIds")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SkillLevel")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("WeeklyHours")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_LearnerProfiles_StudentId");
-
-                    b.ToTable("LearnerProfiles");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.MediaFile", b =>
@@ -1628,383 +1093,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("Edunary.Domain.Entities.PendingRegistration", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedEmail")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<DateTimeOffset>("TokenExpiresAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTimeOffset?>("UsedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("IX_PendingRegistrations_NormalizedEmail");
-
-                    b.HasIndex("TokenHash")
-                        .HasDatabaseName("IX_PendingRegistrations_TokenHash");
-
-                    b.HasIndex("NormalizedEmail", "UsedAt")
-                        .HasDatabaseName("IX_PendingRegistrations_NormalizedEmail_UsedAt");
-
-                    b.ToTable("PendingRegistrations");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Question", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Explanation")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<int>("QuizId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("Questions");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuestionUpvote", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VoterId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId", "VoterId")
-                        .IsUnique()
-                        .HasDatabaseName("UX_QuestionUpvotes_Question_Voter");
-
-                    b.ToTable("QuestionUpvotes");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Quiz", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<bool>("IsBeingConvertToSnapshot")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ItemId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MaxAttempts")
-                        .HasColumnType("int");
-
-                    b.Property<double>("PassingScore")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("RandomizeQuestions")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("RelatedItemId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("ShowCorrectAnswers")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("TimeLimitMinutes")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId", "ItemId")
-                        .IsUnique();
-
-                    b.ToTable("Quizzes");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttempt", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ExpiryTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPassed")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuizAttemptSnapshotId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuizId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizAttemptSnapshotId");
-
-                    b.HasIndex("QuizId", "UserId");
-
-                    b.HasIndex("UserId", "IsActive");
-
-                    b.ToTable("QuizAttempts");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttemptAnswer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsCorrect")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuizAttemptId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SnapshotQuestionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizAttemptId");
-
-                    b.ToTable("QuizAttemptAnswers");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttemptAnswerChoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChoiceId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuizAttemptAnswerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizAttemptAnswerId");
-
-                    b.ToTable("QuizAttemptAnswerChoices");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttemptSnapshot", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuizId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("QuizQuestions")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("QuizAttemptSnapshots");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
                 {
                     b.Property<int>("Id")
@@ -2046,42 +1134,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .HasDatabaseName("IX_RatingCourses_CourseId_UserId");
 
                     b.ToTable("RatingCourses");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.RatingResponse", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RatingCourseId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ResponseText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RatingCourseId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_RatingResponses_RatingCourseId");
-
-                    b.ToTable("RatingResponses");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.RevenueSharePlan", b =>
@@ -2162,9 +1214,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("RoadmapTopicId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Source")
                         .HasColumnType("int");
 
                     b.Property<string>("Subtitle")
@@ -2375,36 +1424,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("TodoLists");
                 });
 
-            modelBuilder.Entity("Edunary.Domain.Entities.Topic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Topics");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.UserAccountBalance", b =>
                 {
                     b.Property<string>("UserId")
@@ -2455,12 +1474,6 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.Property<string>("FileUrl")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAIGenerated")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSourceTranscript")
-                        .HasColumnType("bit");
 
                     b.Property<int>("Language")
                         .HasColumnType("int");
@@ -2806,87 +1819,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CourseTopic", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Course", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Edunary.Domain.Entities.Topic", null)
-                        .WithMany()
-                        .HasForeignKey("TopicsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.AnswerUpvote", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.CourseAnswer", "Answer")
-                        .WithMany("Upvotes")
-                        .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Answer");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Assignment", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.AssignmentFeedback", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.AssignmentSubmission", "AssignmentSubmission")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("AssignmentSubmissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AssignmentSubmission");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.AssignmentQuestion", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Assignment", "Assignment")
-                        .WithMany("Questions")
-                        .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Assignment");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.AssignmentSubmission", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Assignment", "Assignment")
-                        .WithMany("Submissions")
-                        .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Assignment");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Choice", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Question", "Question")
-                        .WithMany("Choices")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Question");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.CouponRedemption", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.Coupon", "Coupon")
@@ -2907,28 +1839,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.CourseAnswer", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.CourseQuestion", "Question")
-                        .WithMany("Answers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Question");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.CourseCollaborator", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
-                        .WithMany("Collaborators")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.CourseNote", b =>
@@ -2954,17 +1864,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                 {
                     b.HasOne("Edunary.Domain.Entities.Course", "Course")
                         .WithMany("Progresses")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.CourseQuestion", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
-                        .WithMany("CourseQuestions")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3054,91 +1953,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Edunary.Domain.Entities.Question", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Quiz", "Quiz")
-                        .WithMany("Questions")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuestionUpvote", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.CourseQuestion", "Question")
-                        .WithMany("Upvotes")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Question");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Quiz", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttempt", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.QuizAttemptSnapshot", "Snapshot")
-                        .WithMany("Attempts")
-                        .HasForeignKey("QuizAttemptSnapshotId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Edunary.Domain.Entities.Quiz", "Quiz")
-                        .WithMany("Attempts")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-
-                    b.Navigation("Snapshot");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttemptAnswer", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.QuizAttempt", "QuizAttempt")
-                        .WithMany("Answers")
-                        .HasForeignKey("QuizAttemptId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("QuizAttempt");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttemptAnswerChoice", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.QuizAttemptAnswer", "QuizAttemptAnswer")
-                        .WithMany("AnswerChoices")
-                        .HasForeignKey("QuizAttemptAnswerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("QuizAttemptAnswer");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttemptSnapshot", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.Quiz", "Quiz")
-                        .WithMany("Snapshots")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.Course", "Course")
@@ -3148,17 +1962,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.RatingResponse", b =>
-                {
-                    b.HasOne("Edunary.Domain.Entities.RatingCourse", "RatingCourse")
-                        .WithOne("RatingResponse")
-                        .HasForeignKey("Edunary.Domain.Entities.RatingResponse", "RatingCourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RatingCourse");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Roadmap", b =>
@@ -3277,18 +2080,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Edunary.Domain.Entities.Assignment", b =>
-                {
-                    b.Navigation("Questions");
-
-                    b.Navigation("Submissions");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.AssignmentSubmission", b =>
-                {
-                    b.Navigation("Feedbacks");
-                });
-
             modelBuilder.Entity("Edunary.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Courses");
@@ -3301,11 +2092,7 @@ namespace Edunary.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Edunary.Domain.Entities.Course", b =>
                 {
-                    b.Navigation("Collaborators");
-
                     b.Navigation("CourseNotes");
-
-                    b.Navigation("CourseQuestions");
 
                     b.Navigation("Enrollments");
 
@@ -3314,18 +2101,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Progresses");
 
                     b.Navigation("RatingCourses");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.CourseAnswer", b =>
-                {
-                    b.Navigation("Upvotes");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.CourseQuestion", b =>
-                {
-                    b.Navigation("Answers");
-
-                    b.Navigation("Upvotes");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.FinancialTransaction", b =>
@@ -3352,40 +2127,6 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("Payments");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Question", b =>
-                {
-                    b.Navigation("Choices");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.Quiz", b =>
-                {
-                    b.Navigation("Attempts");
-
-                    b.Navigation("Questions");
-
-                    b.Navigation("Snapshots");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttempt", b =>
-                {
-                    b.Navigation("Answers");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttemptAnswer", b =>
-                {
-                    b.Navigation("AnswerChoices");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.QuizAttemptSnapshot", b =>
-                {
-                    b.Navigation("Attempts");
-                });
-
-            modelBuilder.Entity("Edunary.Domain.Entities.RatingCourse", b =>
-                {
-                    b.Navigation("RatingResponse");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.RoadmapTopic", b =>

@@ -12,6 +12,7 @@ import NotificationCardSkeleton from "../../../components/notification-popup/Not
 import CustomPagination from "../../../components/pagination/CustomPagination";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import useGetNotificationsByUserId from "../../../hooks/notifications-hooks/useGetNotificationByUserId";
+import useUpdateNotificationStatus from "../../../hooks/notifications-hooks/useUpdateNotificationStatus";
 
 const FILTERS = [
   { label: "All", value: "all" },
@@ -30,8 +31,18 @@ function NotificationsPage() {
     status,
   });
 
+  const updateNotificationStatusMutation = useUpdateNotificationStatus();
+
   const notifications = data?.list?.items ?? [];
   const totalPages = data?.list?.totalPages ?? 0;
+
+  function handleMarkAll() {
+    if (!notifications || notifications.length === 0) return;
+
+    const ids = notifications.filter((n) => !n.isRead).map((n) => n.id);
+    if (ids.length === 0) return;
+    updateNotificationStatusMutation.mutate(ids);
+  }
 
   function handleStatusChange(nextStatus) {
     setStatus(nextStatus);
@@ -43,7 +54,7 @@ function NotificationsPage() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
+    <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 }, minHeight: "75vh" }}>
       <Box
         sx={{
           display: "flex",
@@ -66,28 +77,44 @@ function NotificationsPage() {
           </Typography>
         </Box>
 
-        <ButtonGroup variant="outlined" aria-label="notification filters">
-          {FILTERS.map((filter) => (
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap" }}>
+          {data?.unreadCount > 0 && (
             <Button
-              key={filter.value}
-              onClick={() => handleStatusChange(filter.value)}
-              variant={status === filter.value ? "contained" : "outlined"}
+              onClick={handleMarkAll}
+              disabled={updateNotificationStatusMutation.isPending}
               sx={{
                 textTransform: "none",
-                borderColor: "brand.main",
-                color: status === filter.value ? "text.inverse" : "brand.main",
-                bgcolor: status === filter.value ? "brand.main" : "transparent",
-                "&:hover": {
-                  borderColor: "brand.dark",
-                  bgcolor:
-                    status === filter.value ? "brand.dark" : "background.muted",
-                },
+                color: "brand.main",
+                fontWeight: 500,
+                "&:hover": { bgcolor: "grey.200" },
               }}
             >
-              {filter.label}
+              Mark all as read
             </Button>
-          ))}
-        </ButtonGroup>
+          )}
+          <ButtonGroup variant="outlined" aria-label="notification filters">
+            {FILTERS.map((filter) => (
+              <Button
+                key={filter.value}
+                onClick={() => handleStatusChange(filter.value)}
+                variant={status === filter.value ? "contained" : "outlined"}
+                sx={{
+                  textTransform: "none",
+                  borderColor: "brand.main",
+                  color: status === filter.value ? "text.inverse" : "brand.main",
+                  bgcolor: status === filter.value ? "brand.main" : "transparent",
+                  "&:hover": {
+                    borderColor: "brand.dark",
+                    bgcolor:
+                      status === filter.value ? "brand.dark" : "background.muted",
+                  },
+                }}
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </Box>
       </Box>
 
       <Divider />

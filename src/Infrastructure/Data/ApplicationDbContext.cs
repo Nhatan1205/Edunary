@@ -52,6 +52,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Coupon> Coupons => Set<Coupon>();
     public DbSet<CouponRedemption> CouponRedemptions => Set<CouponRedemption>();
 
+    public DbSet<FinancialAccount> FinancialAccounts => Set<FinancialAccount>();
+    public DbSet<FinancialTransaction> FinancialTransactions => Set<FinancialTransaction>();
+    public DbSet<FinancialEntry> FinancialEntries => Set<FinancialEntry>();
+    public DbSet<UserAccountBalance> UserAccountBalances => Set<UserAccountBalance>();
+
+    public DbSet<TaxRegion> TaxRegions => Set<TaxRegion>();
+    public DbSet<TaxProfile> TaxProfiles => Set<TaxProfile>();
+
+    public DbSet<RevenueSharePlan> RevenueSharePlans => Set<RevenueSharePlan>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {        
         base.OnModelCreating(builder);

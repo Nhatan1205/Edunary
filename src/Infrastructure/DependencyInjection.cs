@@ -72,6 +72,9 @@ public static class DependencyInjection
         services.AddTransient<IEmailService, EmailService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<ICouponService, CouponService>();
+        services.AddScoped<ILedgerService, LedgerService>();
+        services.AddScoped<ITaxCalculatorService, TaxCalculatorService>();
+        services.AddScoped<IRevenueSplitService, RevenueSplitService>();
         services.AddScoped<IUploadFileService, UploadFileService>();
         services.AddScoped<INotifyService, NotifyService>();
         services.AddScoped<IFilterService, FilterService>();

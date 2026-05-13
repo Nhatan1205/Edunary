@@ -18,6 +18,10 @@ public class UpdateNotificationStatusCommandHandler : IRequestHandler<UpdateNoti
     public async Task<Result> Handle(UpdateNotificationStatusCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Result.Failure("User not found");
+        }
 
         var entities = await _context.NotificationUsers
             .Where(n => request.Ids.Contains(n.Id) && n.StudentId == userId)

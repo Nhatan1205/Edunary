@@ -58,13 +58,13 @@ public class NotifyService : INotifyService
         }
     }
 
-    public async Task NotifyUserAsync(string userId, string title, string message, string type, object payload, CancellationToken cancellationToken = default, int courseId = 0, string url = "")
+    public async Task NotifyUserAsync(string userId, string title, string message, string type, object payload, CancellationToken cancellationToken = default, int courseId = 0, string url = "", string imageUrl = "")
     {
         try
         {
             var createCommand = new CreateNotificationCommand
             {
-                ImageUrl = string.Empty,
+                ImageUrl = imageUrl,
                 CourseId = courseId,
                 Title = title,
                 Subject = string.Empty,

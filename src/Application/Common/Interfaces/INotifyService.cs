@@ -4,7 +4,7 @@ namespace Edunary.Application.Common.Interfaces;
 public interface INotifyService
 {
     Task NotifyCourseUpdated(NotificationRequest request, CancellationToken cancellationToken);
-    Task NotifyUserAsync(string userId, string title, string message, string type, object payload, CancellationToken cancellationToken = default, int courseId = 0, string url = "");
+    Task NotifyUserAsync(string userId, string title, string message, string type, object payload, CancellationToken cancellationToken = default, int courseId = 0, string url = "", string imageUrl = "");
 
 
 }

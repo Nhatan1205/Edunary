@@ -3868,8 +3868,18 @@ export class NotificationClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getNotficationsByUserId(): Promise<NotificationsVm> {
-        let url_ = this.baseUrl + "/api/Notification";
+    getNotficationsByUserId(pageNumber: number, pageSize: number, status: string | null | undefined): Promise<NotificationsVm> {
+        let url_ = this.baseUrl + "/api/Notification?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (status !== undefined && status !== null)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -13519,7 +13529,7 @@ export interface IInitiateChunkedUploadCommand {
 
 export class NotificationsVm implements INotificationsVm {
     unreadCount?: number;
-    list?: GetNotificationByUserIdDto[] | undefined;
+    list?: PaginatedListOfGetNotificationByUserIdDto | undefined;
 
     constructor(data?: INotificationsVm) {
         if (data) {
@@ -13533,11 +13543,7 @@ export class NotificationsVm implements INotificationsVm {
     init(_data?: any) {
         if (_data) {
             this.unreadCount = _data["unreadCount"];
-            if (Array.isArray(_data["list"])) {
-                this.list = [] as any;
-                for (let item of _data["list"])
-                    this.list!.push(GetNotificationByUserIdDto.fromJS(item));
-            }
+            this.list = _data["list"] ? PaginatedListOfGetNotificationByUserIdDto.fromJS(_data["list"]) : <any>undefined;
         }
     }
 
@@ -13551,18 +13557,78 @@ export class NotificationsVm implements INotificationsVm {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["unreadCount"] = this.unreadCount;
-        if (Array.isArray(this.list)) {
-            data["list"] = [];
-            for (let item of this.list)
-                data["list"].push(item.toJSON());
-        }
+        data["list"] = this.list ? this.list.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface INotificationsVm {
     unreadCount?: number;
-    list?: GetNotificationByUserIdDto[] | undefined;
+    list?: PaginatedListOfGetNotificationByUserIdDto | undefined;
+}
+
+export class PaginatedListOfGetNotificationByUserIdDto implements IPaginatedListOfGetNotificationByUserIdDto {
+    items?: GetNotificationByUserIdDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfGetNotificationByUserIdDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(GetNotificationByUserIdDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfGetNotificationByUserIdDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfGetNotificationByUserIdDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfGetNotificationByUserIdDto {
+    items?: GetNotificationByUserIdDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
 }
 
 export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
@@ -13571,6 +13637,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
     imageUrl?: string | undefined;
     message?: string | undefined;
     type?: string | undefined;
+    subject?: string | undefined;
+    courseId?: number;
+    url?: string | undefined;
     created?: Date;
     isRead?: boolean;
 
@@ -13590,6 +13659,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
             this.imageUrl = _data["imageUrl"];
             this.message = _data["message"];
             this.type = _data["type"];
+            this.subject = _data["subject"];
+            this.courseId = _data["courseId"];
+            this.url = _data["url"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.isRead = _data["isRead"];
         }
@@ -13609,6 +13681,9 @@ export class GetNotificationByUserIdDto implements IGetNotificationByUserIdDto {
         data["imageUrl"] = this.imageUrl;
         data["message"] = this.message;
         data["type"] = this.type;
+        data["subject"] = this.subject;
+        data["courseId"] = this.courseId;
+        data["url"] = this.url;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["isRead"] = this.isRead;
         return data;
@@ -13621,6 +13696,9 @@ export interface IGetNotificationByUserIdDto {
     imageUrl?: string | undefined;
     message?: string | undefined;
     type?: string | undefined;
+    subject?: string | undefined;
+    courseId?: number;
+    url?: string | undefined;
     created?: Date;
     isRead?: boolean;
 }

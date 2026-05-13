@@ -1,8 +1,10 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Common;
 using Edunary.Domain.Events.CourseQuestions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Edunary.Application.CourseQuestions.EventHandlers;
 
@@ -12,17 +14,20 @@ public class CourseQuestionCreatedEventHandler : INotificationHandler<CourseQues
     private readonly IIdentityService _identityService;
     private readonly INotifyService _notifyService;
     private readonly IEmailService _emailService;
+    private readonly AppSettings _appSettings;
 
     public CourseQuestionCreatedEventHandler(
         IApplicationDbContext context,
         IIdentityService identityService,
         INotifyService notifyService,
-        IEmailService emailService)
+        IEmailService emailService,
+        IOptions<AppSettings> appSettings)
     {
         _context = context;
         _identityService = identityService;
         _notifyService = notifyService;
         _emailService = emailService;
+        _appSettings = appSettings.Value;
     }
 
     public async Task Handle(CourseQuestionCreatedEvent notification, CancellationToken cancellationToken)
@@ -66,15 +71,20 @@ public class CourseQuestionCreatedEventHandler : INotificationHandler<CourseQues
         }
 
         // 4. Send in-app notification
+        var student = await _identityService.GetUserById(question.CreatedBy);
+        var studentName = student?.FullName ?? "A student";
+        var studentAvatar = student?.Avatar ?? string.Empty;
+
         await _notifyService.NotifyUserAsync(
             instructorId,
             $"You have a new question in \"{courseName}\"",
-            $"A student asked: \"{question.Title}\"",
+            $"{studentName} asked: \"{question.Title}\"",
             "qa_new_question",
             new { questionId = question.Id, courseId = question.CourseId },
             cancellationToken,
             question.CourseId,
-            "/instructor/communication/qa");
+            "/instructor/communication/qa",
+            studentAvatar);
 
 
         // 5. Send email via Hangfire (fire-and-forget, non-blocking)
@@ -84,9 +94,9 @@ public class CourseQuestionCreatedEventHandler : INotificationHandler<CourseQues
         if (!string.IsNullOrWhiteSpace(instructorEmail))
         {
             var subject = $"New student question in \"{courseName}\"";
-            var actionUrl = "https://localhost:44447/instructor/communication/qa";
+            var actionUrl = $"{_appSettings.ClientUrl}/instructor/communication/qa";
             var html = EmailTemplates.BuildNewQuestionTemplate(courseName, question.Title, actionUrl);
-            _emailService.EnqueueEmailAsync(instructorEmail, subject, html);
+            await _emailService.SendBulkEmailsAsync(new[] { instructorEmail }, subject, html);
         }
     }
 }

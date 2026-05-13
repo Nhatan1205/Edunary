@@ -1,8 +1,10 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Common;
 using Edunary.Domain.Events.CourseAnswers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Edunary.Application.CourseAnswers.EventHandlers;
 
@@ -12,17 +14,20 @@ public class CourseAnswerCreatedEventHandler : INotificationHandler<CourseAnswer
     private readonly IIdentityService _identityService;
     private readonly INotifyService _notifyService;
     private readonly IEmailService _emailService;
+    private readonly AppSettings _appSettings;
 
     public CourseAnswerCreatedEventHandler(
         IApplicationDbContext context,
         IIdentityService identityService,
         INotifyService notifyService,
-        IEmailService emailService)
+        IEmailService emailService,
+        IOptions<AppSettings> appSettings)
     {
         _context = context;
         _identityService = identityService;
         _notifyService = notifyService;
         _emailService = emailService;
+        _appSettings = appSettings.Value;
     }
 
     public async Task Handle(CourseAnswerCreatedEvent notification, CancellationToken cancellationToken)
@@ -53,21 +58,20 @@ public class CourseAnswerCreatedEventHandler : INotificationHandler<CourseAnswer
         }
 
         // 3. Send notification to question owner
-        var notifTitle = isInstructorAnswer
-            ? $"The instructor answered your question"
-            : $"Your question received its first answer";
-
-        var notifMessage = $"\"{question.Title}\"";
+        var answerOwner = await _identityService.GetUserById(answer.CreatedBy);
+        var answerOwnerName = answerOwner?.FullName ?? "Someone";
+        var answerOwnerAvatar = answerOwner?.Avatar ?? string.Empty;
 
         await _notifyService.NotifyUserAsync(
             questionOwnerId,
-            notifTitle,
-            notifMessage,
+            $"{answerOwnerName} replied to the question:",
+            question.Title,
             "qa_new_answer",
             new { questionId = question.Id, courseId = question.CourseId },
             cancellationToken,
             0,
-            $"/course/{question.CourseId}/learn");
+            $"/course/{question.CourseId}/learn/lecture/item-1?tab=qa",
+            answerOwnerAvatar);
 
         // 4. Send email
         var questionOwner = await _identityService.GetUserById(questionOwnerId);
@@ -79,9 +83,9 @@ public class CourseAnswerCreatedEventHandler : INotificationHandler<CourseAnswer
                 ? $"The instructor answered your question"
                 : $"Your question got an answer!";
 
-            var actionUrl = $"https://localhost:44447/course/{question.CourseId}/learn";
+            var actionUrl = $"{_appSettings.ClientUrl}/course/{question.CourseId}/learn/lecture/item-1?tab=qa";
             var html = EmailTemplates.BuildNewAnswerTemplate(courseName, question.Title, isInstructorAnswer, actionUrl);
-            _emailService.EnqueueEmailAsync(ownerEmail, subject, html);
+            await _emailService.SendBulkEmailsAsync(new[] { ownerEmail }, subject, html);
         }
     }
 }

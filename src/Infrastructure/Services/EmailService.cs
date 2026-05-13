@@ -40,13 +40,6 @@ public class EmailService : IEmailService
         return Task.CompletedTask;
     }
 
-    public void EnqueueEmailAsync(string toEmail, string subject, string content)
-    {
-        BackgroundJob.Enqueue<EmailService>(service =>
-            service.SendEmailAsync(toEmail, subject, content)
-        );
-    }
-
     private async Task<EmailSettings> GetEmailSettingsAsync()
     {
         var dbValues = await _mediator.Send(new GetSystemSettingValuesQuery

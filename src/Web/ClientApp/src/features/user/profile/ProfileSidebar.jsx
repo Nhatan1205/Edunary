@@ -15,6 +15,7 @@ const getNavItems = (userId) => [
   { label: "Profile", path: "/user/profile" },
   { label: "Photo", path: "/user/photo" },
   { label: "Account Security", path: "/user/security" },
+  { label: "Notifications", path: "/user/notifications" },
   { label: "Add/Edit your interests", path: "/personalize" },
 ];
 

@@ -3654,6 +3654,37 @@
           "Notification"
         ],
         "operationId": "GetNotficationsByUserId",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -9936,11 +9967,43 @@
             "format": "int32"
           },
           "list": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfGetNotificationByUserIdDto"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfGetNotificationByUserIdDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
             "type": "array",
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/GetNotificationByUserIdDto"
             }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
           }
         }
       },
@@ -9965,6 +10028,18 @@
             "nullable": true
           },
           "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "url": {
             "type": "string",
             "nullable": true
           },

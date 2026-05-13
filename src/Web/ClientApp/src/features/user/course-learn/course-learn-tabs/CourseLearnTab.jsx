@@ -1,15 +1,34 @@
-import { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import RatingTab from "../../../../components/rating-tab/RatingTab";
 import OverviewTab from "./OverviewTab";
 import NotesArea from "./NotesArea";
 import QATab from "./qa-tab/QATab";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+
+const TABS = [
+  { key: "overview", label: "Overview" },
+  { key: "qa",       label: "Q&A" },
+  { key: "reviews",  label: "Reviews" },
+  { key: "notes",    label: "Notes" },
+];
 
 function CourseLearnTab({ courseId: courseIdProp, contentId, currentItem, currentTime, onSeek, onPauseVideo }) {
-  const [active, setActive] = useState("overview");
+  const [searchParams, setSearchParams] = useSearchParams();
   const { courseId: courseIdParam } = useParams();
   const courseId = courseIdProp || courseIdParam;
+
+  const active = searchParams.get("tab") || "overview";
+
+  const handleTabChange = (key) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("tab", key);
+        return next;
+      },
+      { replace: true }
+    );
+  };
 
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "500px" }}>
@@ -23,95 +42,38 @@ function CourseLearnTab({ courseId: courseIdProp, contentId, currentItem, curren
           mb: 2,
         }}
       >
-        <Button
-          onClick={() => setActive("overview")}
-          sx={{
-            textTransform: "none",
-            fontWeight: 700,
-            borderRadius: "999px",
-            px: 2.5,
-            py: 0.7,
-            color: active === "overview" ? "text.inverse" : "text.primary",
-            bgcolor: active === "overview" ? "brand.main" : "transparent",
-            boxShadow: active === "overview" ? 2 : "none",
-            "&:hover": {
-              bgcolor: active === "overview" ? "brand.dark" : "action.hover",
-            },
-          }}
-        >
-          Overview
-        </Button>
-        <Button
-          onClick={() => setActive("qa")}
-          sx={{
-            textTransform: "none",
-            fontWeight: 700,
-            borderRadius: "999px",
-            px: 2.5,
-            py: 0.7,
-            color: active === "qa" ? "text.inverse" : "text.primary",
-            bgcolor: active === "qa" ? "brand.main" : "transparent",
-            boxShadow: active === "qa" ? 2 : "none",
-            "&:hover": {
-              bgcolor: active === "qa" ? "brand.dark" : "action.hover",
-            },
-          }}
-        >
-          Q&amp;A
-        </Button>
-        <Button
-          onClick={() => setActive("reviews")}
-          sx={{
-            textTransform: "none",
-            fontWeight: 700,
-            borderRadius: "999px",
-            px: 2.5,
-            py: 0.7,
-            color: active === "reviews" ? "text.inverse" : "text.primary",
-            bgcolor: active === "reviews" ? "brand.main" : "transparent",
-            boxShadow: active === "reviews" ? 2 : "none",
-            "&:hover": {
-              bgcolor: active === "reviews" ? "brand.dark" : "action.hover",
-            },
-          }}
-        >
-          Reviews
-        </Button>
-        <Button
-          onClick={() => setActive("notes")}
-          sx={{
-            textTransform: "none",
-            fontWeight: 700,
-            borderRadius: "999px",
-            px: 2.5,
-            py: 0.7,
-            color: active === "notes" ? "text.inverse" : "text.primary",
-            bgcolor: active === "notes" ? "brand.main" : "transparent",
-            boxShadow: active === "notes" ? 2 : "none",
-            "&:hover": {
-              bgcolor: active === "notes" ? "brand.dark" : "action.hover",
-            },
-          }}
-        >
-          Notes
-        </Button>
+        {TABS.map((tab) => (
+          <Button
+            key={tab.key}
+            onClick={() => handleTabChange(tab.key)}
+            sx={{
+              textTransform: "none",
+              fontWeight: 700,
+              borderRadius: "999px",
+              px: 2.5,
+              py: 0.7,
+              color: active === tab.key ? "text.inverse" : "text.primary",
+              bgcolor: active === tab.key ? "brand.main" : "transparent",
+              boxShadow: active === tab.key ? 2 : "none",
+              "&:hover": {
+                bgcolor: active === tab.key ? "brand.dark" : "action.hover",
+              },
+            }}
+          >
+            {tab.label}
+          </Button>
+        ))}
       </Box>
 
       {active === "overview" && (
         <Box sx={{ p: 4 }}>
-          {/* <Typography>
-            <strong>Overview:</strong>
-            <br /> Đây là nơi hiển thị thông tin tổng quan của khóa học.
-          </Typography> */}
           <OverviewTab courseId={courseId} />
         </Box>
       )}
+
       {active === "qa" && (
         <Box sx={{ p: 4 }}>
-          <QATab
-            courseId={courseId}
-            currentItem={currentItem}
-          />
+          <QATab courseId={courseId} currentItem={currentItem} />
         </Box>
       )}
 

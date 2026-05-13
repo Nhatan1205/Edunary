@@ -1,13 +1,34 @@
-import { Avatar, Box, MenuItem, Typography } from "@mui/material";
+import { Avatar, Box, MenuItem, Tooltip, Typography } from "@mui/material";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import { useNavigate } from "react-router";
 import DefaultImage from "../../assets/images/default.jpg";
-import { formatTimeAgo } from "../../utils/helpers";
+import { formatTimeAgo, stripHtml } from "../../utils/helpers";
 import useUpdateNotificationStatus from "../../hooks/notifications-hooks/useUpdateNotificationStatus";
-function MessageCard({ notification }) {
-  const { id, title, message, created, isRead, imageUrl } = notification;
+
+function MessageCard({ notification, onAfterClick }) {
+  const { id, title, message, created, isRead, imageUrl, url } = notification;
+  const navigate = useNavigate();
   const updateNotificationStatusMutation = useUpdateNotificationStatus();
 
+  function navigateToNotification() {
+    if (url) {
+      navigate(url);
+    }
+
+    if (onAfterClick) {
+      onAfterClick();
+    }
+  }
+
   function handleUpdateStatus() {
-    updateNotificationStatusMutation.mutate([id]);
+    if (!isRead) {
+      updateNotificationStatusMutation.mutate([id], {
+        onSettled: navigateToNotification,
+      });
+      return;
+    }
+
+    navigateToNotification();
   }
 
   return (
@@ -18,6 +39,7 @@ function MessageCard({ notification }) {
         alignItems: "flex-start",
         gap: 2,
         padding: "16px 20px",
+        whiteSpace: "normal",
         "&:hover": {
           backgroundColor: "background.muted",
         },
@@ -38,33 +60,40 @@ function MessageCard({ notification }) {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          height: 64,
+          minHeight: 64,
           opacity: isRead ? 0.6 : 1,
         }}
       >
-        <Typography
-          variant="body1"
-          sx={{
-            fontWeight: isRead ? 400 : 600,
-            fontSize: "14px",
-            color: "#1a1a1a",
-            marginBottom: "4px",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "normal",
-          }}
-        >
-          {title}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontWeight: isRead ? 400 : 600,
+              fontSize: "14px",
+              color: "text.primary",
+              marginBottom: "4px",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "normal",
+            }}
+          >
+            {title}
+          </Typography>
+          {!isRead && (
+            <Tooltip title="Unread">
+              <FiberManualRecordIcon sx={{ fontSize: 14, color: "brand.main", flexShrink: 0, mt: 0.5 }} />
+            </Tooltip>
+          )}
+        </Box>
         {message && (
           <Typography
             variant="body2"
             sx={{
               fontSize: "12px",
-              color: "#666",
+              color: "text.secondary",
               marginBottom: "4px",
               display: "-webkit-box",
               WebkitLineClamp: 1,
@@ -74,13 +103,13 @@ function MessageCard({ notification }) {
               whiteSpace: "normal",
             }}
           >
-            {message}
+            {stripHtml(message)}
           </Typography>
         )}
         <Typography
           variant="caption"
           sx={{
-            color: "#757575",
+            color: "text.tertiary",
             fontSize: "12px",
           }}
         >

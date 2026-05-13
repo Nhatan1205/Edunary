@@ -2,6 +2,7 @@ using Edunary.Application.Common.Models;
 using Edunary.Application.InstructorWallets.Commands.ApproveWithdrawalRequest;
 using Edunary.Application.InstructorWallets.Commands.CancelWithdrawalRequest;
 using Edunary.Application.InstructorWallets.Commands.WithdrawFromInstructorWallet;
+using Edunary.Application.InstructorWallets.Queries.GetWithdrawalPreview;
 using Edunary.Application.InstructorWallets.Queries.GetInstructorWallet;
 using Edunary.Application.InstructorWallets.Queries.GetInstructorWalletTransactions;
 using Edunary.Application.InstructorWallets.Queries.GetWithdrawalRequestsForAdmin;
@@ -20,6 +21,7 @@ public class InstructorWallet : EndpointGroupBase
             .RequireAuthorization()
             .MapGet(GetWallet)
             .MapGet(GetTransactions, "transactions")
+            .MapPost(GetWithdrawalPreview, "withdraw/preview")
             .MapPost(Withdraw, "withdraw");
 
         // Admin
@@ -58,6 +60,9 @@ public class InstructorWallet : EndpointGroupBase
         var result = await sender.Send(command);
         return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
     }
+
+    public async Task<WithdrawalPreviewDto> GetWithdrawalPreview(ISender sender, GetWithdrawalPreviewQuery query)
+        => await sender.Send(query);
 
     public async Task<IResult> ApproveWithdrawal(ISender sender, int id)
     {

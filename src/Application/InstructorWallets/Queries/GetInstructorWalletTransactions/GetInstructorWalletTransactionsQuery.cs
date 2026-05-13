@@ -76,6 +76,10 @@ public class GetInstructorWalletTransactionsQueryHandler
                 OrderId = 0,
                 CourseId = 0,
                 Amount = t.Amount,
+                WithholdingAmount = t.WithholdingAmount,
+                NetAmount = t.NetAmount,
+                WithholdingRate = t.WithholdingRate,
+                TaxCountryCode = t.TaxCountryCode,
                 Currency = t.Currency,
                 Status = t.Status
             });

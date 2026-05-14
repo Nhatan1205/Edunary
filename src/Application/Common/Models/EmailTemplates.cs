@@ -121,71 +121,127 @@ public static class EmailTemplates
         </html>";
     }
 
-    public static string BuildAnnouncementTemplate(string subject, string content, string siteUrl = "https://edunary.runasp.net/", string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1764309386/logo_white_o2fonq.png")
+    public static string BuildAnnouncementTemplate(
+        string userName,
+        string instructorName,
+        string instructorAvatar,
+        string courseName,
+        string courseUrl,
+        string subject,
+        string content,
+        string actionUrl,
+        string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
     {
-        return $@"
-        <!doctype html>
-        <html>
+        var encodedUserName = System.Net.WebUtility.HtmlEncode(userName);
+        var encodedInstructorName = System.Net.WebUtility.HtmlEncode(instructorName);
+        var encodedCourseName = System.Net.WebUtility.HtmlEncode(courseName);
+
+        return $@"<!doctype html>
+        <html lang=""en"">
         <head>
-            <meta charset=""utf-8"" />
-            <meta name=""viewport"" content=""width=device-width, initial-scale=1.0""/>
+          <meta charset=""utf-8"" />
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
         </head>
-        <body style=""margin:0;padding:0;font-family: 'Segoe UI', Arial, sans-serif;background:#fef5f5;"">
-            <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"">
-                <tr>
-                    <td align=""center"" style=""padding:40px 20px;"">
-                        <table role=""presentation"" width=""600"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);"">
-                            <!-- Header -->
-                            <tr>
-                                <td style=""background:#4db8c4;padding:24px 32px;"">
-                                    <div style=""line-height:32px;"">
-                                        <img src=""{logoUrl}"" 
-                                            alt=""Logo"" 
-                                            width=""32"" 
-                                            height=""32"" 
-                                            style=""display:inline-block; vertical-align:middle; margin-right:8px; border:0;"" />
-                                        <span style=""color:#ffffff; font-size:22px; font-weight:600; vertical-align:middle; display:inline-block; letter-spacing:-0.5px;"">
-                                            Edunary
-                                        </span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Content -->
-                            <tr>
-                                <td style=""padding:32px;"">
-                                    <h2 style=""font-size:18px;font-weight:600;margin:0 0 16px 0;color:#1a202c;"">{System.Net.WebUtility.HtmlEncode(subject)}</h2>
-                                    <div style=""font-size:15px;line-height:1.6;color:#4a5568;"">
-                                        {content}
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Divider -->
-                            <tr>
-                                <td style=""padding:0 32px;"">
-                                    <div style=""border-top:1px solid #e2e8f0;""></div>
-                                </td>
-                            </tr>
-                            <!-- Footer Note -->
-                            <tr>
-                                <td style=""padding:24px 32px;"">
-                                    <p style=""font-size:13px;color:#718096;margin:0;line-height:1.5;"">
-                                        You're receiving this announcement because you're enrolled in a course on Edunary.
-                                        To update your notification preferences, please visit your account settings.
-                                    </p>
-                                </td>
-                            </tr>
-                            <!-- Footer -->
-                            <tr>
-                                <td style=""background:#f7fafc;padding:20px 32px;text-align:center;"">
-                                    <p style=""font-size:13px;color:#a0aec0;margin:0;"">
-                                        © {DateTime.UtcNow.Year} Edunary. All rights reserved.
-                                    </p>
-                                </td>
-                            </tr>
-                        </table>
+        <body style=""margin:0;padding:0;background:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1d1f;"">
+          <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;"">
+            <tr>
+              <td align=""center"" style=""padding:32px 20px 0;"">
+                <table role=""presentation"" width=""560"" cellpadding=""0"" cellspacing=""0"">
+
+                  <!-- Header Row -->
+                  <tr>
+                    <td style=""padding-bottom:28px;"">
+                      <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td align=""left"" style=""vertical-align:middle;"">
+                            <p style=""margin:0;font-size:17px;font-weight:700;color:#1c1d1f;"">New Announcement</p>
+                          </td>
+                          <td align=""right"" style=""vertical-align:middle;"">
+                            <img src=""{logoUrl}"" alt=""Edunary"" width=""32"" height=""32""
+                              style=""display:inline-block;vertical-align:middle;margin-right:6px;border:0;"" />
+                            <span style=""font-size:20px;font-weight:700;vertical-align:middle;color:#00A76F;"">Edunary</span>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
-                </tr>
-            </table>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:24px;""></td></tr>
+
+                  <!-- Instructor greeting row -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""vertical-align:top;padding-right:12px;"">
+                            {(string.IsNullOrEmpty(instructorAvatar)
+                                ? $"<div style=\"width:40px;height:40px;border-radius:50%;background:#00A76F;display:inline-block;\"></div>"
+                                : $"<img src=\"{instructorAvatar}\" alt=\"{encodedInstructorName}\" width=\"40\" height=\"40\" style=\"border-radius:50%;display:block;border:0;\" />")}
+                          </td>
+                          <td style=""vertical-align:middle;"">
+                            <p style=""margin:0;font-size:14px;line-height:1.5;color:#1c1d1f;"">
+                              Hi {encodedUserName}, an announcement has been made from
+                              <strong>{encodedInstructorName}</strong> of
+                              <a href=""{courseUrl}"" style=""color:#00A76F;text-decoration:none;font-weight:600;"">{encodedCourseName}</a>.
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:24px;""></td></tr>
+
+                  <!-- Announcement subject -->
+                  <tr>
+                    <td style=""padding-bottom:16px;"">
+                      <p style=""margin:0;font-size:16px;font-weight:700;color:#1c1d1f;"">{System.Net.WebUtility.HtmlEncode(subject)}</p>
+                    </td>
+                  </tr>
+
+                  <!-- Announcement content -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <div style=""font-size:15px;line-height:1.6;color:#4a5568;"">
+                        {content}
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- CTA -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""border-radius:4px;background:#00A76F;"">
+                            <a href=""{actionUrl}"" style=""display:inline-block;padding:12px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:4px;"">
+                              See Announcement
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:3px solid #e8e8e8;padding-top:24px;padding-bottom:8px;""></td></tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <p style=""margin:0;font-size:12px;line-height:1.6;color:#6a6f73;"">
+                        You're receiving this email because you are enrolled in a course on Edunary.<br/>
+                        &copy; {DateTime.UtcNow.Year} Edunary Inc.
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
         </html>";
     }

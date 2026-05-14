@@ -1,7 +1,8 @@
-﻿using Edunary.Application.Announcements.Commands.CreateDraftAnnouncementCommand;
+using Edunary.Application.Announcements.Commands.CreateDraftAnnouncementCommand;
 using Edunary.Application.Announcements.Commands.UpdateAnnouncementCommand;
 using Edunary.Application.Announcements.Queries.GetAnnouncementsQuery;
 using Edunary.Application.Announcements.Queries.GetAnnouncementByIdQuery;
+using Edunary.Application.Announcements.Queries.GetAnnouncementsByCourseIdQuery;
 using Edunary.Application.Common.Models;
 
 namespace Edunary.Web.Endpoints;
@@ -17,8 +18,9 @@ public class Announcement : EndpointGroupBase
             .MapGet(GetAnnouncements)
             .MapGet(GetAnnouncementById, "{id}");
 
-
-
+        app.MapGroup(this)
+            .RequireAuthorization()
+            .MapGet(GetAnnouncementsByCourseId, "course/{courseId}");
     }
 
     public async Task<ReturnResult<CreateAnnouncementCommandDto>> CreateAnnouncement(ISender sender, CreateAnnouncementCommand command)
@@ -42,6 +44,11 @@ public class Announcement : EndpointGroupBase
     public async Task<GetAnnouncementByIdDto> GetAnnouncementById(ISender sender, int id)
     {
         return await sender.Send(new GetAnnouncementByIdQuery() { Id = id });
+    }
+
+    public async Task<PaginatedList<GetAnnouncementByCourseIdDto>> GetAnnouncementsByCourseId(ISender sender, [AsParameters] GetAnnouncementsByCourseIdQuery query)
+    {
+        return await sender.Send(query);
     }
 
 }

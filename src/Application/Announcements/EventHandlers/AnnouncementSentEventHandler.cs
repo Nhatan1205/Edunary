@@ -1,9 +1,11 @@
-﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Common;
 using Edunary.Domain.Enums;
 using Edunary.Domain.Events.Announcements;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Edunary.Application.Announcements.EventHandlers;
 public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSentEvent>
@@ -14,6 +16,7 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
     private readonly INotifyService _notifyService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IActivityLogService _activityLogService;
+    private readonly AppSettings _appSettings;
 
     public AnnouncementSentEventHandler(
         IApplicationDbContext context,
@@ -21,7 +24,8 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
         IIdentityService identityService,
         INotifyService notifyService,
         ICurrentUserService currentUserService,
-        IActivityLogService activityLogService)
+        IActivityLogService activityLogService,
+        IOptions<AppSettings> appSettings)
     {
         _context = context;
         _emailService = emailService;
@@ -29,6 +33,7 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
         _notifyService = notifyService;
         _currentUserService = currentUserService;
         _activityLogService = activityLogService;
+        _appSettings = appSettings.Value;
     }
 
     public async Task Handle(AnnouncementSentEvent notification, CancellationToken cancellationToken)
@@ -38,42 +43,63 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
         // 1. Get all course ids from announcement
         var courseIds = announcement.Courses.Select(c => c.Id).ToList();
 
-        // 2. Get all student ids enrolled in these courses
-        var studentIds = await _context.Enrollments
+        // 2. Get instructor info
+        var instructorName = _currentUserService?.FullName ?? "Instructor";
+        var instructorAvatar = _currentUserService?.Avatar ?? string.Empty;
+
+        // 3. Get all student enrollments per course
+        var enrollments = await _context.Enrollments
             .Where(e => courseIds.Contains(e.CourseId))
-            .Select(e => e.StudentId)
-            .Distinct()
+            .Select(e => new { e.StudentId, e.CourseId })
             .ToListAsync(cancellationToken);
 
-        // 3. Get emails of these students
-        var emails = new List<string>();
-
-        foreach (var id in studentIds)
-        {
-            var email = (await _identityService.GetUserById(id))?.Email;
-            if (!string.IsNullOrWhiteSpace(email))
-                emails.Add(email);
-        }
-
-        emails = emails.Distinct().ToList();
-
-        // 4. Send emails
-        if (emails.Any())
-        {
-            var html = EmailTemplates.BuildAnnouncementTemplate(announcement.Subject, announcement.Content);
-            await _emailService.SendBulkEmailsAsync(emails, announcement.Subject, html);
-        }
-
-        // 5. Notify courses about the update
-        var userName = _currentUserService?.FullName;
-        var avatarUrl = _currentUserService?.Avatar;
+        // 4. Send email per student per course
         foreach (var courseId in courseIds)
         {
+            var course = announcement.Courses.FirstOrDefault(c => c.Id == courseId);
+            var courseName = course?.Title ?? string.Empty;
+            var courseUrl = $"{_appSettings.ClientUrl}/course/{courseId}/learn/lecture/item-1?tab=announcements";
+            var actionUrl = $"{_appSettings.ClientUrl}/course/{courseId}/learn/lecture/item-1?tab=announcements";
+
+            var studentIdsInCourse = enrollments
+                .Where(e => e.CourseId == courseId)
+                .Select(e => e.StudentId)
+                .Distinct()
+                .ToList();
+
+            foreach (var studentId in studentIdsInCourse)
+            {
+                var student = await _identityService.GetUserById(studentId);
+                if (student == null || string.IsNullOrWhiteSpace(student.Email))
+                {
+                    continue;
+                }
+
+                var studentName = student.FullName ?? "Student";
+                var html = EmailTemplates.BuildAnnouncementTemplate(
+                    studentName,
+                    instructorName,
+                    instructorAvatar,
+                    courseName,
+                    courseUrl,
+                    announcement.Subject,
+                    announcement.Content,
+                    actionUrl);
+
+                await _emailService.SendBulkEmailsAsync(
+                    new[] { student.Email }, 
+                    announcement.Subject, 
+                    html, 
+                    $"Edunary Instructor: {instructorName}"
+                );
+            }
+
+            // 5. Notify course students via SignalR
             var notificationRequest = new NotificationRequest
             {
-                ImageUrl = avatarUrl,
+                ImageUrl = instructorAvatar,
                 CourseId = courseId,
-                Title = $"{userName} has made an announcement: {announcement.Subject}",
+                Title = $"{instructorName} has made an announcement: {announcement.Subject}",
                 Subject = announcement.Subject,
                 Message = announcement.Content,
                 Type = "announcement",
@@ -82,7 +108,6 @@ public class AnnouncementSentEventHandler : INotificationHandler<AnnouncementSen
             await _notifyService.NotifyCourseUpdated(notificationRequest, cancellationToken);
         }
 
-        //
         _activityLogService.EnqueueLog(new ActivityLogEntry
         {
             UserId = _currentUserService.UserId,

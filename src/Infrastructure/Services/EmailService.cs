@@ -21,19 +21,19 @@ public class EmailService : IEmailService
         _mediator = mediator;
     }
 
-    public async Task SendEmailAsync(string toEmail, string subject, string content)
+    public async Task SendEmailAsync(string toEmail, string subject, string content, string fromName = null)
     {
         var settings = await GetEmailSettingsAsync();
-        var message = CreateMimeMessage(toEmail, subject, content, settings);
+        var message = CreateMimeMessage(toEmail, subject, content, settings, fromName);
         await SendMimeMessageAsync(message, settings);
     }
 
-    public Task SendBulkEmailsAsync(IEnumerable<string> toEmails, string subject, string content)
+    public Task SendBulkEmailsAsync(IEnumerable<string> toEmails, string subject, string content, string fromName = null)
     {
         foreach (var email in toEmails)
         {
             BackgroundJob.Enqueue<EmailService>(service =>
-                service.SendEmailAsync(email, subject, content)
+                service.SendEmailAsync(email, subject, content, fromName)
             );
         }
 
@@ -68,10 +68,11 @@ public class EmailService : IEmailService
         };
     }
 
-    private MimeMessage CreateMimeMessage(string toEmail, string subject, string htmlContent, EmailSettings settings)
+    private MimeMessage CreateMimeMessage(string toEmail, string subject, string htmlContent, EmailSettings settings, string fromName = null)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(settings.FromName, settings.FromAddress));
+        var finalFromName = !string.IsNullOrWhiteSpace(fromName) ? fromName : settings.FromName;
+        message.From.Add(new MailboxAddress(finalFromName, settings.FromAddress));
         message.To.Add(MailboxAddress.Parse(toEmail));
         message.Subject = subject;
 

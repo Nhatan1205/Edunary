@@ -3,13 +3,15 @@ import RatingTab from "../../../../components/rating-tab/RatingTab";
 import OverviewTab from "./OverviewTab";
 import NotesArea from "./NotesArea";
 import QATab from "./qa-tab/QATab";
+import AnnouncementTab from "./AnnouncementTab";
 import { useParams, useSearchParams } from "react-router-dom";
 
 const TABS = [
-  { key: "overview", label: "Overview" },
-  { key: "qa",       label: "Q&A" },
-  { key: "reviews",  label: "Reviews" },
-  { key: "notes",    label: "Notes" },
+  { key: "overview",      label: "Overview" },
+  { key: "qa",            label: "Q&A" },
+  { key: "announcements", label: "Announcements" },
+  { key: "reviews",       label: "Reviews" },
+  { key: "notes",         label: "Notes" },
 ];
 
 function CourseLearnTab({ courseId: courseIdProp, contentId, currentItem, currentTime, onSeek, onPauseVideo }) {
@@ -74,6 +76,12 @@ function CourseLearnTab({ courseId: courseIdProp, contentId, currentItem, curren
       {active === "qa" && (
         <Box sx={{ p: 4 }}>
           <QATab courseId={courseId} currentItem={currentItem} />
+        </Box>
+      )}
+
+      {active === "announcements" && (
+        <Box sx={{ p: 4 }}>
+          <AnnouncementTab courseId={courseId} />
         </Box>
       )}
 

@@ -1,4 +1,4 @@
-﻿namespace Edunary.Application.Courses.Commands.UpdateCourse;
+namespace Edunary.Application.Courses.Commands.UpdateCourse;
 
 using System.Text.Json;
 using Edunary.Application.Common.Behaviours;
@@ -98,9 +98,9 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
                 {
                     ImageUrl = entity.ImageUrl,
                     CourseId = entity.Id,
-                    Title = $"Update the course {entity.Title}",
-                    Subject = $"Update the course {entity.Title}",
-                    Message = $"The course {entity.Title} has just been updated.",
+                    Title = $"\"{entity.Title}\" has been updated",
+                    Subject = $"\"{entity.Title}\" has been updated",
+                    Message = $"Good news! Your instructor just made some improvements to \"{entity.Title}\". Check out what's new.",
                     Type = "course_updated",
                     Url = $"/course/{entity.Id}/learn"
                 };

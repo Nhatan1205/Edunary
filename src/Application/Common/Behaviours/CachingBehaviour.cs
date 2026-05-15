@@ -7,10 +7,10 @@ namespace Edunary.Application.Common.Behaviours;
 public class CachingBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : ICacheableQuery
 {
-    private readonly IResponseCacheService _cache;
+    private readonly IQueryCacheService _cache;
     private readonly ILogger<CachingBehaviour<TRequest, TResponse>> _logger;
 
-    public CachingBehaviour(IResponseCacheService cache, ILogger<CachingBehaviour<TRequest, TResponse>> logger)
+    public CachingBehaviour(IQueryCacheService cache, ILogger<CachingBehaviour<TRequest, TResponse>> logger)
     {
         _cache = cache;
         _logger = logger;

@@ -4,12 +4,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Edunary.Infrastructure.Services;
 
-public class ResponseCacheService : IResponseCacheService
+public class QueryCacheService : IQueryCacheService
 {
     private readonly IRedisConnectionProvider _redis;
-    private readonly ILogger<ResponseCacheService> _logger;
+    private readonly ILogger<QueryCacheService> _logger;
 
-    public ResponseCacheService(IRedisConnectionProvider redis, ILogger<ResponseCacheService> logger)
+    public QueryCacheService(IRedisConnectionProvider redis, ILogger<QueryCacheService> logger)
     {
         _redis = redis;
         _logger = logger;

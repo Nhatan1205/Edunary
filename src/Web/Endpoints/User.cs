@@ -66,7 +66,7 @@ public class User : EndpointGroupBase
     }
 
     public async Task<IResult> UpdateUserInfo(ISender sender, ICurrentUserService currentUserService,
-        IResponseCacheService cache, UpdateUserInfoCommand command)
+        IQueryCacheService cache, UpdateUserInfoCommand command)
     {
         var result = await sender.Send(command);
         if (!result.Succeeded)
@@ -86,7 +86,7 @@ public class User : EndpointGroupBase
         return Results.Ok(result);
     }
     public async Task<IResult> UpdateUserAvatar(ISender sender, ICurrentUserService currentUserService,
-        IResponseCacheService cache, UpdateUserAvatarCommand command)
+        IQueryCacheService cache, UpdateUserAvatarCommand command)
     {
         var result = await sender.Send(command);
         if (!result.Succeeded)

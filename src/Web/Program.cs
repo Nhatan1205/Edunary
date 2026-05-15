@@ -43,7 +43,7 @@ else
     app.UseHsts();
 }
 app.UseHangfireCustomDashboard(app.Environment);
-//https://localhost:5001/HangfireDashboard
+app.UseHangfireRecurringJobs();
 
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();

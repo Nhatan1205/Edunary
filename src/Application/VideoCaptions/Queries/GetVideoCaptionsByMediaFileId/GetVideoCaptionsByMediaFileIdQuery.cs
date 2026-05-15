@@ -20,7 +20,9 @@ public class GetVideoCaptionsByMediaFileIdQueryHandler : IRequestHandler<GetVide
     public async Task<List<VideoCaptionDto>> Handle(GetVideoCaptionsByMediaFileIdQuery request, CancellationToken cancellationToken)
     {
         return await _context.VideoCaptions
-            .Where(vc => vc.MediaFileId == request.MediaFileId && vc.Status == CaptionStatus.COMPLETED)
+            .Where(vc => vc.MediaFileId == request.MediaFileId
+                      && vc.Status == CaptionStatus.COMPLETED
+                      && !vc.IsSourceTranscript)
             .Select(vc => new VideoCaptionDto
             {
                 Id = vc.Id,

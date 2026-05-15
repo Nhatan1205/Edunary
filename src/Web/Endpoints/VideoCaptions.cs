@@ -1,7 +1,9 @@
 using Edunary.Application.VideoCaptions.Commands.DeleteVideoCaption;
+using Edunary.Application.VideoCaptions.Commands.GenerateAICaption;
 using Edunary.Application.VideoCaptions.Commands.UpsertVideoCaption;
 using Edunary.Application.VideoCaptions.Queries.GetCaptionLanguageQuery;
 using Edunary.Application.VideoCaptions.Queries.GetVideoCaptionsByMediaFileId;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Edunary.Web.Endpoints;
 
@@ -14,6 +16,7 @@ public class VideoCaptions : EndpointGroupBase
             .MapGet(GetCaptionLanguage, "/caption-language")
             .MapGet(GetVideoCaptions, "/{mediaFileId}")
             .MapPost(UpsertCaption, "/upsert")
+            .MapPost(GenerateAICaption, "/generate-ai")
             .MapDelete(DeleteCaption, "/{id}");
     }
 
@@ -61,5 +64,11 @@ public class VideoCaptions : EndpointGroupBase
     {
         await sender.Send(new DeleteVideoCaptionCommand { CaptionId = id });
         return Results.NoContent();
+    }
+
+    public async Task<IResult> GenerateAICaption(ISender sender, [FromBody] GenerateAICaptionCommand command)
+    {
+        var started = await sender.Send(command);
+        return started ? Results.Ok() : Results.Unauthorized();
     }
 }

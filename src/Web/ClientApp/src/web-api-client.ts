@@ -7068,6 +7068,41 @@ export class VideoCaptionsClient {
         return Promise.resolve<void>(null as any);
     }
 
+    generateAICaption(command: GenerateAICaptionCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/VideoCaptions/generate-ai";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGenerateAICaption(_response);
+        });
+    }
+
+    protected processGenerateAICaption(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     deleteCaption(id: number): Promise<void> {
         let url_ = this.baseUrl + "/api/VideoCaptions/{id}";
         if (id === undefined || id === null)
@@ -20068,6 +20103,46 @@ export interface IVideoCaptionDto {
     language?: number;
     fileUrl?: string | undefined;
     fileName?: string | undefined;
+}
+
+export class GenerateAICaptionCommand implements IGenerateAICaptionCommand {
+    mediaFileId?: number;
+    targetLanguage?: number | undefined;
+
+    constructor(data?: IGenerateAICaptionCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.mediaFileId = _data["mediaFileId"];
+            this.targetLanguage = _data["targetLanguage"];
+        }
+    }
+
+    static fromJS(data: any): GenerateAICaptionCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateAICaptionCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["mediaFileId"] = this.mediaFileId;
+        data["targetLanguage"] = this.targetLanguage;
+        return data;
+    }
+}
+
+export interface IGenerateAICaptionCommand {
+    mediaFileId?: number;
+    targetLanguage?: number | undefined;
 }
 
 export class WeatherForecast implements IWeatherForecast {

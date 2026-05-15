@@ -28,14 +28,18 @@ public static class HangfireWebExtensions
         return app;
     }
 
-    // Registers all Hangfire recurring jobs
     public static IApplicationBuilder UseHangfireRecurringJobs(this IApplicationBuilder app)
     {
-        // Mark users Inactive if no activity for 30+ days
         RecurringJob.AddOrUpdate<IUserStatusJobService>(
             "mark-inactive-users",
             job => job.MarkInactiveUsersAsync(),
-            Cron.Daily(2, 0),           // 2:00 AM UTC every day
+            Cron.Daily(2, 0),
+            new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+        RecurringJob.AddOrUpdate<ICourseProgressFlushService>(
+            "flush-video-progress",
+            job => job.FlushCachedProgressAsync(CancellationToken.None),
+            Cron.Minutely(),
             new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
         return app;

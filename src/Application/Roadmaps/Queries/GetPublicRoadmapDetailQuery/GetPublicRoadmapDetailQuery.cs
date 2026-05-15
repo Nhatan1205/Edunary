@@ -4,9 +4,12 @@ using Edunary.Application.Roadmaps.Models;
 
 namespace Edunary.Application.Roadmaps.Queries.GetPublicRoadmapDetailQuery;
 
-public class GetPublicRoadmapDetailQuery : IRequest<PublicRoadmapDetailDto>
+public class GetPublicRoadmapDetailQuery : IRequest<PublicRoadmapDetailDto>, ICacheableQuery
 {
     public int Id { get; init; }
+
+    public string CacheKey => $"roadmaps:public:detail:{Id}";
+    public TimeSpan CacheDuration => TimeSpan.FromMinutes(15);
 }
 
 public class GetPublicRoadmapDetailQueryHandler : IRequestHandler<GetPublicRoadmapDetailQuery, PublicRoadmapDetailDto>

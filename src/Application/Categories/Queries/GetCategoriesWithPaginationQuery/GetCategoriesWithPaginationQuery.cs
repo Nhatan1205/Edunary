@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,11 +12,14 @@ using Edunary.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 namespace Edunary.Application.Categories.Queries.GetCategoriesWithPagination;
 
 
-public record GetCategoriesWithPaginationQuery : IRequest<PaginatedList<CategoryDto>>
+public record GetCategoriesWithPaginationQuery : IRequest<PaginatedList<CategoryDto>>, ICacheableQuery
 {
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
     public string SearchText { get; init; }
+
+    public string CacheKey => $"categories:{SearchText ?? ""}:{PageNumber}:{PageSize}";
+     public TimeSpan CacheDuration => TimeSpan.FromHours(24);
 }
 
 public class GetCategoriesWithPaginationQueryHandler : IRequestHandler<GetCategoriesWithPaginationQuery, PaginatedList<CategoryDto>>

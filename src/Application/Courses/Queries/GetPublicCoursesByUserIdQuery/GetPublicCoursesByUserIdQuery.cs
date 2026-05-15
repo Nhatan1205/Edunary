@@ -1,14 +1,18 @@
-﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetPublicCoursesByUserIdQuery;
 
-public class GetPublicCoursesByUserIdQuery : IRequest<PaginatedList<PublicCoursesByUserIdDto>>
+public class GetPublicCoursesByUserIdQuery : IRequest<PaginatedList<PublicCoursesByUserIdDto>>, ICacheableQuery
 {
     public string UserId { get; set; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
+
+    public string CacheKey => $"courses:public:user:{UserId}:{PageNumber}:{PageSize}";
+    public TimeSpan CacheDuration => TimeSpan.FromHours(24);
 }
 
 public class GetPublicCoursesByUserIdQueryHandler
@@ -26,7 +30,7 @@ public class GetPublicCoursesByUserIdQueryHandler
     public async Task<PaginatedList<PublicCoursesByUserIdDto>> Handle(GetPublicCoursesByUserIdQuery request,CancellationToken cancellationToken)
     {
         var courses = await _context.Courses
-            .Where(c => c.CreatedBy == request.UserId)
+            .Where(c => c.CreatedBy == request.UserId && c.Status == CourseStatus.Public)
             .OrderByDescending(c => c.Created)
             .ProjectTo<PublicCoursesByUserIdDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);

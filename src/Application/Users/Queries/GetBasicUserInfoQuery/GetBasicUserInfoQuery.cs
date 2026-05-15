@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +8,13 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 
 namespace Edunary.Application.Users.Queries.GetBasicUserInfoQuery;
-public class GetBasicUserInfoQuery : IRequest<UserVm>
+public class GetBasicUserInfoQuery : IRequest<UserVm>, ICacheableQuery
 {
     public string Id { get; set; }
+    public string UserId { get; init; }
+
+    public string CacheKey => $"users:basic:{UserId}";
+    public TimeSpan CacheDuration => TimeSpan.FromHours(24);
 }
 public class GetBasicUserInfoQueryHandler : IRequestHandler<GetBasicUserInfoQuery, UserVm>
 {

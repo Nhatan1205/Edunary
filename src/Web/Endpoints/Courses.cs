@@ -1,5 +1,6 @@
-﻿
+
 using Edunary.Application.Common.Models;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Courses.Commands.CreateCourse;
 using Edunary.Application.Courses.Commands.DeleteCourse;
 using Edunary.Application.Courses.Commands.UpdateCourse;
@@ -74,8 +75,9 @@ public class Courses : EndpointGroupBase
         return await sender.Send(query);
     }
 
-    public async Task<HomepageCoursesVm> GetHomepageCourses(ISender sender, [AsParameters] GetHomepageCoursesQuery query)
+    public async Task<HomepageCoursesVm> GetHomepageCourses(ISender sender, ICurrentUserService currentUserService)
     {
+        var query = new GetHomepageCoursesQuery { UserId = currentUserService.UserId };
         return await sender.Send(query);
     }
 
@@ -99,9 +101,10 @@ public class Courses : EndpointGroupBase
         return await sender.Send(new GetCourseByIdQuery() { Id = id });
     }
 
-    public async Task<GetPublicCourseByIdDto> GetPublicCourseById(ISender sender, int id)
+    public async Task<GetPublicCourseByIdDto> GetPublicCourseById(ISender sender,
+        ICurrentUserService currentUserService, int id)
     {
-        return await sender.Send(new GetPublicCourseByIdQuery() { Id = id });
+        return await sender.Send(new GetPublicCourseByIdQuery { Id = id, UserId = currentUserService.UserId });
     }
 
     public async Task<PaginatedList<PublicCoursesByUserIdDto>> GetPublicCoursesByUserId(ISender sender, [AsParameters] GetPublicCoursesByUserIdQuery query)

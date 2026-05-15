@@ -4,12 +4,15 @@ using Edunary.Application.Common.Models;
 
 namespace Edunary.Application.Roadmaps.Queries.GetPublicRoadmapsQuery;
 
-public class GetPublicRoadmapsQuery : IRequest<PaginatedList<PublicRoadmapListDto>>
+public class GetPublicRoadmapsQuery : IRequest<PaginatedList<PublicRoadmapListDto>>, ICacheableQuery
 {
     public int? RoadmapTopicId { get; init; }
     public string SearchText { get; init; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
+
+    public string CacheKey => $"roadmaps:public:{RoadmapTopicId}:{SearchText ?? ""}:{PageNumber}:{PageSize}";
+    public TimeSpan CacheDuration => TimeSpan.FromMinutes(15);
 }
 
 public class GetPublicRoadmapsQueryHandler : IRequestHandler<GetPublicRoadmapsQuery, PaginatedList<PublicRoadmapListDto>>

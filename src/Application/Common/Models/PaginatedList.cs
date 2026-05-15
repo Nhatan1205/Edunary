@@ -1,11 +1,14 @@
-﻿namespace Edunary.Application.Common.Models;
+namespace Edunary.Application.Common.Models;
 
 public class PaginatedList<T>
 {
-    public IReadOnlyCollection<T> Items { get; }
-    public int PageNumber { get; }
-    public int TotalPages { get; }
-    public int TotalCount { get; }
+    public IReadOnlyCollection<T> Items { get; init; }
+    public int PageNumber { get; init; }
+    public int TotalPages { get; init; }
+    public int TotalCount { get; init; }
+
+    [System.Text.Json.Serialization.JsonConstructor]
+    public PaginatedList() { }
 
     public PaginatedList(IReadOnlyCollection<T> items, int count, int pageNumber, int pageSize)
     {
@@ -27,3 +30,4 @@ public class PaginatedList<T>
         return new PaginatedList<T>(items, count, pageNumber, pageSize);
     }
 }
+

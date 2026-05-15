@@ -2,13 +2,21 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Courses.Queries.GetPublicCourseByIdQuery;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.Courses.Queries.GetPublicCourseById;
 
-public class GetPublicCourseByIdQuery : IRequest<GetPublicCourseByIdDto>
+public class GetPublicCourseByIdQuery : IRequest<GetPublicCourseByIdDto>, ICacheableQuery
 {
     public int Id { get; init; }
+    public string UserId { get; init; }
+
+    public string CacheKey => string.IsNullOrEmpty(UserId)
+        ? $"courses:public:{Id}:guest"
+        : $"courses:public:{Id}:user:{UserId}";
+
+    public TimeSpan CacheDuration => TimeSpan.FromMinutes(15);
 }
 
 public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseByIdQuery, GetPublicCourseByIdDto>
@@ -31,7 +39,7 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
         var course = await _context.Courses
             .Include(c => c.Category)
             .Include(c => c.Topics)
-            .Where(c => c.Id == request.Id)
+            .Where(c => c.Id == request.Id && c.Status == CourseStatus.Public)
             .ProjectTo<GetPublicCourseByIdDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
         if (course == null) return null!;

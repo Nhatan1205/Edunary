@@ -24,12 +24,12 @@ public class CachingBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest,
         var cachedJson = await _cache.GetAsync(cacheKey);
         if (cachedJson != null)
         {
-            _logger.LogInformation("Cache HIT: {CacheKey}", cacheKey);
+            //_logger.LogInformation("Cache HIT: {CacheKey}", cacheKey);
             return JsonSerializer.Deserialize<TResponse>(cachedJson);
         }
 
         // 2. Cache miss — execute the actual handler
-        _logger.LogInformation("Cache MISS: {CacheKey}", cacheKey);
+        //_logger.LogInformation("Cache MISS: {CacheKey}", cacheKey);
         var response = await next();
 
         // 3. Store in Redis for next requests

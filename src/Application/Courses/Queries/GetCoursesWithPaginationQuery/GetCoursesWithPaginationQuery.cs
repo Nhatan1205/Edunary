@@ -1,4 +1,4 @@
-﻿using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
@@ -35,8 +35,8 @@ public class GetCoursesWithPaginationQueryHandler : IRequestHandler<GetCoursesWi
 
     public async Task<PaginatedList<GetCourseDto>> Handle(GetCoursesWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        // base query
-        var query = _context.Courses.AsQueryable();
+        // base query (only public courses)
+        var query = _context.Courses.Where(c => c.Status == CourseStatus.Public).AsQueryable();
 
         // sort courses
         switch (request.sortBy)

@@ -1,34 +1,41 @@
-﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Edunary.Application.Courses.Queries.GetHomepageCoursesQuery;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetCoursesHomepageQuery;
 
-public record GetHomepageCoursesQuery : IRequest<HomepageCoursesVm>;
+public record GetHomepageCoursesQuery : IRequest<HomepageCoursesVm>, ICacheableQuery
+{
+    public string UserId { get; init; }
+
+    public string CacheKey => string.IsNullOrEmpty(UserId)
+        ? "homepage:courses:guest"
+        : $"homepage:courses:user:{UserId}";
+
+    public TimeSpan CacheDuration => TimeSpan.FromHours(24);
+}
 
 public class GetHomepageCoursesQueryHandler : IRequestHandler<GetHomepageCoursesQuery, HomepageCoursesVm>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IIdentityService _identityService;
-    private readonly ICurrentUserService _currentUserService;
 
     public GetHomepageCoursesQueryHandler(
-        IApplicationDbContext context, 
-        IMapper mapper, 
-        IIdentityService identityService,
-        ICurrentUserService currentUserService)
+        IApplicationDbContext context,
+        IMapper mapper,
+        IIdentityService identityService)
     {
         _context = context;
         _mapper = mapper;
         _identityService = identityService;
-        _currentUserService = currentUserService;
     }
 
     public async Task<HomepageCoursesVm> Handle(GetHomepageCoursesQuery request, CancellationToken cancellationToken)
     {
-        var userId = _currentUserService?.UserId;
-        var query = _context.Courses.AsQueryable();
+        var userId = request.UserId;
+        var query = _context.Courses.Where(c => c.Status == CourseStatus.Public).AsQueryable();
 
         if (!string.IsNullOrEmpty(userId))
         {

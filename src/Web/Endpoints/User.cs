@@ -1,5 +1,6 @@
 
 using Edunary.Application.Common.Models;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Users.Commands.ChangePasswordCommand;
 using Edunary.Application.Users.Commands.ChangeUserRoleCommand;
 using Edunary.Application.Users.Commands.CreateUserCommand;
@@ -64,11 +65,14 @@ public class User : EndpointGroupBase
         return Results.Ok(result);
     }
 
-    public async Task<IResult> UpdateUserInfo(ISender sender, UpdateUserInfoCommand command)
+    public async Task<IResult> UpdateUserInfo(ISender sender, ICurrentUserService currentUserService,
+        IResponseCacheService cache, UpdateUserInfoCommand command)
     {
         var result = await sender.Send(command);
         if (!result.Succeeded)
             return Results.BadRequest(result);
+
+        await cache.RemoveAsync($"users:basic:{currentUserService.UserId}");
         return Results.Ok(result);
     }
 
@@ -81,17 +85,20 @@ public class User : EndpointGroupBase
         }
         return Results.Ok(result);
     }
-    public async Task<IResult> UpdateUserAvatar(ISender sender, UpdateUserAvatarCommand command)
+    public async Task<IResult> UpdateUserAvatar(ISender sender, ICurrentUserService currentUserService,
+        IResponseCacheService cache, UpdateUserAvatarCommand command)
     {
         var result = await sender.Send(command);
         if (!result.Succeeded)
             return Results.BadRequest(result);
+
+        await cache.RemoveAsync($"users:basic:{currentUserService.UserId}");
         return Results.Ok(result);
     }
 
-    public async Task<UserVm> GetBasicInfo(ISender sender)
+    public async Task<UserVm> GetBasicInfo(ISender sender, ICurrentUserService currentUserService)
     {
-        return await sender.Send(new GetBasicUserInfoQuery());
+        return await sender.Send(new GetBasicUserInfoQuery { UserId = currentUserService.UserId });
     }
 
     public async Task<IResult> ChangePassword(ISender sender, ChangePasswordCommand command)

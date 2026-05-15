@@ -29,10 +29,16 @@ public class ConnectionManagerService : IConnectionManagerService
 
         try
         {
+            var expiry = TimeSpan.FromHours(24);
             IDatabase db = _redis.GetDatabase();
-            await db.StringSetAsync(BuildConnectionKey(connectionId), userId);
+            
+            await db.StringSetAsync(BuildConnectionKey(connectionId), userId, expiry);
+            
             await db.SetAddAsync(BuildUserKey(userId), connectionId);
+            await db.KeyExpireAsync(BuildUserKey(userId), expiry);
+            
             await db.SetAddAsync(UsersKey, userId);
+            await db.KeyExpireAsync(UsersKey, expiry);
         }
         catch (Exception ex)
         {

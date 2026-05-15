@@ -3,9 +3,12 @@ using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Users.Queries.GetTopInstructorsQuery;
 
-public record GetTopInstructorsQuery : IRequest<List<TopInstructorDto>>
+public record GetTopInstructorsQuery : IRequest<List<TopInstructorDto>>, ICacheableQuery
 {
     public int Count { get; init; } = 3;
+
+    public string CacheKey => $"users:top-instructors:{Count}";
+    public TimeSpan CacheDuration => TimeSpan.FromMinutes(15);
 }
 
 public class GetTopInstructorsQueryHandler : IRequestHandler<GetTopInstructorsQuery, List<TopInstructorDto>>

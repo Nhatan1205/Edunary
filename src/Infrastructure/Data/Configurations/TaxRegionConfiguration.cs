@@ -12,5 +12,6 @@ public class TaxRegionConfiguration : IEntityTypeConfiguration<TaxRegion>
         builder.Property(r => r.CountryCode).HasMaxLength(2).IsRequired();
         builder.Property(r => r.CountryName).HasMaxLength(100).IsRequired();
         builder.Property(r => r.VatRate).HasPrecision(6, 4).IsRequired();
+        builder.Property(r => r.WithholdingRate).HasPrecision(6, 4).IsRequired();
     }
 }

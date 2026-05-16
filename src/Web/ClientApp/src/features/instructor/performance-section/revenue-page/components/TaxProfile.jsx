@@ -1,6 +1,6 @@
 import {
   Paper, Box, Typography, Button, Stack, Divider,
-  FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, CircularProgress
+  FormControl, InputLabel, Select, MenuItem, CircularProgress, TextField
 } from '@mui/material';
 import GavelIcon from '@mui/icons-material/Gavel';
 import EditIcon from '@mui/icons-material/Edit';
@@ -19,15 +19,20 @@ function TaxProfile() {
   const updateMutation = useUpdateTaxProfile();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [formValues, setFormValues] = useState({ taxCountryCode: '', hasSubmittedW8Ben: false });
+  const [formValues, setFormValues] = useState({
+    realName: '',
+    taxIdentificationNumber: '',
+    taxCountryCode: '',
+  });
   const [regions, setRegions] = useState([]);
   const [loadingRegions, setLoadingRegions] = useState(false);
 
   useEffect(() => {
     if (!isEditing) {
       setFormValues({
+        realName: profile?.realName ?? '',
+        taxIdentificationNumber: profile?.taxIdentificationNumber ?? '',
         taxCountryCode: profile?.taxCountryCode ?? '',
-        hasSubmittedW8Ben: Boolean(profile?.hasSubmittedW8Ben),
       });
     }
   }, [isEditing, profile]);
@@ -41,7 +46,7 @@ function TaxProfile() {
         .catch(() => setRegions([]))
         .finally(() => setLoadingRegions(false));
     }
-  }, [isEditing]);
+  }, [isEditing, regions.length]);
 
   useEffect(() => {
     if (updateMutation.isSuccess) {
@@ -61,17 +66,27 @@ function TaxProfile() {
 
   const handleSave = () => {
     updateMutation.mutate({
+      realName: formValues.realName,
+      taxIdentificationNumber: formValues.taxIdentificationNumber,
       taxCountryCode: formValues.taxCountryCode,
-      hasSubmittedW8Ben: formValues.hasSubmittedW8Ben,
     });
   };
 
-  const countryName = regions.find((r) => r.countryCode === profile?.taxCountryCode)?.countryName;
-  const displayCountry = countryName
-    ? `${profile.taxCountryCode} — ${countryName}`
+  const selectedRegion = regions.find((r) => r.countryCode === formValues.taxCountryCode);
+  const displayCountry = profile?.countryName
+    ? `${profile.taxCountryCode} - ${profile.countryName}`
     : (profile?.taxCountryCode || '--');
-
-  const isProfileComplete = Boolean(profile?.taxCountryCode);
+  const displayWithholdingRate = isEditing && selectedRegion
+    ? selectedRegion.withholdingRate
+    : profile?.withholdingRate;
+  const isProfileComplete = Boolean(
+    profile?.realName && profile?.taxIdentificationNumber && profile?.taxCountryCode
+  );
+  const canSave = Boolean(
+    formValues.realName.trim() &&
+    formValues.taxIdentificationNumber.trim() &&
+    formValues.taxCountryCode
+  );
 
   if (isLoading) {
     return (
@@ -86,7 +101,6 @@ function TaxProfile() {
       variant="outlined"
       sx={{ borderRadius: 2, p: 3, borderColor: 'divider', bgcolor: 'background.paper' }}
     >
-      {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box display="flex" alignItems="center" gap={1}>
           <GavelIcon sx={{ color: (theme) => theme.palette.brand.main, fontSize: 24 }} />
@@ -116,7 +130,7 @@ function TaxProfile() {
                 '&:hover': { bgcolor: theme.palette.brand.dark, boxShadow: 'none' },
               })}
               onClick={handleSave}
-              disabled={updateMutation.isPending || !formValues.taxCountryCode}
+              disabled={updateMutation.isPending || !canSave}
             >
               Save
             </Button>
@@ -136,10 +150,47 @@ function TaxProfile() {
       <Divider sx={{ mb: 2 }} />
 
       <Stack spacing={2.5}>
-        {/* Country */}
         <Box>
           <Typography variant="body2" sx={{ color: (theme) => theme.palette.text.secondary, mb: 0.5, fontWeight: 500 }}>
-            Tax country
+            Real name
+          </Typography>
+          {isEditing ? (
+            <TextField
+              size="small"
+              fullWidth
+              value={formValues.realName}
+              onChange={(e) => setFormValues((prev) => ({ ...prev, realName: e.target.value }))}
+              inputProps={{ maxLength: 200 }}
+            />
+          ) : (
+            <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: (theme) => theme.palette.text.primary }}>
+              {profile?.realName || '--'}
+            </Typography>
+          )}
+        </Box>
+
+        <Box>
+          <Typography variant="body2" sx={{ color: (theme) => theme.palette.text.secondary, mb: 0.5, fontWeight: 500 }}>
+            Tax Identification Number
+          </Typography>
+          {isEditing ? (
+            <TextField
+              size="small"
+              fullWidth
+              value={formValues.taxIdentificationNumber}
+              onChange={(e) => setFormValues((prev) => ({ ...prev, taxIdentificationNumber: e.target.value }))}
+              inputProps={{ maxLength: 64 }}
+            />
+          ) : (
+            <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: (theme) => theme.palette.text.primary }}>
+              {profile?.taxIdentificationNumber || '--'}
+            </Typography>
+          )}
+        </Box>
+
+        <Box>
+          <Typography variant="body2" sx={{ color: (theme) => theme.palette.text.secondary, mb: 0.5, fontWeight: 500 }}>
+            Country
           </Typography>
           {isEditing ? (
             loadingRegions ? (
@@ -154,7 +205,7 @@ function TaxProfile() {
                 >
                   {regions.map((r) => (
                     <MenuItem key={r.countryCode} value={r.countryCode}>
-                      {r.countryCode} — {r.countryName}
+                      {r.countryCode} - {r.countryName}
                     </MenuItem>
                   ))}
                 </Select>
@@ -167,40 +218,15 @@ function TaxProfile() {
           )}
         </Box>
 
-        {/* W-8BEN */}
-        <Box>
-          <Typography variant="body2" sx={{ color: (theme) => theme.palette.text.secondary, mb: 0.5, fontWeight: 500 }}>
-            W-8BEN status
-          </Typography>
-          {isEditing ? (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formValues.hasSubmittedW8Ben}
-                  onChange={(e) => setFormValues((prev) => ({ ...prev, hasSubmittedW8Ben: e.target.checked }))}
-                  sx={{ color: (theme) => theme.palette.brand.main, '&.Mui-checked': { color: (theme) => theme.palette.brand.main } }}
-                />
-              }
-              label="I have submitted a W-8BEN form"
-            />
-          ) : (
-            <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: (theme) => theme.palette.text.primary }}>
-              {profile?.hasSubmittedW8Ben ? 'Submitted' : 'Not submitted'}
-            </Typography>
-          )}
-        </Box>
-
-        {/* Withholding rate (read-only) */}
         <Box>
           <Typography variant="body2" sx={{ color: (theme) => theme.palette.text.secondary, mb: 0.5, fontWeight: 500 }}>
             Withholding rate
           </Typography>
           <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: (theme) => theme.palette.text.primary }}>
-            {formatRate(profile?.withholdingRate)}
+            {formatRate(displayWithholdingRate)}
           </Typography>
         </Box>
 
-        {/* Status footer */}
         <Box
           sx={(theme) => ({
             bgcolor: theme.palette.background.muted,
@@ -217,8 +243,8 @@ function TaxProfile() {
             })}
           >
             {isProfileComplete
-              ? '✓ Tax profile is set. Withholding will be applied at payout.'
-              : '⚠ Tax profile not set. Default 30% withholding rate will apply.'}
+              ? 'Tax profile is set. Withholding will be applied at payout.'
+              : 'Tax profile is not complete. Default withholding may apply.'}
           </Typography>
           {updateMutation.isError && (
             <Typography variant="body2" sx={{ mt: 0.75, color: (theme) => theme.palette.error.main }}>

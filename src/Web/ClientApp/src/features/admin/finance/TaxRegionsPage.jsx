@@ -43,7 +43,13 @@ const GRID_SX = {
   "& .MuiDataGrid-columnHeader:focus": { outline: "none" },
 };
 
-const EMPTY_FORM = { countryCode: "", countryName: "", vatRate: "", isActive: true };
+const EMPTY_FORM = {
+  countryCode: "",
+  countryName: "",
+  vatRate: "",
+  withholdingRate: "",
+  isActive: true,
+};
 
 export default function TaxRegionsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -69,6 +75,7 @@ export default function TaxRegionsPage() {
       countryCode: row.countryCode,
       countryName: row.countryName ?? "",
       vatRate: String(Math.round(row.vatRate * 10000) / 100),
+      withholdingRate: String(Math.round((row.withholdingRate ?? 0) * 10000) / 100),
       isActive: row.isActive,
     });
     setFormError("");
@@ -90,12 +97,18 @@ export default function TaxRegionsPage() {
       setFormError("VAT rate must be between 0 and 100.");
       return;
     }
+    const withholdingPercent = parseFloat(form.withholdingRate);
+    if (isNaN(withholdingPercent) || withholdingPercent < 0 || withholdingPercent > 100) {
+      setFormError("Withholding rate must be between 0 and 100.");
+      return;
+    }
 
     upsert(
       {
         countryCode: form.countryCode.toUpperCase(),
         countryName: form.countryName.trim(),
         vatRate: vatPercent / 100,
+        withholdingRate: withholdingPercent / 100,
         isActive: form.isActive,
       },
       { onSuccess: () => setDialogOpen(false) }
@@ -114,6 +127,12 @@ export default function TaxRegionsPage() {
       field: "vatRate",
       headerName: "VAT Rate",
       width: 120,
+      valueFormatter: (v) => `${(Number(v) * 100).toFixed(2)}%`,
+    },
+    {
+      field: "withholdingRate",
+      headerName: "Withholding Rate",
+      width: 170,
       valueFormatter: (v) => `${(Number(v) * 100).toFixed(2)}%`,
     },
     {
@@ -161,11 +180,11 @@ export default function TaxRegionsPage() {
           { name: "Tax Regions" },
         ]}
       />
-      <PageTitle title="VAT Rates by Country" />
+      <PageTitle title="Country Tax Rates" />
 
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="body2" color="text.secondary">
-          Per-country VAT rates applied at checkout. Inactive entries default to the system VAT rate.
+          Per-country VAT rates apply at checkout. Withholding rates apply to instructor payouts.
         </Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
           Add Country
@@ -220,6 +239,17 @@ export default function TaxRegionsPage() {
               size="small"
               fullWidth
             />
+            <TextField
+              label="Withholding Rate %"
+              type="number"
+              value={form.withholdingRate}
+              onChange={(e) => setForm((f) => ({ ...f, withholdingRate: e.target.value }))}
+              inputProps={{ min: 0, max: 100, step: 0.01 }}
+              placeholder="e.g. 30"
+              helperText="Enter as a percentage, e.g. 30 for 30%"
+              size="small"
+              fullWidth
+            />
             <FormControlLabel
               control={
                 <Switch
@@ -251,7 +281,7 @@ export default function TaxRegionsPage() {
         <DialogContent>
           <DialogContentText>
             Remove <strong>{deleteTarget}</strong> from the VAT table? Future orders from this country
-            will fall back to the system default VAT rate.
+            and instructor payouts for this country will fall back to default tax rates.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

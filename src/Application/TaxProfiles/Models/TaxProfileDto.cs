@@ -3,9 +3,9 @@ namespace Edunary.Application.TaxProfiles.Models;
 
 public class TaxProfileDto
 {
+    public string RealName { get; set; } = string.Empty;
+    public string TaxIdentificationNumber { get; set; } = string.Empty;
     public string TaxCountryCode { get; set; } = string.Empty;
-    public bool HasSubmittedW8Ben { get; set; }
-    public DateTimeOffset? W8BenSubmittedAt { get; set; }
+    public string CountryName { get; set; } = string.Empty;
     public decimal WithholdingRate { get; set; }
-    public DateTimeOffset? LastReviewedAt { get; set; }
 }

@@ -63,5 +63,10 @@ public interface IApplicationDbContext
     public DbSet<QuestionUpvote> QuestionUpvotes { get; }
     public DbSet<AnswerUpvote> AnswerUpvotes { get; }
 
+    public DbSet<Assignment> Assignments { get; }
+    public DbSet<AssignmentQuestion> AssignmentQuestions { get; }
+    public DbSet<AssignmentSubmission> AssignmentSubmissions { get; }
+    public DbSet<AssignmentFeedback> AssignmentFeedbacks { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

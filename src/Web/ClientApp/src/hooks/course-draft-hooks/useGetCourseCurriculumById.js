@@ -7,23 +7,29 @@ const useGetCourseCurriculumById = (id) => {
   return useQuery({
     queryKey: ["courseCurriculum", id],
     queryFn: async () => {
-      const coursesClient = new CourseDraftsClient();
-      const result = await coursesClient.getCourseCurriculumById(id);
+      try {
+        const coursesClient = new CourseDraftsClient();
+        const result = await coursesClient.getCourseCurriculumById(id);
 
-      if (!result || !result.id) {
+        if (!result || !result.id) {
+          navigate("/instructor/courses");
+          return null;
+        }
+
+        let learningObjectives = JSON.parse(result.learningObjectives || "[]");
+        let requirements = JSON.parse(result.requirements || "[]");
+        let targetAudience = JSON.parse(result.targetAudience || "[]");
+
+        return {
+          ...result,
+          learningObjectives,
+          requirements,
+          targetAudience,
+        };
+      } catch (err) {
         navigate("/instructor/courses");
+        return null;
       }
-
-      let learningObjectives = JSON.parse(result.learningObjectives || "[]");
-      let requirements = JSON.parse(result.requirements || "[]");
-      let targetAudience = JSON.parse(result.targetAudience || "[]");
-
-      return {
-        ...result,
-        learningObjectives,
-        requirements,
-        targetAudience,
-      };
     },
     enabled: !!id,
   });

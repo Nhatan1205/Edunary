@@ -65,6 +65,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<CourseQuestion> CourseQuestions => Set<CourseQuestion>();
     public DbSet<CourseAnswer> CourseAnswers => Set<CourseAnswer>();
+    public DbSet<CourseCollaborator> CourseCollaborators => Set<CourseCollaborator>();
     public DbSet<QuestionUpvote> QuestionUpvotes => Set<QuestionUpvote>();
     public DbSet<AnswerUpvote> AnswerUpvotes => Set<AnswerUpvote>();
 

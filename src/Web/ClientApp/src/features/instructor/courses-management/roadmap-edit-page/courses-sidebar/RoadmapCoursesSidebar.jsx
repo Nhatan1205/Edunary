@@ -13,6 +13,8 @@ import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
 import SidebarCourseCard from "./SidebarCourseCard";
 import { useRoadmapEditor } from "../../../../../context/RoadmapEditorContext";
+import NoData from "../../../../../components/NoData";
+import emptyStateImg from "../../../../../assets/images/empty-courses.png";
 
 const SIDEBAR_WIDTH = 380;
 
@@ -144,18 +146,13 @@ export default function RoadmapCoursesSidebar() {
                         ))}
                     </Box>
                 ) : (
-                    <Typography
-                        sx={{
-                            textAlign: "center",
-                            color: "text.secondary",
-                            mt: 4,
-                            fontSize: "0.875rem",
-                        }}
-                    >
-                        {appliedSearch
-                            ? `No results for "${appliedSearch}"`
-                            : "No courses found"}
-                    </Typography>
+                    <NoData
+                        image={emptyStateImg}
+                        title={appliedSearch ? "No results found" : "No courses found"}
+                        description={appliedSearch ? `No courses match "${appliedSearch}"` : "You haven't created any courses yet."}
+                        imageWidth={100}
+                        minHeight="200px"
+                    />
                 )}
             </Box>
 

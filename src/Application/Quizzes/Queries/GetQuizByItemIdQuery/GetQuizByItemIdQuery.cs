@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Quizzes.Queries.GetQuizByItemIdQuery;
 
@@ -13,29 +14,36 @@ public class GetQuizByItemIdQueryHandler : IRequestHandler<GetQuizByItemIdQuery,
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
-    public GetQuizByItemIdQueryHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public GetQuizByItemIdQueryHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<QuizDto> Handle(GetQuizByItemIdQuery request, CancellationToken cancellationToken)
     {
         string userId = _currentUserService.UserId;
 
-        // Accept: course instructor OR enrolled student
+        // Accept: course instructor/collaborator OR enrolled student
         bool isEnrolled = await _context.Enrollments
             .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == userId, cancellationToken);
+
+        bool hasInstructorAccess = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, cancellationToken: cancellationToken);
+
+        if (!isEnrolled && !hasInstructorAccess)
+            return null;
 
         Quiz quiz = await _context.Quizzes
             .Include(q => q.Questions.OrderBy(qn => qn.SortOrder))
                 .ThenInclude(q => q.Choices.OrderBy(c => c.SortOrder))
-            .Include(q => q.Course)
             .FirstOrDefaultAsync(
-                q => q.CourseId == request.CourseId
-                    && q.ItemId == request.ItemId
-                    && (q.Course.CreatedBy == userId || isEnrolled),
+                q => q.CourseId == request.CourseId && q.ItemId == request.ItemId,
                 cancellationToken);
 
         if (quiz == null)

@@ -35,7 +35,7 @@ public class GetPublicCourseByIdDto
     public bool IsEnrolled { get; set; }
     public string Content { get; set; } = null!;
     public DateTimeOffset LastModified { get; set; }
-    public InstructorDto Instructor { get; set; } = null!;
+    public List<InstructorDto> Instructors { get; set; } = new();
 
     private class Mapping : Profile
     {
@@ -43,7 +43,7 @@ public class GetPublicCourseByIdDto
         {
             CreateMap<Course, GetPublicCourseByIdDto>()
                 .ForMember(dest => dest.CategoryTitle, opt => opt.MapFrom(src => src.Category.Title))
-                .ForMember(dest => dest.Instructor, opt => opt.Ignore());
+                .ForMember(dest => dest.Instructors, opt => opt.Ignore());
         }
     }
 }

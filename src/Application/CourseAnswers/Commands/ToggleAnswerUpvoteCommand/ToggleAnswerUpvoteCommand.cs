@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseAnswers.Commands.ToggleAnswerUpvoteCommand;
@@ -21,13 +22,16 @@ public class ToggleAnswerUpvoteCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public ToggleAnswerUpvoteCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<ToggleAnswerUpvoteDto>> Handle(
@@ -43,19 +47,14 @@ public class ToggleAnswerUpvoteCommandHandler
 
             var userId = _currentUserService.UserId;
 
-            // Allow enrolled students OR the course instructor
-            var course = await _context.Courses
-                .Where(c => c.Id == answer.Question.CourseId)
-                .Select(c => new { c.CreatedBy })
-                .FirstOrDefaultAsync(cancellationToken);
+            // Allow enrolled students OR anyone with QA access (owner/collaborator)
+            var hasQaAccess = await _courseAuth.HasCourseAccessAsync(
+                answer.Question.CourseId, userId, CoursePermission.QA, cancellationToken);
 
-            var isInstructor = course?.CreatedBy == userId;
-
-            // Enrollment check
             var isEnrolled = await _context.Enrollments
                 .AnyAsync(e => e.CourseId == answer.Question.CourseId && e.StudentId == userId, cancellationToken);
 
-            if (!isEnrolled && !isInstructor)
+            if (!isEnrolled && !hasQaAccess)
             {
                 return new ReturnResult<ToggleAnswerUpvoteDto>
                 {

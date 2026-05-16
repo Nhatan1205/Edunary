@@ -46,8 +46,7 @@ export default function QADashboardPage() {
 
   const isSmall = useMediaQuery("(max-width:900px)");
 
-  // Fetch instructor's courses for the dropdown
-  const { data: coursesData } = useGetCoursesAuthor("", 0, 1, 100);
+  const { data: coursesData } = useGetCoursesAuthor("", 0, 1, 100, 8); // 8 = QA permission
   const courses = useMemo(() => {
     const items = coursesData?.items ?? [];
     return [{ id: null, title: "All courses" }, ...items.map((c) => ({ id: c.id, title: c.title }))];

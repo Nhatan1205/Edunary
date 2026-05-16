@@ -19,19 +19,22 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
     private readonly IUploadFileService _uploadFileService;
     private readonly ISender _sender;
     private readonly ICourseEmbeddingJobService _embeddingJobService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public DeleteCourseCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
         IUploadFileService uploadFileService,
         ISender sender,
-        ICourseEmbeddingJobService embeddingJobService)
+        ICourseEmbeddingJobService embeddingJobService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
         _uploadFileService = uploadFileService;
         _sender = sender;
         _embeddingJobService = embeddingJobService;
+        _courseAuth = courseAuth;
     }
     public async Task<Result> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
     {
@@ -46,7 +49,9 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
             var imgLink = entity.ImageUrl;
             var courseTitle = entity.Title;
             var totalStudents = entity.TotalStudents;
-            if (entity.CreatedBy != userId)
+
+            // Only owners can delete the course
+            if (!await _courseAuth.IsOwnerAsync(request.Id, userId, cancellationToken))
             {
                 return Result.Failure("You are not authorized to delete this course.");
             }

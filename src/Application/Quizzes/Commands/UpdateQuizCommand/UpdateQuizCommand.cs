@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Quizzes.Commands.UpdateQuizCommand;
 
@@ -23,11 +24,16 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
-    public UpdateQuizCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public UpdateQuizCommandHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<Result> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
@@ -39,7 +45,8 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
         if (quiz == null)
             return Result.Failure(new[] { "Quiz not found." });
 
-        if (quiz.Course.CreatedBy != _currentUserService.UserId)
+        bool canManage = await _courseAuth.HasCourseAccessAsync(quiz.CourseId, _currentUserService.UserId, CoursePermission.Manage, cancellationToken);
+        if (!canManage)
             return Result.Failure(new[] { "Access denied." });
 
         quiz.Title = request.Title;

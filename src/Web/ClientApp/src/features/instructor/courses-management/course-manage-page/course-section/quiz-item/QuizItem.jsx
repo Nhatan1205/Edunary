@@ -30,10 +30,14 @@ function QuizItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, dnd
   };
 
   const handleDelete = async () => {
-    if (item.quizId) {
-      await deleteQuiz.mutateAsync({ quizId: item.quizId, courseId, itemId: item.itemId });
+    try {
+      if (item.quizId) {
+        await deleteQuiz.mutateAsync({ quizId: item.quizId, courseId, itemId: item.itemId });
+      }
+      onDelete(item.itemId);
+    } catch (e) {
+      // Error is already toasted by the hook's onError using extractApiError
     }
-    onDelete(item.itemId);
   };
 
   // Decide what to show in the expanded panel

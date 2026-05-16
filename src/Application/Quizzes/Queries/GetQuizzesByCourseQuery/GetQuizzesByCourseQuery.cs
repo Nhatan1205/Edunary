@@ -1,4 +1,5 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Quizzes.Queries.GetQuizzesByCourseQuery;
 
@@ -21,18 +22,27 @@ public class GetQuizzesByCourseQueryHandler : IRequestHandler<GetQuizzesByCourse
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
-    public GetQuizzesByCourseQueryHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public GetQuizzesByCourseQueryHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<List<QuizSummaryDto>> Handle(GetQuizzesByCourseQuery request, CancellationToken cancellationToken)
     {
+        var userId = _currentUserService.UserId;
+        bool hasAccess = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, cancellationToken: cancellationToken);
+        if (!hasAccess)
+            return new List<QuizSummaryDto>();
+
         return await _context.Quizzes
-            .Include(q => q.Course)
-            .Where(q => q.CourseId == request.CourseId && q.Course.CreatedBy == _currentUserService.UserId)
+            .Where(q => q.CourseId == request.CourseId)
             .Select(q => new QuizSummaryDto
             {
                 Id = q.Id,

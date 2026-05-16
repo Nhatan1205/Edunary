@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseAnswers.Queries.GetCourseAnswers;
@@ -59,11 +60,19 @@ public class GetCourseAnswersQueryHandler : IRequestHandler<GetCourseAnswersQuer
             .Select(u => u.AnswerId)
             .ToHashSetAsync(cancellationToken);
 
-        // get instructor id for the course this question belongs to
-        var instructorId = await _context.CourseQuestions
+        // get instructor id and collaborator ids for the course
+        var courseInfo = await _context.CourseQuestions
             .Where(q => q.Id == request.QuestionId)
-            .Select(q => q.Course.CreatedBy)
+            .Select(q => new { q.Course.CreatedBy, q.CourseId })
             .FirstOrDefaultAsync(cancellationToken);
+
+        var instructorId = courseInfo?.CreatedBy;
+        var courseIdForCollab = courseInfo?.CourseId ?? 0;
+
+        var collaboratorIds = await _context.CourseCollaborators
+            .Where(c => c.CourseId == courseIdForCollab && c.InviteStatus == CollaboratorInviteStatus.Accepted)
+            .Select(c => c.UserId)
+            .ToHashSetAsync(cancellationToken);
 
         foreach (var item in courseAnswerDto.Items)
         {
@@ -73,7 +82,8 @@ public class GetCourseAnswersQueryHandler : IRequestHandler<GetCourseAnswersQuer
                 item.AuthorAvatar = user.Avatar;
             }
             item.HasUpvoted = upvotedIds.Contains(item.Id);
-            item.IsInstructor = !string.IsNullOrEmpty(instructorId) && item.CreatedBy == instructorId;
+            item.IsInstructor = !string.IsNullOrEmpty(item.CreatedBy) &&
+                (item.CreatedBy == instructorId || collaboratorIds.Contains(item.CreatedBy));
         }
 
         return courseAnswerDto;

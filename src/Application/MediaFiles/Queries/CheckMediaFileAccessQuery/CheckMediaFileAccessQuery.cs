@@ -16,11 +16,16 @@ public class CheckMediaFileAccessQueryHandler : IRequestHandler<CheckMediaFileAc
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ICourseAuthorizationService _courseAuth;
 
-    public CheckMediaFileAccessQueryHandler(IApplicationDbContext context, IUser user)
+    public CheckMediaFileAccessQueryHandler(
+        IApplicationDbContext context, 
+        IUser user,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _user = user;
+        _courseAuth = courseAuth;
     }
 
     public async Task<bool> Handle(CheckMediaFileAccessQuery request, CancellationToken cancellationToken)
@@ -44,8 +49,12 @@ public class CheckMediaFileAccessQueryHandler : IRequestHandler<CheckMediaFileAc
             
             if (course != null)
             {
-                // check if the course owner is the current user
-                if (!string.IsNullOrEmpty(userId) && course.CreatedBy == userId) return true;
+                // check if the user is instructor or collaborator
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    bool hasInstructorAccess = await _courseAuth.HasCourseAccessAsync(course.Id, userId, CoursePermission.View, cancellationToken);
+                    if (hasInstructorAccess) return true;
+                }
 
                 // check if the item is a free preview
                 if (!string.IsNullOrEmpty(course.Content))

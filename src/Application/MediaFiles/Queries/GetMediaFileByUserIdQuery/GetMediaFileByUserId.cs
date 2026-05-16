@@ -8,7 +8,7 @@ namespace Edunary.Application.MediaFiles.Queries.GetMediaFileByUserIdQuery;
 
 public class GetMediaFileByUserId : IRequest<List<MediaFileDto>>
 {
-    
+
 }
 public class GetMediaFileByUserIdHandler : IRequestHandler<GetMediaFileByUserId, List<MediaFileDto>>
 {
@@ -26,8 +26,14 @@ public class GetMediaFileByUserIdHandler : IRequestHandler<GetMediaFileByUserId,
     public async Task<List<MediaFileDto>> Handle(GetMediaFileByUserId request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
+
+        var courseIds = await _context.Courses
+            .Where(c => c.CreatedBy == userId || c.Collaborators.Any(col => col.UserId == userId))
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+
         return await _context.MediaFiles
-            .Where(cc => cc.UserId == userId && cc.IsDeleted == false)
+            .Where(cc => (cc.UserId == userId || (cc.CourseId.HasValue && courseIds.Contains(cc.CourseId.Value))) && cc.IsDeleted == false)
             .OrderByDescending(cc => cc.LastModified)
             .ProjectTo<MediaFileDto>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);

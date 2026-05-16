@@ -1270,6 +1270,322 @@ export class CourseAnswersClient {
     }
 }
 
+export class CourseCollaboratorsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getCollaborators(courseId: number): Promise<CollaboratorDto[]> {
+        let url_ = this.baseUrl + "/api/CourseCollaborators/{courseId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCollaborators(_response);
+        });
+    }
+
+    protected processGetCollaborators(response: Response): Promise<CollaboratorDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CollaboratorDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CollaboratorDto[]>(null as any);
+    }
+
+    inviteCollaborator(courseId: number, command: InviteCollaboratorCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseCollaborators/{courseId}/invite";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processInviteCollaborator(_response);
+        });
+    }
+
+    protected processInviteCollaborator(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    updateCollaborator(courseId: number, collaboratorId: number, command: UpdateCollaboratorCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseCollaborators/{courseId}/{collaboratorId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        if (collaboratorId === undefined || collaboratorId === null)
+            throw new Error("The parameter 'collaboratorId' must be defined.");
+        url_ = url_.replace("{collaboratorId}", encodeURIComponent("" + collaboratorId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCollaborator(_response);
+        });
+    }
+
+    protected processUpdateCollaborator(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    removeCollaborator(courseId: number, collaboratorId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseCollaborators/{courseId}/{collaboratorId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        if (collaboratorId === undefined || collaboratorId === null)
+            throw new Error("The parameter 'collaboratorId' must be defined.");
+        url_ = url_.replace("{collaboratorId}", encodeURIComponent("" + collaboratorId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRemoveCollaborator(_response);
+        });
+    }
+
+    protected processRemoveCollaborator(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    leaveCollaboration(courseId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseCollaborators/{courseId}/leave";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processLeaveCollaboration(_response);
+        });
+    }
+
+    protected processLeaveCollaboration(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getMyInvitations(): Promise<InvitationDto[]> {
+        let url_ = this.baseUrl + "/api/CourseCollaborators/invitations";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyInvitations(_response);
+        });
+    }
+
+    protected processGetMyInvitations(response: Response): Promise<InvitationDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(InvitationDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<InvitationDto[]>(null as any);
+    }
+
+    acceptInvitation(collaboratorId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseCollaborators/invitations/{collaboratorId}/accept";
+        if (collaboratorId === undefined || collaboratorId === null)
+            throw new Error("The parameter 'collaboratorId' must be defined.");
+        url_ = url_.replace("{collaboratorId}", encodeURIComponent("" + collaboratorId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAcceptInvitation(_response);
+        });
+    }
+
+    protected processAcceptInvitation(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    declineInvitation(collaboratorId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseCollaborators/invitations/{collaboratorId}/decline";
+        if (collaboratorId === undefined || collaboratorId === null)
+            throw new Error("The parameter 'collaboratorId' must be defined.");
+        url_ = url_.replace("{collaboratorId}", encodeURIComponent("" + collaboratorId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeclineInvitation(_response);
+        });
+    }
+
+    protected processDeclineInvitation(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class CourseDraftsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -2409,7 +2725,7 @@ export class CoursesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    getCoursesAuthorWithPagination(searchText: string | null | undefined, sortBy: CourseManagementSortBy, pageNumber: number, pageSize: number): Promise<PaginatedListOfGetCoursesAuthorDto> {
+    getCoursesAuthorWithPagination(searchText: string | null | undefined, sortBy: CourseManagementSortBy, pageNumber: number, pageSize: number, requiredPermission: CoursePermission | null | undefined): Promise<PaginatedListOfGetCoursesAuthorDto> {
         let url_ = this.baseUrl + "/api/Courses/author?";
         if (searchText !== undefined && searchText !== null)
             url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
@@ -2425,6 +2741,8 @@ export class CoursesClient {
             throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
         else
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (requiredPermission !== undefined && requiredPermission !== null)
+            url_ += "RequiredPermission=" + encodeURIComponent("" + requiredPermission) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -3776,7 +4094,7 @@ export class MediaFileClient {
         return Promise.resolve<void>(null as any);
     }
 
-    initiateChunkedUpload(command: InitiateChunkedUploadCommand | undefined): Promise<UploadSessionDto> {
+    initiateChunkedUpload(command: InitiateChunkedUploadCommand | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/MediaFile/chunks/initiate";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3787,7 +4105,6 @@ export class MediaFileClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
             }
         };
 
@@ -3796,23 +4113,20 @@ export class MediaFileClient {
         });
     }
 
-    protected processInitiateChunkedUpload(response: Response): Promise<UploadSessionDto> {
+    protected processInitiateChunkedUpload(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UploadSessionDto.fromJS(resultData200);
-            return result200;
+            return;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<UploadSessionDto>(null as any);
+        return Promise.resolve<void>(null as any);
     }
 
     uploadChunk(sessionId: number, chunkNumber: number, chunkHash: string | null | undefined, chunkFile: FileParameter | null | undefined): Promise<UploadSessionDto> {
@@ -9160,6 +9474,271 @@ export interface IUpdateCourseAnswerCommand {
     body?: string | undefined;
 }
 
+export class CollaboratorDto implements ICollaboratorDto {
+    id?: number;
+    userId?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    avatarUrl?: string | undefined;
+    permissions?: CoursePermission;
+    isVisible?: boolean;
+    revenueSharePercent?: number;
+    inviteStatus?: CollaboratorInviteStatus;
+    isOwner?: boolean;
+
+    constructor(data?: ICollaboratorDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userId = _data["userId"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.avatarUrl = _data["avatarUrl"];
+            this.permissions = _data["permissions"];
+            this.isVisible = _data["isVisible"];
+            this.revenueSharePercent = _data["revenueSharePercent"];
+            this.inviteStatus = _data["inviteStatus"];
+            this.isOwner = _data["isOwner"];
+        }
+    }
+
+    static fromJS(data: any): CollaboratorDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CollaboratorDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userId"] = this.userId;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["avatarUrl"] = this.avatarUrl;
+        data["permissions"] = this.permissions;
+        data["isVisible"] = this.isVisible;
+        data["revenueSharePercent"] = this.revenueSharePercent;
+        data["inviteStatus"] = this.inviteStatus;
+        data["isOwner"] = this.isOwner;
+        return data;
+    }
+}
+
+export interface ICollaboratorDto {
+    id?: number;
+    userId?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    avatarUrl?: string | undefined;
+    permissions?: CoursePermission;
+    isVisible?: boolean;
+    revenueSharePercent?: number;
+    inviteStatus?: CollaboratorInviteStatus;
+    isOwner?: boolean;
+}
+
+export enum CoursePermission {
+    None = 0,
+    View = 1,
+    Manage = 2,
+    Performance = 4,
+    QA = 8,
+    Assignments = 16,
+    Reviews = 32,
+    RevenueReport = 64,
+}
+
+export enum CollaboratorInviteStatus {
+    Pending = 0,
+    Accepted = 1,
+    Declined = 2,
+}
+
+export class InviteCollaboratorCommand implements IInviteCollaboratorCommand {
+    courseId?: number;
+    email?: string | undefined;
+    permissions?: CoursePermission;
+    isVisible?: boolean;
+    revenueSharePercent?: number;
+
+    constructor(data?: IInviteCollaboratorCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.email = _data["email"];
+            this.permissions = _data["permissions"];
+            this.isVisible = _data["isVisible"];
+            this.revenueSharePercent = _data["revenueSharePercent"];
+        }
+    }
+
+    static fromJS(data: any): InviteCollaboratorCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new InviteCollaboratorCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["email"] = this.email;
+        data["permissions"] = this.permissions;
+        data["isVisible"] = this.isVisible;
+        data["revenueSharePercent"] = this.revenueSharePercent;
+        return data;
+    }
+}
+
+export interface IInviteCollaboratorCommand {
+    courseId?: number;
+    email?: string | undefined;
+    permissions?: CoursePermission;
+    isVisible?: boolean;
+    revenueSharePercent?: number;
+}
+
+export class UpdateCollaboratorCommand implements IUpdateCollaboratorCommand {
+    collaboratorId?: number;
+    courseId?: number;
+    permissions?: CoursePermission;
+    isVisible?: boolean;
+    revenueSharePercent?: number;
+
+    constructor(data?: IUpdateCollaboratorCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.collaboratorId = _data["collaboratorId"];
+            this.courseId = _data["courseId"];
+            this.permissions = _data["permissions"];
+            this.isVisible = _data["isVisible"];
+            this.revenueSharePercent = _data["revenueSharePercent"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCollaboratorCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCollaboratorCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["collaboratorId"] = this.collaboratorId;
+        data["courseId"] = this.courseId;
+        data["permissions"] = this.permissions;
+        data["isVisible"] = this.isVisible;
+        data["revenueSharePercent"] = this.revenueSharePercent;
+        return data;
+    }
+}
+
+export interface IUpdateCollaboratorCommand {
+    collaboratorId?: number;
+    courseId?: number;
+    permissions?: CoursePermission;
+    isVisible?: boolean;
+    revenueSharePercent?: number;
+}
+
+export class InvitationDto implements IInvitationDto {
+    collaboratorId?: number;
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseImageUrl?: string | undefined;
+    ownerName?: string | undefined;
+    ownerAvatarUrl?: string | undefined;
+    permissions?: CoursePermission;
+    isVisible?: boolean;
+    revenueSharePercent?: number;
+    invitedAt?: Date;
+
+    constructor(data?: IInvitationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.collaboratorId = _data["collaboratorId"];
+            this.courseId = _data["courseId"];
+            this.courseTitle = _data["courseTitle"];
+            this.courseImageUrl = _data["courseImageUrl"];
+            this.ownerName = _data["ownerName"];
+            this.ownerAvatarUrl = _data["ownerAvatarUrl"];
+            this.permissions = _data["permissions"];
+            this.isVisible = _data["isVisible"];
+            this.revenueSharePercent = _data["revenueSharePercent"];
+            this.invitedAt = _data["invitedAt"] ? new Date(_data["invitedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): InvitationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InvitationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["collaboratorId"] = this.collaboratorId;
+        data["courseId"] = this.courseId;
+        data["courseTitle"] = this.courseTitle;
+        data["courseImageUrl"] = this.courseImageUrl;
+        data["ownerName"] = this.ownerName;
+        data["ownerAvatarUrl"] = this.ownerAvatarUrl;
+        data["permissions"] = this.permissions;
+        data["isVisible"] = this.isVisible;
+        data["revenueSharePercent"] = this.revenueSharePercent;
+        data["invitedAt"] = this.invitedAt ? this.invitedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IInvitationDto {
+    collaboratorId?: number;
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseImageUrl?: string | undefined;
+    ownerName?: string | undefined;
+    ownerAvatarUrl?: string | undefined;
+    permissions?: CoursePermission;
+    isVisible?: boolean;
+    revenueSharePercent?: number;
+    invitedAt?: Date;
+}
+
 export class GetCourseByIdDto implements IGetCourseByIdDto {
     id?: number;
     title?: string | undefined;
@@ -10855,6 +11434,8 @@ export class GetCoursesAuthorDto implements IGetCoursesAuthorDto {
     ratings?: number;
     status?: CourseStatus;
     created?: Date;
+    isOwner?: boolean;
+    isCollaborator?: boolean;
 
     constructor(data?: IGetCoursesAuthorDto) {
         if (data) {
@@ -10877,6 +11458,8 @@ export class GetCoursesAuthorDto implements IGetCoursesAuthorDto {
             this.ratings = _data["ratings"];
             this.status = _data["status"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.isOwner = _data["isOwner"];
+            this.isCollaborator = _data["isCollaborator"];
         }
     }
 
@@ -10899,6 +11482,8 @@ export class GetCoursesAuthorDto implements IGetCoursesAuthorDto {
         data["ratings"] = this.ratings;
         data["status"] = this.status;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["isOwner"] = this.isOwner;
+        data["isCollaborator"] = this.isCollaborator;
         return data;
     }
 }
@@ -10914,6 +11499,8 @@ export interface IGetCoursesAuthorDto {
     ratings?: number;
     status?: CourseStatus;
     created?: Date;
+    isOwner?: boolean;
+    isCollaborator?: boolean;
 }
 
 export enum CourseManagementSortBy {
@@ -11903,7 +12490,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     isEnrolled?: boolean;
     content?: string | undefined;
     lastModified?: Date;
-    instructor?: InstructorDto | undefined;
+    instructors?: InstructorDto[] | undefined;
 
     constructor(data?: IGetPublicCourseByIdDto) {
         if (data) {
@@ -11942,7 +12529,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.isEnrolled = _data["isEnrolled"];
             this.content = _data["content"];
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
-            this.instructor = _data["instructor"] ? InstructorDto.fromJS(_data["instructor"]) : <any>undefined;
+            if (Array.isArray(_data["instructors"])) {
+                this.instructors = [] as any;
+                for (let item of _data["instructors"])
+                    this.instructors!.push(InstructorDto.fromJS(item));
+            }
         }
     }
 
@@ -11981,7 +12572,11 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["isEnrolled"] = this.isEnrolled;
         data["content"] = this.content;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
-        data["instructor"] = this.instructor ? this.instructor.toJSON() : <any>undefined;
+        if (Array.isArray(this.instructors)) {
+            data["instructors"] = [];
+            for (let item of this.instructors)
+                data["instructors"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -12009,7 +12604,7 @@ export interface IGetPublicCourseByIdDto {
     isEnrolled?: boolean;
     content?: string | undefined;
     lastModified?: Date;
-    instructor?: InstructorDto | undefined;
+    instructors?: InstructorDto[] | undefined;
 }
 
 export class InstructorDto implements IInstructorDto {
@@ -13580,6 +14175,66 @@ export enum CaptionStatus {
     FAILED = 3,
 }
 
+export class InitiateChunkedUploadCommand implements IInitiateChunkedUploadCommand {
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    fileHash?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
+
+    constructor(data?: IInitiateChunkedUploadCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.fileSize = _data["fileSize"];
+            this.chunkSize = _data["chunkSize"];
+            this.totalChunks = _data["totalChunks"];
+            this.fileHash = _data["fileHash"];
+            this.contentType = _data["contentType"];
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): InitiateChunkedUploadCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new InitiateChunkedUploadCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["fileSize"] = this.fileSize;
+        data["chunkSize"] = this.chunkSize;
+        data["totalChunks"] = this.totalChunks;
+        data["fileHash"] = this.fileHash;
+        data["contentType"] = this.contentType;
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IInitiateChunkedUploadCommand {
+    fileName?: string | undefined;
+    fileSize?: number;
+    chunkSize?: number;
+    totalChunks?: number;
+    fileHash?: string | undefined;
+    contentType?: string | undefined;
+    courseId?: number | undefined;
+}
+
 export class UploadSessionDto implements IUploadSessionDto {
     sessionId?: number;
     fileName?: string | undefined;
@@ -13670,66 +14325,6 @@ export enum UploadStatus {
     COMPLETED = 2,
     FAILED = 3,
     EXPIRED = 4,
-}
-
-export class InitiateChunkedUploadCommand implements IInitiateChunkedUploadCommand {
-    fileName?: string | undefined;
-    fileSize?: number;
-    chunkSize?: number;
-    totalChunks?: number;
-    fileHash?: string | undefined;
-    contentType?: string | undefined;
-    courseId?: number | undefined;
-
-    constructor(data?: IInitiateChunkedUploadCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.fileName = _data["fileName"];
-            this.fileSize = _data["fileSize"];
-            this.chunkSize = _data["chunkSize"];
-            this.totalChunks = _data["totalChunks"];
-            this.fileHash = _data["fileHash"];
-            this.contentType = _data["contentType"];
-            this.courseId = _data["courseId"];
-        }
-    }
-
-    static fromJS(data: any): InitiateChunkedUploadCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new InitiateChunkedUploadCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["fileName"] = this.fileName;
-        data["fileSize"] = this.fileSize;
-        data["chunkSize"] = this.chunkSize;
-        data["totalChunks"] = this.totalChunks;
-        data["fileHash"] = this.fileHash;
-        data["contentType"] = this.contentType;
-        data["courseId"] = this.courseId;
-        return data;
-    }
-}
-
-export interface IInitiateChunkedUploadCommand {
-    fileName?: string | undefined;
-    fileSize?: number;
-    chunkSize?: number;
-    totalChunks?: number;
-    fileHash?: string | undefined;
-    contentType?: string | undefined;
-    courseId?: number | undefined;
 }
 
 export class NotificationsVm implements INotificationsVm {

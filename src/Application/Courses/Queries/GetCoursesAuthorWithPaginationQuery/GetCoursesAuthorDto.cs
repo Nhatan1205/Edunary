@@ -1,4 +1,4 @@
-﻿using Edunary.Domain.Entities;
+using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
@@ -16,12 +16,17 @@ public class GetCoursesAuthorDto
     public CourseStatus Status { get; set; }
     public DateTimeOffset Created { get; set; }
 
+    public bool IsOwner { get; set; }
+    public bool IsCollaborator { get; set; }
+
 
     private class Mapping : Profile
     {
         public Mapping()
         {
-            CreateMap<Course, GetCoursesAuthorDto>();
+            CreateMap<Course, GetCoursesAuthorDto>()
+                .ForMember(d => d.IsOwner, opt => opt.Ignore())
+                .ForMember(d => d.IsCollaborator, opt => opt.Ignore());
         }
     }
 }

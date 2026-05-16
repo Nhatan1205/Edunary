@@ -6,6 +6,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.MediaFiles.Queries.GetMediaFileByUserIdQuery;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.MediaFiles.Commands.AddLinkToMFCommand;
 
@@ -22,21 +23,34 @@ public class AddLinkToMFCommandHandler : IRequestHandler<AddLinkToMFCommand, Ret
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public AddLinkToMFCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
-        IMapper mapper)
+        IMapper mapper,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
         _mapper = mapper;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<MediaFileDto>> Handle(AddLinkToMFCommand request, CancellationToken cancellationToken)
     {
         var result = new ReturnResult<MediaFileDto>();
         var userId = _currentUserService?.UserId;
+
+        if (request.CourseId.HasValue)
+        {
+            bool hasAccess = await _courseAuth.HasCourseAccessAsync(request.CourseId.Value, userId, CoursePermission.Manage, cancellationToken);
+            if (!hasAccess)
+            {
+                result.Message = "You do not have Manage permissions for this course.";
+                return result;
+            }
+        }
 
         MediaFile savedContent;
         var existingLink = await _context.MediaFiles

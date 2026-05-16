@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { CoursesClient, DeleteCourseCommand } from "../../web-api-client.ts";
 import queryClient from "../../configs/reactQuery.js";
+import { extractApiError } from "../../utils/helpers";
 
 const useDeleteCourse = (onSuccessCallback) => {
   const coursesClient = new CoursesClient();
@@ -21,10 +22,7 @@ const useDeleteCourse = (onSuccessCallback) => {
       }
     },
     onError: (error) => {
-      const msg =
-        error?.response ||
-        error?.message ||
-        "Failed to delete course. Please try again.";
+      const msg = extractApiError(error);
       toast.error(msg);
     },
   });

@@ -75,41 +75,52 @@ public class GetHomepageCoursesQueryHandler : IRequestHandler<GetHomepageCourses
 
         // Fetch instructor names
         var instructorNames = new Dictionary<string, string>();
-        foreach (var instructorId in instructorIds)
+        if (instructorIds.Any())
         {
-            var name = await _identityService.GetFullNameAsync(instructorId);
-            instructorNames[instructorId] = name;
-        }
-
-        // Add instructor names to popular courses
-        foreach (var course in popularCourses)
-        {
-            if (!string.IsNullOrEmpty(course.CreatedBy) &&
-                instructorNames.ContainsKey(course.CreatedBy))
+            var creatorIdentities = await _identityService.GetUserIdentitiesByIdsAsync(instructorIds, cancellationToken);
+            foreach (var identity in creatorIdentities)
             {
-                course.InstructorName = instructorNames[course.CreatedBy];
+                instructorNames[identity.Id] = identity.FullName;
             }
         }
 
-        // Add instructor names to new courses
-        foreach (var course in newCourses)
+        var courseIds = allCourses.Select(c => c.Id).Distinct().ToList();
+        var visibleCollabs = await _context.CourseCollaborators
+            .Where(c => courseIds.Contains(c.CourseId) && c.IsVisible && c.InviteStatus == CollaboratorInviteStatus.Accepted)
+            .ToListAsync(cancellationToken);
+
+        var collabUserIds = visibleCollabs.Select(c => c.UserId).Distinct().ToList();
+        var collabNames = new Dictionary<string, string>();
+
+        if (collabUserIds.Any())
         {
-            if (!string.IsNullOrEmpty(course.CreatedBy) &&
-                instructorNames.ContainsKey(course.CreatedBy))
+            var collabIdentities = await _identityService.GetUserIdentitiesByIdsAsync(collabUserIds, cancellationToken);
+            foreach (var identity in collabIdentities)
             {
-                course.InstructorName = instructorNames[course.CreatedBy];
+                collabNames[identity.Id] = identity.FullName;
             }
         }
 
-        // Add instructor names to top rated courses
-        foreach (var course in topRatedCourses)
+        void AssignInstructorNames(IEnumerable<GetHomepageCoursesDto> courses)
         {
-            if (!string.IsNullOrEmpty(course.CreatedBy) &&
-                instructorNames.ContainsKey(course.CreatedBy))
+            foreach (var course in courses)
             {
-                course.InstructorName = instructorNames[course.CreatedBy];
+                var ownerName = "Unknown";
+                if (!string.IsNullOrEmpty(course.CreatedBy) &&
+                    instructorNames.ContainsKey(course.CreatedBy))
+                {
+                    ownerName = instructorNames[course.CreatedBy];
+                }
+
+                var courseCollabs = visibleCollabs.Where(c => c.CourseId == course.Id).ToList();
+                var collabsString = string.Join(", ", courseCollabs.Select(c => collabNames.GetValueOrDefault(c.UserId, "")).Where(n => !string.IsNullOrEmpty(n)));
+                course.InstructorName = string.IsNullOrEmpty(collabsString) ? ownerName : $"{ownerName}, {collabsString}";
             }
         }
+
+        AssignInstructorNames(popularCourses);
+        AssignInstructorNames(newCourses);
+        AssignInstructorNames(topRatedCourses);
 
         return new HomepageCoursesVm
         {

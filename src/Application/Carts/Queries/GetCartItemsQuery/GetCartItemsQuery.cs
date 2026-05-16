@@ -1,4 +1,5 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Carts.Queries.GetCartItemsQuery;
 
@@ -63,10 +64,30 @@ public class GetCartItemsQueryHandler : IRequestHandler<GetCartItemsQuery, List<
             .ToList();
 
         var creators = new Dictionary<string, string>();
-        foreach (var creatorId in creatorIds)
+        if (creatorIds.Any())
         {
-            var userName = await _identityService.GetFullNameAsync(creatorId);
-            creators[creatorId] = userName;
+            var creatorIdentities = await _identityService.GetUserIdentitiesByIdsAsync(creatorIds, cancellationToken);
+            foreach (var identity in creatorIdentities)
+            {
+                creators[identity.Id] = identity.FullName;
+            }
+        }
+
+        // Get visible collaborators for these courses
+        var visibleCollabs = await _context.CourseCollaborators
+            .Where(c => courseIds.Contains(c.CourseId) && c.IsVisible && c.InviteStatus == CollaboratorInviteStatus.Accepted)
+            .ToListAsync(cancellationToken);
+
+        var collabUserIds = visibleCollabs.Select(c => c.UserId).Distinct().ToList();
+        var collabNames = new Dictionary<string, string>();
+
+        if (collabUserIds.Any())
+        {
+            var collabIdentities = await _identityService.GetUserIdentitiesByIdsAsync(collabUserIds, cancellationToken);
+            foreach (var identity in collabIdentities)
+            {
+                collabNames[identity.Id] = identity.FullName;
+            }
         }
 
         // Join in memory
@@ -74,20 +95,28 @@ public class GetCartItemsQueryHandler : IRequestHandler<GetCartItemsQuery, List<
             .Join(courses,
                 cart => cart.CourseId,
                 course => course.Id,
-                (cart, course) => new CartItemDto
+                (cart, course) =>
                 {
-                    Id = cart.Id,
-                    CourseId = course.Id,
-                    Title = course.Title,
-                    Subtitle = course.Subtitle ?? string.Empty,
-                    ImageUrl = course.ImageUrl ?? string.Empty,
-                    InstructorName = creators.GetValueOrDefault(course.CreatedBy, "Unknown"),
-                    Price = course.Price,
-                    Level = course.Level.ToString(),
-                    TotalLectures = 0, // TODO: Calculate from sections/lectures
-                    TotalHours = 0, // TODO: Calculate from sections/lectures
-                    TotalRatingStudent = course.TotalRatingStudent,
-                    Ratings = course.Ratings
+                    var ownerName = creators.GetValueOrDefault(course.CreatedBy, "Unknown");
+                    var courseCollabs = visibleCollabs.Where(c => c.CourseId == course.Id).ToList();
+                    var collabsString = string.Join(", ", courseCollabs.Select(c => collabNames.GetValueOrDefault(c.UserId, "")).Where(n => !string.IsNullOrEmpty(n)));
+                    var finalInstructorName = string.IsNullOrEmpty(collabsString) ? ownerName : $"{ownerName}, {collabsString}";
+
+                    return new CartItemDto
+                    {
+                        Id = cart.Id,
+                        CourseId = course.Id,
+                        Title = course.Title,
+                        Subtitle = course.Subtitle ?? string.Empty,
+                        ImageUrl = course.ImageUrl ?? string.Empty,
+                        InstructorName = finalInstructorName,
+                        Price = course.Price,
+                        Level = course.Level.ToString(),
+                        TotalLectures = 0, // TODO: Calculate from sections/lectures
+                        TotalHours = 0, // TODO: Calculate from sections/lectures
+                        TotalRatingStudent = course.TotalRatingStudent,
+                        Ratings = course.Ratings
+                    };
                 })
             .ToList();
 

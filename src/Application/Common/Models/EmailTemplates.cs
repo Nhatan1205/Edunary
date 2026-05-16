@@ -51,7 +51,7 @@ public static class EmailTemplates
                             <tr>
                                 <td style=""background:#f7fafc;padding:20px 32px;text-align:center;"">
                                     <p style=""font-size:13px;color:#a0aec0;margin:0;"">
-                                        © {DateTime.UtcNow.Year} Edunary. All rights reserved.
+                                        Â© {DateTime.UtcNow.Year} Edunary. All rights reserved.
                                     </p>
                                 </td>
                             </tr>
@@ -109,7 +109,7 @@ public static class EmailTemplates
                             <tr>
                                 <td style=""background:#f7fafc;padding:20px 32px;text-align:center;"">
                                     <p style=""font-size:13px;color:#a0aec0;margin:0;"">
-                                        © {DateTime.UtcNow.Year} Edunary. All rights reserved.
+                                        Â© {DateTime.UtcNow.Year} Edunary. All rights reserved.
                                     </p>
                                 </td>
                             </tr>
@@ -403,5 +403,76 @@ public static class EmailTemplates
         </body>
         </html>";
             }
-}
 
+    public static string BuildCollaboratorInvitationTemplate(string ownerName, string courseTitle, string invitationsUrl, string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
+    {
+        var encodedOwner = System.Net.WebUtility.HtmlEncode(ownerName);
+        var encodedCourse = System.Net.WebUtility.HtmlEncode(courseTitle);
+        return $@"<!doctype html>
+        <html lang=""en"">
+        <head>
+          <meta charset=""utf-8"" />
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+        </head>
+        <body style=""margin:0;padding:0;background:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1d1f;"">
+          <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;"">
+            <tr>
+              <td align=""center"" style=""padding:32px 20px 0;"">
+                <table role=""presentation"" width=""560"" cellpadding=""0"" cellspacing=""0"">
+
+                  <!-- Logo -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <img src=""{logoUrl}"" alt=""Edunary"" width=""32"" height=""32""
+                        style=""display:inline-block;vertical-align:middle;margin-right:6px;border:0;"" />
+                      <span style=""font-size:20px;font-weight:700;vertical-align:middle;color:#00A76F;"">Edunary</span>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:24px;""></td></tr>
+
+                  <!-- Body -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <p style=""margin:0 0 12px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        <strong>{encodedOwner}</strong> invited you to collaborate on
+                        <strong>&ldquo;{encodedCourse}&rdquo;</strong>.
+                      </p>
+                      <p style=""margin:0 0 20px;font-size:14px;color:#6a6f73;"">
+                        Log in to your instructor dashboard to accept or decline.
+                      </p>
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""border-radius:4px;background:#00A76F;"">
+                            <a href=""{invitationsUrl}""
+                               style=""display:inline-block;padding:12px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:4px;"">
+                              View Invitation
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:3px solid #e8e8e8;padding-top:20px;""></td></tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <p style=""margin:0;font-size:12px;color:#6a6f73;"">
+                        If you did not expect this, you can safely ignore this email.<br/>
+                        &copy; {DateTime.UtcNow.Year} Edunary Inc.
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>";
+    }
+}

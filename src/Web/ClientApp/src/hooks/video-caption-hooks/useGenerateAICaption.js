@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { VideoCaptionsClient } from "../../web-api-client.ts";
 import { toast } from "react-toastify";
+import { extractApiError } from "../../utils/helpers.js";
 
 const useGenerateAICaption = () => {
   return useMutation({
@@ -9,9 +10,8 @@ const useGenerateAICaption = () => {
       return await client.generateAICaption({ mediaFileId, targetLanguage: targetLanguage ?? null });
     },
     onError: (error) => {
-      toast.error(
-        error?.response || error?.message || "Failed to start AI caption generation."
-      );
+      const msg = extractApiError(error);
+      toast.error(msg || "Failed to start AI caption generation.");
     },
   });
 };

@@ -400,6 +400,56 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("CourseAnswers");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.CourseCollaborator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("InviteStatus")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Permissions")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("RevenueSharePercent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(5,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("CourseCollaborators");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.CourseNote", b =>
                 {
                     b.Property<int>("Id")
@@ -2163,6 +2213,17 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("Question");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.CourseCollaborator", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
+                        .WithMany("Collaborators")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.CourseNote", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.Course", "Course")
@@ -2486,6 +2547,8 @@ namespace Edunary.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Edunary.Domain.Entities.Course", b =>
                 {
+                    b.Navigation("Collaborators");
+
                     b.Navigation("CourseNotes");
 
                     b.Navigation("CourseQuestions");

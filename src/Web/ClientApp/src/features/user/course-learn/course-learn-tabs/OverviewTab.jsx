@@ -196,30 +196,31 @@ function OverviewTab({ courseId }) {
 
       <Box>
         <Typography sx={{ fontSize: "1.1rem", fontWeight: 700, mb: 2, color: "text.primary" }}>
-          Instructor
+          Instructors
         </Typography>
-        <Stack direction="row" spacing={2} alignItems="flex-start">
-          <Avatar
-            sx={{ width: 56, height: 56, bgcolor: "brand.main", fontSize: "1.25rem" }}
-            src={courseData.instructor.avatar || defaultAvatar}
-          >
-          </Avatar>
-          <Box>
-            <Typography
-              component={RouterLink}
-              to={`/profile/${courseData.instructor.id}`}
-              sx={{ fontSize: "1rem", fontWeight: 700, color: "brand.dark", textDecoration: "none" }}>
-              <Box component="span" sx={{ wordBreak: "break-word" }}>
-                {courseData.instructor.name}
+        <Stack spacing={3}>
+          {courseData.instructors?.map((instructor, index) => (
+            <Stack key={index} direction="row" spacing={2} alignItems="flex-start">
+              <Avatar
+                sx={{ width: 56, height: 56, bgcolor: "brand.main", fontSize: "1.25rem" }}
+                src={instructor.avatar || defaultAvatar}
+              />
+              <Box>
+                <Typography
+                  component={RouterLink}
+                  to={`/profile/${instructor.id}`}
+                  sx={{ fontSize: "1rem", fontWeight: 700, color: "brand.dark", textDecoration: "none" }}
+                >
+                  <Box component="span" sx={{ wordBreak: "break-word" }}>
+                    {instructor.name}
+                  </Box>
+                </Typography>
+                <Typography sx={{ fontSize: "0.8rem", color: "text.secondary", mb: 0.5 }}>
+                  Instructor
+                </Typography>
               </Box>
-            </Typography>
-            <Typography sx={{ fontSize: "0.8rem", color: "text.secondary", mb: 0.5 }}>
-              Instructor
-            </Typography>
-            <Typography sx={{ fontSize: "0.85rem", color: "text.primary", whiteSpace: "pre-line" }}>
-              Detailed bio about the instructor would go here. Experienced in teaching modern web development.
-            </Typography>
-          </Box>
+            </Stack>
+          ))}
         </Stack>
       </Box>
     </Box>

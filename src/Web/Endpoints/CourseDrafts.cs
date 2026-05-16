@@ -18,6 +18,6 @@ public class CourseDrafts : EndpointGroupBase
     }
     public async Task<GetCourseByIdDto> GetCourseCurriculumById(ISender sender, int id)
     {
-        return await sender.Send(new GetCourseCurriculumByIdQuery() { Id = id});
+        return await sender.Send(new GetCourseCurriculumByIdQuery() { Id = id });
     }
 }

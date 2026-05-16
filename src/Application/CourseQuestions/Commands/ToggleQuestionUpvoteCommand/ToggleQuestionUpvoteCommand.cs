@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseQuestions.Commands.ToggleQuestionUpvoteCommand;
@@ -21,13 +22,16 @@ public class ToggleQuestionUpvoteCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public ToggleQuestionUpvoteCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<ToggleUpvoteDto>> Handle(
@@ -42,19 +46,14 @@ public class ToggleQuestionUpvoteCommandHandler
 
             var userId = _currentUserService.UserId;
 
-            // Allow enrolled students OR the course instructor
-            var course = await _context.Courses
-                .Where(c => c.Id == question.CourseId)
-                .Select(c => new { c.CreatedBy })
-                .FirstOrDefaultAsync(cancellationToken);
+            // Allow enrolled students OR anyone with QA access (owner/collaborator)
+            var hasQaAccess = await _courseAuth.HasCourseAccessAsync(
+                question.CourseId, userId, CoursePermission.QA, cancellationToken);
 
-            var isInstructor = course?.CreatedBy == userId;
-
-            // Enrollment check
             var isEnrolled = await _context.Enrollments
                 .AnyAsync(e => e.CourseId == question.CourseId && e.StudentId == userId, cancellationToken);
 
-            if (!isEnrolled && !isInstructor)
+            if (!isEnrolled && !hasQaAccess)
             {
                 return new ReturnResult<ToggleUpvoteDto>
                 {

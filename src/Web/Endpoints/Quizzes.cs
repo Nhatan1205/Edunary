@@ -71,7 +71,7 @@ public class Quizzes : EndpointGroupBase
 
     public async Task<IResult> GenerateQuizQuestions(ISender sender, [FromBody] GenerateQuizQuestionsCommand command)
     {
-        var started = await sender.Send(command);
-        return started ? Results.Ok() : Results.Unauthorized();
+        var result = await sender.Send(command);
+        return result.Succeeded ? Results.Ok() : Results.BadRequest(result);
     }
 }

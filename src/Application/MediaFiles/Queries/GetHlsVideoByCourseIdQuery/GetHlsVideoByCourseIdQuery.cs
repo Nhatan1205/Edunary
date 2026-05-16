@@ -17,18 +17,28 @@ public class GetHlsVideoByCourseIdQueryHandler : IRequestHandler<GetHlsVideoByCo
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
-    public GetHlsVideoByCourseIdQueryHandler(IApplicationDbContext context, IMapper mapper, ICurrentUserService currentUserService)
+    public GetHlsVideoByCourseIdQueryHandler(
+        IApplicationDbContext context, 
+        IMapper mapper, 
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _mapper = mapper;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
     public async Task<List<HlsVideoCaptionDto>> Handle(GetHlsVideoByCourseIdQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
+
+        bool hasAccess = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, CoursePermission.View, cancellationToken);
+        if (!hasAccess) return new List<HlsVideoCaptionDto>();
+
         var result = await _context.MediaFiles
-                    .Where(m => m.CourseId == request.CourseId && !m.IsDeleted && m.UserId == userId && m.HlsStatus == VideoStatus.READY)
+                    .Where(m => m.CourseId == request.CourseId && !m.IsDeleted && m.HlsStatus == VideoStatus.READY)
                     .Select( m => new
                     {
                         Media = m,

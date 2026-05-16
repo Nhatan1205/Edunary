@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Models;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.MediaFiles.Commands.DeleteMediaFileCommand;
 public class DeleteMediaFileCommand : IRequest<Result>
@@ -10,19 +11,36 @@ public class DeleteMediaFileCommandHandler : IRequestHandler<DeleteMediaFileComm
 {
     private readonly IApplicationDbContext _context;
     private readonly IUploadFileService _uploadFileService;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public DeleteMediaFileCommandHandler(
         IApplicationDbContext context,
-        IUploadFileService uploadFileService)
+        IUploadFileService uploadFileService,
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _uploadFileService = uploadFileService;
+        _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<Result> Handle(DeleteMediaFileCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.MediaFiles.FindAsync(new object[] { request.Id }, cancellationToken);
         Guard.Against.NotFound(request.Id, entity);
+
+        var userId = _currentUserService.UserId;
+        if (entity.UserId != userId)
+        {
+            if (!entity.CourseId.HasValue) 
+                return Result.Failure("Access denied.");
+
+            bool canManage = await _courseAuth.HasCourseAccessAsync(entity.CourseId.Value, userId, CoursePermission.Manage, cancellationToken);
+            if (!canManage) 
+                return Result.Failure("Access denied.");
+        }
 
         // temporary comment the logic for deleting content on server
         // var fileName = entity.FileName;

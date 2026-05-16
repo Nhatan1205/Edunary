@@ -1,4 +1,5 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Models;
 using Edunary.Application.SystemSettings.Queries.GetSystemSettingValuesQuery;
 using Edunary.Domain.Constants;
 using Edunary.Infrastructure.Helpers;

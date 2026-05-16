@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 using Edunary.Domain.Events.CourseQuestions;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,15 +21,18 @@ public class CreateCourseQuestionCommandHandler
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public CreateCourseQuestionCommandHandler(
         IApplicationDbContext context,
         IMapper mapper,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _mapper = mapper;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<CreatedCourseQuestionDto>> Handle(
@@ -38,18 +42,14 @@ public class CreateCourseQuestionCommandHandler
         {
             var userId = _currentUserService.UserId;
 
-            // Allow enrolled students OR the course instructor
-            var course = await _context.Courses
-                .Where(c => c.Id == request.CourseId)
-                .Select(c => new { c.CreatedBy })
-                .FirstOrDefaultAsync(cancellationToken);
-
-            var isInstructor = course?.CreatedBy == userId;
+            // Allow enrolled students OR anyone with QA access (owner/collaborator)
+            var hasQaAccess = await _courseAuth.HasCourseAccessAsync(
+                request.CourseId, userId, CoursePermission.QA, cancellationToken);
 
             var isEnrolled = await _context.Enrollments
                 .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == userId, cancellationToken);
 
-            if (!isEnrolled && !isInstructor)
+            if (!isEnrolled && !hasQaAccess)
             {
                 return new ReturnResult<CreatedCourseQuestionDto>
                 {

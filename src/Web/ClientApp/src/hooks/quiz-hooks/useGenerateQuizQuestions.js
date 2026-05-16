@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { QuizzesClient } from "../../web-api-client.ts";
+import { toast } from "react-toastify";
+import { extractApiError } from "../../utils/helpers.js";
 
 const client = new QuizzesClient();
 
@@ -10,5 +12,9 @@ const client = new QuizzesClient();
 export default function useGenerateQuizQuestions() {
   return useMutation({
     mutationFn: (payload) => client.generateQuizQuestions(payload),
+    onError: (error) => {
+      const msg = extractApiError(error);
+      toast.error(msg || "Failed to start AI quiz generation.");
+    },
   });
 }

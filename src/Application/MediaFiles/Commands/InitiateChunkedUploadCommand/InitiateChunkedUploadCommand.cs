@@ -4,11 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.MediaFiles.Commands.InitiateChunkedUploadCommand;
 
-public class InitiateChunkedUploadCommand : IRequest<UploadSessionDto>
+public class InitiateChunkedUploadCommand : IRequest<ReturnResult<UploadSessionDto>>
 {
     public string FileName { get; set; }
     public long FileSize { get; set; }
@@ -19,26 +20,39 @@ public class InitiateChunkedUploadCommand : IRequest<UploadSessionDto>
     public int? CourseId { get; set; }
 }
 
-public class InitiateChunkedUploadCommandHandler : IRequestHandler<InitiateChunkedUploadCommand, UploadSessionDto>
+public class InitiateChunkedUploadCommandHandler : IRequestHandler<InitiateChunkedUploadCommand, ReturnResult<UploadSessionDto>>
 {
     private readonly IChunkedUploadService _chunkedUploadService;
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public InitiateChunkedUploadCommandHandler(
         IChunkedUploadService chunkedUploadService,
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _chunkedUploadService = chunkedUploadService;
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
-    public async Task<UploadSessionDto> Handle(InitiateChunkedUploadCommand request, CancellationToken cancellationToken)
+    public async Task<ReturnResult<UploadSessionDto>> Handle(InitiateChunkedUploadCommand request, CancellationToken cancellationToken)
     {
+        var returnResult = new ReturnResult<UploadSessionDto>();
         var userId = _currentUserService?.UserId;
         
+        if (request.CourseId.HasValue)
+        {
+            bool hasAccess = await _courseAuth.HasCourseAccessAsync(request.CourseId.Value, userId, CoursePermission.Manage, cancellationToken);
+            if (!hasAccess)
+            {
+                returnResult.Message = "You do not have Manage permissions for this course.";
+                return returnResult;
+            }
+        }
         // Check for existing files and generate unique name if needed
         var baseFileName = Path.GetFileNameWithoutExtension(request.FileName);
         var extension = Path.GetExtension(request.FileName);
@@ -67,7 +81,8 @@ public class InitiateChunkedUploadCommandHandler : IRequestHandler<InitiateChunk
             CourseId = (int)request.CourseId
         };
 
-        var result = await _chunkedUploadService.InitiateUpload(initiateRequest);
-        return result;
+        var uploadResult = await _chunkedUploadService.InitiateUpload(initiateRequest);
+        returnResult.Result = uploadResult;
+        return returnResult;
     }
 }

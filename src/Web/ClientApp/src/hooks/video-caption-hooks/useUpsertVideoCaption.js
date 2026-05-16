@@ -1,6 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import queryClient from "../../configs/reactQuery.js";
 import { tokenService } from "../../utils/tokenService";
+import { toast } from "react-toastify";
+import { extractApiError } from "../../utils/helpers.js";
 
 const useUpsertVideoCaption = () => {
   return useMutation({
@@ -24,11 +26,25 @@ const useUpsertVideoCaption = () => {
         throw new Error(text || "Failed to upload caption.");
       }
 
-      return await response.json();
+      const text = await response.text();
+      return text ? JSON.parse(text) : null;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hlsVideoByCourse"] });
       queryClient.invalidateQueries({ queryKey: ["captionLanguages"] });
+      toast.success("Caption uploaded successfully.");
+    },
+    onError: (error) => {
+      let msg = extractApiError(error);
+      if (!msg && error.message) {
+        try {
+          const parsed = JSON.parse(error.message);
+          msg = parsed.message || (parsed.errors && Object.values(parsed.errors).flat().join(", "));
+        } catch {
+          msg = error.message;
+        }
+      }
+      toast.error(msg || "Failed to upload caption.");
     },
   });
 };

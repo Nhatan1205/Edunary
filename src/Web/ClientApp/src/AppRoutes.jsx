@@ -72,6 +72,7 @@ import CourseEmbeddingPage from "./features/admin/course-embedding/CourseEmbeddi
 import MyCareerPathDetailPage from "./features/user/career-paths/MyCareerPathDetailPage";
 import GenerateCareerPathPage from "./features/user/career-paths/generate-career-path/GenerateCareerPathPage";
 import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage";
+import InvitationsPage from "./features/instructor/invitations-page/InvitationsPage";
 
 const router = createBrowserRouter([
   {
@@ -402,7 +403,11 @@ const router = createBrowserRouter([
             element: <AnnouncementEditPage />,
           }
         ],
-      }
+      },
+      {
+        path: "invitations",
+        element: <InvitationsPage />,
+      },
     ],
   },
   {

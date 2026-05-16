@@ -20,7 +20,7 @@ function CoursesListPage() {
   const sortBy = getCourseManagementSortBy(sortParam);
 
   const { data: coursesData, isLoading: isCourseDataLoading } =
-    useGetCoursesAuthor(decodeURIComponent(query), sortBy, pageNumber, 5);
+    useGetCoursesAuthor(decodeURIComponent(query), sortBy, pageNumber, 5, 1); // 1 = View (always on for all collaborators)
 
   function handlePageChange(event, value) {
     setPageNumber(value);

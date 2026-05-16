@@ -16,15 +16,18 @@ public class UpdateQuizQuestionsCommandHandler : IRequestHandler<UpdateQuizQuest
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IQuizSnapshotJobService _snapshotJobService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public UpdateQuizQuestionsCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
-        IQuizSnapshotJobService snapshotJobService)
+        IQuizSnapshotJobService snapshotJobService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
         _snapshotJobService = snapshotJobService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<Result> Handle(UpdateQuizQuestionsCommand request, CancellationToken cancellationToken)
@@ -38,7 +41,8 @@ public class UpdateQuizQuestionsCommandHandler : IRequestHandler<UpdateQuizQuest
         if (quiz == null)
             return Result.Failure(new[] { "Quiz not found." });
 
-        if (quiz.Course.CreatedBy != _currentUserService.UserId)
+        bool canManage = await _courseAuth.HasCourseAccessAsync(quiz.CourseId, _currentUserService.UserId, CoursePermission.Manage, cancellationToken);
+        if (!canManage)
             return Result.Failure(new[] { "Access denied." });
 
         HashSet<int> incomingQuestionIds = request.Questions

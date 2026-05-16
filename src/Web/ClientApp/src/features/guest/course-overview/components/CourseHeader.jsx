@@ -105,18 +105,23 @@ const CourseHeader = ({ courseData }) => {
           color="text.inverse"
         >
           Created by{" "}
-          <Typography
-            component={RouterLink}
-            to={`/profile/${courseData.instructor.id}`}
-            sx={{
-              fontWeight: 600,
-              textDecoration: 'underline',
-              color: 'brand.light',
-              wordBreak: "break-word",
-            }}
-          >
-            {courseData.instructor.name}
-          </Typography>
+          {courseData.instructors?.map((instructor, index) => (
+             <span key={instructor.id}>
+                {index > 0 && ", "}
+                <Typography
+                  component={RouterLink}
+                  to={`/profile/${instructor.id}`}
+                  sx={{
+                    fontWeight: 600,
+                    textDecoration: 'underline',
+                    color: 'brand.light',
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {instructor.name}
+                </Typography>
+             </span>
+          ))}
         </Typography>
       </Box>
 

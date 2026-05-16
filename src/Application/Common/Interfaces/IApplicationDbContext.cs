@@ -60,6 +60,7 @@ public interface IApplicationDbContext
 
     public DbSet<CourseQuestion> CourseQuestions { get; }
     public DbSet<CourseAnswer> CourseAnswers { get; }
+    public DbSet<CourseCollaborator> CourseCollaborators { get; }
     public DbSet<QuestionUpvote> QuestionUpvotes { get; }
     public DbSet<AnswerUpvote> AnswerUpvotes { get; }
 

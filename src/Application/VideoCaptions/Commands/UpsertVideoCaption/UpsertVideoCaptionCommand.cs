@@ -1,10 +1,18 @@
+using MediatR;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 
 namespace Edunary.Application.VideoCaptions.Commands.UpsertVideoCaption;
 
-public record UpsertVideoCaptionCommand : IRequest<int>
+public record UpsertVideoCaptionCommand : IRequest<Result>
 {
     public int MediaFileId { get; init; }
     public int Language { get; init; }
@@ -26,28 +34,45 @@ public class UpsertVideoCaptionCommandValidator : AbstractValidator<UpsertVideoC
     }
 }
 
-public class UpsertVideoCaptionCommandHandler : IRequestHandler<UpsertVideoCaptionCommand, int>
+public class UpsertVideoCaptionCommandHandler : IRequestHandler<UpsertVideoCaptionCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUploadFileService _uploadFileService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public UpsertVideoCaptionCommandHandler(
         IApplicationDbContext context,
         IUploadFileService uploadFileService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _uploadFileService = uploadFileService;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
-    public async Task<int> Handle(UpsertVideoCaptionCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpsertVideoCaptionCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
         var language = (Languages)request.Language;
 
-        var s3Key = $"courses/{userId}/captions/{request.MediaFileId}_{request.Language}.vtt";
+        // Resolve courseId from MediaFile to check Manage permission
+        var courseId = await _context.MediaFiles
+            .Where(m => m.Id == request.MediaFileId)
+            .Select(m => m.CourseId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (courseId.HasValue)
+        {
+            bool canManage = await _courseAuth.HasCourseAccessAsync(courseId.Value, userId, CoursePermission.Manage, cancellationToken);
+            if (!canManage)
+            {
+                return Result.Failure("You do not have permission to manage captions for this course.");
+            }
+        }
+
         var folderPath = $"courses/{userId}/captions";
         var s3FileName = $"{request.MediaFileId}_{request.Language}.vtt";
 
@@ -63,7 +88,9 @@ public class UpsertVideoCaptionCommandHandler : IRequestHandler<UpsertVideoCapti
             folderPath);
 
         if (fileUrl == null)
-            throw new Exception("Failed to upload caption file to storage.");
+        {
+            return Result.Failure("Failed to upload caption file to storage.");
+        }
 
         if (existing != null)
         {
@@ -73,7 +100,7 @@ public class UpsertVideoCaptionCommandHandler : IRequestHandler<UpsertVideoCapti
             existing.Status = CaptionStatus.COMPLETED;
 
             await _context.SaveChangesAsync(cancellationToken);
-            return existing.Id;
+            return Result.Success();
         }
         else
         {
@@ -88,7 +115,7 @@ public class UpsertVideoCaptionCommandHandler : IRequestHandler<UpsertVideoCapti
             };
             _context.VideoCaptions.Add(caption);
             await _context.SaveChangesAsync(cancellationToken);
-            return caption.Id;
+            return Result.Success();
         }
     }
 }

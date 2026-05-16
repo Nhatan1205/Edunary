@@ -441,9 +441,13 @@ function CourseCurriculum() {
       ...courseData,
       content: JSON.stringify(data),
     };
-    await updatecourseMutation.mutateAsync(updateData);
-    setInitialContent(sections);
-    setHasUnsavedChanges(false);
+    try {
+      await updatecourseMutation.mutateAsync(updateData);
+      setInitialContent(sections);
+      setHasUnsavedChanges(false);
+    } catch (e) {
+      // Error is handled by hook's onError (toast)
+    }
   };
 
   const getAllContentIds = (sections) => {

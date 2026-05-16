@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseAnswers.Commands.ToggleTopAnswerCommand;
@@ -19,13 +20,16 @@ public class ToggleTopAnswerCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public ToggleTopAnswerCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<ToggleTopAnswerDto>> Handle(
@@ -35,20 +39,19 @@ public class ToggleTopAnswerCommandHandler
         {
             var answer = await _context.CourseAnswers
                 .Include(a => a.Question)
-                    .ThenInclude(q => q.Course)
                 .FirstOrDefaultAsync(a => a.Id == request.AnswerId, cancellationToken);
 
             Guard.Against.NotFound(request.AnswerId, answer);
 
             var userId = _currentUserService.UserId;
 
-            // Only course instructor can toggle top answer
-            if (answer.Question.Course.CreatedBy != userId)
+            // QA access required to mark top answer
+            if (!await _courseAuth.HasCourseAccessAsync(answer.Question.CourseId, userId, CoursePermission.QA, cancellationToken))
             {
                 return new ReturnResult<ToggleTopAnswerDto>
                 {
                     Result = null,
-                    Message = "Only the course instructor can mark top answers."
+                    Message = "You don't have permission to mark top answers."
                 };
             }
 

@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import queryClient from "../../configs/reactQuery.js";
 import { toast } from "react-toastify";
 import { tokenService } from "../../utils/tokenService.js";
+import { extractApiError } from "../../utils/helpers.js";
 
 const MAX_RETRIES = 3;
 
@@ -168,8 +169,17 @@ const useChunkedUpload = () => {
       queryClient.invalidateQueries({ queryKey: ["mediaFiles"] });
     },
     onError: (error) => {
-      const errorMessage = error.message || "Failed to upload file";
-      toast.error(errorMessage);
+      let msg = extractApiError(error);
+      if (!msg && error?.message) {
+        try {
+          // fetch errors have the JSON response in error.message
+          const parsed = JSON.parse(error.message);
+          msg = parsed.message || (parsed.errors && Object.values(parsed.errors).flat().join(", "));
+        } catch {
+          msg = error.message;
+        }
+      }
+      toast.error(msg || "Failed to upload file.");
     },
   });
 };

@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { CoursesClient } from "../../web-api-client.ts";
 
-const useGetCoursesAuthor = (searchText = "", sortBy = 0, pageNumber = 1, pageSize = 10) => {
+const useGetCoursesAuthor = (searchText = "", sortBy = 0, pageNumber = 1, pageSize = 10, requiredPermission = null) => {
   return useQuery({
-    queryKey: ["courses", searchText, sortBy, pageNumber, pageSize],
+    queryKey: ["courses", searchText, sortBy, pageNumber, pageSize, requiredPermission],
     queryFn: async () => {
       const coursesClient = new CoursesClient();
       const result = await coursesClient.getCoursesAuthorWithPagination(
@@ -11,6 +11,7 @@ const useGetCoursesAuthor = (searchText = "", sortBy = 0, pageNumber = 1, pageSi
         sortBy,
         pageNumber,
         pageSize,
+        requiredPermission,
       );
 
       if (!result) {

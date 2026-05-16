@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import {
   Box, Button, Typography, TextField, Switch, FormControlLabel,
   Divider, Stack, Alert, CircularProgress, Select, MenuItem, FormControl, InputLabel,
-  Badge,
 } from "@mui/material";
 import { Add as AddIcon, Check as CheckIcon, AutoAwesome as AutoAwesomeIcon } from "@mui/icons-material";
 import useCreateQuiz from "../../../../../../hooks/quiz-hooks/useCreateQuiz";
@@ -12,6 +11,7 @@ import useGetQuizByItemId from "../../../../../../hooks/quiz-hooks/useGetQuizByI
 import useQuizGenerateProgress from "../../../../../../hooks/quiz-hooks/useQuizGenerateProgress";
 import QuestionEditor from "./QuestionEditor";
 import AIQuizGeneratorDialog from "./AIQuizGeneratorDialog";
+import { extractApiError } from "../../../../../../utils/helpers";
 
 const QUESTION_TYPE_MAP = {
   SingleChoice: 0,
@@ -124,6 +124,10 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
   };
 
   const handleSave = async () => {
+    if (questions.length === 0) {
+      setSavedMsg("Error: A quiz must have at least one question.");
+      return;
+    }
     setSaving(true);
     setSavedMsg(null);
     try {
@@ -145,6 +149,11 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
       if (!quizId) {
         const res = await createQuiz.mutateAsync(settingsPayload);
         quizId = res?.result;
+        if (!quizId || quizId === 0) {
+          setSavedMsg(`Error: ${res?.message || "Failed to create quiz."}`);
+          setSaving(false);
+          return;
+        }
         onUpdate(item.itemId, { quizId: quizId, description: description });
       } else {
         await updateQuiz.mutateAsync({ quizId, ...settingsPayload });
@@ -170,26 +179,49 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
 
       setSavedMsg("Quiz saved — snapshot is being generated in the background.");
     } catch (e) {
-      let errorText = e.message;
-      if (e.response) {
-        try {
-          const problem = JSON.parse(e.response);
-          if (problem.errors) {
-            errorText = Object.values(problem.errors).flat().join(" | ");
-          } else if (problem.detail) {
-            errorText = problem.detail;
-          } else if (problem.title) {
-            errorText = problem.title;
-          }
-        } catch (err) {
-          // Ignore JSON parse error
-        }
-      }
-      setSavedMsg(`Error: ${errorText}`);
+      setSavedMsg(`Error: ${extractApiError(e)}`);
     } finally {
       setSaving(false);
     }
   };
+
+  const isDirty = (() => {
+    if (!existingQuiz) return true;
+    if (description !== (existingQuiz.description ?? "")) return true;
+    if (relatedItemId !== (existingQuiz.relatedItemId ?? "")) return true;
+    if (Number(timeLimitMinutes) !== (existingQuiz.timeLimitMinutes ?? 0)) return true;
+    if (Number(passingScore) !== (existingQuiz.passingScore ?? 70)) return true;
+    if (Number(maxAttempts) !== (existingQuiz.maxAttempts ?? 0)) return true;
+    if (showCorrectAnswers !== (existingQuiz.showCorrectAnswers ?? true)) return true;
+    if (randomizeQuestions !== (existingQuiz.randomizeQuestions ?? false)) return true;
+    
+    // Deep compare questions
+    const mappedExisting = existingQuiz.questions?.map((q) => ({
+      name: q.name,
+      type: typeof q.type === "number" ? REVERSE_QUESTION_TYPE_MAP[q.type] : (q.type ?? "SingleChoice"),
+      explanation: q.explanation ?? "",
+      sortOrder: q.sortOrder,
+      choices: q.choices.map((c) => ({
+        text: c.text,
+        isCorrect: c.isCorrect,
+        sortOrder: c.sortOrder,
+      })),
+    })) ?? [];
+
+    const mappedCurrent = questions.map((q, qi) => ({
+      name: q.name,
+      type: q.type,
+      explanation: q.explanation ?? "",
+      sortOrder: qi,
+      choices: q.choices.map((c, ci) => ({
+        text: c.text,
+        isCorrect: c.isCorrect,
+        sortOrder: ci,
+      })),
+    }));
+
+    return JSON.stringify(mappedExisting) !== JSON.stringify(mappedCurrent);
+  })();
 
   return (
     <Box sx={{
@@ -348,11 +380,14 @@ function QuizEditor({ item, onUpdate, courseId, sections = [] }) {
         <Button
           variant="contained"
           startIcon={saving ? <CircularProgress size={16} /> : <CheckIcon />}
-          disabled={saving}
+          disabled={saving || (!isDirty && !!existingQuiz)}
           onClick={handleSave}
           sx={{
             bgcolor: "brand.main",
             "&:hover": { bgcolor: "brand.dark" },
+            "&.Mui-disabled": {
+              bgcolor: "action.disabledBackground",
+            },
             textTransform: "none",
             fontWeight: 600,
           }}

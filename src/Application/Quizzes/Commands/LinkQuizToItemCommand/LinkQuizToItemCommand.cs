@@ -19,11 +19,16 @@ public class LinkQuizToItemCommandHandler : IRequestHandler<LinkQuizToItemComman
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
-    public LinkQuizToItemCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public LinkQuizToItemCommandHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<Result> Handle(LinkQuizToItemCommand request, CancellationToken cancellationToken)
@@ -35,8 +40,13 @@ public class LinkQuizToItemCommandHandler : IRequestHandler<LinkQuizToItemComman
         if (quiz == null)
             return Result.Failure(new[] { "Quiz not found." });
 
-        if (quiz.Course.CreatedBy != _currentUserService.UserId)
-            return Result.Failure(new[] { "Access denied." });
+        var userId = _currentUserService?.UserId;
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(new[] { "User is not authenticated." });
+
+        bool canManage = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, Domain.Enums.CoursePermission.Manage, cancellationToken);
+        if (!canManage)
+            return Result.Failure(new[] { "You do not have Manage permissions for this course." });
 
         quiz.ItemId = request.NewItemId;
         quiz.RelatedItemId = request.RelatedItemId;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Edunary.Application.Common.Behaviours;
@@ -17,6 +17,7 @@ public class GetCoursesAuthorWithPaginationQuery : IRequest<PaginatedList<GetCou
     public CourseManagementSortBy sortBy { get; init; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
+    public CoursePermission? RequiredPermission { get; init; } = null;
 }
 
 public class GetCoursesAuthorWithPaginationQueryHandler : IRequestHandler<GetCoursesAuthorWithPaginationQuery, PaginatedList<GetCoursesAuthorDto>>
@@ -35,13 +36,16 @@ public class GetCoursesAuthorWithPaginationQueryHandler : IRequestHandler<GetCou
     {
         var userId = _currentUserService?.UserId;
 
-        //base query
         var query = _context.Courses
-            .Where(c => c.CreatedBy == userId)
+            .Where(c => c.CreatedBy == userId ||
+                        (request.RequiredPermission != null && c.Collaborators.Any(cc =>
+                            cc.UserId == userId &&
+                            cc.InviteStatus == CollaboratorInviteStatus.Accepted &&
+                            cc.Permissions.HasFlag(request.RequiredPermission.Value))))
             .AsQueryable();
 
         //sort courses
-        switch(request.sortBy)
+        switch (request.sortBy)
         {
             case CourseManagementSortBy.Oldest:
                 query = query.OrderBy(x => x.Created);
@@ -50,7 +54,7 @@ public class GetCoursesAuthorWithPaginationQueryHandler : IRequestHandler<GetCou
                 query = query.OrderBy(x => x.Title);
                 break;
             case CourseManagementSortBy.TitleDescending:
-                query = query.OrderByDescending(x=> x.Title);
+                query = query.OrderByDescending(x => x.Title);
                 break;
             case CourseManagementSortBy.PublishedFirst:
                 query = query.OrderByDescending(x => x.Status)
@@ -75,7 +79,21 @@ public class GetCoursesAuthorWithPaginationQueryHandler : IRequestHandler<GetCou
         }
 
         return await query
-            .ProjectTo<GetCoursesAuthorDto>(_mapper.ConfigurationProvider)
+            .Select(c => new GetCoursesAuthorDto
+            {
+                Id = c.Id,
+                Title = c.Title,
+                Subtitle = c.Subtitle,
+                Price = c.Price,
+                CategoryId = c.CategoryId,
+                ImageUrl = c.ImageUrl,
+                TotalStudents = c.TotalStudents,
+                Ratings = c.Ratings,
+                Status = c.Status,
+                Created = c.Created,
+                IsOwner = c.CreatedBy == userId,
+                IsCollaborator = c.CreatedBy != userId && c.Collaborators.Any(cc => cc.UserId == userId && cc.InviteStatus == CollaboratorInviteStatus.Accepted)
+            })
             .PaginatedListAsync(request.PageNumber, request.PageSize);
     }
 }

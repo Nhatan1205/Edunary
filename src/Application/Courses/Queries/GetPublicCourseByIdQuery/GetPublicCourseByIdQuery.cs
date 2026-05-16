@@ -45,15 +45,35 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
         if (course == null) return null!;
         var user = await _identityService.GetUserById(course.CreatedBy);
 
+        var instructors = new List<InstructorDto>();
+
         if (user != null)
         {
-            course.Instructor = new InstructorDto
+            instructors.Add(new InstructorDto
             {
                 Id = user.Id,
                 Name = user.FullName,
                 Avatar = user.Avatar
-            };
+            });
         }
+
+        var visibleCollabUserIds = await _context.CourseCollaborators
+            .Where(c => c.CourseId == request.Id && c.IsVisible && c.InviteStatus == CollaboratorInviteStatus.Accepted)
+            .Select(c => c.UserId)
+            .ToListAsync(cancellationToken);
+
+        if (visibleCollabUserIds.Any())
+        {
+            var collabUsers = await _identityService.GetUserIdentitiesByIdsAsync(visibleCollabUserIds, cancellationToken);
+            instructors.AddRange(collabUsers.Select(u => new InstructorDto
+            {
+                Id = u.Id,
+                Name = u.FullName,
+                Avatar = u.Avatar
+            }));
+        }
+
+        course.Instructors = instructors;
 
         if (!string.IsNullOrWhiteSpace(course.Content))
         {

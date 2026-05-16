@@ -10,6 +10,10 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 
 const adminMenuConfig = {
   items: [
@@ -158,6 +162,41 @@ const adminMenuConfig = {
               url: "/admin/invoice/withdrawal-requests",
             },
           ],
+        },
+      ],
+    },
+    {
+      id: "finance-group",
+      title: "Finance",
+      type: "group",
+      children: [
+        {
+          id: "finance-dashboard",
+          title: "Finance Dashboard",
+          type: "item",
+          url: "/admin/finance/dashboard",
+          icon: AccountBalanceWalletOutlinedIcon,
+        },
+        {
+          id: "finance-payouts",
+          title: "Payouts",
+          type: "item",
+          url: "/admin/finance/payouts",
+          icon: PaymentsOutlinedIcon,
+        },
+        {
+          id: "finance-tax-regions",
+          title: "Tax Regions",
+          type: "item",
+          url: "/admin/finance/tax-regions",
+          icon: PublicOutlinedIcon,
+        },
+        {
+          id: "coupons",
+          title: "Coupons",
+          type: "item",
+          url: "/admin/coupons",
+          icon: LocalOfferOutlinedIcon,
         },
       ],
     },

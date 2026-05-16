@@ -45,6 +45,7 @@ import ProfileManageLayout from "./layouts/ProfileManageLayout";
 import ProfileInfoPage from "./features/user/profile/pages/ProfileInfoPage";
 import ProfilePhotoPage from "./features/user/profile/pages/ProfilePhotoPage";
 import AccountSecurityPage from "./features/user/profile/pages/AccountSecurityPage";
+import TaxProfilePage from "./features/user/profile/pages/TaxProfilePage";
 import ProfilePage from "./features/guest/profile-page/ProfilePage";
 import InstructorCoursePreviewPage from "./features/instructor/courses-management/course-preview-page/InstructorCoursePreviewPage";
 import CareerPathOverviewPage from "./features/guest/career-paths-overview-page/CareerPathOverviewPage";
@@ -61,6 +62,9 @@ import UserOverviewPage from "./features/admin/user-section/user-overview-page/U
 import ActivityLogsPage from "./features/admin/user-section/activity-logs-page/ActivityLogsPage";
 import WithdrawalRequestsPage from "./features/admin/withdrawal-requests/WithdrawalRequestsPage";
 import CouponsPage from "./features/instructor/coupons-page/CouponsPage";
+import FinancePage from "./features/admin/finance/FinancePage";
+import PayoutsPage from "./features/admin/finance/PayoutsPage";
+import TaxRegionsPage from "./features/admin/finance/TaxRegionsPage";
 
 const router = createBrowserRouter([
   {
@@ -127,6 +131,18 @@ const router = createBrowserRouter([
         path: "coupons",
         element: <CouponsPage isAdmin={true} />,
       },
+      {
+        path: "finance/dashboard",
+        element: <FinancePage />,
+      },
+      {
+        path: "finance/payouts",
+        element: <PayoutsPage />,
+      },
+      {
+        path: "finance/tax-regions",
+        element: <TaxRegionsPage />,
+      },
     ],
   },
   {
@@ -171,6 +187,7 @@ const router = createBrowserRouter([
           { path: "profile", element: <ProfileInfoPage /> },
           { path: "photo", element: <ProfilePhotoPage /> },
           { path: "security", element: <AccountSecurityPage /> },
+          { path: "tax", element: <TaxProfilePage /> },
         ],
       },
       {

@@ -10,7 +10,8 @@ public class TaxProfileConfiguration : IEntityTypeConfiguration<TaxProfile>
     {
         builder.HasKey(p => p.InstructorId);
         builder.Property(p => p.InstructorId).HasMaxLength(450).IsRequired();
-        builder.Property(p => p.TaxCountryCode).HasMaxLength(2);
-        builder.Property(p => p.WithholdingRate).HasPrecision(6, 4).IsRequired();
+        builder.Property(p => p.RealName).HasMaxLength(200).IsRequired();
+        builder.Property(p => p.TaxIdentificationNumber).HasMaxLength(64).IsRequired();
+        builder.Property(p => p.TaxCountryCode).HasMaxLength(2).IsRequired();
     }
 }

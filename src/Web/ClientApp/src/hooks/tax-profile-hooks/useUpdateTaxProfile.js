@@ -5,13 +5,13 @@ const useUpdateTaxProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ taxCountryCode, hasSubmittedW8Ben }) => {
+    mutationFn: async ({ realName, taxIdentificationNumber, taxCountryCode }) => {
       const client = new InstructorTaxClient();
-      const command = new UpsertMyTaxProfileCommand({ taxCountryCode, hasSubmittedW8Ben });
+      const command = new UpsertMyTaxProfileCommand({ realName, taxIdentificationNumber, taxCountryCode });
       return await client.upsertProfile(command);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['tax-profile']);
+      queryClient.invalidateQueries({ queryKey: ['tax-profile'] });
     },
   });
 };

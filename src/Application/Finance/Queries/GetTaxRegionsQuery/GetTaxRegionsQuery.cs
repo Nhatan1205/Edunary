@@ -19,7 +19,13 @@ public class GetTaxRegionsQueryHandler : IRequestHandler<GetTaxRegionsQuery, Lis
         return await _context.TaxRegions
             .Where(r => r.IsActive)
             .OrderBy(r => r.CountryCode)
-            .Select(r => new TaxRegionDto { CountryCode = r.CountryCode, CountryName = r.CountryName, VatRate = r.VatRate })
+            .Select(r => new TaxRegionDto
+            {
+                CountryCode = r.CountryCode,
+                CountryName = r.CountryName,
+                VatRate = r.VatRate,
+                WithholdingRate = r.WithholdingRate
+            })
             .ToListAsync(cancellationToken);
     }
 }

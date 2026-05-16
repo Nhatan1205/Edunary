@@ -13,6 +13,7 @@ public class TaxRegionDto
     public string CountryCode { get; init; } = string.Empty;
     public string CountryName { get; init; } = string.Empty;
     public decimal VatRate { get; init; }
+    public decimal WithholdingRate { get; init; }
     public bool IsActive { get; init; }
 }
 
@@ -32,6 +33,7 @@ public class GetTaxRegionsQueryHandler : IRequestHandler<GetTaxRegionsQuery, Lis
                 CountryCode = r.CountryCode,
                 CountryName = r.CountryName,
                 VatRate = r.VatRate,
+                WithholdingRate = r.WithholdingRate,
                 IsActive = r.IsActive
             })
             .ToListAsync(cancellationToken);

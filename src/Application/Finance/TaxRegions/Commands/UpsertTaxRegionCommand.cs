@@ -13,6 +13,7 @@ public record UpsertTaxRegionCommand : IRequest<Result>
     public string CountryCode { get; init; } = string.Empty;
     public string CountryName { get; init; } = string.Empty;
     public decimal VatRate { get; init; }
+    public decimal WithholdingRate { get; init; }
     public bool IsActive { get; init; } = true;
 }
 
@@ -31,6 +32,9 @@ public class UpsertTaxRegionCommandValidator : AbstractValidator<UpsertTaxRegion
 
         RuleFor(x => x.VatRate)
             .InclusiveBetween(0m, 1m).WithMessage("VAT rate must be between 0 and 1 (e.g. 0.10 for 10%).");
+
+        RuleFor(x => x.WithholdingRate)
+            .InclusiveBetween(0m, 1m).WithMessage("Withholding rate must be between 0 and 1 (e.g. 0.30 for 30%).");
     }
 }
 
@@ -42,22 +46,25 @@ public class UpsertTaxRegionCommandHandler : IRequestHandler<UpsertTaxRegionComm
 
     public async Task<Result> Handle(UpsertTaxRegionCommand request, CancellationToken cancellationToken)
     {
-        var existing = await _context.TaxRegions.FindAsync([request.CountryCode], cancellationToken);
+        var countryCode = request.CountryCode.ToUpperInvariant();
+        var existing = await _context.TaxRegions.FindAsync([countryCode], cancellationToken);
 
         if (existing == null)
         {
             _context.TaxRegions.Add(new TaxRegion
             {
-                CountryCode = request.CountryCode.ToUpperInvariant(),
-                CountryName = request.CountryName,
+                CountryCode = countryCode,
+                CountryName = request.CountryName.Trim(),
                 VatRate = request.VatRate,
+                WithholdingRate = request.WithholdingRate,
                 IsActive = request.IsActive
             });
         }
         else
         {
-            existing.CountryName = request.CountryName;
+            existing.CountryName = request.CountryName.Trim();
             existing.VatRate = request.VatRate;
+            existing.WithholdingRate = request.WithholdingRate;
             existing.IsActive = request.IsActive;
         }
 

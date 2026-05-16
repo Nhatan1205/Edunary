@@ -56,26 +56,38 @@ public class TaxCalculatorService : ITaxCalculatorService
 
     public async Task<TaxResult> CalculateWithholdingAsync(string instructorId, decimal grossEarnings, CancellationToken ct)
     {
-        decimal rate;
+        decimal? rate = null;
 
         var profile = await _context.TaxProfiles
+            .AsNoTracking()
             .FirstOrDefaultAsync(p => p.InstructorId == instructorId, ct);
 
-        if (profile != null)
+        if (!string.IsNullOrWhiteSpace(profile?.TaxCountryCode))
         {
-            rate = profile.WithholdingRate;
-        }
-        else
-        {
-            var setting = await _context.SystemSettings
-                .FirstOrDefaultAsync(s => s.Key == SettingKey.Tax_DefaultWithholdingRate, ct);
+            var countryCode = profile.TaxCountryCode.Trim().ToUpperInvariant();
+            var region = await _context.TaxRegions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.CountryCode == countryCode && r.IsActive, ct);
 
-            rate = setting?.Value != null && decimal.TryParse(setting.Value, out var parsed)
-                ? parsed
-                : 0.30m;
+            if (region != null)
+            {
+                rate = region.WithholdingRate;
+            }
         }
 
-        var taxAmount = Math.Round(grossEarnings * rate, 4, MidpointRounding.ToEven);
-        return new TaxResult(rate, taxAmount);
+        var effectiveRate = rate ?? await GetDefaultWithholdingRateAsync(ct);
+        var taxAmount = Math.Round(grossEarnings * effectiveRate, 4, MidpointRounding.ToEven);
+        return new TaxResult(effectiveRate, taxAmount);
+    }
+
+    private async Task<decimal> GetDefaultWithholdingRateAsync(CancellationToken ct)
+    {
+        var setting = await _context.SystemSettings
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Key == SettingKey.Tax_DefaultWithholdingRate, ct);
+
+        return setting?.Value != null && decimal.TryParse(setting.Value, out var parsed)
+            ? parsed
+            : 0.30m;
     }
 }

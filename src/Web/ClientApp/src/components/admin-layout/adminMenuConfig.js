@@ -6,14 +6,10 @@ import EventNoteOutlinedIcon from "@mui/icons-material/EventNoteOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
-import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
-import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 
 const adminMenuConfig = {
   items: [
@@ -108,7 +104,13 @@ const adminMenuConfig = {
               title: "Category",
               type: "item",
               url: "/admin/course/category",
-            }
+            },
+            {
+              id: "coupons",
+              title: "Coupons",
+              type: "item",
+              url: "/admin/coupons",
+            },
           ],
         },
         {
@@ -163,40 +165,31 @@ const adminMenuConfig = {
             },
           ],
         },
-      ],
-    },
-    {
-      id: "finance-group",
-      title: "Finance",
-      type: "group",
-      children: [
         {
-          id: "finance-dashboard",
-          title: "Finance Dashboard",
-          type: "item",
-          url: "/admin/finance/dashboard",
+          id: "finance",
+          title: "Finance",
+          type: "collapse",
           icon: AccountBalanceWalletOutlinedIcon,
-        },
-        {
-          id: "finance-payouts",
-          title: "Payouts",
-          type: "item",
-          url: "/admin/finance/payouts",
-          icon: PaymentsOutlinedIcon,
-        },
-        {
-          id: "finance-tax-regions",
-          title: "Tax Regions",
-          type: "item",
-          url: "/admin/finance/tax-regions",
-          icon: PublicOutlinedIcon,
-        },
-        {
-          id: "coupons",
-          title: "Coupons",
-          type: "item",
-          url: "/admin/coupons",
-          icon: LocalOfferOutlinedIcon,
+          children: [
+            {
+              id: "finance-dashboard",
+              title: "Finance Dashboard",
+              type: "item",
+              url: "/admin/finance/dashboard",
+            },
+            {
+              id: "finance-payouts",
+              title: "Payouts",
+              type: "item",
+              url: "/admin/finance/payouts",
+            },
+            {
+              id: "finance-tax-regions",
+              title: "Tax Regions",
+              type: "item",
+              url: "/admin/finance/tax-regions",
+            },
+          ],
         },
       ],
     },

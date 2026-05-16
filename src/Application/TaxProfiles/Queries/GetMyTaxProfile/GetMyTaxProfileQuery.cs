@@ -33,16 +33,35 @@ public class GetMyTaxProfileQueryHandler : IRequestHandler<GetMyTaxProfileQuery,
 
         if (profile != null)
         {
+            var defaultRate = await GetDefaultWithholdingRate(cancellationToken);
+            var countryCode = profile.TaxCountryCode ?? string.Empty;
+            var region = string.IsNullOrWhiteSpace(countryCode)
+                ? null
+                : await _context.TaxRegions
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(r => r.CountryCode == countryCode && r.IsActive, cancellationToken);
+
             return new TaxProfileDto
             {
-                TaxCountryCode = profile.TaxCountryCode ?? string.Empty,
-                HasSubmittedW8Ben = profile.HasSubmittedW8Ben,
-                W8BenSubmittedAt = profile.W8BenSubmittedAt ?? default,
-                WithholdingRate = profile.WithholdingRate,
-                LastReviewedAt = profile.LastReviewedAt ?? default
+                RealName = string.IsNullOrWhiteSpace(profile.RealName)
+                    ? _currentUserService.FullName ?? string.Empty
+                    : profile.RealName,
+                TaxIdentificationNumber = profile.TaxIdentificationNumber ?? string.Empty,
+                TaxCountryCode = countryCode,
+                CountryName = region?.CountryName ?? string.Empty,
+                WithholdingRate = region?.WithholdingRate ?? defaultRate
             };
         }
 
+        return new TaxProfileDto
+        {
+            RealName = _currentUserService.FullName ?? string.Empty,
+            WithholdingRate = await GetDefaultWithholdingRate(cancellationToken)
+        };
+    }
+
+    private async Task<decimal> GetDefaultWithholdingRate(CancellationToken cancellationToken)
+    {
         var defaultRate = 0.30m;
         var setting = await _context.SystemSettings
             .AsNoTracking()
@@ -53,9 +72,6 @@ public class GetMyTaxProfileQueryHandler : IRequestHandler<GetMyTaxProfileQuery,
             defaultRate = parsed;
         }
 
-        return new TaxProfileDto
-        {
-            WithholdingRate = defaultRate
-        };
+        return defaultRate;
     }
 }

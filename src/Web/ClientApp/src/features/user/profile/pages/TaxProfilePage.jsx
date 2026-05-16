@@ -1,12 +1,15 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   Box,
   Button,
   CircularProgress,
   Divider,
-  FormControlLabel,
-  Switch,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -14,6 +17,7 @@ import { Container } from "reactstrap";
 import AlertBox from "../../../../components/AlertBox";
 import useGetTaxProfile from "../../../../hooks/tax-profile-hooks/useGetTaxProfile";
 import useUpdateTaxProfile from "../../../../hooks/tax-profile-hooks/useUpdateTaxProfile";
+import { PaymentClient } from "../../../../web-api-client.ts";
 
 const textFieldSx = {
   "& label.Mui-focused": { color: "brand.dark" },
@@ -28,44 +32,55 @@ function formatRate(rate) {
   return `${(Number(rate) * 100).toFixed(2)}%`;
 }
 
-function formatDate(value) {
-  if (!value) return "--";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "--";
-  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit" });
-}
-
 function TaxProfilePage() {
   const { data, isLoading, error } = useGetTaxProfile();
   const { mutate: updateTaxProfile, isPending, error: updateError } = useUpdateTaxProfile();
+  const [regions, setRegions] = useState([]);
+  const [loadingRegions, setLoadingRegions] = useState(false);
 
   const {
+    control,
     register,
     handleSubmit,
     reset,
     formState: { errors },
     watch,
-    setValue,
   } = useForm({
     defaultValues: {
+      realName: "",
+      taxIdentificationNumber: "",
       taxCountryCode: "",
-      hasSubmittedW8Ben: false,
     },
   });
 
   useEffect(() => {
+    setLoadingRegions(true);
+    const client = new PaymentClient();
+    client.getCheckoutTaxRegions()
+      .then((items) => setRegions(items ?? []))
+      .catch(() => setRegions([]))
+      .finally(() => setLoadingRegions(false));
+  }, []);
+
+  useEffect(() => {
     if (data) {
       reset({
+        realName: data.realName || "",
+        taxIdentificationNumber: data.taxIdentificationNumber || "",
         taxCountryCode: data.taxCountryCode || "",
-        hasSubmittedW8Ben: Boolean(data.hasSubmittedW8Ben),
       });
     }
   }, [data, reset]);
 
+  const selectedCountry = watch("taxCountryCode");
+  const selectedRegion = regions.find((r) => r.countryCode === selectedCountry);
+  const withholdingRate = selectedRegion?.withholdingRate ?? data?.withholdingRate;
+
   const onSubmit = (formData) => {
     updateTaxProfile({
+      realName: formData.realName,
+      taxIdentificationNumber: formData.taxIdentificationNumber,
       taxCountryCode: formData.taxCountryCode,
-      hasSubmittedW8Ben: Boolean(formData.hasSubmittedW8Ben),
     });
   };
 
@@ -93,7 +108,7 @@ function TaxProfilePage() {
           Tax profile
         </Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Submit your tax residency and W-8BEN status to calculate withholding at payout.
+          Add your tax identity and country so payout withholding can use the configured country rate.
         </Typography>
       </Box>
 
@@ -110,56 +125,64 @@ function TaxProfilePage() {
           </AlertBox>
         )}
 
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
-            Tax country (ISO-2)
-          </Typography>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2, mb: 2 }}>
           <TextField
-            {...register("taxCountryCode", {
-              validate: (value) =>
-                !value || value.trim().length === 2 || "Tax country code must be exactly 2 letters",
+            {...register("realName", {
+              required: "Real name is required",
+              maxLength: { value: 200, message: "Real name must be 200 characters or fewer" },
             })}
+            label="Real name"
             fullWidth
-            placeholder="US"
-            inputProps={{ maxLength: 2 }}
-            error={!!errors.taxCountryCode}
+            error={!!errors.realName}
+            helperText={errors.realName?.message}
             sx={textFieldSx}
-            onChange={(event) => {
-              setValue("taxCountryCode", event.target.value.toUpperCase(), { shouldValidate: true });
-            }}
           />
-          {errors.taxCountryCode && (
-            <AlertBox severity="error" variant="standard" sx={{ mt: 1 }}>
-              {errors.taxCountryCode.message}
-            </AlertBox>
-          )}
+
+          <TextField
+            {...register("taxIdentificationNumber", {
+              required: "Tax Identification Number is required",
+              maxLength: { value: 64, message: "Tax Identification Number must be 64 characters or fewer" },
+            })}
+            label="Tax Identification Number"
+            fullWidth
+            error={!!errors.taxIdentificationNumber}
+            helperText={errors.taxIdentificationNumber?.message}
+            sx={textFieldSx}
+          />
         </Box>
 
         <Box sx={{ mb: 2 }}>
-          <FormControlLabel
-            control={<Switch {...register("hasSubmittedW8Ben")} checked={watch("hasSubmittedW8Ben")} />}
-            label="I have submitted a W-8BEN form"
+          <Controller
+            name="taxCountryCode"
+            control={control}
+            rules={{ required: "Country is required" }}
+            render={({ field }) => (
+              <FormControl fullWidth error={!!errors.taxCountryCode} disabled={loadingRegions}>
+                <InputLabel>Country</InputLabel>
+                <Select {...field} label="Country">
+                  {regions.map((region) => (
+                    <MenuItem key={region.countryCode} value={region.countryCode}>
+                      {region.countryCode} - {region.countryName}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <FormHelperText>
+                  {errors.taxCountryCode?.message || "Withholding rate is based on this country."}
+                </FormHelperText>
+              </FormControl>
+            )}
           />
         </Box>
 
         <Divider sx={{ my: 3 }} />
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
-          <TextField
-            label="Withholding rate"
-            value={formatRate(data?.withholdingRate)}
-            size="small"
-            InputProps={{ readOnly: true }}
-            sx={textFieldSx}
-          />
-          <TextField
-            label="W-8BEN submitted"
-            value={formatDate(data?.w8BenSubmittedAt)}
-            size="small"
-            InputProps={{ readOnly: true }}
-            sx={textFieldSx}
-          />
-        </Box>
+        <TextField
+          label="Withholding rate"
+          value={formatRate(withholdingRate)}
+          size="small"
+          InputProps={{ readOnly: true }}
+          sx={textFieldSx}
+        />
 
         <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
           <Button

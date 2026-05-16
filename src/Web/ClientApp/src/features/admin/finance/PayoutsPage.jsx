@@ -34,6 +34,28 @@ const GRID_SX = {
   "& .MuiDataGrid-columnHeader:focus": { outline: "none" },
 };
 
+const financeContainedButtonSx = {
+  backgroundColor: "brand.main",
+  color: "text.inverse",
+  fontWeight: 600,
+  borderRadius: "4px",
+  boxShadow: "none",
+  "&:hover": {
+    backgroundColor: "brand.dark",
+    boxShadow: "none",
+  },
+};
+
+const financeTextButtonSx = {
+  color: "text.secondary",
+  fontWeight: 600,
+  borderRadius: "4px",
+  "&:hover": {
+    backgroundColor: "background.muted",
+    color: "text.primary",
+  },
+};
+
 const COLUMNS = [
   { field: "instructorName", headerName: "Instructor", flex: 1, minWidth: 160 },
   { field: "instructorEmail", headerName: "Email", flex: 1, minWidth: 200 },
@@ -86,6 +108,7 @@ export default function PayoutsPage() {
         </Typography>
         <Button
           variant="contained"
+          disableElevation
           startIcon={
             batchRunning ? (
               <CircularProgress size={16} color="inherit" />
@@ -95,6 +118,7 @@ export default function PayoutsPage() {
           }
           disabled={batchRunning || isLoading}
           onClick={() => setConfirmOpen(true)}
+          sx={financeContainedButtonSx}
         >
           Run Payout Batch
         </Button>
@@ -120,8 +144,16 @@ export default function PayoutsPage() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleRunBatch} autoFocus>
+          <Button onClick={() => setConfirmOpen(false)} sx={financeTextButtonSx}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disableElevation
+            onClick={handleRunBatch}
+            autoFocus
+            sx={financeContainedButtonSx}
+          >
             Confirm
           </Button>
         </DialogActions>

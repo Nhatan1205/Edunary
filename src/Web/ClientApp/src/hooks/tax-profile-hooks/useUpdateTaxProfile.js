@@ -12,6 +12,7 @@ const useUpdateTaxProfile = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tax-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['withdrawal-preview'] });
     },
   });
 };

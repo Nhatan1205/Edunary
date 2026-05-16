@@ -43,6 +43,50 @@ const GRID_SX = {
   "& .MuiDataGrid-columnHeader:focus": { outline: "none" },
 };
 
+const financeTextFieldSx = {
+  backgroundColor: "white",
+  "& label.Mui-focused": { color: "brand.dark" },
+  "& .MuiOutlinedInput-root": {
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: "brand.main",
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: "brand.main",
+    },
+  },
+};
+
+const financeContainedButtonSx = {
+  backgroundColor: "brand.main",
+  color: "text.inverse",
+  fontWeight: 600,
+  borderRadius: "4px",
+  boxShadow: "none",
+  "&:hover": {
+    backgroundColor: "brand.dark",
+    boxShadow: "none",
+  },
+};
+
+const financeTextButtonSx = {
+  color: "text.secondary",
+  fontWeight: 600,
+  borderRadius: "4px",
+  "&:hover": {
+    backgroundColor: "background.muted",
+    color: "text.primary",
+  },
+};
+
+const destructiveContainedButtonSx = {
+  fontWeight: 600,
+  borderRadius: "4px",
+  boxShadow: "none",
+  "&:hover": {
+    boxShadow: "none",
+  },
+};
+
 const EMPTY_FORM = {
   countryCode: "",
   countryName: "",
@@ -186,7 +230,13 @@ export default function TaxRegionsPage() {
         <Typography variant="body2" color="text.secondary">
           Per-country VAT rates apply at checkout. Withholding rates apply to instructor payouts.
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
+        <Button
+          variant="contained"
+          disableElevation
+          startIcon={<AddIcon />}
+          onClick={openCreate}
+          sx={financeContainedButtonSx}
+        >
           Add Country
         </Button>
       </Box>
@@ -218,6 +268,7 @@ export default function TaxRegionsPage() {
               placeholder="e.g. VN"
               size="small"
               fullWidth
+              sx={financeTextFieldSx}
             />
             <TextField
               label="Country Name"
@@ -227,6 +278,7 @@ export default function TaxRegionsPage() {
               placeholder="e.g. 🇻🇳 Vietnam"
               size="small"
               fullWidth
+              sx={financeTextFieldSx}
             />
             <TextField
               label="VAT Rate %"
@@ -238,6 +290,7 @@ export default function TaxRegionsPage() {
               helperText="Enter as a percentage, e.g. 10 for 10%"
               size="small"
               fullWidth
+              sx={financeTextFieldSx}
             />
             <TextField
               label="Withholding Rate %"
@@ -249,6 +302,7 @@ export default function TaxRegionsPage() {
               helperText="Enter as a percentage, e.g. 30 for 30%"
               size="small"
               fullWidth
+              sx={financeTextFieldSx}
             />
             <FormControlLabel
               control={
@@ -263,12 +317,16 @@ export default function TaxRegionsPage() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDialogOpen(false)} sx={financeTextButtonSx}>
+            Cancel
+          </Button>
           <Button
             variant="contained"
+            disableElevation
             onClick={handleSave}
             disabled={upserting}
             startIcon={upserting ? <CircularProgress size={16} color="inherit" /> : null}
+            sx={financeContainedButtonSx}
           >
             Save
           </Button>
@@ -285,13 +343,17 @@ export default function TaxRegionsPage() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <Button onClick={() => setDeleteTarget(null)} sx={financeTextButtonSx}>
+            Cancel
+          </Button>
           <Button
             variant="contained"
             color="error"
+            disableElevation
             onClick={handleDelete}
             disabled={deleting}
             startIcon={deleting ? <CircularProgress size={16} color="inherit" /> : null}
+            sx={destructiveContainedButtonSx}
           >
             Delete
           </Button>

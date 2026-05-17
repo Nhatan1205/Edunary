@@ -1,12 +1,38 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import './Chatbot.css';
 import useGetPublicSystemSettings from '../../hooks/system-settings-hooks/useGetPublicSystemSettings';
+import { useAuth } from '../../context/AuthContext';
+import { tokenService } from '../../utils/tokenService';
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const iframeRef = useRef(null);
-  const { data: settings } = useGetPublicSystemSettings(["AICenter_BaseUrl"]);
-  const chatbotUrl = settings?.["AICenter_BaseUrl"] || "nothing";
+
+  const { data: settings } = useGetPublicSystemSettings(['AICenter_BaseUrl']);
+  const chatbotBaseUrl = settings?.['AICenter_BaseUrl'] || '';
+
+  const { isAuthenticated } = useAuth();
+
+  /**
+   * Build the iframe src URL.
+   * When the user is authenticated, append the JWT token as a query param so
+   * the AI Center WebSocket can verify the identity and personalise responses.
+   * We read the token lazily at render time — it will be fresh because
+   * AuthContext keeps it up-to-date via the auto-refresh mechanism.
+   */
+  const chatbotUrl = useMemo(() => {
+    if (!chatbotBaseUrl) return '';
+
+    if (isAuthenticated) {
+      const token = tokenService.getToken();
+      if (token) {
+        const separator = chatbotBaseUrl.includes('?') ? '&' : '?';
+        return `${chatbotBaseUrl}${separator}token=${encodeURIComponent(token)}`;
+      }
+    }
+
+    return chatbotBaseUrl;
+  }, [chatbotBaseUrl, isAuthenticated]);
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
@@ -14,7 +40,8 @@ function Chatbot() {
 
   const handleRefresh = () => {
     if (iframeRef.current) {
-      iframeRef.current.src = iframeRef.current.src;
+      // Reload the iframe (clears chat history and re-reads token)
+      iframeRef.current.src = chatbotUrl || iframeRef.current.src;
     }
   };
 
@@ -37,9 +64,9 @@ function Chatbot() {
           ref={iframeRef}
           src={chatbotUrl}
           className="chatbot-iframe"
-          title="AI Chatbot Demo"
-          allow="microphone">
-        </iframe>
+          title="AI Chatbot"
+          allow="microphone"
+        />
       </div>
 
       {/* Toggle Button */}
@@ -58,7 +85,7 @@ function Chatbot() {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
       </button>
     </>

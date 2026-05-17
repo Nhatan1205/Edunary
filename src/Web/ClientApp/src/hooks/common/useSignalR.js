@@ -13,6 +13,7 @@ function getConnection() {
         accessTokenFactory: () => tokenService.getToken() || "",
       })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.None)
       .build();
   }
   return sharedConnection;

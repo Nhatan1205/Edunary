@@ -267,3 +267,15 @@ export function buildItemLabelMap(sidebarData) {
   }
   return map;
 }
+
+export const ASSIGNMENT_STATUS = {
+  DRAFT: 0,
+  SUBMITTED: 1,
+};
+
+export function assignmentStatusLabel(status) {
+  if (status === null || status === undefined) return "Not started";
+  if (status === ASSIGNMENT_STATUS.DRAFT) return "Draft";
+  if (status === ASSIGNMENT_STATUS.SUBMITTED) return "Submitted";
+  return "Unknown";
+}

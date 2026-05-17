@@ -1,6 +1,4 @@
 using Edunary.Application.Common.Interfaces;
-using Edunary.Domain.Entities;
-using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Assignments.Queries.GetAssignmentByItemIdQuery;
 
@@ -14,13 +12,16 @@ public class GetAssignmentByItemIdQueryHandler : IRequestHandler<GetAssignmentBy
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IIdentityService _identityService;
 
     public GetAssignmentByItemIdQueryHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IIdentityService identityService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _identityService = identityService;
     }
 
     public async Task<AssignmentDto> Handle(GetAssignmentByItemIdQuery request, CancellationToken cancellationToken)
@@ -39,10 +40,7 @@ public class GetAssignmentByItemIdQueryHandler : IRequestHandler<GetAssignmentBy
                     && (a.Course.CreatedBy == userId || isEnrolled),
                 cancellationToken);
 
-        if (assignment == null)
-        {
-            return null;
-        }
+        if (assignment == null) return null;
 
         AssignmentDto dto = new AssignmentDto
         {
@@ -63,32 +61,27 @@ public class GetAssignmentByItemIdQueryHandler : IRequestHandler<GetAssignmentBy
             }).ToList()
         };
 
-        // Student-specific: resolve submission status
+        // Resolve instructor info only
+        string instructorId = assignment.Course.CreatedBy;
+
+        var instructor = await _identityService.GetUserById(instructorId);
+        dto.InstructorId = instructorId;
+        dto.InstructorName = instructor?.FullName ?? "Instructor";
+        dto.InstructorAvatar = instructor?.Avatar ?? string.Empty;
+
         if (isEnrolled)
         {
-            AssignmentSubmission submission = await _context.AssignmentSubmissions
-                .Include(s => s.Feedbacks)
-                .FirstOrDefaultAsync(s => s.AssignmentId == assignment.Id && s.StudentId == userId, cancellationToken);
+            var submission = await _context.AssignmentSubmissions
+                .FirstOrDefaultAsync(
+                    s => s.AssignmentId == assignment.Id && s.StudentId == userId,
+                    cancellationToken);
 
-            if (submission == null)
+            if (submission != null)
             {
-                dto.SubmissionStatus = "not_started";
-            }
-            else if (submission.Status == AssignmentSubmissionStatus.Draft)
-            {
-                dto.SubmissionStatus = "draft";
+                dto.SubmissionStatus = (int)submission.Status; 
                 dto.SubmissionId = submission.Id;
             }
-            else if (submission.Feedbacks.Any())
-            {
-                dto.SubmissionStatus = "feedback_received";
-                dto.SubmissionId = submission.Id;
-            }
-            else
-            {
-                dto.SubmissionStatus = "submitted";
-                dto.SubmissionId = submission.Id;
-            }
+            
         }
 
         return dto;

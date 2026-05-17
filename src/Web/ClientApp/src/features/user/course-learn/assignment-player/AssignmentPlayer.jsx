@@ -1,16 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Typography, Alert, CircularProgress } from "@mui/material";
-import useGetQuizByItemId from "../../../../hooks/quiz-hooks/useGetQuizByItemId";
+import { Box, CircularProgress, Alert, Typography } from "@mui/material";
+import useGetAssignmentByItemId from "../../../../hooks/assignment-hooks/useGetAssignmentByItemId";
 import useUpdateCPByItemId from "../../../../hooks/course-progress-hooks/useUpdateCPByItemId";
 import useGetCPByItemId from "../../../../hooks/course-progress-hooks/useGetCPByItemId";
 import CourseLearnTab from "../course-learn-tabs/CourseLearnTab";
-import QuizPlayArea from "./QuizPlayArea";
+import AssignmentPlayArea from "./AssignmentPlayArea";
 
-// ─── Page wrapper (route entry) ───────────────────────────────────────────────
-function QuizPlayer() {
+function AssignmentPlayer()
+{
   const { courseId, contentId } = useParams();
-  const { data: quiz, isLoading, isError } = useGetQuizByItemId(
+  const { data: assignment, isLoading, isError } = useGetAssignmentByItemId(
     courseId ? parseInt(courseId) : null,
     contentId
   );
@@ -18,22 +18,26 @@ function QuizPlayer() {
   const updateCPMutation = useUpdateCPByItemId();
   const navigate = useNavigate();
 
-  const handleNavigateNext = () => {
+  const handleNavigateNext = () =>
+  {
     const nextItem = itemData?.navigation?.next;
-    if (nextItem) {
+    if (nextItem)
+    {
       const routeType = nextItem.type === "quiz" ? "quiz"
         : nextItem.type === "assignment" ? "assignment"
         : "lecture";
       navigate(`/course/${courseId}/learn/${routeType}/${nextItem.itemId}`);
-    } else {
+    }
+    else
+    {
       navigate(`/course/${courseId}`);
     }
   };
 
-  // Update lastAccessedItemId whenever the user navigates to a quiz item.
-  // isCompleted: false ensures we never downgrade an already-completed item.
-  useEffect(() => {
-    if (courseId && contentId) {
+  useEffect(() =>
+  {
+    if (courseId && contentId)
+    {
       updateCPMutation.mutate({
         courseId: parseInt(courseId),
         itemId: contentId,
@@ -46,7 +50,6 @@ function QuizPlayer() {
 
   return (
     <Box>
-      {/* Quiz area */}
       <Box sx={{ bgcolor: "background.paper", borderBottom: "1px solid", borderColor: "divider" }}>
         {isLoading && (
           <Box sx={{ height: "500px", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -55,23 +58,27 @@ function QuizPlayer() {
         )}
         {isError && (
           <Box sx={{ height: "500px", display: "flex", alignItems: "center", justifyContent: "center", p: 4 }}>
-            <Alert severity="error">Failed to load quiz.</Alert>
+            <Alert severity="error">Failed to load assignment.</Alert>
           </Box>
         )}
-        {quiz && (
-          <QuizPlayArea key={contentId} quiz={quiz} courseId={parseInt(courseId)} onDone={handleNavigateNext} />
+        {assignment && (
+          <AssignmentPlayArea
+            key={contentId}
+            assignment={assignment}
+            courseId={parseInt(courseId)}
+            onDone={handleNavigateNext}
+          />
         )}
-        {!isLoading && !isError && !quiz && (
+        {!isLoading && !isError && !assignment && (
           <Box sx={{ height: "500px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Typography color="text.secondary">No quiz found for this item.</Typography>
+            <Typography color="text.secondary">No assignment found for this item.</Typography>
           </Box>
         )}
       </Box>
 
-      {/* Tabs area */}
       <CourseLearnTab courseId={parseInt(courseId)} contentId={contentId} />
     </Box>
   );
 }
 
-export default QuizPlayer;
+export default AssignmentPlayer;

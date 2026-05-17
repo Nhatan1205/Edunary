@@ -11,12 +11,11 @@ public class AssignmentDto
     public string ItemId { get; set; } = string.Empty;
     public bool IsPublished { get; set; }
     public List<AssignmentQuestionDto> Questions { get; set; } = new();
-
-    // Student-specific fields (null for instructor)
-#nullable enable
-    public string? SubmissionStatus { get; set; }
+    public string InstructorId { get; set; } = string.Empty;
+    public string InstructorName { get; set; } = string.Empty;
+    public string InstructorAvatar { get; set; } = string.Empty;
+    public int? SubmissionStatus { get; set; }  
     public int? SubmissionId { get; set; }
-#nullable disable
 }
 
 public class AssignmentQuestionDto

@@ -34,6 +34,7 @@ import NotificationsPage from "./features/user/notifications/NotificationsPage";
 import CourseLearnLayout from "./layouts/CourseLearnLayout";
 import VideoPlayerPage from "./features/user/course-learn/video-player/VideoPlayer";
 import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer";
+import AssignmentPlayerPage from "./features/user/course-learn/assignment-player/AssignmentPlayer";
 import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
 import OverviewPage from "./features/instructor/performance-section/overview-page/CourseOverviewPage";
@@ -501,6 +502,10 @@ const router = createBrowserRouter([
       {
         path: "quiz/:contentId",
         element: <QuizPlayerPage />,
+      },
+      {
+        path: "assignment/:contentId",
+        element: <AssignmentPlayerPage />,
       },
     ],
   },

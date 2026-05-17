@@ -29,10 +29,12 @@ import useGetCourseCurriculumById from "../../../../../hooks/course-draft-hooks/
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 import { useBlocker } from "react-router-dom";
 import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/SaveChangesDialog";
+import useDeleteAssignment from "../../../../../hooks/assignment-hooks/useDeleteAssignment";
 
 function CourseCurriculum() {
   const { courseId } = useParams();
   const setCourseIdForContent = useSetCourseIdForContent();
+  const deleteAssignment = useDeleteAssignment();
   const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseCurriculumById(courseId);
   const updatecourseMutation = useUpdateCourse();
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
@@ -247,6 +249,18 @@ function CourseCurriculum() {
       title: "Delete Curriculum Item",
       message: "Are you sure you want to delete this curriculum item?",
       onConfirm: async () => {
+        if (item?.type === "assignment" && item?.assignmentId) {
+          try {
+            await deleteAssignment.mutateAsync({
+              assignmentId: item.assignmentId,
+              courseId,
+              itemId: item.itemId,
+            });
+          } catch (_) {
+
+          }
+        }
+
         // Collect video ID and resource IDs
         const contentIds = [];
 

@@ -14,7 +14,7 @@ import {
 import TitleInputForm from "../TitleInputForm";
 import QuizEditor from "./QuizEditor";
 import QuizSetupStep from "./QuizSetupStep";
-import useDeleteQuiz from "../../../../../../hooks/quiz-hooks/useDeleteQuiz";
+
 
 // ─── Main QuizItem ─────────────────────────────────────────────────────────────
 function QuizItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, dndAttributes, dndListeners, isDragging, sections = [] }) {
@@ -22,22 +22,9 @@ function QuizItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, dnd
   const [expanded, setExpanded] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [setupMode, setSetupMode] = useState(null);
-  const deleteQuiz = useDeleteQuiz();
-
   const handleSaveTitle = (data) => {
     onUpdate(item.itemId, { title: data.title });
     setIsEditingTitle(false);
-  };
-
-  const handleDelete = async () => {
-    try {
-      if (item.quizId) {
-        await deleteQuiz.mutateAsync({ quizId: item.quizId, courseId, itemId: item.itemId });
-      }
-      onDelete(item.itemId);
-    } catch (e) {
-      // Error is already toasted by the hook's onError using extractApiError
-    }
   };
 
   // Decide what to show in the expanded panel
@@ -129,7 +116,7 @@ function QuizItem({ item, globalIndex, onDelete, onUpdate, dndRef, dndStyle, dnd
         <IconButton size="small" onClick={() => setIsEditingTitle(true)} sx={{ color: "text.secondary" }}>
           <EditIcon fontSize="small" />
         </IconButton>
-        <IconButton size="small" onClick={handleDelete} sx={{ color: "error.main" }}>
+        <IconButton size="small" onClick={() => onDelete(item.itemId)} sx={{ color: "error.main" }}>
           <DeleteIcon fontSize="small" />
         </IconButton>
         <IconButton size="small" onClick={() => setExpanded(!expanded)} sx={{ color: "text.secondary" }}>

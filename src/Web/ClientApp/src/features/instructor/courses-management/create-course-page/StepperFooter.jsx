@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, CircularProgress } from "@mui/material";
 import { Row, Col } from "reactstrap";
 
 export default function StepperFooter({
@@ -6,6 +6,7 @@ export default function StepperFooter({
   totalSteps,
   onNext,
   onPrevious,
+  isLoading = false,
 }) {
   return (
     <footer className="border-t border-gray-200 py-4 flex justify-end">
@@ -44,6 +45,7 @@ export default function StepperFooter({
 
             <Button
               onClick={onNext}
+              disabled={isLoading}
               variant="contained"
               sx={{
                 backgroundColor: "brand.main",
@@ -52,6 +54,7 @@ export default function StepperFooter({
                 fontSize: "16px",
                 fontWeight: 700,
                 padding: "12px 24px",
+                minWidth: 140,
                 "&:hover": {
                   backgroundColor: "brand.dark",
                 },
@@ -61,7 +64,11 @@ export default function StepperFooter({
                 },
               }}
             >
-              {currentStep === 3 ? "Create Course" : "Continue"}
+              {isLoading ? (
+                <CircularProgress size={20} sx={{ color: "#fff" }} />
+              ) : (
+                currentStep === totalSteps ? "Create Course" : "Continue"
+              )}
             </Button>
           </Box>
         </Col>

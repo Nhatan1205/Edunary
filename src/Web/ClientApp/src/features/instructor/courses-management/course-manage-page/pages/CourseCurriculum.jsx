@@ -27,6 +27,7 @@ import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmD
 import useSetCourseIdForContent from "../../../../../hooks/media-file-hooks/useSetCourseIdForContent";
 import useGetCourseCurriculumById from "../../../../../hooks/course-draft-hooks/useGetCourseCurriculumById";
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
+import useDeleteQuiz from "../../../../../hooks/quiz-hooks/useDeleteQuiz";
 import { useBlocker } from "react-router-dom";
 import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/SaveChangesDialog";
 
@@ -35,6 +36,7 @@ function CourseCurriculum() {
   const setCourseIdForContent = useSetCourseIdForContent();
   const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseCurriculumById(courseId);
   const updatecourseMutation = useUpdateCourse();
+  const deleteQuizMutation = useDeleteQuiz();
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
   const [sections, setSections] = useState([]);
   const [initialContent, setInitialContent] = useState([]);
@@ -425,6 +427,14 @@ function CourseCurriculum() {
       return;
     }
 
+    // Delete quizzes that were removed from sections (deferred delete)
+    const initialQuizIds = getAllQuizIds(initialContent);
+    const currentQuizIds = getAllQuizIds(sections);
+    const removedQuizIds = initialQuizIds.filter(id => !currentQuizIds.includes(id));
+    for (const quizId of removedQuizIds) {
+      await deleteQuizMutation.mutateAsync({ quizId, courseId: parseInt(courseId) });
+    }
+
     const videoContentIds = getAllVideoContentIds(sections);
     const totalVideoDuration = getTotalVideoDuration(sections);
     const data = {
@@ -452,7 +462,6 @@ function CourseCurriculum() {
 
   const getAllContentIds = (sections) => {
     const ids = [];
-
     sections.forEach(section => {
       section.items.forEach(item => {
         if (item.videoId) ids.push(item.videoId);
@@ -461,7 +470,16 @@ function CourseCurriculum() {
         }
       });
     });
+    return ids;
+  };
 
+  const getAllQuizIds = (sections) => {
+    const ids = [];
+    sections.forEach(section => {
+      section.items.forEach(item => {
+        if (item.quizId && item.quizId > 0) ids.push(item.quizId);
+      });
+    });
     return ids;
   };
 

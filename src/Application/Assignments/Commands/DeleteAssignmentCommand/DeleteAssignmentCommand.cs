@@ -1,44 +1,50 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Assignments.Commands.DeleteAssignmentCommand;
 
 public record DeleteAssignmentCommand : IRequest<Result>
 {
-    public int AssignmentId { get; init; }
+    public List<int> AssignmentIds { get; init; } = new();
 }
 
 public class DeleteAssignmentCommandHandler : IRequestHandler<DeleteAssignmentCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public DeleteAssignmentCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<Result> Handle(DeleteAssignmentCommand request, CancellationToken cancellationToken)
     {
-        Assignment assignment = await _context.Assignments
-            .Include(a => a.Course)
-            .FirstOrDefaultAsync(a => a.Id == request.AssignmentId, cancellationToken);
+        if (request.AssignmentIds == null || request.AssignmentIds.Count == 0)
+            return Result.Success();
 
-        if (assignment == null)
+        var assignments = await _context.Assignments
+            .Where(a => request.AssignmentIds.Contains(a.Id))
+            .ToListAsync(cancellationToken);
+
+        // Check manage permission per distinct courseId
+        var courseIds = assignments.Select(a => a.CourseId).Distinct();
+        foreach (var courseId in courseIds)
         {
-            return Result.Failure(new[] { "Assignment not found." });
+            bool canManage = await _courseAuth.HasCourseAccessAsync(courseId, _currentUserService.UserId, CoursePermission.Manage, cancellationToken);
+            if (!canManage)
+                return Result.Failure(new[] { "Access denied." });
         }
 
-        if (assignment.Course.CreatedBy != _currentUserService.UserId)
-        {
-            return Result.Failure(new[] { "Access denied." });
-        }
-
-        _context.Assignments.Remove(assignment);
+        _context.Assignments.RemoveRange(assignments);
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

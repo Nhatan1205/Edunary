@@ -34,10 +34,8 @@ function AssignmentItem({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [setupMode, setSetupMode] = useState(null);
 
-  // hasSavedAssignment from JSON (fast, no fetch needed)
   const hasSavedAssignment = item.assignmentId > 0;
 
-  // isPublished from API — source of truth, not from JSON blob
   const { data: assignmentData } = useGetAssignmentByItemId(
     parseInt(courseId),
     item.itemId,
@@ -60,6 +58,7 @@ function AssignmentItem({
           item={item}
           onUpdate={onUpdate}
           courseId={parseInt(courseId)}
+          hasExisting={true}
         />
       );
     }
@@ -69,6 +68,7 @@ function AssignmentItem({
           item={item}
           onUpdate={onUpdate}
           courseId={parseInt(courseId)}
+          hasExisting={false}
         />
       );
     }

@@ -11,8 +11,9 @@ const usePublishAssignment = () => {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["assignment", variables.courseId, variables.itemId] });
-    },
+    }
   });
 };
 
 export default usePublishAssignment;
+

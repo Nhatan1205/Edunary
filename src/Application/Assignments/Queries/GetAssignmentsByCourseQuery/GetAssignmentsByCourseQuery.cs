@@ -1,4 +1,5 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Assignments.Queries.GetAssignmentsByCourseQuery;
 
@@ -11,21 +12,23 @@ public class GetAssignmentsByCourseQueryHandler : IRequestHandler<GetAssignments
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public GetAssignmentsByCourseQueryHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<List<AssignmentSummaryDto>> Handle(GetAssignmentsByCourseQuery request, CancellationToken cancellationToken)
     {
-        bool instructorOwns = await _context.Courses
-            .AnyAsync(c => c.Id == request.CourseId && c.CreatedBy == _currentUserService.UserId, cancellationToken);
+        bool canManage = await _courseAuth.HasCourseAccessAsync(request.CourseId, _currentUserService.UserId, CoursePermission.None, cancellationToken);
 
-        if (!instructorOwns)
+        if (!canManage)
         {
             return new List<AssignmentSummaryDto>();
         }

@@ -34,14 +34,22 @@ public class GetInstructorSubmissionsQueryHandler : IRequestHandler<GetInstructo
     {
         string userId = _currentUserService.UserId;
 
-        // Base query: only submissions for assignments in courses this instructor owns
+        // Courses the instructor can access for Assignments: owned OR collaborated with Assignments permission
+        var accessibleCourseIds = _context.Courses
+            .Where(c => c.CreatedBy == userId ||
+                        c.Collaborators.Any(cc =>
+                            cc.UserId == userId &&
+                            cc.InviteStatus == CollaboratorInviteStatus.Accepted &&
+                            cc.Permissions.HasFlag(CoursePermission.Assignments)))
+            .Select(c => c.Id);
+
         var query = _context.AssignmentSubmissions
             .Include(s => s.Feedbacks)
             .Include(s => s.Assignment)
                 .ThenInclude(a => a.Course)
             .Where(s =>
                 s.Status == AssignmentSubmissionStatus.Submitted &&
-                s.Assignment.Course.CreatedBy == userId);
+                accessibleCourseIds.Contains(s.Assignment.CourseId));
 
         // Optional course filter
         if (request.CourseId.HasValue)

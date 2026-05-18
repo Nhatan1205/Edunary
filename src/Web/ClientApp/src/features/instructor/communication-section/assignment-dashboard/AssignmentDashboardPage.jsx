@@ -401,7 +401,7 @@ export default function AssignmentDashboardPage() {
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const [page, setPage] = useState(1);
 
-  const { data: coursesData } = useGetCoursesAuthor("", 0, 1, 100);
+  const { data: coursesData } = useGetCoursesAuthor("", 0, 1, 100, 16); // 16
   const courses = useMemo(() => {
     const items = coursesData?.items ?? [];
     return [{ id: null, title: "All Courses" }, ...items.map((c) => ({ id: c.id, title: c.title }))];

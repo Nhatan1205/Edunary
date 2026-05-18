@@ -23,7 +23,7 @@ public class Quizzes : EndpointGroupBase
             .MapPut(UpdateQuiz, "settings/{quizId}")
             .MapPut(UpdateQuizQuestions, "questions/{quizId}")
             .MapPut(LinkQuizToItem, "link/{quizId}")
-            .MapDelete(DeleteQuiz, "{quizId}")
+            .MapDelete(DeleteQuiz, "batch")
             .MapPost(GenerateQuizQuestions, "generate-questions");
     }
 
@@ -63,9 +63,9 @@ public class Quizzes : EndpointGroupBase
         return result.Succeeded ? Results.Ok() : Results.BadRequest(result);
     }
 
-    public async Task<IResult> DeleteQuiz(ISender sender, int quizId)
+    public async Task<IResult> DeleteQuiz(ISender sender, [FromBody] DeleteQuizCommand command)
     {
-        Result result = await sender.Send(new DeleteQuizCommand { QuizId = quizId });
+        Result result = await sender.Send(command);
         return result.Succeeded ? Results.Ok() : Results.BadRequest(result);
     }
 

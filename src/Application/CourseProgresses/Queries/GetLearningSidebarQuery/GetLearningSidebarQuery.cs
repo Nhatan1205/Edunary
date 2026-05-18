@@ -42,6 +42,13 @@ public class GetLearningSidebarQueryHandler : IRequestHandler<GetLearningSidebar
         {
             // Deserialize progress JSON
             var progressObj = JsonSerializer.Deserialize<CourseContentSchema>(courseProgress.Progress);
+
+            // Fetch published assignment IDs for this course (to filter sidebar items)
+            var publishedAssignmentIds = await _context.Assignments
+                .Where(a => a.CourseId == request.CourseId && a.IsPublished)
+                .Select(a => a.Id)
+                .ToHashSetAsync(cancellationToken);
+
             var simplified = new
             {
                 progressObj.Id,
@@ -49,19 +56,21 @@ public class GetLearningSidebarQueryHandler : IRequestHandler<GetLearningSidebar
                 Contents = progressObj.Contents.Select(section => new {
                     section.SectionId,
                     section.Title,
-                    Items = section.Items.Select(i => new {
-                        i.ItemId,
-                        i.Title,
-                        i.Type,
-                        i.ContentType,
-                        i.IsCompleted,
-                        i.VideoDuration,
-                        Resources = i.Resources.Select(r => new {
-                            r.Id,
-                            r.FileName,
-                            r.FileUrl
+                    Items = section.Items
+                        .Where(i => i.Type != "assignment" || i.AssignmentId == 0 || publishedAssignmentIds.Contains(i.AssignmentId)) //filter published assignments
+                        .Select(i => new {
+                            i.ItemId,
+                            i.Title,
+                            i.Type,
+                            i.ContentType,
+                            i.IsCompleted,
+                            i.VideoDuration,
+                            Resources = i.Resources.Select(r => new {
+                                r.Id,
+                                r.FileName,
+                                r.FileUrl
+                            }).ToList()
                         }).ToList()
-                    }).ToList()
                 }).ToList()
             };
             var options = new JsonSerializerOptions

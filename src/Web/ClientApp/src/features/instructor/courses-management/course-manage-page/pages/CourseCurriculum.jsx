@@ -27,18 +27,18 @@ import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmD
 import useSetCourseIdForContent from "../../../../../hooks/media-file-hooks/useSetCourseIdForContent";
 import useGetCourseCurriculumById from "../../../../../hooks/course-draft-hooks/useGetCourseCurriculumById";
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
-import useDeleteQuiz from "../../../../../hooks/quiz-hooks/useDeleteQuiz";
+import useDeleteQuizBatch from "../../../../../hooks/quiz-hooks/useDeleteQuiz";
 import { useBlocker } from "react-router-dom";
 import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/SaveChangesDialog";
-import useDeleteAssignment from "../../../../../hooks/assignment-hooks/useDeleteAssignment";
+import useDeleteAssignmentBatch from "../../../../../hooks/assignment-hooks/useDeleteAssignment";
 
 function CourseCurriculum() {
   const { courseId } = useParams();
   const setCourseIdForContent = useSetCourseIdForContent();
-  const deleteAssignment = useDeleteAssignment();
+  const deleteAssignmentBatch = useDeleteAssignmentBatch();
   const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseCurriculumById(courseId);
   const updatecourseMutation = useUpdateCourse();
-  const deleteQuizMutation = useDeleteQuiz();
+  const deleteQuizBatch = useDeleteQuizBatch();
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
   const [sections, setSections] = useState([]);
   const [initialContent, setInitialContent] = useState([]);
@@ -433,16 +433,22 @@ function CourseCurriculum() {
     const initialQuizIds = getAllQuizIds(initialContent);
     const currentQuizIds = getAllQuizIds(sections);
     const removedQuizIds = initialQuizIds.filter(id => !currentQuizIds.includes(id));
-    for (const quizId of removedQuizIds) {
-      await deleteQuizMutation.mutateAsync({ quizId, courseId: parseInt(courseId) });
+    if (removedQuizIds.length > 0) {
+      try {
+        await deleteQuizBatch.mutateAsync({ quizIds: removedQuizIds });
+      }
+      catch { }
     }
 
     // Delete assignments that were removed from sections (deferred delete)
     const initialAssignmentIds = getAllAssignmentIds(initialContent);
     const currentAssignmentIds = getAllAssignmentIds(sections);
     const removedAssignmentIds = initialAssignmentIds.filter(id => !currentAssignmentIds.includes(id));
-    for (const assignmentId of removedAssignmentIds) {
-      await deleteAssignment.mutateAsync({ assignmentId, courseId: parseInt(courseId) });
+    if (removedAssignmentIds.length > 0) {
+      try {
+        await deleteAssignmentBatch.mutateAsync({ assignmentIds: removedAssignmentIds });
+      }
+      catch { }
     }
 
     const videoContentIds = getAllVideoContentIds(sections);

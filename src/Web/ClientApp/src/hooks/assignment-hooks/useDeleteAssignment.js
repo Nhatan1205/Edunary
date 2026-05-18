@@ -1,15 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
-import queryClient from "../../configs/reactQuery.js";
-import { AssignmentsClient } from "../../web-api-client.ts";
+import { AssignmentsClient, DeleteAssignmentCommand } from "../../web-api-client.ts";
+import { toast } from "react-toastify";
+import { extractApiError } from "../../utils/helpers.js";
 
 const useDeleteAssignment = () => {
   return useMutation({
-    mutationFn: async ({ assignmentId, courseId, itemId }) => {
+    mutationFn: async ({ assignmentIds }) => {
       const client = new AssignmentsClient();
-      return await client.deleteAssignment(assignmentId);
+      return await client.deleteAssignment(new DeleteAssignmentCommand({ assignmentIds }));
     },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["assignment", variables.courseId, variables.itemId] });
+    onError: (error) => {
+      const msg = extractApiError(error);
+      toast.error(msg);
     },
   });
 };

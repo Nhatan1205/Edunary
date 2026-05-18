@@ -642,24 +642,23 @@
         ]
       }
     },
-    "/api/Assignments/{assignmentId}": {
+    "/api/Assignments/batch": {
       "delete": {
         "tags": [
           "Assignments"
         ],
         "operationId": "DeleteAssignment",
-        "parameters": [
-          {
-            "name": "assignmentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAssignmentCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -5469,24 +5468,23 @@
         ]
       }
     },
-    "/api/Quizzes/{quizId}": {
+    "/api/Quizzes/batch": {
       "delete": {
         "tags": [
           "Quizzes"
         ],
         "operationId": "DeleteQuiz",
-        "parameters": [
-          {
-            "name": "quizId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteQuizCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -8285,6 +8283,20 @@
           "itemId": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "DeleteAssignmentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       },
@@ -12782,6 +12794,20 @@
           "relatedItemId": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "DeleteQuizCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "quizIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       },

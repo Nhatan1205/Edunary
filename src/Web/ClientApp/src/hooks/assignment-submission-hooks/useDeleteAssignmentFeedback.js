@@ -1,6 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import queryClient from "../../configs/reactQuery.js";
 import { AssignmentSubmissionsClient } from "../../web-api-client.ts";
+import { toast } from "react-toastify";
+import { extractApiError } from "../../utils/helpers.js";
 
 const useDeleteAssignmentFeedback = () => {
   return useMutation({
@@ -12,7 +14,12 @@ const useDeleteAssignmentFeedback = () => {
       queryClient.invalidateQueries({ queryKey: ["studentSubmission", variables.submissionId] });
       queryClient.invalidateQueries({ queryKey: ["instructorSubmissions"] });
     },
+    onError: (error) => {
+      const msg = extractApiError(error);
+      toast.error(msg);
+    },
   });
 };
 
 export default useDeleteAssignmentFeedback;
+

@@ -1,4 +1,5 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Assignments.Queries.GetAssignmentByItemIdQuery;
 
@@ -13,15 +14,18 @@ public class GetAssignmentByItemIdQueryHandler : IRequestHandler<GetAssignmentBy
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IIdentityService _identityService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public GetAssignmentByItemIdQueryHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
         _identityService = identityService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<AssignmentDto> Handle(GetAssignmentByItemIdQuery request, CancellationToken cancellationToken)
@@ -31,16 +35,21 @@ public class GetAssignmentByItemIdQueryHandler : IRequestHandler<GetAssignmentBy
         bool isEnrolled = await _context.Enrollments
             .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == userId, cancellationToken);
 
+        bool isInstructor = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, CoursePermission.None, cancellationToken);
+
         var assignment = await _context.Assignments
             .Include(a => a.Questions.OrderBy(q => q.SortOrder))
             .Include(a => a.Course)
             .FirstOrDefaultAsync(
                 a => a.CourseId == request.CourseId
                     && a.ItemId == request.ItemId
-                    && (a.Course.CreatedBy == userId || isEnrolled),
+                    && (isInstructor || isEnrolled),
                 cancellationToken);
 
         if (assignment == null) return null;
+
+        // Students can only see published assignments
+        if (!isInstructor && !assignment.IsPublished) return null;
 
         AssignmentDto dto = new AssignmentDto
         {

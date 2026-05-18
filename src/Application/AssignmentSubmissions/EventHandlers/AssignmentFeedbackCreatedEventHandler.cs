@@ -38,7 +38,7 @@ public class AssignmentFeedbackCreatedEventHandler : INotificationHandler<Assign
         }
 
         string studentId = submission.StudentId;
-        string instructorId = assignment.Course.CreatedBy;
+        string instructorId = feedback.CreatedBy;
         string courseName = assignment.Course.Title;
 
         // 2. Resolve instructor info

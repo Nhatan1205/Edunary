@@ -624,16 +624,17 @@ export class AssignmentsClient {
         return Promise.resolve<void>(null as any);
     }
 
-    deleteAssignment(assignmentId: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/Assignments/{assignmentId}";
-        if (assignmentId === undefined || assignmentId === null)
-            throw new Error("The parameter 'assignmentId' must be defined.");
-        url_ = url_.replace("{assignmentId}", encodeURIComponent("" + assignmentId));
+    deleteAssignment(command: DeleteAssignmentCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Assignments/batch";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(command);
+
         let options_: RequestInit = {
+            body: content_,
             method: "DELETE",
             headers: {
+                "Content-Type": "application/json",
             }
         };
 
@@ -5742,16 +5743,17 @@ export class QuizzesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    deleteQuiz(quizId: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/Quizzes/{quizId}";
-        if (quizId === undefined || quizId === null)
-            throw new Error("The parameter 'quizId' must be defined.");
-        url_ = url_.replace("{quizId}", encodeURIComponent("" + quizId));
+    deleteQuiz(command: DeleteQuizCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Quizzes/batch";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(command);
+
         let options_: RequestInit = {
+            body: content_,
             method: "DELETE",
             headers: {
+                "Content-Type": "application/json",
             }
         };
 
@@ -9440,6 +9442,50 @@ export class LinkAssignmentToItemCommand implements ILinkAssignmentToItemCommand
 export interface ILinkAssignmentToItemCommand {
     assignmentId?: number;
     itemId?: string | undefined;
+}
+
+export class DeleteAssignmentCommand implements IDeleteAssignmentCommand {
+    assignmentIds?: number[] | undefined;
+
+    constructor(data?: IDeleteAssignmentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["assignmentIds"])) {
+                this.assignmentIds = [] as any;
+                for (let item of _data["assignmentIds"])
+                    this.assignmentIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): DeleteAssignmentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteAssignmentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.assignmentIds)) {
+            data["assignmentIds"] = [];
+            for (let item of this.assignmentIds)
+                data["assignmentIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IDeleteAssignmentCommand {
+    assignmentIds?: number[] | undefined;
 }
 
 export class UpsertAssignmentSubmissionCommand implements IUpsertAssignmentSubmissionCommand {
@@ -18211,6 +18257,50 @@ export interface ILinkQuizToItemCommand {
     courseId?: number;
     newItemId?: string | undefined;
     relatedItemId?: string | undefined;
+}
+
+export class DeleteQuizCommand implements IDeleteQuizCommand {
+    quizIds?: number[] | undefined;
+
+    constructor(data?: IDeleteQuizCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["quizIds"])) {
+                this.quizIds = [] as any;
+                for (let item of _data["quizIds"])
+                    this.quizIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): DeleteQuizCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteQuizCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.quizIds)) {
+            data["quizIds"] = [];
+            for (let item of this.quizIds)
+                data["quizIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IDeleteQuizCommand {
+    quizIds?: number[] | undefined;
 }
 
 export class GenerateQuizQuestionsCommand implements IGenerateQuizQuestionsCommand {

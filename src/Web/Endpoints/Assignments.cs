@@ -24,7 +24,7 @@ public class Assignments : EndpointGroupBase
             .MapPut(UpdateAssignmentQuestions, "questions/{assignmentId}")
             .MapPut(PublishAssignment, "publish/{assignmentId}")
             .MapPut(LinkAssignmentToItem, "link/{assignmentId}")
-            .MapDelete(DeleteAssignment, "{assignmentId}");
+            .MapDelete(DeleteAssignment, "batch");
     }
 
     public async Task<AssignmentDto> GetAssignmentByItemId(ISender sender, int courseId, string itemId)
@@ -82,9 +82,9 @@ public class Assignments : EndpointGroupBase
         return result.Succeeded ? Results.Ok() : Results.BadRequest(result);
     }
 
-    public async Task<IResult> DeleteAssignment(ISender sender, int assignmentId)
+    public async Task<IResult> DeleteAssignment(ISender sender, [FromBody] DeleteAssignmentCommand command)
     {
-        Result result = await sender.Send(new DeleteAssignmentCommand { AssignmentId = assignmentId });
+        Result result = await sender.Send(command);
         return result.Succeeded ? Results.Ok() : Results.BadRequest(result);
     }
 }

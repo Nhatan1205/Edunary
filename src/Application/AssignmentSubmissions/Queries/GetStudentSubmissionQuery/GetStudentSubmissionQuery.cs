@@ -1,4 +1,5 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 using System.Text.Json;
 
 namespace Edunary.Application.AssignmentSubmissions.Queries.GetStudentSubmissionQuery;
@@ -13,15 +14,18 @@ public class GetStudentSubmissionQueryHandler : IRequestHandler<GetStudentSubmis
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IIdentityService _identityService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public GetStudentSubmissionQueryHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
         _identityService = identityService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<StudentSubmissionDto> Handle(GetStudentSubmissionQuery request, CancellationToken cancellationToken)
@@ -41,9 +45,14 @@ public class GetStudentSubmissionQueryHandler : IRequestHandler<GetStudentSubmis
             return null;
         }
 
-        // check access: only student owns submission OR instructor owns course
+        // check access: only student owns submission OR instructor has Assignments permission
         bool isStudent = submission.StudentId == userId;
-        bool isInstructor = submission.Assignment.Course.CreatedBy == userId;
+        bool isInstructor = false;
+        
+        if (!isStudent)
+        {
+            isInstructor = await _courseAuth.HasCourseAccessAsync(submission.Assignment.CourseId, userId, CoursePermission.Assignments, cancellationToken);
+        }
 
         if (!isStudent && !isInstructor)
         {

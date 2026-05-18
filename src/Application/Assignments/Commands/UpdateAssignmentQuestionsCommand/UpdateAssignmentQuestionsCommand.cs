@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Assignments.Commands.UpdateAssignmentQuestionsCommand;
 
@@ -14,31 +15,30 @@ public class UpdateAssignmentQuestionsCommandHandler : IRequestHandler<UpdateAss
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public UpdateAssignmentQuestionsCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<Result> Handle(UpdateAssignmentQuestionsCommand request, CancellationToken cancellationToken)
     {
         var assignment = await _context.Assignments
-            .Include(a => a.Course)
             .Include(a => a.Questions)
             .FirstOrDefaultAsync(a => a.Id == request.AssignmentId, cancellationToken);
 
         if (assignment == null)
-        {
             return Result.Failure(new[] { "Assignment not found." });
-        }
 
-        if (assignment.Course.CreatedBy != _currentUserService.UserId)
-        {
+        bool canManage = await _courseAuth.HasCourseAccessAsync(assignment.CourseId, _currentUserService.UserId, CoursePermission.Manage, cancellationToken);
+        if (!canManage)
             return Result.Failure(new[] { "Access denied." });
-        }
 
         HashSet<int> incomingIds = request.Questions
             .Where(q => q.Id.HasValue)

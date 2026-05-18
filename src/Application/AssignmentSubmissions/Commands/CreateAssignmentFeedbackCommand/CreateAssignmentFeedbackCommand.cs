@@ -16,13 +16,16 @@ public class CreateAssignmentFeedbackCommandHandler : IRequestHandler<CreateAssi
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public CreateAssignmentFeedbackCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<int>> Handle(CreateAssignmentFeedbackCommand request, CancellationToken cancellationToken)
@@ -33,23 +36,17 @@ public class CreateAssignmentFeedbackCommandHandler : IRequestHandler<CreateAssi
 
             var submission = await _context.AssignmentSubmissions
                 .Include(s => s.Assignment)
-                    .ThenInclude(a => a.Course)
                 .FirstOrDefaultAsync(s => s.Id == request.SubmissionId, cancellationToken);
 
             if (submission == null)
-            {
                 return new ReturnResult<int> { Result = 0, Message = "Submission not found." };
-            }
 
-            if (submission.Assignment.Course.CreatedBy != userId)
-            {
+            bool canAccess = await _courseAuth.HasCourseAccessAsync(submission.Assignment.CourseId, userId, CoursePermission.Assignments, cancellationToken);
+            if (!canAccess)
                 return new ReturnResult<int> { Result = 0, Message = "Access denied." };
-            }
 
             if (submission.Status != AssignmentSubmissionStatus.Submitted)
-            {
                 return new ReturnResult<int> { Result = 0, Message = "Cannot feedback a draft submission." };
-            }
 
             AssignmentFeedback feedback = new AssignmentFeedback
             {

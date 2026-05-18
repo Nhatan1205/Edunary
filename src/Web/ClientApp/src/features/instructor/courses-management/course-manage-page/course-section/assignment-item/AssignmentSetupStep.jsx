@@ -27,15 +27,19 @@ function AssignmentSetupStep({ item, courseId, onUpdate, onModeChange, sections 
   );
 
   const handlePickExisting = async (assignment) => {
-    await linkMutation.mutateAsync({
-      assignmentId: assignment.id,
-      courseId,
-      newItemId: item.itemId,
-    });
-    onUpdate(item.itemId, {
-      assignmentId: assignment.id,
-      description: assignment.description ?? "",
-    });
+    try {
+      await linkMutation.mutateAsync({
+        assignmentId: assignment.id,
+        courseId,
+        newItemId: item.itemId,
+      });
+      onUpdate(item.itemId, {
+        assignmentId: assignment.id,
+        description: assignment.description ?? "",
+      });
+    } catch {
+
+    }
   };
 
   if (mode === null) {

@@ -20,12 +20,13 @@ import useUpdateAssignment from "../../../../../../hooks/assignment-hooks/useUpd
 import useUpdateAssignmentQuestions from "../../../../../../hooks/assignment-hooks/useUpdateAssignmentQuestions";
 import useGetAssignmentByItemId from "../../../../../../hooks/assignment-hooks/useGetAssignmentByItemId";
 import usePublishAssignment from "../../../../../../hooks/assignment-hooks/usePublishAssignment";
+import { extractApiError } from "../../../../../../utils/helpers";
 
 const QUESTION_BUTTONS = ["bold", "italic"];
 const stripHtml = (html) => html?.replace(/<[^>]*>/g, "").trim() ?? "";
 
-function AssignmentEditor({ item, onUpdate, courseId }) {
-  const { data: existingAssignment } = useGetAssignmentByItemId(courseId, item.itemId);
+function AssignmentEditor({ item, onUpdate, courseId, hasExisting = false }) {
+  const { data: existingAssignment } = useGetAssignmentByItemId(courseId, item.itemId, { enabled: hasExisting });
   const createAssignment = useCreateAssignment();
   const updateAssignment = useUpdateAssignment();
   const updateQuestions = useUpdateAssignmentQuestions();
@@ -151,6 +152,11 @@ function AssignmentEditor({ item, onUpdate, courseId }) {
       if (!assignmentId) {
         const res = await createAssignment.mutateAsync(settingsPayload);
         assignmentId = res?.result;
+        if (!assignmentId || assignmentId === 0) {
+          setSavedMsg(`Error: ${res?.message || "Failed to create assignment."}`);
+          setSaving(false);
+          return;
+        }
         onUpdate(item.itemId, { assignmentId, description: formData.description });
       }
       else {
@@ -171,23 +177,21 @@ function AssignmentEditor({ item, onUpdate, courseId }) {
       setSavedMsg("Assignment saved successfully.");
     }
     catch (e) {
-      setSavedMsg(`Error: ${parseError(e)}`);
+      setSavedMsg(`Error: ${extractApiError(e)}`);
     }
     finally {
       setSaving(false);
     }
   };
 
-  const handlePublish = async () =>
-  {
+  const handlePublish = async () => {
     const assignmentId = existingAssignment?.id;
     if (!assignmentId) return;
 
     setPublishing(true);
     setPublishError(null);
     setPublishSuccess(false);
-    try
-    {
+    try {
       await publishMutation.mutateAsync({
         assignmentId,
         isPublished: true,
@@ -196,12 +200,10 @@ function AssignmentEditor({ item, onUpdate, courseId }) {
       });
       setPublishSuccess(true);
     }
-    catch (e)
-    {
+    catch (e) {
       setPublishError(parseError(e));
     }
-    finally
-    {
+    finally {
       setPublishing(false);
     }
   };

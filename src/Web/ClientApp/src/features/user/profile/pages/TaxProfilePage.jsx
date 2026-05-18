@@ -15,9 +15,11 @@ import {
 } from "@mui/material";
 import { Container } from "reactstrap";
 import AlertBox from "../../../../components/AlertBox";
+import useGetTaxSettings from "../../../../hooks/finance-hooks/useGetTaxSettings";
 import useGetTaxProfile from "../../../../hooks/tax-profile-hooks/useGetTaxProfile";
 import useUpdateTaxProfile from "../../../../hooks/tax-profile-hooks/useUpdateTaxProfile";
 import { PaymentClient } from "../../../../web-api-client.ts";
+import { extractApiError } from "../../../../utils/helpers.js";
 
 const textFieldSx = {
   "& label.Mui-focused": { color: "brand.dark" },
@@ -34,9 +36,11 @@ function formatRate(rate) {
 
 function TaxProfilePage() {
   const { data, isLoading, error } = useGetTaxProfile();
+  const { data: taxSettings } = useGetTaxSettings();
   const { mutate: updateTaxProfile, isPending, error: updateError } = useUpdateTaxProfile();
   const [regions, setRegions] = useState([]);
   const [loadingRegions, setLoadingRegions] = useState(false);
+  const [regionError, setRegionError] = useState("");
 
   const {
     control,
@@ -54,12 +58,32 @@ function TaxProfilePage() {
   });
 
   useEffect(() => {
+    let cancelled = false;
+
     setLoadingRegions(true);
+    setRegionError("");
     const client = new PaymentClient();
     client.getCheckoutTaxRegions()
-      .then((items) => setRegions(items ?? []))
-      .catch(() => setRegions([]))
-      .finally(() => setLoadingRegions(false));
+      .then((items) => {
+        if (cancelled) return;
+        setRegions(items ?? []);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setRegions([]);
+        setRegionError(
+          extractApiError(error) || error?.message || "Failed to load tax regions."
+        );
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingRegions(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -74,7 +98,9 @@ function TaxProfilePage() {
 
   const selectedCountry = watch("taxCountryCode");
   const selectedRegion = regions.find((r) => r.countryCode === selectedCountry);
-  const withholdingRate = selectedRegion?.withholdingRate ?? data?.withholdingRate;
+  const withholdingRate = selectedRegion?.withholdingRate
+    ?? data?.withholdingRate
+    ?? taxSettings?.defaultWithholdingRate;
 
   const onSubmit = (formData) => {
     updateTaxProfile({
@@ -115,13 +141,19 @@ function TaxProfilePage() {
       <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ px: 6 }}>
         {error && (
           <AlertBox severity="error" variant="standard" sx={{ mb: 2 }}>
-            {error.message || "Failed to load tax profile."}
+            {extractApiError(error) || error?.message || "Failed to load tax profile."}
           </AlertBox>
         )}
 
         {updateError && (
           <AlertBox severity="error" variant="standard" sx={{ mb: 2 }}>
-            {updateError.message || "Failed to update tax profile."}
+            {extractApiError(updateError) || updateError?.message || "Failed to update tax profile."}
+          </AlertBox>
+        )}
+
+        {regionError && (
+          <AlertBox severity="error" variant="standard" sx={{ mb: 2 }}>
+            {regionError}
           </AlertBox>
         )}
 
@@ -157,7 +189,11 @@ function TaxProfilePage() {
             control={control}
             rules={{ required: "Country is required" }}
             render={({ field }) => (
-              <FormControl fullWidth error={!!errors.taxCountryCode} disabled={loadingRegions}>
+              <FormControl
+                fullWidth
+                error={!!errors.taxCountryCode}
+                disabled={loadingRegions || Boolean(regionError)}
+              >
                 <InputLabel>Country</InputLabel>
                 <Select {...field} label="Country">
                   {regions.map((region) => (

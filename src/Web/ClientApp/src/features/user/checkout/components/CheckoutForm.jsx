@@ -60,7 +60,9 @@ export default function CheckoutForm({
             toast.error(res.message || 'Failed to confirm payment')
           }
         } catch (confirmError) {
-          setError('Failed to confirm payment')
+          const message = confirmError?.message || 'Failed to confirm payment'
+          setError(message)
+          toast.error(message)
         }
       } else {
         setError('Payment was not completed successfully')

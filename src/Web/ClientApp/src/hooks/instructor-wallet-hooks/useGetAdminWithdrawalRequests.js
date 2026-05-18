@@ -1,4 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
+import { InstructorWalletClient } from "../../web-api-client.ts";
+
+const normalizeDateInput = (value) => {
+  if (value == null || value === "") {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  if (value && typeof value.toDate === "function") {
+    const date = value.toDate();
+    return date instanceof Date && !Number.isNaN(date.getTime()) ? date : null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
 
 const useGetAdminWithdrawalRequests = (pageNumber = 1, pageSize = 10, options = {}) => {
   const {
@@ -25,54 +44,18 @@ const useGetAdminWithdrawalRequests = (pageNumber = 1, pageSize = 10, options = 
       bankAccountHolder,
     ],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      params.set("PageNumber", String(pageNumber));
-      params.set("PageSize", String(pageSize));
-
-      if (status !== null && status !== undefined && status !== "") {
-        params.set("Status", String(status));
-      }
-
-      if (fromDate) {
-        params.set("FromDate", new Date(fromDate).toISOString());
-      }
-
-      if (toDate) {
-        params.set("ToDate", new Date(toDate).toISOString());
-      }
-
-      const trimmedName = instructorName?.trim();
-      if (trimmedName) {
-        params.set("InstructorName", trimmedName);
-      }
-
-      const trimmedEmail = instructorEmail?.trim();
-      if (trimmedEmail) {
-        params.set("InstructorEmail", trimmedEmail);
-      }
-
-      const trimmedBankNumber = bankNumber?.trim();
-      if (trimmedBankNumber) {
-        params.set("BankNumber", trimmedBankNumber);
-      }
-
-      const trimmedHolder = bankAccountHolder?.trim();
-      if (trimmedHolder) {
-        params.set("BankAccountHolder", trimmedHolder);
-      }
-
-      const response = await fetch(`/api/InstructorWallet/admin/withdrawal-requests?${params.toString()}`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch withdrawal requests.");
-      }
-
-      return response.json();
+      const client = new InstructorWalletClient();
+      return await client.getAdminWithdrawalRequests(
+        pageNumber,
+        pageSize,
+        status === null || status === undefined || status === "" ? null : status,
+        normalizeDateInput(fromDate),
+        normalizeDateInput(toDate),
+        instructorName?.trim() || null,
+        instructorEmail?.trim() || null,
+        bankNumber?.trim() || null,
+        bankAccountHolder?.trim() || null
+      );
     },
     keepPreviousData: true,
   });

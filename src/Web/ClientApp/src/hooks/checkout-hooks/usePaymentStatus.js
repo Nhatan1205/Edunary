@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react"
 import usePaymentClient from "./usePaymentClient"
 import { toast } from "react-toastify"
+import { extractApiError } from "../../utils/helpers.js"
+
+const getErrorMessage = (error, fallback) =>
+  extractApiError(error) || error?.message || fallback
 
 export default function usePaymentStatus(paymentIntentId) {
   const { getPaymentStatus } = usePaymentClient()
@@ -10,6 +14,7 @@ export default function usePaymentStatus(paymentIntentId) {
   useEffect(() => {
     if (!paymentIntentId) {
       setPaymentStatus(null)
+      setError(null)
       setLoading(false)
       return
     }
@@ -26,9 +31,10 @@ export default function usePaymentStatus(paymentIntentId) {
         }
       } catch (err) {
         console.error("Error fetching payment status:", err)
+        const message = getErrorMessage(err, "Failed to fetch payment status")
         if (!cancelled) {
-          setError("Failed to fetch payment status")
-          toast.error("Failed to fetch payment status")
+          setError(message)
+          toast.error(message)
         }
       } finally {
         if (!cancelled) {

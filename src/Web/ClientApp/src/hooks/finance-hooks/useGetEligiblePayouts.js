@@ -1,14 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import { AdminFinanceClient } from "../../web-api-client.ts";
 
 const useGetEligiblePayouts = () => {
   return useQuery({
     queryKey: ["finance-eligible-payouts"],
     queryFn: async () => {
-      const response = await fetch("/api/AdminFinance/payouts/eligible", {
-        headers: { Accept: "application/json" },
-      });
-      if (!response.ok) throw new Error("Failed to fetch eligible payouts");
-      return response.json();
+      const client = new AdminFinanceClient();
+      return await client.getEligiblePayouts();
     },
   });
 };

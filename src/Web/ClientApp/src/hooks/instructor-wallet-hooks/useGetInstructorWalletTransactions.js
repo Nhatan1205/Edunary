@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { InstructorWalletClient } from "../../web-api-client.ts";
 
 const useGetInstructorWalletTransactions = (pageNumber = 1, pageSize = 10, options = {}) => {
@@ -36,7 +36,7 @@ const useGetInstructorWalletTransactions = (pageNumber = 1, pageSize = 10, optio
         amountSort
       );
     },
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 };
 

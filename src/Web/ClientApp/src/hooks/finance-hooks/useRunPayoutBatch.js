@@ -1,20 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AdminFinanceClient } from "../../web-api-client.ts";
 
 const useRunPayoutBatch = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/AdminFinance/payouts/run-batch", {
-        method: "POST",
-        headers: { Accept: "application/json" },
-      });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.message || "Failed to run payout batch");
-      }
-      return payload;
+      const client = new AdminFinanceClient();
+      return await client.runPayoutBatch();
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["finance-eligible-payouts"]);

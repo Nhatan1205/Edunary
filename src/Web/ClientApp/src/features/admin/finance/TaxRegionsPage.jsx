@@ -27,6 +27,7 @@ import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs"
 import useGetTaxRegions from "../../../hooks/finance-hooks/useGetTaxRegions";
 import useUpsertTaxRegion from "../../../hooks/finance-hooks/useUpsertTaxRegion";
 import useDeleteTaxRegion from "../../../hooks/finance-hooks/useDeleteTaxRegion";
+import { extractApiError } from "../../../utils/helpers.js";
 
 const GRID_SX = {
   border: "1px solid #e0e0e0",
@@ -241,7 +242,11 @@ export default function TaxRegionsPage() {
         </Button>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {extractApiError(error) || error?.message || "Failed to load tax regions."}
+        </Alert>
+      )}
 
       <DataGrid
         rows={data ?? []}

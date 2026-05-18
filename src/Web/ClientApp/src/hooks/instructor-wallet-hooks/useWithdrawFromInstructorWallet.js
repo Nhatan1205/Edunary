@@ -1,33 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
-import queryClient from "../../configs/reactQuery.js";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { InstructorWalletClient, WithdrawFromInstructorWalletCommand } from "../../web-api-client.ts";
 
 const useWithdrawFromInstructorWallet = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ amount, currency = "USD" }) => {
-      const response = await fetch("/api/InstructorWallet/withdraw", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: JSON.stringify({ amount, currency }),
-      });
-
-      const contentType = response.headers.get("content-type") || "";
-      const payload = contentType.includes("application/json")
-        ? await response.json()
-        : await response.text();
-
-      if (!response.ok) {
-        const message = payload?.message || payload?.toString() || "Failed to withdraw";
-        throw new Error(message);
-      }
-
-      return payload;
+      const client = new InstructorWalletClient();
+      const command = new WithdrawFromInstructorWalletCommand({ amount, currency });
+      return await client.withdraw(command);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["instructor-wallet"]);
-      queryClient.invalidateQueries(["instructor-wallet-transactions"]);
+      queryClient.invalidateQueries({ queryKey: ["instructor-wallet"] });
+      queryClient.invalidateQueries({ queryKey: ["instructor-wallet-transactions"] });
     },
   });
 };

@@ -19,6 +19,7 @@ import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import useGetFinanceSummary from "../../../../hooks/finance-hooks/useGetFinanceSummary";
 import { FinanceDateRange, fmt } from "./shared";
 import TaxSettingsSection from "./TaxSettingsSection";
+import { extractApiError } from "../../../../utils/helpers.js";
 
 const METRIC_CARDS = [
   { key: "grossSales", label: "Gross Sales", color: "#1890FF", Icon: AttachMoneyIcon },
@@ -109,7 +110,11 @@ export default function SummaryTab() {
         </Box>
       )}
 
-      {error && <Alert severity="error">{error.message}</Alert>}
+      {error && (
+        <Alert severity="error">
+          {extractApiError(error) || error?.message || "Failed to load finance summary."}
+        </Alert>
+      )}
 
       {!isLoading && !error && (
         <>

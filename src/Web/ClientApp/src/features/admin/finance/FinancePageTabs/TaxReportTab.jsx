@@ -11,6 +11,7 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import useGetTaxReport from "../../../../hooks/finance-hooks/useGetTaxReport";
 import { GRID_SX, financeTextFieldSx, fmt } from "./shared";
+import { extractApiError } from "../../../../utils/helpers.js";
 
 const TAX_COLUMNS = [
   { field: "countryCode", headerName: "Country", width: 120 },
@@ -44,7 +45,11 @@ export default function TaxReportTab() {
         {isLoading && <CircularProgress size={20} />}
       </Stack>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {extractApiError(error) || error?.message || "Failed to load tax report."}
+        </Alert>
+      )}
 
       {data && (
         <>

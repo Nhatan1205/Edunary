@@ -1,25 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AdminFinanceClient, UpdateTaxSettingsRequest } from "../../web-api-client.ts";
 
 const useUpdateTaxSettings = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (payload) => {
-      const response = await fetch("/api/AdminFinance/tax-settings", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error?.message || "Failed to update tax settings");
-      }
-
-      return response.json();
+      const client = new AdminFinanceClient();
+      const request = new UpdateTaxSettingsRequest(payload);
+      return await client.updateTaxSettings(request);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-finance-tax-settings"] });

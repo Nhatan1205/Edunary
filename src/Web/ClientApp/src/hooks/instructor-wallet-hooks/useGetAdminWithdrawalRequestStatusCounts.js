@@ -6,9 +6,7 @@ const useGetAdminWithdrawalRequestStatusCounts = () => {
     queryKey: ["admin-withdrawal-request-status-counts"],
     queryFn: async () => {
       const client = new InstructorWalletClient();
-      const result = await client.getAdminWithdrawalRequestStatusCounts();
-      if (!result) throw new Error("Failed to fetch withdrawal request status counts");
-      return result;
+      return await client.getAdminWithdrawalRequestStatusCounts();
     },
     staleTime: 60 * 1000,
   });

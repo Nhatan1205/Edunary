@@ -24,6 +24,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import useGetTaxSettings from "../../../../hooks/finance-hooks/useGetTaxSettings";
 import useUpdateTaxSettings from "../../../../hooks/finance-hooks/useUpdateTaxSettings";
 import { financeTextFieldSx } from "./shared";
+import { extractApiError } from "../../../../utils/helpers.js";
 
 const financeContainedButtonSx = {
   backgroundColor: "brand.main",
@@ -75,13 +76,21 @@ export default function TaxSettingsSection() {
 
   useEffect(() => {
     if (updateError) {
-      setSnack({ open: true, message: updateError.message || "Failed to update settings", severity: "error" });
+      setSnack({
+        open: true,
+        message: extractApiError(updateError) || updateError?.message || "Failed to update settings",
+        severity: "error",
+      });
     }
   }, [updateError]);
 
   useEffect(() => {
     if (error) {
-      setSnack({ open: true, message: error.message || "Failed to load settings", severity: "error" });
+      setSnack({
+        open: true,
+        message: extractApiError(error) || error?.message || "Failed to load settings",
+        severity: "error",
+      });
     }
   }, [error]);
 

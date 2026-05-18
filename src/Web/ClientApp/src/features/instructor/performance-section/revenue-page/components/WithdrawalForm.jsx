@@ -18,6 +18,7 @@ import useGetWithdrawalPreview, {
 } from '../../../../../hooks/instructor-wallet-hooks/useGetWithdrawalPreview';
 import useWithdrawFromInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useWithdrawFromInstructorWallet';
 import AlertBox from '../../../../../components/AlertBox';
+import { extractApiError } from '../../../../../utils/helpers.js';
 
 function WithdrawalForm({ user, isInfoEnough }) {
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
@@ -148,7 +149,7 @@ function WithdrawalForm({ user, isInfoEnough }) {
       setPendingAmount(amount);
       setIsConfirmOpen(true);
     } catch (e) {
-      setError(e?.message || 'Failed to preview withdrawal. Please try again.');
+      setError(extractApiError(e) || e?.message || 'Failed to preview withdrawal. Please try again.');
     }
   };
 
@@ -174,7 +175,7 @@ function WithdrawalForm({ user, isInfoEnough }) {
       setIsConfirmOpen(false);
       setPendingAmount(null);
       setPreview(null);
-      setError(e?.message || 'Failed to withdraw. Please try again.');
+      setError(extractApiError(e) || e?.message || 'Failed to withdraw. Please try again.');
     }
   };
 
@@ -268,14 +269,6 @@ function WithdrawalForm({ user, isInfoEnough }) {
 
         {/* Fee Info */}
         <Box sx={(theme) => ({ backdrop: 'none', bgcolor: theme.palette.background.muted, p: 1.5, borderRadius: 1 })}>
-          <Box display="flex" justifyContent="space-between" mb={1}>
-            <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary })}>
-              Withdrawal fee
-            </Typography>
-            <Typography variant="body2" sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
-              Free
-            </Typography>
-          </Box>
           <Box display="flex" justifyContent="space-between" mb={1}>
             <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary })}>
               Withholding tax

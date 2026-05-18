@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { GetWithdrawalPreviewQuery, InstructorWalletClient } from "../../web-api-client.ts";
 
 export const withdrawalPreviewQueryKey = (amount, currency = "USD") => [
   "withdrawal-preview",
@@ -7,22 +8,16 @@ export const withdrawalPreviewQueryKey = (amount, currency = "USD") => [
 ];
 
 export const fetchWithdrawalPreview = async ({ amount, currency = "USD", signal }) => {
-  const response = await fetch("/api/InstructorWallet/withdraw/preview", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({ amount, currency }),
-    signal,
-  });
+  const client = new InstructorWalletClient(
+    undefined,
+    signal
+      ? {
+          fetch: (url, init) => fetch(url, { ...init, signal }),
+        }
+      : undefined
+  );
 
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || "Failed to preview withdrawal.");
-  }
-
-  return response.json();
+  return await client.getWithdrawalPreview(new GetWithdrawalPreviewQuery({ amount, currency }));
 };
 
 const useGetWithdrawalPreview = ({ amount, currency = "USD", enabled = true } = {}) => {
@@ -34,7 +29,7 @@ const useGetWithdrawalPreview = ({ amount, currency = "USD", enabled = true } = 
     queryKey: withdrawalPreviewQueryKey(queryAmount, currency),
     queryFn: ({ signal }) => {
       if (queryAmount == null) {
-        throw new Error("Withdrawal amount is required.");
+        return null;
       }
 
       return fetchWithdrawalPreview({ amount: queryAmount, currency, signal });

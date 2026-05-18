@@ -12,14 +12,14 @@ public class InstructorTax : EndpointGroupBase
     {
         app.MapGroup(this)
             .RequireAuthorization()
-            .MapGet(GetMyProfile, "profile")
-            .MapPut(UpsertProfile, "profile");
+            .MapGet(GetMyInstructorTaxProfile, "profile")
+            .MapPut(UpsertMyTaxProfile, "profile");
     }
 
-    public async Task<TaxProfileDto> GetMyProfile(ISender sender)
+    public async Task<TaxProfileDto> GetMyInstructorTaxProfile(ISender sender)
         => await sender.Send(new GetMyTaxProfileQuery());
 
-    public async Task<IResult> UpsertProfile(ISender sender, UpsertMyTaxProfileCommand command)
+    public async Task<IResult> UpsertMyTaxProfile(ISender sender, UpsertMyTaxProfileCommand command)
     {
         var result = await sender.Send(command);
         return result.Succeeded ? Results.Ok() : Results.BadRequest(result.Errors);

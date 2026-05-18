@@ -1,13 +1,15 @@
 import {
   Paper, Box, Typography, Button, Stack, Divider,
-  FormControl, InputLabel, Select, MenuItem, CircularProgress, TextField
+  FormControl, InputLabel, Select, MenuItem, CircularProgress, TextField, Alert
 } from '@mui/material';
 import GavelIcon from '@mui/icons-material/Gavel';
 import EditIcon from '@mui/icons-material/Edit';
 import { useEffect, useState } from 'react';
 import { PaymentClient } from '../../../../../web-api-client.ts';
+import useGetTaxSettings from '../../../../../hooks/finance-hooks/useGetTaxSettings';
 import useGetTaxProfile from '../../../../../hooks/tax-profile-hooks/useGetTaxProfile';
 import useUpdateTaxProfile from '../../../../../hooks/tax-profile-hooks/useUpdateTaxProfile';
+import { extractApiError } from '../../../../../utils/helpers.js';
 
 function formatRate(rate) {
   if (rate == null) return '--';
@@ -16,6 +18,7 @@ function formatRate(rate) {
 
 function TaxProfile() {
   const { data: profile, isLoading } = useGetTaxProfile();
+  const { data: taxSettings } = useGetTaxSettings();
   const updateMutation = useUpdateTaxProfile();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -26,6 +29,7 @@ function TaxProfile() {
   });
   const [regions, setRegions] = useState([]);
   const [loadingRegions, setLoadingRegions] = useState(false);
+  const [regionError, setRegionError] = useState('');
 
   useEffect(() => {
     if (!isEditing) {
@@ -38,14 +42,34 @@ function TaxProfile() {
   }, [isEditing, profile]);
 
   useEffect(() => {
+    let cancelled = false;
+
     if (isEditing && regions.length === 0) {
       setLoadingRegions(true);
+      setRegionError('');
       const client = new PaymentClient();
       client.getCheckoutTaxRegions()
-        .then((data) => setRegions(data ?? []))
-        .catch(() => setRegions([]))
-        .finally(() => setLoadingRegions(false));
+        .then((data) => {
+          if (cancelled) return;
+          setRegions(data ?? []);
+        })
+        .catch((error) => {
+          if (cancelled) return;
+          setRegions([]);
+          setRegionError(
+            extractApiError(error) || error?.message || 'Failed to load tax regions.'
+          );
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setLoadingRegions(false);
+          }
+        });
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [isEditing, regions.length]);
 
   useEffect(() => {
@@ -76,9 +100,9 @@ function TaxProfile() {
   const displayCountry = profile?.countryName
     ? `${profile.taxCountryCode} - ${profile.countryName}`
     : (profile?.taxCountryCode || '--');
-  const displayWithholdingRate = isEditing && selectedRegion
-    ? selectedRegion.withholdingRate
-    : profile?.withholdingRate;
+  const displayWithholdingRate = selectedRegion?.withholdingRate
+    ?? profile?.withholdingRate
+    ?? taxSettings?.defaultWithholdingRate;
   const isProfileComplete = Boolean(
     profile?.realName && profile?.taxIdentificationNumber && profile?.taxCountryCode
   );
@@ -149,6 +173,12 @@ function TaxProfile() {
 
       <Divider sx={{ mb: 2 }} />
 
+      {regionError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {regionError}
+        </Alert>
+      )}
+
       <Stack spacing={2.5}>
         <Box>
           <Typography variant="body2" sx={{ color: (theme) => theme.palette.text.secondary, mb: 0.5, fontWeight: 500 }}>
@@ -196,7 +226,7 @@ function TaxProfile() {
             loadingRegions ? (
               <CircularProgress size={20} sx={{ color: (theme) => theme.palette.brand.main }} />
             ) : (
-              <FormControl size="small" fullWidth>
+              <FormControl size="small" fullWidth disabled={Boolean(regionError)}>
                 <InputLabel>Country</InputLabel>
                 <Select
                   value={formValues.taxCountryCode}
@@ -244,7 +274,7 @@ function TaxProfile() {
           >
             {isProfileComplete
               ? 'Tax profile is set. Withholding will be applied at payout.'
-              : 'Tax profile is not complete. Default withholding may apply.'}
+              : 'Tax profile is not complete. Default withholding is applied.'}
           </Typography>
           {updateMutation.isError && (
             <Typography variant="body2" sx={{ mt: 0.75, color: (theme) => theme.palette.error.main }}>

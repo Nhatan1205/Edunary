@@ -9,7 +9,7 @@ const useGetTaxProfile = () => {
     queryKey: ['tax-profile'],
     queryFn: async () => {
       const client = new InstructorTaxClient();
-      return await client.getMyProfile();
+      return await client.getMyInstructorTaxProfile();
     },
     enabled: isAuthenticated,
   });

@@ -1,26 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { AdminFinanceClient, UpsertTaxRegionCommand } from "../../web-api-client.ts";
+import { extractApiError } from "../../utils/helpers.js";
 
 const useUpsertTaxRegion = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data) => {
-      const response = await fetch("/api/AdminFinance/tax-regions", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(Array.isArray(err) ? err.join(", ") : "Failed to save tax region");
-      }
+      const client = new AdminFinanceClient();
+      const command = new UpsertTaxRegionCommand(data);
+      return await client.upsertTaxRegion(command);
     },
     onSuccess: () => {
       toast.success("Tax region saved");
       queryClient.invalidateQueries({ queryKey: ["finance-tax-regions"] });
     },
-    onError: (err) => toast.error(err.message),
+    onError: (error) =>
+      toast.error(extractApiError(error) || error?.message || "Failed to save tax region"),
   });
 };
 

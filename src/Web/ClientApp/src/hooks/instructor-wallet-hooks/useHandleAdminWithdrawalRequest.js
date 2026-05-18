@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { InstructorWalletClient } from "../../web-api-client.ts";
 
 const useHandleAdminWithdrawalRequest = () => {
   const queryClient = useQueryClient();
@@ -6,25 +7,10 @@ const useHandleAdminWithdrawalRequest = () => {
   return useMutation({
     mutationFn: async ({ requestId, action }) => {
       const normalizedAction = action === "cancel" ? "cancel" : "approve";
-
-      const response = await fetch(`/api/InstructorWallet/withdrawals/${requestId}/${normalizedAction}`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      const contentType = response.headers.get("content-type") || "";
-      const payload = contentType.includes("application/json")
-        ? await response.json()
-        : await response.text();
-
-      if (!response.ok) {
-        const message = payload?.message || payload?.toString() || "Failed to process withdrawal request.";
-        throw new Error(message);
-      }
-
-      return payload;
+      const client = new InstructorWalletClient();
+      return normalizedAction === "cancel"
+        ? await client.cancelWithdrawal(requestId)
+        : await client.approveWithdrawal(requestId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["admin-withdrawal-requests"]);

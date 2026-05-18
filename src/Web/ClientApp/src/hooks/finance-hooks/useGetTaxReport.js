@@ -1,17 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import { AdminFinanceClient } from "../../web-api-client.ts";
 
 const useGetTaxReport = (period = null) => {
   return useQuery({
     queryKey: ["finance-tax-report", period],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (period) params.set("period", period);
-
-      const response = await fetch(`/api/AdminFinance/tax-report?${params}`, {
-        headers: { Accept: "application/json" },
-      });
-      if (!response.ok) throw new Error("Failed to fetch tax report");
-      return response.json();
+      const client = new AdminFinanceClient();
+      return await client.getTaxReport(period == null || period === "" ? null : period);
     },
   });
 };

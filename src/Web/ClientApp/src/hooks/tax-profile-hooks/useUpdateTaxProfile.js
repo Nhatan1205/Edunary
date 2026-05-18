@@ -7,8 +7,12 @@ const useUpdateTaxProfile = () => {
   return useMutation({
     mutationFn: async ({ realName, taxIdentificationNumber, taxCountryCode }) => {
       const client = new InstructorTaxClient();
-      const command = new UpsertMyTaxProfileCommand({ realName, taxIdentificationNumber, taxCountryCode });
-      return await client.upsertProfile(command);
+      const command = new UpsertMyTaxProfileCommand({
+        realName,
+        taxIdentificationNumber,
+        taxCountryCode,
+      });
+      return await client.upsertMyTaxProfile(command);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tax-profile'] });

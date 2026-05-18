@@ -18,6 +18,7 @@ import PageTitle from "../../../components/PageTitle";
 import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs";
 import useGetEligiblePayouts from "../../../hooks/finance-hooks/useGetEligiblePayouts";
 import useRunPayoutBatch from "../../../hooks/finance-hooks/useRunPayoutBatch";
+import { extractApiError } from "../../../utils/helpers.js";
 
 const GRID_SX = {
   border: "1px solid #e0e0e0",
@@ -83,7 +84,11 @@ export default function PayoutsPage() {
         refetch();
       },
       onError: (err) => {
-        setSnack({ open: true, message: err.message, severity: "error" });
+        setSnack({
+          open: true,
+          message: extractApiError(err) || err?.message || "Failed to run payout batch.",
+          severity: "error",
+        });
       },
     });
   }
@@ -124,7 +129,11 @@ export default function PayoutsPage() {
         </Button>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {extractApiError(error) || error?.message || "Failed to load eligible payouts."}
+        </Alert>
+      )}
 
       <DataGrid
         rows={rows}

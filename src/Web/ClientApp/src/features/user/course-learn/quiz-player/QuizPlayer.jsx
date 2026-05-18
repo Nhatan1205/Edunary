@@ -21,7 +21,9 @@ function QuizPlayer() {
   const handleNavigateNext = () => {
     const nextItem = itemData?.navigation?.next;
     if (nextItem) {
-      const routeType = nextItem.type === "quiz" ? "quiz" : "lecture";
+      const routeType = nextItem.type === "quiz" ? "quiz"
+        : nextItem.type === "assignment" ? "assignment"
+        : "lecture";
       navigate(`/course/${courseId}/learn/${routeType}/${nextItem.itemId}`);
     } else {
       navigate(`/course/${courseId}`);

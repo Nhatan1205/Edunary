@@ -27,23 +27,23 @@ import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmD
 import useSetCourseIdForContent from "../../../../../hooks/media-file-hooks/useSetCourseIdForContent";
 import useGetCourseCurriculumById from "../../../../../hooks/course-draft-hooks/useGetCourseCurriculumById";
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
-import useDeleteQuiz from "../../../../../hooks/quiz-hooks/useDeleteQuiz";
+import useDeleteQuizBatch from "../../../../../hooks/quiz-hooks/useDeleteQuiz";
 import { useBlocker } from "react-router-dom";
 import SaveChangesDialog from "../../../../../components/ConfirmDialogPopup/SaveChangesDialog";
+import useDeleteAssignmentBatch from "../../../../../hooks/assignment-hooks/useDeleteAssignment";
 
 function CourseCurriculum() {
   const { courseId } = useParams();
   const setCourseIdForContent = useSetCourseIdForContent();
+  const deleteAssignmentBatch = useDeleteAssignmentBatch();
   const { data: courseData, isLoading: isCourseDataLoading } = useGetCourseCurriculumById(courseId);
   const updatecourseMutation = useUpdateCourse();
-  const deleteQuizMutation = useDeleteQuiz();
+  const deleteQuizBatch = useDeleteQuizBatch();
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
   const [sections, setSections] = useState([]);
   const [initialContent, setInitialContent] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [activeType, setActiveType] = useState(null);
-  const [nextSectionId, setNextSectionId] = useState(1);
-  const [nextItemId, setNextItemId] = useState(1);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     title: "",
@@ -65,16 +65,8 @@ function CourseCurriculum() {
       const initialSections = courseData?.content
         ? JSON.parse(courseData.content)?.contents || []
         : [];
-      const initialNextSectionId = courseData?.content
-        ? JSON.parse(courseData.content)?.nextSectionId || 1
-        : 1;
-      const initialNextItemId = courseData?.content
-        ? JSON.parse(courseData.content)?.nextItemId || 1
-        : 1;
       setSections(initialSections);
       setInitialContent(initialSections);
-      setNextSectionId(initialNextSectionId);
-      setNextItemId(initialNextItemId);
     }
   }, [courseData]);
 
@@ -126,7 +118,7 @@ function CourseCurriculum() {
   // Add new section
   const addSection = () => {
     const newSection = {
-      sectionId: `section-${nextSectionId}`,
+      sectionId: `section-${crypto.randomUUID()}`,
       title: "",
       learningObjectives: "",
       items: [],
@@ -134,7 +126,6 @@ function CourseCurriculum() {
       published: false,
     };
     setSections([...sections, newSection]);
-    setNextSectionId(nextSectionId + 1);
   };
 
   // Update section
@@ -187,7 +178,7 @@ function CourseCurriculum() {
     const newSections = sections.map((section) => {
       if (section.sectionId === sectionId) {
         const newItem = {
-          itemId: `item-${nextItemId}`,
+          itemId: `item-${crypto.randomUUID()}`,
           title: "",
           description: "",
           content: "",
@@ -196,7 +187,6 @@ function CourseCurriculum() {
           downloadable: false,
           resources: [],
         };
-        setNextItemId(nextItemId + 1);
         return {
           ...section,
           items: [...section.items, newItem],
@@ -431,8 +421,22 @@ function CourseCurriculum() {
     const initialQuizIds = getAllQuizIds(initialContent);
     const currentQuizIds = getAllQuizIds(sections);
     const removedQuizIds = initialQuizIds.filter(id => !currentQuizIds.includes(id));
-    for (const quizId of removedQuizIds) {
-      await deleteQuizMutation.mutateAsync({ quizId, courseId: parseInt(courseId) });
+    if (removedQuizIds.length > 0) {
+      try {
+        await deleteQuizBatch.mutateAsync({ quizIds: removedQuizIds });
+      }
+      catch { }
+    }
+
+    // Delete assignments that were removed from sections (deferred delete)
+    const initialAssignmentIds = getAllAssignmentIds(initialContent);
+    const currentAssignmentIds = getAllAssignmentIds(sections);
+    const removedAssignmentIds = initialAssignmentIds.filter(id => !currentAssignmentIds.includes(id));
+    if (removedAssignmentIds.length > 0) {
+      try {
+        await deleteAssignmentBatch.mutateAsync({ assignmentIds: removedAssignmentIds });
+      }
+      catch { }
     }
 
     const videoContentIds = getAllVideoContentIds(sections);
@@ -441,8 +445,6 @@ function CourseCurriculum() {
       id: courseId,
       title: courseData.title,
       contents: sections,
-      nextSectionId: nextSectionId,
-      nextItemId: nextItemId,
       videoContentIds: videoContentIds,
       totalVideo: videoContentIds.length,
       totalVideoDuration: totalVideoDuration,
@@ -478,6 +480,16 @@ function CourseCurriculum() {
     sections.forEach(section => {
       section.items.forEach(item => {
         if (item.quizId && item.quizId > 0) ids.push(item.quizId);
+      });
+    });
+    return ids;
+  };
+
+  const getAllAssignmentIds = (sections) => {
+    const ids = [];
+    sections.forEach(section => {
+      section.items.forEach(item => {
+        if (item.assignmentId && item.assignmentId > 0) ids.push(item.assignmentId);
       });
     });
     return ids;

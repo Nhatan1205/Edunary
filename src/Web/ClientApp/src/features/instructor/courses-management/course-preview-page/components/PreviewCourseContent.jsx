@@ -3,6 +3,7 @@ import { Box, Typography, Container } from "@mui/material";
 import PreviewVideoPlayer from "../../../../guest/course-overview/components/PreviewVideoPlayer";
 import PreviewCourseLearnTab from "./PreviewCourseLearnTab";
 import PreviewQuizPlayer from "./PreviewQuizPlayer";
+import PreviewAssignmentPlayer from "./assignment/PreviewAssignmentPlayer";
 
 export default function PreviewCourseContent({ selectedItem, courseId }) {
   if (!selectedItem) {
@@ -22,6 +23,10 @@ export default function PreviewCourseContent({ selectedItem, courseId }) {
       ) : (selectedItem.contentType === 'quiz' || selectedItem.type === 'quiz') ? (
         <Box sx={{ width: "100%", bgcolor: "#fff", display: "flex", justifyContent: "center", flex: 1, minHeight: 0 }}>
           <PreviewQuizPlayer courseId={courseId} contentId={selectedItem.itemId} />
+        </Box>
+      ) : (selectedItem.contentType === 'assignment' || selectedItem.type === 'assignment') ? (
+        <Box sx={{ width: "100%", bgcolor: "#fff", display: "flex", justifyContent: "center", flex: 1, minHeight: 0 }}>
+          <PreviewAssignmentPlayer courseId={courseId} contentId={selectedItem.itemId} />
         </Box>
       ) : (
         <Box sx={{ 

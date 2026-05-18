@@ -10,10 +10,6 @@ public class CourseContentSchema
     public string Title { get; set; } = string.Empty;
     [JsonPropertyName("contents")]
     public List<SectionSchema> Contents { get; set; } = new List<SectionSchema>();
-    [JsonPropertyName("nextSectionId")]
-    public int NextSectionId { get; set; }
-    [JsonPropertyName("nextItemId")]
-    public int NextItemId { get; set; }
     [JsonPropertyName("videoContentIds")]
     public List<int> VideoContentIds { get; set; } = new List<int>();
     [JsonPropertyName("totalVideo")]
@@ -75,6 +71,9 @@ public class ItemSchema
     /// <summary>Reference to Quiz.Id in the Quizzes table. 0 = not a quiz item.</summary>
     [JsonPropertyName("quizId")]
     public int QuizId { get; set; } = 0;
+    /// <summary>Reference to Assignment.Id in the Assignments table. 0 = not an assignment item.</summary>
+    [JsonPropertyName("assignmentId")]
+    public int AssignmentId { get; set; } = 0;
 }
 
 public class ResourseSchema

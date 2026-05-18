@@ -34,6 +34,7 @@ import NotificationsPage from "./features/user/notifications/NotificationsPage";
 import CourseLearnLayout from "./layouts/CourseLearnLayout";
 import VideoPlayerPage from "./features/user/course-learn/video-player/VideoPlayer";
 import QuizPlayerPage from "./features/user/course-learn/quiz-player/QuizPlayer";
+import AssignmentPlayerPage from "./features/user/course-learn/assignment-player/AssignmentPlayer";
 import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
 import OverviewPage from "./features/instructor/performance-section/overview-page/CourseOverviewPage";
@@ -43,6 +44,7 @@ import AnnouncementsPage from "./features/instructor/communication-section/annou
 import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
 import AnnouncementEditPage from "./features/instructor/communication-section/announcements-page/announcements-edit-page.jsx/AnnouncementEditPage";
 import QADashboardPage from "./features/instructor/communication-section/qa-page/QADashboardPage";
+import AssignmentDashboardPage from "./features/instructor/communication-section/assignment-dashboard/AssignmentDashboardPage";
 import CourseInitialRedirect from "./features/user/my-learning/CourseInitialRedirect";
 import NotFound from "./components/NotFound";
 import ProfileManageLayout from "./layouts/ProfileManageLayout";
@@ -391,6 +393,10 @@ const router = createBrowserRouter([
             element: <QADashboardPage />,
           },
           {
+            path: "assignments",
+            element: <AssignmentDashboardPage />,
+          },
+          {
             path: "announcements",
             element: <AnnouncementsPage />,
           },
@@ -506,6 +512,10 @@ const router = createBrowserRouter([
       {
         path: "quiz/:contentId",
         element: <QuizPlayerPage />,
+      },
+      {
+        path: "assignment/:contentId",
+        element: <AssignmentPlayerPage />,
       },
     ],
   },

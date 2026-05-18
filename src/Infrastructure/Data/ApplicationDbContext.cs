@@ -69,6 +69,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<QuestionUpvote> QuestionUpvotes => Set<QuestionUpvote>();
     public DbSet<AnswerUpvote> AnswerUpvotes => Set<AnswerUpvote>();
 
+    public DbSet<Assignment> Assignments => Set<Assignment>();
+    public DbSet<AssignmentQuestion> AssignmentQuestions => Set<AssignmentQuestion>();
+    public DbSet<AssignmentSubmission> AssignmentSubmissions => Set<AssignmentSubmission>();
+    public DbSet<AssignmentFeedback> AssignmentFeedbacks => Set<AssignmentFeedback>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

@@ -355,6 +355,662 @@
         ]
       }
     },
+    "/api/Assignments/item/{courseId}/{itemId}": {
+      "get": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "GetAssignmentByItemId",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Assignments/course/{courseId}": {
+      "get": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "GetAssignmentsByCourse",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Assignments": {
+      "post": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "CreateAssignment",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssignmentCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfInteger"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Assignments/settings/{assignmentId}": {
+      "put": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "UpdateAssignment",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssignmentCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Assignments/questions/{assignmentId}": {
+      "put": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "UpdateAssignmentQuestions",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssignmentQuestionsCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Assignments/publish/{assignmentId}": {
+      "put": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "PublishAssignment",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishAssignmentCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Assignments/link/{assignmentId}": {
+      "put": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "LinkAssignmentToItem",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkAssignmentToItemCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Assignments/batch": {
+      "delete": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "DeleteAssignment",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAssignmentCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AssignmentSubmissions/upsert": {
+      "post": {
+        "tags": [
+          "AssignmentSubmissions"
+        ],
+        "operationId": "Upsert",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertAssignmentSubmissionCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfInteger"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AssignmentSubmissions/draft/{assignmentId}": {
+      "get": {
+        "tags": [
+          "AssignmentSubmissions"
+        ],
+        "operationId": "GetDraft",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDraftDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AssignmentSubmissions/dashboard": {
+      "get": {
+        "tags": [
+          "AssignmentSubmissions"
+        ],
+        "operationId": "GetInstructorSubmissions",
+        "parameters": [
+          {
+            "name": "CourseId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          },
+          {
+            "name": "ReadFilter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "FeedbackFilter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 6
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfInstructorSubmissionListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AssignmentSubmissions/{submissionId}": {
+      "get": {
+        "tags": [
+          "AssignmentSubmissions"
+        ],
+        "operationId": "GetStudentSubmission",
+        "parameters": [
+          {
+            "name": "submissionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentSubmissionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AssignmentSubmissions/read/{submissionId}": {
+      "put": {
+        "tags": [
+          "AssignmentSubmissions"
+        ],
+        "operationId": "ToggleRead",
+        "parameters": [
+          {
+            "name": "submissionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleSubmissionReadCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AssignmentSubmissions/feedback": {
+      "post": {
+        "tags": [
+          "AssignmentSubmissions"
+        ],
+        "operationId": "CreateFeedback",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssignmentFeedbackCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfInteger"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AssignmentSubmissions/feedback/{feedbackId}": {
+      "put": {
+        "tags": [
+          "AssignmentSubmissions"
+        ],
+        "operationId": "UpdateFeedback",
+        "parameters": [
+          {
+            "name": "feedbackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssignmentFeedbackCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "AssignmentSubmissions"
+        ],
+        "operationId": "DeleteFeedback",
+        "parameters": [
+          {
+            "name": "feedbackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Auth/login": {
       "post": {
         "tags": [
@@ -4812,24 +5468,23 @@
         ]
       }
     },
-    "/api/Quizzes/{quizId}": {
+    "/api/Quizzes/batch": {
       "delete": {
         "tags": [
           "Quizzes"
         ],
         "operationId": "DeleteQuiz",
-        "parameters": [
-          {
-            "name": "quizId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteQuizCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -7372,6 +8027,539 @@
             "nullable": true
           },
           "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AssignmentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructions": {
+            "type": "string",
+            "nullable": true
+          },
+          "estimatedDurationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean"
+          },
+          "questions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AssignmentQuestionDto"
+            }
+          },
+          "instructorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "submissionStatus": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "submissionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "AssignmentQuestionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "exampleAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AssignmentSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean"
+          },
+          "estimatedDurationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ReturnResultOfInteger": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateAssignmentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructions": {
+            "type": "string",
+            "nullable": true
+          },
+          "estimatedDurationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateAssignmentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructions": {
+            "type": "string",
+            "nullable": true
+          },
+          "estimatedDurationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateAssignmentQuestionsCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AssignmentQuestionDto2"
+            }
+          }
+        }
+      },
+      "AssignmentQuestionDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "questionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "exampleAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PublishAssignmentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isPublished": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LinkAssignmentToItemCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeleteAssignmentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "UpsertAssignmentSubmissionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "answers": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/SubmitAnswerDto"
+            }
+          },
+          "action": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SubmitAnswerDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "answerText": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AssignmentDraftDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "answers": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PaginatedListOfInstructorSubmissionListDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/InstructorSubmissionListDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "InstructorSubmissionListDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "feedbackCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assignmentTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseTitle": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "StudentSubmissionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assignmentTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "answers": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/SubmissionAnswerDto"
+            }
+          },
+          "feedbacks": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FeedbackDto"
+            }
+          }
+        }
+      },
+      "SubmissionAnswerDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "exampleAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentAnswer": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "FeedbackDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "feedbackId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ToggleSubmissionReadCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isRead": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateAssignmentFeedbackCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateAssignmentFeedbackCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "feedbackId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
             "type": "string",
             "nullable": true
           }
@@ -11128,12 +12316,12 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/SubmitAnswerDto"
+              "$ref": "#/components/schemas/SubmitAnswerDto2"
             }
           }
         }
       },
-      "SubmitAnswerDto": {
+      "SubmitAnswerDto2": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -11417,20 +12605,6 @@
           }
         }
       },
-      "ReturnResultOfInteger": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "result": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "CreateQuizCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -11620,6 +12794,20 @@
           "relatedItemId": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "DeleteQuizCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "quizIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       },

@@ -6,7 +6,7 @@ import {
   Button,
   IconButton,
   Paper,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -18,6 +18,7 @@ import {
 import TitleInputForm from "./TitleInputForm";
 import LectureItem from "./lecture-item/LectureItem";
 import QuizItem from "./quiz-item/QuizItem";
+import AssignmentItem from "./assignment-item/AssignmentItem";
 
 function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate, sections = [] }) {
   const {
@@ -162,22 +163,24 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate, section
               </span>
             </Tooltip>
 
-            {/* Assignment - Disabled */}
-            <Tooltip title="Coming soon" arrow>
-              <span>
-                <Button
-                  variant="outlined"
-                  startIcon={<AssignmentIcon />}
-                  disabled
-                  sx={{
-                    textTransform: "none",
-                    fontWeight: 600,
-                  }}
-                >
-                  Assignment
-                </Button>
-              </span>
-            </Tooltip>
+            {/* Assignment */}
+            <Button
+              variant="outlined"
+              startIcon={<AssignmentIcon />}
+              onClick={() => handleSelectType("assignment")}
+              sx={{
+                textTransform: "none",
+                fontWeight: 600,
+                borderColor: "brand.main",
+                color: "brand.main",
+                "&:hover": {
+                  borderColor: "brand.dark",
+                  bgcolor: "brand.lighter",
+                },
+              }}
+            >
+              Assignment
+            </Button>
           </Box>
 
           <IconButton
@@ -227,8 +230,20 @@ function SortableCurriculumItem({ item, globalIndex, onDelete, onUpdate, section
       // TODO: Implement CodingExerciseItem
       return null;
     case "assignment":
-      // TODO: Implement AssignmentItem
-      return null;
+      return (
+        <AssignmentItem
+          item={item}
+          globalIndex={globalIndex}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
+          dndRef={setNodeRef}
+          dndStyle={style}
+          dndAttributes={attributes}
+          dndListeners={listeners}
+          isDragging={isDragging}
+          sections={sections}
+        />
+      );
     default:
       return null;
   }

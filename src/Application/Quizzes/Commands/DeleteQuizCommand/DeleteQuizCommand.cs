@@ -7,7 +7,7 @@ namespace Edunary.Application.Quizzes.Commands.DeleteQuizCommand;
 
 public record DeleteQuizCommand : IRequest<Result>
 {
-    public int QuizId { get; init; }
+    public List<int> QuizIds { get; init; } = new();
 }
 
 public class DeleteQuizCommandHandler : IRequestHandler<DeleteQuizCommand, Result>
@@ -28,20 +28,24 @@ public class DeleteQuizCommandHandler : IRequestHandler<DeleteQuizCommand, Resul
 
     public async Task<Result> Handle(DeleteQuizCommand request, CancellationToken cancellationToken)
     {
-        Quiz quiz = await _context.Quizzes
-            .Include(q => q.Course)
-            .FirstOrDefaultAsync(q => q.Id == request.QuizId, cancellationToken);
+        if (request.QuizIds == null || request.QuizIds.Count == 0)
+            return Result.Success();
 
-        if (quiz == null)
-            return Result.Failure(new[] { "Quiz not found." });
+        var quizzes = await _context.Quizzes
+            .Where(q => request.QuizIds.Contains(q.Id))
+            .ToListAsync(cancellationToken);
 
-        bool canManage = await _courseAuth.HasCourseAccessAsync(quiz.CourseId, _currentUserService.UserId, CoursePermission.Manage, cancellationToken);
-        if (!canManage)
-            return Result.Failure(new[] { "Access denied." });
+        // Check manage permission per distinct courseId
+        var courseIds = quizzes.Select(q => q.CourseId).Distinct();
+        foreach (var courseId in courseIds)
+        {
+            bool canManage = await _courseAuth.HasCourseAccessAsync(courseId, _currentUserService.UserId, CoursePermission.Manage, cancellationToken);
+            if (!canManage)
+                return Result.Failure(new[] { "Access denied." });
+        }
 
-        _context.Quizzes.Remove(quiz); // Cascade deletes Questions, Choices, Snapshots
+        _context.Quizzes.RemoveRange(quizzes); // Cascade deletes Questions, Choices, Snapshots
         await _context.SaveChangesAsync(cancellationToken);
-
         return Result.Success();
     }
 }

@@ -26,16 +26,19 @@ function QuizSetupStep({ item, courseId, onUpdate, onModeChange, sections }) {
   );
 
   const handlePickExisting = async (quiz) => {
-    await linkMutation.mutateAsync({
-      quizId: quiz.id,
-      courseId,
-      newItemId: item.itemId,
-      relatedItemId: null,
-    });
-    onUpdate(item.itemId, {
-      quizId: quiz.id,
-      description: quiz.description ?? "",
-    });
+    try {
+      await linkMutation.mutateAsync({
+        quizId: quiz.id,
+        courseId,
+        newItemId: item.itemId,
+        relatedItemId: null,
+      });
+      onUpdate(item.itemId, {
+        quizId: quiz.id,
+        description: quiz.description ?? "",
+      });
+    } catch { };
+
   };
 
   if (mode === null) {

@@ -15,6 +15,7 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useParams, useNavigate } from "react-router-dom";
 import useGetLearningSidebar from "../../../../hooks/course-progress-hooks/useGetLearningSidebar";
@@ -116,6 +117,8 @@ function CourseLearnSidebar({ onClose }) {
   const getItemIcon = (item) => {
     if (item.type === 'quiz') {
       return <QuizOutlinedIcon sx={{ fontSize: 18, color: 'brand.main' }} />;
+    } else if (item.type === 'assignment') {
+      return <AssignmentOutlinedIcon sx={{ fontSize: 18, color: 'brand.main' }} />;
     } else if (item.contentType === 'video') {
       return <PlayCircleOutlineIcon sx={{ fontSize: 18, color: 'text.secondary' }} />;
     } else if (item.contentType === 'article') {
@@ -155,7 +158,9 @@ function CourseLearnSidebar({ onClose }) {
   };
 
   const handleItemClick = (item) => {
-    const routeType = item.type === 'quiz' ? 'quiz' : 'lecture';
+    const routeType = item.type === 'quiz' ? 'quiz'
+      : item.type === 'assignment' ? 'assignment'
+      : 'lecture';
     navigate(`/course/${courseId}/learn/${routeType}/${item.itemId}`);
     if (onClose && window.innerWidth < 900) {
       onClose();

@@ -1,8 +1,10 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.CourseProgresses.Commands.UpdateCourseProgressCommand;
 using Edunary.Application.Courses.Queries.GetCourseById;
+using Edunary.Domain.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 
 namespace Edunary.Application.CourseDrafts.Queries.GetCourseCurriculumByIdQuery;
 
@@ -17,7 +19,7 @@ public class GetCourseCurriculumByIdQueryHandler : IRequestHandler<GetCourseCurr
     private readonly ICurrentUserService _currentUserService;
     public GetCourseCurriculumByIdQueryHandler(
         IApplicationDbContext context,
-        IMapper mapper, 
+        IMapper mapper,
         ICurrentUserService currentUserService
     )
     {
@@ -29,15 +31,26 @@ public class GetCourseCurriculumByIdQueryHandler : IRequestHandler<GetCourseCurr
     {
         var userId = _currentUserService?.UserId;
         var course = await _context.Courses
-                            .Where(c => c.Id == request.Id && c.CreatedBy == userId)
+                            .Where(c => c.Id == request.Id)
                             .FirstOrDefaultAsync(cancellationToken);
-        if (course != null && !string.IsNullOrEmpty(course.Content))
+
+        if (course == null)
+            return null;
+
+        bool isOwner = course.CreatedBy == userId;
+        bool isCollaborator = !isOwner && await _context.CourseCollaborators
+            .AnyAsync(cc => cc.CourseId == request.Id && cc.UserId == userId && cc.InviteStatus == CollaboratorInviteStatus.Accepted, cancellationToken);
+
+        if (!isOwner && !isCollaborator)
+            return null;
+
+        if (!string.IsNullOrEmpty(course.Content))
         {
-            var options = new JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull 
-                };
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
             var curriculumStructure = JsonSerializer.Deserialize<CourseContentSchema>(course.Content, options);
             if (curriculumStructure?.Contents != null)
             {
@@ -70,7 +83,7 @@ public class GetCourseCurriculumByIdQueryHandler : IRequestHandler<GetCourseCurr
                 }
             }
         }
-        
+
         return _mapper.Map<GetCourseByIdDto>(course);
     }
 }

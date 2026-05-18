@@ -15,6 +15,8 @@ import useUpdateAnnouncement from "../../../../../hooks/announcement-hooks/useUp
 import { toast } from "react-toastify";
 import AlertBox from "../../../../../components/AlertBox";
 import MainCard from "../../../../../components/instructor-layout/MainCard";
+import NoData from "../../../../../components/NoData";
+import emptyStateImg from "../../../../../assets/images/empty-courses.png";
 
 const columnsSetting = [
     {
@@ -81,6 +83,19 @@ const columnsSetting = [
         }
     }
 ];
+
+function CustomNoRowsOverlay() {
+    return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <NoData
+                image={emptyStateImg}
+                title="No courses found"
+                description="You haven't created any courses yet, or no courses match your search."
+                imageWidth={150}
+            />
+        </Box>
+    );
+}
 
 function AnnouncementEditPage() {
     const { announcementId } = useParams();
@@ -202,6 +217,7 @@ function AnnouncementEditPage() {
                                     loading={isCourseDataLoading}
                                     checkboxSelection={true}
                                     onSelectionChange={handleSelectionChange}
+                                    slots={{ noRowsOverlay: CustomNoRowsOverlay }}
                                     height={384}
                                     sx={{
                                         '& .MuiDataGrid-row.Mui-selected': {

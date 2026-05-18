@@ -1,8 +1,11 @@
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
+
+using Edunary.Application.Common.Models;
 
 namespace Edunary.Application.Quizzes.Commands.GenerateQuizQuestionsCommand;
 
-public record GenerateQuizQuestionsCommand : IRequest<bool>
+public record GenerateQuizQuestionsCommand : IRequest<Result>
 {
     public int CourseId { get; init; }
     public string ItemId { get; init; } = string.Empty;
@@ -13,24 +16,31 @@ public record GenerateQuizQuestionsCommand : IRequest<bool>
     public string PromptDescription { get; init; } = string.Empty;
 }
 
-public class GenerateQuizQuestionsCommandHandler : IRequestHandler<GenerateQuizQuestionsCommand, bool>
+public class GenerateQuizQuestionsCommandHandler : IRequestHandler<GenerateQuizQuestionsCommand, Result>
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IQuizGenerationJobService _jobService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public GenerateQuizQuestionsCommandHandler(
         ICurrentUserService currentUserService,
-        IQuizGenerationJobService jobService)
+        IQuizGenerationJobService jobService,
+        ICourseAuthorizationService courseAuth)
     {
         _currentUserService = currentUserService;
         _jobService = jobService;
+        _courseAuth = courseAuth;
     }
 
-    public Task<bool> Handle(GenerateQuizQuestionsCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(GenerateQuizQuestionsCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
         if (string.IsNullOrEmpty(userId))
-            return Task.FromResult(false);
+            return Result.Failure("User is not authenticated.");
+
+        bool canManage = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, CoursePermission.Manage, cancellationToken);
+        if (!canManage)
+            return Result.Failure("You do not have Manage permissions for this course.");
 
         _jobService.EnqueueQuizGeneration(
             userId,
@@ -42,6 +52,6 @@ public class GenerateQuizQuestionsCommandHandler : IRequestHandler<GenerateQuizQ
             request.Difficulty,
             request.PromptDescription);
 
-        return Task.FromResult(true);
+        return Result.Success();
     }
 }

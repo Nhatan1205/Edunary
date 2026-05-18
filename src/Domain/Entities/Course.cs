@@ -54,6 +54,8 @@ public class Course : BaseAuditableEntity
 
     public ICollection<CourseQuestion> CourseQuestions { get; set; } = new List<CourseQuestion>();
 
+    public ICollection<CourseCollaborator> Collaborators { get; set; } = new List<CourseCollaborator>();
+
     public void UpdateTotalStudents()
     {
         TotalStudents++;

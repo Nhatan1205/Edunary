@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.CourseAnswers.Commands.DeleteCourseAnswerCommand;
@@ -14,13 +15,16 @@ public class DeleteCourseAnswerCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public DeleteCourseAnswerCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<Result> Handle(
@@ -36,12 +40,11 @@ public class DeleteCourseAnswerCommandHandler
 
             var userId = _currentUserService.UserId;
 
-            // Author or course instructor can delete
-            var isInstructor = await _context.Courses
-                .Where(c => c.Id == answer.Question.CourseId)
-                .AnyAsync(c => c.CreatedBy == userId, cancellationToken);
+            // Author OR QA access can delete
+            var hasQaAccess = await _courseAuth.HasCourseAccessAsync(
+                answer.Question.CourseId, userId, CoursePermission.QA, cancellationToken);
 
-            if (answer.CreatedBy != userId && !isInstructor)
+            if (answer.CreatedBy != userId && !hasQaAccess)
             {
                 return Result.Failure("Not authorized to delete this answer.");
             }

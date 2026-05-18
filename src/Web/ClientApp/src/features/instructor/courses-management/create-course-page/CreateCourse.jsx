@@ -87,6 +87,7 @@ function CreateCourse() {
           totalSteps={totalSteps}
           onNext={handleNext}
           onPrevious={handlePrevious}
+          isLoading={createCourseMutation.isPending}
         />
       </div>
     </div>

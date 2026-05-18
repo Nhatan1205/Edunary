@@ -50,8 +50,7 @@ export default function RoadmapMetadataDialog({
     const createRoadmap = useCreateRoadmap();
     const updateRoadmap = useUpdateRoadmap();
     const { data: topicsData, isLoading: topicsLoading } = useGetRoadmapTopics();
-    const topics = topicsData?.items ?? [];
-
+    const topics = topicsData?.items || [];
 
     // Fetch roadmap detail when editing
     const { data: roadmapDetail, isLoading: detailLoading } = useGetRoadmapDetail(

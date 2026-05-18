@@ -1,6 +1,7 @@
 namespace Edunary.Application.Courses.Commands.UpdateCourse;
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
@@ -34,16 +35,20 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
     private readonly ICurrentUserService _currentUserService;
     private readonly INotifyService _notifyService;
     private readonly IUploadFileService _uploadFileService;
+    private readonly ICourseAuthorizationService _courseAuth;
+
     public UpdateCourseCommandHandler(
         IApplicationDbContext context, 
         ICurrentUserService currentUserService,
         INotifyService notifyService,
-        IUploadFileService uploadFileService)
+        IUploadFileService uploadFileService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
         _notifyService = notifyService;
         _uploadFileService = uploadFileService;
+        _courseAuth = courseAuth;
     }
     public async Task<Result> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
     {
@@ -56,7 +61,9 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             Guard.Against.NotFound(request.Id, entity);
 
             var userId = _currentUserService?.UserId;
-            if (entity.CreatedBy != userId)
+            
+            // Allow Owners OR Collaborators with Manage permission to edit the course
+            if (!await _courseAuth.HasCourseAccessAsync(request.Id, userId, CoursePermission.Manage, cancellationToken))
             {
                 return Result.Failure("You are not authorized to update this course.");
             }

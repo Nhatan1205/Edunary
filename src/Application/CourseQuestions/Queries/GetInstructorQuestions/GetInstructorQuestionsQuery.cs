@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
+using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -41,10 +42,17 @@ public class GetInstructorQuestionsQueryHandler
     {
         var instructorId = _currentUserService.UserId;
 
-        // Base: only questions in courses owned by this instructor
+        // Courses the instructor can access for QA: owned OR collaborated with QA permission
+        var accessibleCourseIds = _context.Courses
+            .Where(c => c.CreatedBy == instructorId ||
+                        c.Collaborators.Any(cc =>
+                            cc.UserId == instructorId &&
+                            cc.InviteStatus == CollaboratorInviteStatus.Accepted &&
+                            cc.Permissions.HasFlag(CoursePermission.QA)))
+            .Select(c => c.Id);
+
         var query = _context.CourseQuestions
-            .Include(q => q.Course)
-            .Where(q => q.Course.CreatedBy == instructorId);
+            .Where(q => accessibleCourseIds.Contains(q.CourseId));
 
         // Optional: filter to specific course
         if (request.CourseId.HasValue)

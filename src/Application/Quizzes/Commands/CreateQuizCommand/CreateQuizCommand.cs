@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Quizzes.Commands.CreateQuizCommand;
 
@@ -24,13 +25,16 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Retur
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public CreateQuizCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<int>> Handle(CreateQuizCommand request, CancellationToken cancellationToken)
@@ -38,10 +42,15 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Retur
         try
         {
             Course course = await _context.Courses
-                .FirstOrDefaultAsync(c => c.Id == request.CourseId && c.CreatedBy == _currentUserService.UserId, cancellationToken);
+                .FirstOrDefaultAsync(c => c.Id == request.CourseId, cancellationToken);
 
             if (course == null)
-                return new ReturnResult<int> { Result = 0, Message = "Course not found or access denied." };
+                return new ReturnResult<int> { Result = 0, Message = "Course not found." };
+
+            var userId = _currentUserService.UserId;
+            bool canManage = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, CoursePermission.Manage, cancellationToken);
+            if (!canManage)
+                return new ReturnResult<int> { Result = 0, Message = "Access denied." };
 
             bool exists = await _context.Quizzes
                 .AnyAsync(q => q.CourseId == request.CourseId && q.ItemId == request.ItemId, cancellationToken);

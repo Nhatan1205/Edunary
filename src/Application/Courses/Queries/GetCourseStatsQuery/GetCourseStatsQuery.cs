@@ -1,4 +1,4 @@
-﻿using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Courses.Queries.GetCourseStatsQuery;
 using Edunary.Domain.Entities;
@@ -10,7 +10,7 @@ namespace Edunary.Application.Courses.Queries.GetCoursesStatsQuery;
 
 public class GetCourseStatsQuery : IRequest<CourseStatsVM>
 {
-    public int? CourseId { get; init; } 
+    public int? CourseId { get; init; }
     public string DateRange { get; init; }
     public string Metric { get; init; }
 }
@@ -19,29 +19,46 @@ public class GetCoursesStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, 
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuthService;
 
-    public GetCoursesStatsQueryHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public GetCoursesStatsQueryHandler(IApplicationDbContext context, ICurrentUserService currentUserService, ICourseAuthorizationService courseAuthService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuthService = courseAuthService;
     }
     public async Task<CourseStatsVM> Handle(GetCourseStatsQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService?.UserId;
+
+        if (request.CourseId.HasValue)
+        {
+            if (!await _courseAuthService.HasCourseAccessAsync(request.CourseId.Value, userId, CoursePermission.Performance, cancellationToken))
+            {
+                return new CourseStatsVM
+                {
+                    Stats = new GetCourseStatsDto { Data = new List<DataPointDto>() },
+                    Summary = new GetCourseStatsSummaryDto()
+                };
+            }
+        }
+
         // -------------------------------
         // Base QUERY for total enrollments
         // -------------------------------
         var enrollmentQuery = _context.Enrollments
-            .Where(e => e.Course.CreatedBy == userId);
+            .Where(e => e.Course.CreatedBy == userId || e.Course.Collaborators.Any(cc => cc.UserId == userId && cc.InviteStatus == CollaboratorInviteStatus.Accepted && cc.Permissions.HasFlag(CoursePermission.Performance)));
+        
         if (request.CourseId is not null)
         {
             enrollmentQuery = enrollmentQuery.Where(e => e.CourseId == request.CourseId);
         }
+        
         // -------------------------------
         // Base QUERY for average rating
         // -------------------------------
         var ratingQuery = _context.RatingCourses
-            .Where(r => r.Course.CreatedBy == userId);
+            .Where(r => r.Course.CreatedBy == userId || r.Course.Collaborators.Any(cc => cc.UserId == userId && cc.InviteStatus == CollaboratorInviteStatus.Accepted && cc.Permissions.HasFlag(CoursePermission.Performance)));
 
         if (request.CourseId is not null)
         {
@@ -85,7 +102,7 @@ public class GetCoursesStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, 
 
         var statsDto = new GetCourseStatsDto
         {
-            CourseId = request.CourseId, 
+            CourseId = request.CourseId,
             DateRange = request.DateRange,
             AggregationLevel = aggregation,
             Metric = request.Metric,

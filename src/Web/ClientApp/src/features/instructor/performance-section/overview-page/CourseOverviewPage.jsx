@@ -1,4 +1,4 @@
-import { Container, Row, Col } from 'reactstrap';
+import { Row, Col } from 'reactstrap';
 import {
   Paper,
   Box,
@@ -29,7 +29,7 @@ function CourseOverviewPage() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { data: coursesData } =
-    useGetCoursesAuthor("", 2, 1, 1000);
+    useGetCoursesAuthor("", 2, 1, 1000, 4); // 4 = Performance permission
 
   const courseIdParam = searchParams.getAll("course_id")
     .map(val => {

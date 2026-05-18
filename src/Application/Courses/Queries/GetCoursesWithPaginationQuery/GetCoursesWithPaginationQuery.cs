@@ -84,18 +84,44 @@ public class GetCoursesWithPaginationQueryHandler : IRequestHandler<GetCoursesWi
             .Distinct()
             .ToList();
         var instructorNames = new Dictionary<string, string>();
-        foreach (var instructorId in instructorIds)
+        if (instructorIds.Any())
         {
-            var name = await _identityService.GetFullNameAsync(instructorId);
-            instructorNames[instructorId] = name;
+            var creatorIdentities = await _identityService.GetUserIdentitiesByIdsAsync(instructorIds, cancellationToken);
+            foreach (var identity in creatorIdentities)
+            {
+                instructorNames[identity.Id] = identity.FullName;
+            }
         }
+
+        var courseIdsInPage = courses.Items.Select(c => c.Id).ToList();
+        var visibleCollabs = await _context.CourseCollaborators
+            .Where(c => courseIdsInPage.Contains(c.CourseId) && c.IsVisible && c.InviteStatus == CollaboratorInviteStatus.Accepted)
+            .ToListAsync(cancellationToken);
+            
+        var collabUserIds = visibleCollabs.Select(c => c.UserId).Distinct().ToList();
+        var collabNames = new Dictionary<string, string>();
+        
+        if (collabUserIds.Any())
+        {
+            var collabIdentities = await _identityService.GetUserIdentitiesByIdsAsync(collabUserIds, cancellationToken);
+            foreach (var identity in collabIdentities)
+            {
+                collabNames[identity.Id] = identity.FullName;
+            }
+        }
+
         foreach (var course in courses.Items)
         {
+            var ownerName = "Unknown";
             if (!string.IsNullOrEmpty(course.CreatedBy) &&
                 instructorNames.ContainsKey(course.CreatedBy))
             {
-                course.InstructorName = instructorNames[course.CreatedBy];
+                ownerName = instructorNames[course.CreatedBy];
             }
+            
+            var courseCollabs = visibleCollabs.Where(c => c.CourseId == course.Id).ToList();
+            var collabsString = string.Join(", ", courseCollabs.Select(c => collabNames.GetValueOrDefault(c.UserId, "")).Where(n => !string.IsNullOrEmpty(n)));
+            course.InstructorName = string.IsNullOrEmpty(collabsString) ? ownerName : $"{ownerName}, {collabsString}";
         }
 
         // set enrollment flags for current user (if authenticated)

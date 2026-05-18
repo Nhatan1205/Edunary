@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
 using Edunary.Domain.Events.CourseAnswers;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,15 +18,18 @@ public class CreateCourseAnswerCommandHandler : IRequestHandler<CreateCourseAnsw
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public CreateCourseAnswerCommandHandler(
         IApplicationDbContext context,
         IMapper mapper,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _mapper = mapper;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<CreatedCourseAnswerDto>> Handle(
@@ -34,25 +38,20 @@ public class CreateCourseAnswerCommandHandler : IRequestHandler<CreateCourseAnsw
         try
         {
             var question = await _context.CourseQuestions
-                .Include(q => q.Course)
                 .FirstOrDefaultAsync(q => q.Id == request.QuestionId, cancellationToken);
 
             Guard.Against.NotFound(request.QuestionId, question);
 
             var userId = _currentUserService.UserId;
 
-            // Allow enrolled students OR the course instructor
-            var course = await _context.Courses
-                .Where(c => c.Id == question.CourseId)
-                .Select(c => new { c.CreatedBy })
-                .FirstOrDefaultAsync(cancellationToken);
-
-            var isInstructor = course?.CreatedBy == userId;
+            // Allow enrolled students OR anyone with QA access (owner/collaborator)
+            var hasQaAccess = await _courseAuth.HasCourseAccessAsync(
+                question.CourseId, userId, CoursePermission.QA, cancellationToken);
 
             var isEnrolled = await _context.Enrollments
                 .AnyAsync(e => e.CourseId == question.CourseId && e.StudentId == userId, cancellationToken);
 
-            if (!isEnrolled && !isInstructor)
+            if (!isEnrolled && !hasQaAccess)
             {
                 return new ReturnResult<CreatedCourseAnswerDto>
                 {

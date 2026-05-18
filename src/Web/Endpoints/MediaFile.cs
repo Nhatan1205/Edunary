@@ -160,10 +160,14 @@ public class MediaFile : EndpointGroupBase
         return result;
     }
 
-    public async Task<UploadSessionDto> InitiateChunkedUpload(ISender sender, InitiateChunkedUploadCommand command)
+    public async Task<IResult> InitiateChunkedUpload(ISender sender, InitiateChunkedUploadCommand command)
     {
         var result = await sender.Send(command);
-        return result;
+        if (result.Result != null)
+        {
+            return Results.Ok(result.Result);
+        }
+        return Results.BadRequest(result.Message);
     }
 
     [DisableRequestSizeLimit]

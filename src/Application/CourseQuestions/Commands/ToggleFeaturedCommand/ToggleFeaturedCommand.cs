@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.CourseQuestions.Commands.ToggleFeaturedCommand;
 
@@ -19,13 +20,16 @@ public class ToggleFeaturedCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICourseAuthorizationService _courseAuth;
 
     public ToggleFeaturedCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICourseAuthorizationService courseAuth)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _courseAuth = courseAuth;
     }
 
     public async Task<ReturnResult<ToggleFeaturedDto>> Handle(
@@ -34,20 +38,19 @@ public class ToggleFeaturedCommandHandler
         try
         {
             var question = await _context.CourseQuestions
-                .Include(q => q.Course)
                 .FirstOrDefaultAsync(q => q.Id == request.QuestionId, cancellationToken);
 
             Guard.Against.NotFound(request.QuestionId, question);
 
             var userId = _currentUserService.UserId;
+            var courseId = question.CourseId;
 
-            // Only course instructor can toggle featured
-            if (question.Course.CreatedBy != userId)
+            if (!await _courseAuth.HasCourseAccessAsync(courseId, userId, CoursePermission.QA, cancellationToken))
             {
                 return new ReturnResult<ToggleFeaturedDto>
                 {
                     Result = null,
-                    Message = "Only the course instructor can mark questions as featured."
+                    Message = "You don't have permission to mark questions as featured."
                 };
             }
 

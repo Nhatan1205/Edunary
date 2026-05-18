@@ -51,6 +51,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import Tooltip from "@mui/material/Tooltip";
 import LinearProgress from "@mui/material/LinearProgress";
+import { toast } from "react-toastify";
 
 const FILTER_OPTIONS = [
   { label: "All Status", value: "all" },
@@ -84,8 +85,6 @@ function CourseCaptions() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [isInvalidFormatDialogOpen, setIsInvalidFormatDialogOpen] = useState(false);
-  const [uploadErrorMessage, setUploadErrorMessage] = useState("");
-  const [isUploadErrorOpen, setIsUploadErrorOpen] = useState(false);
 
   const {
     data: fetchedLanguages = [],
@@ -121,7 +120,7 @@ function CourseCaptions() {
   }, []);
 
   const handleError = useCallback((mediaFileId, message) => {
-    // Could show a toast here if needed
+    toast.error(message || "Failed to generate AI captions.");
   }, []);
 
   const { generatingRows, setGeneratingRows } = useCaptionGenerateProgress(handleComplete, handleError);
@@ -184,8 +183,7 @@ function CourseCaptions() {
         file,
       });
     } catch (err) {
-      setUploadErrorMessage(err?.message || "Upload failed. Please try again.");
-      setIsUploadErrorOpen(true);
+      // Error is handled and toasted by the hook's onError
     } finally {
       setUploadingRows((prev) => {
         const next = { ...prev };
@@ -216,8 +214,7 @@ function CourseCaptions() {
       try {
         await deleteCaption.mutateAsync(pendingDeleteRow.captionId);
       } catch (err) {
-        setUploadErrorMessage(err?.message || "Delete failed. Please try again.");
-        setIsUploadErrorOpen(true);
+        // Error is handled and toasted by the hook's onError
       }
     }
     setShowDeleteConfirm(false);
@@ -632,14 +629,6 @@ function CourseCaptions() {
         onClose={() => setIsInvalidFormatDialogOpen(false)}
         title="Invalid subtitle format"
         message="Please upload a valid subtitle file with the .vtt extension only."
-      />
-
-      {/* Upload/Delete error dialog */}
-      <InfoDialog
-        open={isUploadErrorOpen}
-        onClose={() => setIsUploadErrorOpen(false)}
-        title="Error"
-        message={uploadErrorMessage}
       />
     </Container>
   );

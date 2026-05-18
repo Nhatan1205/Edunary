@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Edunary.Application.MediaFiles.Queries;
 
 namespace Edunary.Application.MediaFiles.Queries.GetHlsStreamQuery;
 
@@ -31,24 +32,24 @@ public class GetHlsStreamQueryHandler : IRequestHandler<GetHlsStreamQuery, GetHl
             return new GetHlsStreamResult { ErrorType = "BadRequest", ErrorMessage = "Invalid video request." };
         }
 
-        var hasAccess = await _sender.Send(new Edunary.Application.MediaFiles.Queries.CheckMediaFileAccessQuery.CheckMediaFileAccessQuery
-        { 
-            VideoId = parsedVideoId 
+        var hasAccess = await _sender.Send(new CheckMediaFileAccessQuery.CheckMediaFileAccessQuery
+        {
+            VideoId = parsedVideoId
         }, cancellationToken);
 
-        if (!hasAccess) 
+        if (!hasAccess)
         {
             return new GetHlsStreamResult { ErrorType = "Forbid" };
         }
 
         var rootPath = request.RootPath;
-        if (string.IsNullOrEmpty(rootPath)) 
+        if (string.IsNullOrEmpty(rootPath))
         {
             return new GetHlsStreamResult { ErrorType = "NotFound" };
         }
 
         var physicalPath = Path.Combine(rootPath, "hls", request.VideoId, request.FileName);
-        
+
         var fullPath = Path.GetFullPath(physicalPath);
         if (!fullPath.StartsWith(Path.Combine(rootPath, "hls"), StringComparison.OrdinalIgnoreCase))
         {
@@ -60,14 +61,14 @@ public class GetHlsStreamQueryHandler : IRequestHandler<GetHlsStreamQuery, GetHl
             return new GetHlsStreamResult { ErrorType = "NotFound" };
         }
 
-        string contentType = request.FileName.EndsWith(".m3u8", StringComparison.OrdinalIgnoreCase) 
-            ? "application/vnd.apple.mpegurl" 
+        string contentType = request.FileName.EndsWith(".m3u8", StringComparison.OrdinalIgnoreCase)
+            ? "application/vnd.apple.mpegurl"
             : (request.FileName.EndsWith(".ts", StringComparison.OrdinalIgnoreCase) ? "video/MP2T" : "application/octet-stream");
 
-        return new GetHlsStreamResult 
-        { 
-            FilePath = fullPath, 
-            ContentType = contentType 
+        return new GetHlsStreamResult
+        {
+            FilePath = fullPath,
+            ContentType = contentType
         };
     }
 }

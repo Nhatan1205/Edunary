@@ -12,6 +12,8 @@ import CustomPagination from "../../../../../components/pagination/CustomPaginat
 import { toast } from "react-toastify";
 import AlertBox from "../../../../../components/AlertBox";
 import MainCard from "../../../../../components/instructor-layout/MainCard";
+import NoData from "../../../../../components/NoData";
+import emptyStateImg from "../../../../../assets/images/empty-courses.png";
 
 const columnsSetting = [
     {
@@ -78,6 +80,19 @@ const columnsSetting = [
         }
     }
 ];
+
+function CustomNoRowsOverlay() {
+    return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <NoData
+                image={emptyStateImg}
+                title="No courses found"
+                description="You haven't created any courses yet, or no courses match your search."
+                imageWidth={150}
+            />
+        </Box>
+    );
+}
 
 function AnnouncementComposePage() {
     const [selectedCourses, setSelectedCourses] = useState({ type: "include", ids: {} });
@@ -186,6 +201,7 @@ function AnnouncementComposePage() {
                                 checkboxSelection={true}
                                 onSelectionChange={handleSelectionChange}
                                 height={384}
+                                slots={{ noRowsOverlay: CustomNoRowsOverlay }}
                                 sx={{
                                     '& .MuiDataGrid-row.Mui-selected': {
                                         backgroundColor: 'grey.100',

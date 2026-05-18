@@ -279,3 +279,36 @@ export function assignmentStatusLabel(status) {
   if (status === ASSIGNMENT_STATUS.SUBMITTED) return "Submitted";
   return "Unknown";
 }
+/**
+ * Extracts a readable error message from NSwag ApiException objects.
+ * Parses the JSON string in `error.response` if present.
+ */
+export function extractApiError(error) {
+  if (!error) return "An unexpected error occurred.";
+  if (error.response) {
+    try {
+      const parsed = JSON.parse(error.response);
+      if (parsed.errors) {
+        if (Array.isArray(parsed.errors)) {
+          return parsed.errors.join(", ");
+        } else if (typeof parsed.errors === "object") {
+          return Object.values(parsed.errors).flat().join(", ");
+        }
+      }
+      if (parsed.detail) return parsed.detail;
+      if (parsed.title) return parsed.title;
+    } catch (e) {
+      // Not JSON. Prevent toasting huge HTML error pages
+      if (typeof error.response === "string") {
+        if (error.response.trim().startsWith("<")) {
+          return "An unexpected server error occurred.";
+        }
+        if (error.response.length > 150) {
+          return error.response.substring(0, 150) + "...";
+        }
+      }
+      return error.response;
+    }
+    return error.message || "An unexpected error occurred.";
+  }
+}

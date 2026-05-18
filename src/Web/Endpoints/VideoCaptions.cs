@@ -56,19 +56,27 @@ public class VideoCaptions : EndpointGroupBase
             FileSize = file.Length,
         };
 
-        var captionId = await sender.Send(command);
-        return Results.Ok(new { captionId });
+        var result = await sender.Send(command);
+        if (result.Succeeded)
+        {
+            return Results.Ok();
+        }
+        return Results.BadRequest(result);
     }
 
     public async Task<IResult> DeleteCaption(ISender sender, int id)
     {
-        await sender.Send(new DeleteVideoCaptionCommand { CaptionId = id });
-        return Results.NoContent();
+        var result = await sender.Send(new DeleteVideoCaptionCommand { CaptionId = id });
+        if (result.Succeeded)
+        {
+            return Results.Ok();
+        }
+        return Results.BadRequest(result);
     }
 
     public async Task<IResult> GenerateAICaption(ISender sender, [FromBody] GenerateAICaptionCommand command)
     {
-        var started = await sender.Send(command);
-        return started ? Results.Ok() : Results.Unauthorized();
+        var result = await sender.Send(command);
+        return result.Succeeded ? Results.Ok() : Results.BadRequest(result);
     }
 }

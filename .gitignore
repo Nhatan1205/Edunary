@@ -482,3 +482,6 @@ $RECYCLE.BIN/
 .azure
 
 redis-data
+
+# C# Language Server cache
+*.lscache

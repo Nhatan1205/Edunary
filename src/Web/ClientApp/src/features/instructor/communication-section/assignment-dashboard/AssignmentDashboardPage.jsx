@@ -4,7 +4,6 @@ import {
   Avatar, IconButton, Tooltip, Button, Checkbox, Divider,
   FormControlLabel, CircularProgress, Collapse, Menu,
 } from "@mui/material";
-import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AssignmentSharpIcon from "@mui/icons-material/AssignmentSharp";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
@@ -15,6 +14,8 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MainCard from "../../../../components/instructor-layout/MainCard";
 import PageTitle from "../../../../components/PageTitle";
+import NoData from "../../../../components/NoData";
+import emptySubmissionImg from "../../../../assets/images/empty-mailbox.png";
 import TextEditor from "../../../../components/TextEditor";
 import useGetCoursesAuthor from "../../../../hooks/course-hooks/useGetCoursesAuthor";
 import useGetInstructorSubmissions from "../../../../hooks/assignment-submission-hooks/useGetInstructorSubmissions";
@@ -317,10 +318,10 @@ function SubmissionPanel({ submission }) {
   }
 
   return (
-    // Outer row: read-toggle button floats LEFT outside the panel
+    // Outer row: read-toggle button floats LEFT — aligned with the panel header
     <Stack direction="row" alignItems="flex-start" spacing={1}>
-      {/* Read toggle — outside the panel, vertically centered with header */}
-      <Box sx={{ pt: 1.25, flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
+      {/* Read toggle — pinned to top, aligned with the panel header row (~py:1.75 = 14px + 4px border) */}
+      <Box sx={{ pt: "18px", flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
         <ReadToggleButton
           isRead={localIsRead}
           submissionId={submission.submissionId}
@@ -476,19 +477,12 @@ export default function AssignmentDashboardPage() {
           <CircularProgress sx={{ color: "brand.main" }} />
         </Box>
       ) : submissions.length === 0 ? (
-        <Box sx={{
-          display: "flex", flexDirection: "column", alignItems: "center",
-          justifyContent: "center", py: 12, borderRadius: 3,
-          border: "1px dashed", borderColor: "divider", bgcolor: "background.alt",
-        }}>
-          <AssignmentIndIcon sx={{ fontSize: 56, color: "grey.300", mb: 2 }} />
-          <Typography variant="body1" color="text.secondary" fontWeight={500}>
-            No submissions found
-          </Typography>
-          <Typography variant="body2" color="text.disabled" sx={{ mt: 0.5 }}>
-            Try adjusting your filters
-          </Typography>
-        </Box>
+        <NoData
+          image={emptySubmissionImg}
+          title="No submissions found"
+          description="Try adjusting your filters, or wait for students to submit their assignments."
+          minHeight="320px"
+        />
       ) : (
         <Stack spacing={1.5}>
           {submissions.map((s) => (

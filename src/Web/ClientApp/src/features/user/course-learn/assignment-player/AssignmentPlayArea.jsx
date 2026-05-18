@@ -742,12 +742,11 @@ function IdleLanding({ assignment, onStart, onGoToSummary }) {
   );
 }
 
-// ─── Main exported component ──────────────────────────────────────────────────
 function AssignmentPlayAreaFinal({ assignment }) {
   const [step, setStep] = useState("idle");
 
   return (
-    <Box sx={{ width: "100%", bgcolor: "background.default" }}>
+    <Box sx={{ width: "100%", height: { xs: "auto", md: "500px" }, overflowY: "auto", bgcolor: "background.default", position: "relative" }}>
       <Box sx={{ p: { xs: 3, sm: 5 }, maxWidth: 860, mx: "auto" }}>
         {step === "idle" ? (
           <IdleLanding

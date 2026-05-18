@@ -251,18 +251,6 @@ function CourseCurriculum() {
       title: "Delete Curriculum Item",
       message: "Are you sure you want to delete this curriculum item?",
       onConfirm: async () => {
-        if (item?.type === "assignment" && item?.assignmentId) {
-          try {
-            await deleteAssignment.mutateAsync({
-              assignmentId: item.assignmentId,
-              courseId,
-              itemId: item.itemId,
-            });
-          } catch (_) {
-
-          }
-        }
-
         // Collect video ID and resource IDs
         const contentIds = [];
 
@@ -449,6 +437,14 @@ function CourseCurriculum() {
       await deleteQuizMutation.mutateAsync({ quizId, courseId: parseInt(courseId) });
     }
 
+    // Delete assignments that were removed from sections (deferred delete)
+    const initialAssignmentIds = getAllAssignmentIds(initialContent);
+    const currentAssignmentIds = getAllAssignmentIds(sections);
+    const removedAssignmentIds = initialAssignmentIds.filter(id => !currentAssignmentIds.includes(id));
+    for (const assignmentId of removedAssignmentIds) {
+      await deleteAssignment.mutateAsync({ assignmentId, courseId: parseInt(courseId) });
+    }
+
     const videoContentIds = getAllVideoContentIds(sections);
     const totalVideoDuration = getTotalVideoDuration(sections);
     const data = {
@@ -492,6 +488,16 @@ function CourseCurriculum() {
     sections.forEach(section => {
       section.items.forEach(item => {
         if (item.quizId && item.quizId > 0) ids.push(item.quizId);
+      });
+    });
+    return ids;
+  };
+
+  const getAllAssignmentIds = (sections) => {
+    const ids = [];
+    sections.forEach(section => {
+      section.items.forEach(item => {
+        if (item.assignmentId && item.assignmentId > 0) ids.push(item.assignmentId);
       });
     });
     return ids;

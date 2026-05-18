@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  Box, Typography, Button, Stack, Divider, CircularProgress, Avatar, Chip,
+  Box, Typography, Button, Stack, Divider, CircularProgress, Avatar, Chip, Paper,
 } from "@mui/material";
 import {
   AccessTime as AccessTimeIcon,
   AssignmentTurnedIn as AssignmentTurnedInIcon,
   CheckCircle as CheckCircleIcon,
   ArrowBack as ArrowBackIcon,
+  Feedback as FeedbackIcon,
+  ListAlt as ListAltIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import TextEditor from "../../../../components/TextEditor";
@@ -16,7 +18,7 @@ import useGetAssignmentDraft from "../../../../hooks/assignment-submission-hooks
 import useUpsertAssignmentSubmission from "../../../../hooks/assignment-submission-hooks/useUpsertAssignmentSubmission";
 import useGetStudentSubmission from "../../../../hooks/assignment-submission-hooks/useGetStudentSubmission";
 import useGetBasicUserInfo from "../../../../hooks/auth-hooks/useGetBasicUserInfor";
-import { ASSIGNMENT_STATUS } from "../../../../utils/helpers";
+import { ASSIGNMENT_STATUS, formatTimeAgo } from "../../../../utils/helpers";
 
 // ─── Step stepper ─────────────────────────────────────────────────────────────
 const STEPS = [
@@ -308,7 +310,7 @@ function SubmissionStep({ assignment, onPrev, onNext }) {
               </Stack>
 
               {isSubmitted ? (
-                <Box sx={{ ml: 3.5, p: 2, bgcolor: "background.alt", borderRadius: 1.5, border: "1px solid", borderColor: "divider" }}>
+                <Box sx={{ ml: 3.5 }}>
                   {answersRef.current[q.id]
                     ? <Box dangerouslySetInnerHTML={{ __html: answersRef.current[q.id] }} sx={{ lineHeight: 1.7, "& p:first-of-type": { mt: 0 }, "& p:last-of-type": { mb: 0 } }} />
                     : <Typography variant="body2" color="text.disabled" fontStyle="italic">No answer provided.</Typography>
@@ -365,7 +367,7 @@ function SubmissionStep({ assignment, onPrev, onNext }) {
               bgcolor: "brand.main", "&:hover": { bgcolor: "brand.dark" },
             }}
           >
-            View Instructor Example
+            Next
           </Button>
         )}
       </Stack>
@@ -496,8 +498,165 @@ function InstructorExampleStep({ assignment, onPrev }) {
   );
 }
 
+function SubmissionSummaryStep({ assignment, onBack }) {
+  const submissionId = assignment.submissionId;
+  const { data: submissionData, isLoading } = useGetStudentSubmission(submissionId);
+  const { data: currentUser } = useGetBasicUserInfo();
+  const questions = assignment.questions ?? [];
+
+  const studentAnswers = {};
+  if (submissionData?.answers) {
+    submissionData.answers.forEach(a => { studentAnswers[a.questionId] = a.studentAnswer; });
+  }
+
+  const feedbacks = submissionData?.feedbacks ?? [];
+
+  if (isLoading) {
+    return <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}><CircularProgress /></Box>;
+  }
+
+  return (
+    <Box>
+      {/* Header */}
+      <Stack direction="row" alignItems="center" gap={1.5} mb={0.5}>
+        <ListAltIcon sx={{ color: "brand.main", fontSize: "1.5rem" }} />
+        <Typography variant="h5" fontWeight={800}>Submission Summary</Typography>
+      </Stack>
+      <Typography variant="body2" color="text.secondary" mb={3}>
+        Your answers and instructor feedback for this assignment.
+      </Typography>
+
+      {/* Q&A panel — mirroring InstructorExampleStep */}
+      <Panel sx={{ mb: 3 }}>
+        <Typography variant="subtitle2" fontWeight={700} mb={1} color="text.secondary">
+          Your answers
+        </Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+          <Box sx={{ mb: -2 }}>
+            <PersonCard
+              name={currentUser?.fullName || "You"}
+              avatar={currentUser?.avatar || null}
+              userId={null}
+            />
+          </Box>
+          <Typography variant="caption" color="text.secondary">
+            {submissionData?.submittedAt ? formatTimeAgo(submissionData.submittedAt) : ""}
+          </Typography>
+        </Stack>
+
+        {questions.map((q, qi) => {
+          const ans = studentAnswers[q.id];
+          return (
+            <Box key={q.id} sx={{ mb: qi < questions.length - 1 ? 3 : 0 }}>
+              <Stack direction="row" gap={1} alignItems="flex-start" mb={0.75}>
+                <Typography variant="body2" fontWeight={700} sx={{ minWidth: 24, flexShrink: 0, pt: "1px" }}>
+                  {qi + 1}.
+                </Typography>
+                <Box
+                  dangerouslySetInnerHTML={{ __html: q.questionText }}
+                  sx={{ lineHeight: 1.7, fontWeight: 500, fontSize: "0.925rem", "& p:first-of-type": { mt: 0 }, "& p:last-of-type": { mb: 0 } }}
+                />
+              </Stack>
+              <Box sx={{ ml: 3.5 }}>
+                {ans
+                  ? <Box dangerouslySetInnerHTML={{ __html: ans }}
+                    sx={{ lineHeight: 1.7, "& p:first-of-type": { mt: 0 }, "& p:last-of-type": { mb: 0 } }} />
+                  : <Typography variant="body2" color="text.disabled" fontStyle="italic">No answer provided.</Typography>
+                }
+              </Box>
+            </Box>
+          );
+        })}
+
+        {questions.length === 0 && (
+          <Typography variant="body2" color="text.disabled" fontStyle="italic">No questions found.</Typography>
+        )}
+      </Panel>
+
+      {/* Feedback panels */}
+      {feedbacks.length > 0 && (
+        <Box mb={3}>
+          <Stack direction="row" alignItems="center" gap={1} mb={2}>
+            <FeedbackIcon sx={{ color: "brand.main", fontSize: "1.2rem" }} />
+            <Typography variant="subtitle1" fontWeight={700}>
+              Instructor Feedback
+            </Typography>
+          </Stack>
+
+          <Stack spacing={2}>
+            {feedbacks.map(fb => (
+              <Paper
+                key={fb.feedbackId}
+                elevation={0}
+                sx={{
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                  p: 2.5,
+                  bgcolor: "background.paper",
+                  boxShadow: "0 2px 8px rgba(0,167,111,0.06)",
+                  transition: "box-shadow 0.2s",
+                  "&:hover": { boxShadow: "0 4px 16px rgba(0,167,111,0.12)" },
+                }}
+              >
+                {/* Instructor info row */}
+                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1.5}>
+                  <Stack direction="row" alignItems="center" gap={1.5}>
+                    <Avatar
+                      src={fb.instructorAvatar || undefined}
+                      sx={{
+                        width: 36, height: 36,
+                        bgcolor: "brand.lighter", color: "brand.main",
+                        fontSize: "0.9rem", fontWeight: 700,
+                      }}
+                    >
+                      {!fb.instructorAvatar && fb.instructorName?.[0]?.toUpperCase()}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body2" fontWeight={700} lineHeight={1.3}>
+                        {fb.instructorName || "Instructor"}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatTimeAgo(fb.createdAt)}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Stack>
+
+                <Divider sx={{ mb: 1.5 }} />
+
+                {/* Feedback content */}
+                <Box
+                  dangerouslySetInnerHTML={{ __html: fb.content }}
+                  sx={{
+                    lineHeight: 1.8, fontSize: "0.925rem",
+                    "& p:first-of-type": { mt: 0 },
+                    "& p:last-of-type": { mb: 0 },
+                  }}
+                />
+              </Paper>
+            ))}
+          </Stack>
+        </Box>
+      )}
+
+      {feedbacks.length === 0 && (
+        <AlertBox severity="info" sx={{ mb: 3 }}>
+          <Typography fontWeight={600} mb={0.5}>No feedback yet.</Typography>
+          Your instructor hasn't left any feedback on this submission yet.
+        </AlertBox>
+      )}
+
+      {/* Back button */}
+      <Stack direction="row" justifyContent="flex-start">
+        <PrevButton onClick={onBack} />
+      </Stack>
+    </Box>
+  );
+}
+
 // ─── Idle landing ─────────────────────────────────────────────────────────────
-function IdleLanding({ assignment, onStart }) {
+function IdleLanding({ assignment, onStart, onGoToSummary }) {
   const isSubmitted = assignment.submissionStatus === ASSIGNMENT_STATUS.SUBMITTED;
   return (
     <Box sx={{
@@ -550,18 +709,34 @@ function IdleLanding({ assignment, onStart }) {
           </Stack>
         )}
 
-        <Button
-          variant="contained" size="large" onClick={onStart}
-          sx={{
-            borderRadius: "999px", px: 6, py: 1.5, fontWeight: 700, fontSize: 16,
-            bgcolor: "brand.main",
-            boxShadow: "0 8px 16px rgba(0,167,111,0.24)", transition: "all 0.2s",
-            "&:hover": { bgcolor: "brand.dark", boxShadow: "0 12px 20px rgba(0,167,111,0.32)", transform: "translateY(-2px)" },
-          }}
-        >
-          {assignment.submissionStatus == null
-            ? "Start Assignment" : "View Assignment"}
-        </Button>
+        <Stack direction="column" alignItems="center" gap={1.5} width="100%">
+          <Button
+            variant="contained" size="large" onClick={onStart}
+            sx={{
+              borderRadius: "999px", px: 6, py: 1.5, fontWeight: 700, fontSize: 16,
+              bgcolor: "brand.main",
+              "&:hover": { bgcolor: "brand.dark" },
+            }}
+          >
+            {assignment.submissionStatus == null
+              ? "Start Assignment" : "View Assignment"}
+          </Button>
+
+          {isSubmitted && (
+            <Button
+              variant="outlined" size="medium" onClick={onGoToSummary}
+              startIcon={<ListAltIcon />}
+              sx={{
+                borderRadius: "999px", px: 4, py: 1, fontWeight: 600,
+                borderColor: "brand.main", color: "brand.main",
+                "&:hover": { bgcolor: "brand.lighter", borderColor: "brand.dark" },
+                transition: "all 0.2s",
+              }}
+            >
+              Go to Summary
+            </Button>
+          )}
+        </Stack>
       </Box>
     </Box>
   );
@@ -575,7 +750,16 @@ function AssignmentPlayAreaFinal({ assignment }) {
     <Box sx={{ width: "100%", bgcolor: "background.default" }}>
       <Box sx={{ p: { xs: 3, sm: 5 }, maxWidth: 860, mx: "auto" }}>
         {step === "idle" ? (
-          <IdleLanding assignment={assignment} onStart={() => setStep("instructions")} />
+          <IdleLanding
+            assignment={assignment}
+            onStart={() => setStep("instructions")}
+            onGoToSummary={() => setStep("summary")}
+          />
+        ) : step === "summary" ? (
+          <SubmissionSummaryStep
+            assignment={assignment}
+            onBack={() => setStep("idle")}
+          />
         ) : (
           <>
             <StepStepper currentStep={step} onStepClick={setStep} />

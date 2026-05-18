@@ -75,6 +75,9 @@ public class ItemSchema
     /// <summary>Reference to Quiz.Id in the Quizzes table. 0 = not a quiz item.</summary>
     [JsonPropertyName("quizId")]
     public int QuizId { get; set; } = 0;
+    /// <summary>Reference to Assignment.Id in the Assignments table. 0 = not an assignment item.</summary>
+    [JsonPropertyName("assignmentId")]
+    public int AssignmentId { get; set; } = 0;
 }
 
 public class ResourseSchema

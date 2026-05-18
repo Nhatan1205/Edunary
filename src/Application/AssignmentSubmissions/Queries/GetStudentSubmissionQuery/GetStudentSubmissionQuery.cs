@@ -72,20 +72,30 @@ public class GetStudentSubmissionQueryHandler : IRequestHandler<GetStudentSubmis
             };
         }).ToList();
 
-        // Resolve feedbacks with instructor names
         List<FeedbackDto> feedbackDtos = new List<FeedbackDto>();
-        foreach (var fb in submission.Feedbacks)
+        if (submission.Feedbacks.Any())
         {
-            var instructor = await _identityService.GetUserById(fb.CreatedBy);
-            feedbackDtos.Add(new FeedbackDto
+            var instructorIds = submission.Feedbacks
+                .Select(fb => fb.CreatedBy)
+                .Distinct()
+                .ToList();
+
+            var instructors = await _identityService.GetUserIdentitiesByIdsAsync(instructorIds, cancellationToken);
+            var instructorDict = instructors.ToDictionary(u => u.Id);
+
+            foreach (var fb in submission.Feedbacks)
             {
-                FeedbackId = fb.Id,
-                Content = fb.Content,
-                InstructorId = fb.CreatedBy,
-                InstructorName = instructor?.FullName ?? "Instructor",
-                InstructorAvatar = instructor?.Avatar ?? string.Empty,
-                CreatedAt = fb.Created
-            });
+                instructorDict.TryGetValue(fb.CreatedBy, out var instructor);
+                feedbackDtos.Add(new FeedbackDto
+                {
+                    FeedbackId = fb.Id,
+                    Content = fb.Content,
+                    InstructorId = fb.CreatedBy,
+                    InstructorName = instructor?.FullName ?? "Instructor",
+                    InstructorAvatar = instructor?.Avatar ?? string.Empty,
+                    CreatedAt = fb.Created
+                });
+            }
         }
 
         return new StudentSubmissionDto

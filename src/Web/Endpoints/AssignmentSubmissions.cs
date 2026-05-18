@@ -5,7 +5,8 @@ using Edunary.Application.AssignmentSubmissions.Commands.ToggleSubmissionReadCom
 using Edunary.Application.AssignmentSubmissions.Commands.UpdateAssignmentFeedbackCommand;
 using Edunary.Application.AssignmentSubmissions.Queries.GetAssignmentDraftQuery;
 using Edunary.Application.AssignmentSubmissions.Queries.GetStudentSubmissionQuery;
-using Edunary.Application.AssignmentSubmissions.Queries.GetSubmissionsByAssignmentQuery;
+
+using Edunary.Application.AssignmentSubmissions.Queries.GetInstructorSubmissionsQuery;
 using Edunary.Application.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,8 @@ public class AssignmentSubmissions : EndpointGroupBase
             .RequireAuthorization()
             .MapPost(Upsert, "upsert")
             .MapGet(GetDraft, "draft/{assignmentId}")
-            .MapGet(GetSubmissionsByAssignment, "list/{assignmentId}")
+
+            .MapGet(GetInstructorSubmissions, "dashboard")
             .MapGet(GetStudentSubmission, "{submissionId}")
             .MapPut(ToggleRead, "read/{submissionId}")
             .MapPost(CreateFeedback, "feedback")
@@ -38,7 +40,8 @@ public class AssignmentSubmissions : EndpointGroupBase
     }
 
 
-    public async Task<PaginatedList<SubmissionListDto>> GetSubmissionsByAssignment(ISender sender, [AsParameters] GetSubmissionsByAssignmentQuery query)
+
+    public async Task<PaginatedList<InstructorSubmissionListDto>> GetInstructorSubmissions(ISender sender, [AsParameters] GetInstructorSubmissionsQuery query)
     {
         return await sender.Send(query);
     }

@@ -2,6 +2,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
+using Edunary.Domain.Events.AssignmentSubmissions;
 
 namespace Edunary.Application.AssignmentSubmissions.Commands.CreateAssignmentFeedbackCommand;
 
@@ -15,19 +16,13 @@ public class CreateAssignmentFeedbackCommandHandler : IRequestHandler<CreateAssi
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    private readonly INotifyService _notifyService;
-    private readonly IIdentityService _identityService;
 
     public CreateAssignmentFeedbackCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService,
-        INotifyService notifyService,
-        IIdentityService identityService)
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;
-        _notifyService = notifyService;
-        _identityService = identityService;
     }
 
     public async Task<ReturnResult<int>> Handle(CreateAssignmentFeedbackCommand request, CancellationToken cancellationToken)
@@ -66,18 +61,8 @@ public class CreateAssignmentFeedbackCommandHandler : IRequestHandler<CreateAssi
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Notify student
-            //var instructor = await _identityService.GetUserById(userId);
-            //string instructorName = instructor?.FullName ?? "Your instructor";
-
-            //await _notifyService.NotifyUserAsync(
-            //    submission.StudentId,
-            //    "Assignment Feedback Received",
-            //    $"{instructorName} gave feedback on your assignment: {submission.Assignment.Title}",
-            //    "assignment_feedback",
-            //    new { assignmentId = submission.AssignmentId, submissionId = submission.Id },
-            //    cancellationToken,
-            //    submission.Assignment.CourseId);
+            feedback.AddDomainEvent(new AssignmentFeedbackCreatedEvent(feedback, submission));
+            await _context.SaveChangesAsync(cancellationToken);
 
             return new ReturnResult<int> { Result = feedback.Id, Message = "Feedback submitted successfully." };
         }

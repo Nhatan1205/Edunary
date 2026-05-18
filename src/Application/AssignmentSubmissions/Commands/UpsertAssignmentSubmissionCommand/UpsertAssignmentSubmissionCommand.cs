@@ -2,6 +2,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
+using Edunary.Domain.Events.AssignmentSubmissions;
 using System.Text.Json;
 
 namespace Edunary.Application.AssignmentSubmissions.Commands.UpsertAssignmentSubmissionCommand;
@@ -27,19 +28,13 @@ public class UpsertAssignmentSubmissionCommandHandler : IRequestHandler<UpsertAs
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    private readonly INotifyService _notifyService;
-    private readonly IIdentityService _identityService;
 
     public UpsertAssignmentSubmissionCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService,
-        INotifyService notifyService,
-        IIdentityService identityService)
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;
-        _notifyService = notifyService;
-        _identityService = identityService;
     }
 
     public async Task<ReturnResult<int>> Handle(UpsertAssignmentSubmissionCommand request, CancellationToken cancellationToken)
@@ -98,31 +93,28 @@ public class UpsertAssignmentSubmissionCommandHandler : IRequestHandler<UpsertAs
                 _context.AssignmentSubmissions.Add(submission);
                 await _context.SaveChangesAsync(cancellationToken);
                 submissionId = submission.Id;
+
+                if (isSubmit)
+                {
+                    submission.AddDomainEvent(new AssignmentSubmittedEvent(submission));
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
             }
             else
             {
+                bool wasAlreadySubmitted = existing.Status == AssignmentSubmissionStatus.Submitted;
                 existing.Answers = answersJson;
                 existing.Status = isSubmit ? AssignmentSubmissionStatus.Submitted : AssignmentSubmissionStatus.Draft;
                 await _context.SaveChangesAsync(cancellationToken);
                 submissionId = existing.Id;
+
+                if (isSubmit && !wasAlreadySubmitted)
+                {
+                    existing.AddDomainEvent(new AssignmentSubmittedEvent(existing));
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
             }
 
-            //// Notify instructor on final submit
-            //if (isSubmit)
-            //{
-            //    string instructorId = assignment.Course.CreatedBy;
-            //    var student = await _identityService.GetUserById(userId);
-            //    string studentName = student?.FullName ?? "A student";
-
-            //    await _notifyService.NotifyUserAsync(
-            //        instructorId,
-            //        "New Assignment Submission",
-            //        $"{studentName} submitted assignment: {assignment.Title}",
-            //        "assignment_submission",
-            //        new { assignmentId = assignment.Id, submissionId },
-            //        cancellationToken,
-            //        assignment.CourseId);
-            //}
 
             return new ReturnResult<int>
             {

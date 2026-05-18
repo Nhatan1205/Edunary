@@ -52,6 +52,7 @@ function AssignmentEditor({ item, onUpdate, courseId, hasExisting = false }) {
     handleSubmit,
     control,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -201,12 +202,36 @@ function AssignmentEditor({ item, onUpdate, courseId, hasExisting = false }) {
       setPublishSuccess(true);
     }
     catch (e) {
-      setPublishError(parseError(e));
+      setPublishError(extractApiError(e));
     }
     finally {
       setPublishing(false);
     }
   };
+
+  const formValues = watch();
+
+  const isDirty = (() => {
+    if (!existingAssignment) return true;
+    if (formValues.description !== (existingAssignment.description ?? "")) return true;
+    if (formValues.instructions !== (existingAssignment.instructions ?? "")) return true;
+    if (Number(formValues.estimatedDurationMinutes) !== (existingAssignment.estimatedDurationMinutes ?? 30)) return true;
+    
+    // Deep compare questions
+    const mappedExisting = existingAssignment.questions?.map((q) => ({
+      questionText: q.questionText ?? "",
+      exampleAnswer: q.exampleAnswer ?? "",
+      sortOrder: q.sortOrder,
+    })) ?? [];
+
+    const mappedCurrent = questions.map((q, qi) => ({
+      questionText: q.questionText ?? "",
+      exampleAnswer: q.exampleAnswer ?? "",
+      sortOrder: qi,
+    }));
+
+    return JSON.stringify(mappedExisting) !== JSON.stringify(mappedCurrent);
+  })();
 
   return (
     <>
@@ -407,10 +432,13 @@ function AssignmentEditor({ item, onUpdate, courseId, hasExisting = false }) {
             variant="contained"
             type="submit"
             startIcon={saving ? <CircularProgress size={16} /> : <CheckIcon />}
-            disabled={saving}
+            disabled={saving || (!isDirty && !!existingAssignment)}
             sx={{
               bgcolor: "brand.main",
               "&:hover": { bgcolor: "brand.dark" },
+              "&.Mui-disabled": {
+                bgcolor: "action.disabledBackground",
+              },
               textTransform: "none",
               fontWeight: 600,
             }}
@@ -510,20 +538,6 @@ function QuestionEditor({ question, index, errors, onUpdate, onDelete }) {
       )}
     </Box>
   );
-}
-
-// ─── Error parser util ────────────────────────────────────────────────────────
-function parseError(e) {
-  if (e.response) {
-    try {
-      const problem = JSON.parse(e.response);
-      if (problem.errors) return Object.values(problem.errors).flat().join(" | ");
-      if (problem.detail) return problem.detail;
-      if (problem.title) return problem.title;
-    }
-    catch (_) { }
-  }
-  return e.message;
 }
 
 export default AssignmentEditor;

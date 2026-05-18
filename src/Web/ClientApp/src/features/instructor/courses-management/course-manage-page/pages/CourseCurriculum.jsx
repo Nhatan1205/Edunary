@@ -44,8 +44,6 @@ function CourseCurriculum() {
   const [initialContent, setInitialContent] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [activeType, setActiveType] = useState(null);
-  const [nextSectionId, setNextSectionId] = useState(1);
-  const [nextItemId, setNextItemId] = useState(1);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     title: "",
@@ -67,16 +65,8 @@ function CourseCurriculum() {
       const initialSections = courseData?.content
         ? JSON.parse(courseData.content)?.contents || []
         : [];
-      const initialNextSectionId = courseData?.content
-        ? JSON.parse(courseData.content)?.nextSectionId || 1
-        : 1;
-      const initialNextItemId = courseData?.content
-        ? JSON.parse(courseData.content)?.nextItemId || 1
-        : 1;
       setSections(initialSections);
       setInitialContent(initialSections);
-      setNextSectionId(initialNextSectionId);
-      setNextItemId(initialNextItemId);
     }
   }, [courseData]);
 
@@ -128,7 +118,7 @@ function CourseCurriculum() {
   // Add new section
   const addSection = () => {
     const newSection = {
-      sectionId: `section-${nextSectionId}`,
+      sectionId: `section-${crypto.randomUUID()}`,
       title: "",
       learningObjectives: "",
       items: [],
@@ -136,7 +126,6 @@ function CourseCurriculum() {
       published: false,
     };
     setSections([...sections, newSection]);
-    setNextSectionId(nextSectionId + 1);
   };
 
   // Update section
@@ -189,7 +178,7 @@ function CourseCurriculum() {
     const newSections = sections.map((section) => {
       if (section.sectionId === sectionId) {
         const newItem = {
-          itemId: `item-${nextItemId}`,
+          itemId: `item-${crypto.randomUUID()}`,
           title: "",
           description: "",
           content: "",
@@ -198,7 +187,6 @@ function CourseCurriculum() {
           downloadable: false,
           resources: [],
         };
-        setNextItemId(nextItemId + 1);
         return {
           ...section,
           items: [...section.items, newItem],
@@ -457,8 +445,6 @@ function CourseCurriculum() {
       id: courseId,
       title: courseData.title,
       contents: sections,
-      nextSectionId: nextSectionId,
-      nextItemId: nextItemId,
       videoContentIds: videoContentIds,
       totalVideo: videoContentIds.length,
       totalVideoDuration: totalVideoDuration,

@@ -10,10 +10,6 @@ public class CourseContentSchema
     public string Title { get; set; } = string.Empty;
     [JsonPropertyName("contents")]
     public List<SectionSchema> Contents { get; set; } = new List<SectionSchema>();
-    [JsonPropertyName("nextSectionId")]
-    public int NextSectionId { get; set; }
-    [JsonPropertyName("nextItemId")]
-    public int NextItemId { get; set; }
     [JsonPropertyName("videoContentIds")]
     public List<int> VideoContentIds { get; set; } = new List<int>();
     [JsonPropertyName("totalVideo")]

@@ -1,8 +1,15 @@
 import { useState } from "react";
-import { Box, Stack, TextField } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { Box, Card, TablePagination, Typography } from "@mui/material";
+import CustomDataGrid from "../../../../components/datagrid/CustomDataGrid";
+import DataGridToolbar from "../../../../components/datagrid/DataGridToolbar";
 import useGetFinanceLedger from "../../../../hooks/finance-hooks/useGetFinanceLedger";
-import { FinanceDateRange, GRID_SX, financeTextFieldSx } from "./shared";
+import {
+  FinanceDateRange,
+  financePaginationSx,
+  financeTableCardSx,
+  financeTableGridSx,
+  financeToolbarInputSx,
+} from "./shared";
 
 const LEDGER_COLUMNS = [
   {
@@ -19,7 +26,7 @@ const LEDGER_COLUMNS = [
     field: "amount",
     headerName: "Amount",
     width: 110,
-    valueFormatter: (v) => `$${Number(v).toFixed(2)}`,
+    valueFormatter: (v) => `$${Number(v ?? 0).toFixed(2)}`,
   },
   { field: "referenceId", headerName: "Reference", width: 100 },
   { field: "description", headerName: "Description", flex: 1, minWidth: 160 },
@@ -32,48 +39,84 @@ export default function LedgerTab() {
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
 
-  const { data, isLoading } = useGetFinanceLedger(page + 1, rowsPerPage, {
+  const { data, isLoading, isFetching, refetch } = useGetFinanceLedger(page + 1, rowsPerPage, {
     accountCode: accountCode || undefined,
     from: from || undefined,
     to: to || undefined,
   });
 
-  return (
-    <Box>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 1, mb: 2 }}>
-        <TextField
-          size="small"
-          label="Account Code"
-          placeholder="e.g. CASH_STRIPE"
-          value={accountCode}
-          onChange={(e) => {
-            setAccountCode(e.target.value);
-            setPage(0);
-          }}
-          sx={{ minWidth: 200, ...financeTextFieldSx }}
-        />
-        <FinanceDateRange
-          from={from}
-          to={to}
-          onFromChange={(value) => { setFrom(value); setPage(0); }}
-          onToChange={(value) => { setTo(value); setPage(0); }}
-        />
-      </Stack>
+  const rows = data?.items ?? [];
+  const totalCount = data?.totalCount ?? 0;
 
-      <DataGrid
-        rows={data?.items ?? []}
-        columns={LEDGER_COLUMNS}
-        loading={isLoading}
-        getRowId={(r) => r.id}
-        disableRowSelectionOnClick
-        rowCount={data?.totalCount ?? 0}
-        paginationMode="server"
-        paginationModel={{ page, pageSize: rowsPerPage }}
-        onPaginationModelChange={(m) => { setPage(m.page); setRowsPerPage(m.pageSize); }}
-        pageSizeOptions={[10, 20, 50]}
-        autoHeight
-        sx={GRID_SX}
-      />
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  return (
+    <Box sx={{ mt: 1 }}>
+      <Card sx={financeTableCardSx}>
+        <DataGridToolbar
+          showSearch={false}
+          filterDropdowns={(
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 1,
+                width: "100%",
+              }}
+            >
+              <Box
+                component="input"
+                type="text"
+                aria-label="Account Code"
+                placeholder="Account Code"
+                value={accountCode}
+                onChange={(e) => {
+                  setAccountCode(e.target.value);
+                  setPage(0);
+                }}
+                sx={{ ...financeToolbarInputSx, flex: "1 1 190px", minWidth: 160 }}
+              />
+              <FinanceDateRange
+                from={from}
+                to={to}
+                onFromChange={(value) => { setFrom(value); setPage(0); }}
+                onToChange={(value) => { setTo(value); setPage(0); }}
+              />
+            </Box>
+          )}
+          customRightAction={
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }} noWrap>
+              {totalCount.toLocaleString("en-US")} entr{totalCount === 1 ? "y" : "ies"}
+            </Typography>
+          }
+          onRefresh={refetch}
+          isRefreshing={isFetching && !isLoading}
+        />
+
+        <CustomDataGrid
+          rows={rows}
+          columns={LEDGER_COLUMNS}
+          loading={isLoading}
+          checkboxSelection={false}
+          height={560}
+          sx={financeTableGridSx}
+        />
+
+        <TablePagination
+          component="div"
+          page={page}
+          count={totalCount}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => setPage(newPage)}
+          rowsPerPageOptions={[10, 20, 50]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={financePaginationSx}
+        />
+      </Card>
     </Box>
   );
 }

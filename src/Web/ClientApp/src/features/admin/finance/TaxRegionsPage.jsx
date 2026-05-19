@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
   Button,
+  Card,
   Chip,
   CircularProgress,
   Dialog,
@@ -14,48 +15,28 @@ import {
   IconButton,
   Stack,
   Switch,
+  TablePagination,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 import AddIcon from "@mui/icons-material/Add";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import CustomDataGrid from "../../../components/datagrid/CustomDataGrid";
+import DataGridToolbar from "../../../components/datagrid/DataGridToolbar";
 import PageTitle from "../../../components/PageTitle";
 import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs";
 import useGetTaxRegions from "../../../hooks/finance-hooks/useGetTaxRegions";
 import useUpsertTaxRegion from "../../../hooks/finance-hooks/useUpsertTaxRegion";
 import useDeleteTaxRegion from "../../../hooks/finance-hooks/useDeleteTaxRegion";
 import { extractApiError } from "../../../utils/helpers.js";
-
-const GRID_SX = {
-  border: "1px solid #e0e0e0",
-  borderRadius: 1,
-  "& .MuiDataGrid-columnHeaders": { backgroundColor: "#f5f5f5" },
-  "& .MuiDataGrid-columnHeaderTitle": {
-    fontWeight: 600,
-    fontSize: "0.78rem",
-    textTransform: "uppercase",
-    letterSpacing: "0.03em",
-    color: "#555",
-  },
-  "& .MuiDataGrid-cell:focus": { outline: "none" },
-  "& .MuiDataGrid-columnHeader:focus": { outline: "none" },
-};
-
-const financeTextFieldSx = {
-  backgroundColor: "white",
-  "& label.Mui-focused": { color: "brand.dark" },
-  "& .MuiOutlinedInput-root": {
-    "&:hover .MuiOutlinedInput-notchedOutline": {
-      borderColor: "brand.main",
-    },
-    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderColor: "brand.main",
-    },
-  },
-};
+import {
+  financePaginationSx,
+  financeTableCardSx,
+  financeTableGridSx,
+  financeTextFieldSx,
+} from "./FinancePageTabs/shared";
 
 const financeContainedButtonSx = {
   backgroundColor: "brand.main",
@@ -101,10 +82,13 @@ export default function TaxRegionsPage() {
   const [dialogMode, setDialogMode] = useState("create");
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const { data, isLoading, error } = useGetTaxRegions();
+  const { data, isLoading, isFetching, error, refetch } = useGetTaxRegions();
   const { mutate: upsert, isLoading: upserting } = useUpsertTaxRegion();
   const { mutate: remove, isLoading: deleting } = useDeleteTaxRegion();
 
@@ -163,6 +147,45 @@ export default function TaxRegionsPage() {
   function handleDelete() {
     if (!deleteTarget) return;
     remove(deleteTarget, { onSuccess: () => setDeleteTarget(null) });
+  }
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const rows = useMemo(
+    () => (data ?? []).map((row) => ({ ...row, id: row.countryCode })),
+    [data]
+  );
+  const filteredRows = useMemo(() => {
+    if (!normalizedSearchTerm) {
+      return rows;
+    }
+
+    return rows.filter((row) => {
+      const countryCode = String(row.countryCode ?? "").toLowerCase();
+      const countryName = String(row.countryName ?? "").toLowerCase();
+
+      return countryCode.includes(normalizedSearchTerm) || countryName.includes(normalizedSearchTerm);
+    });
+  }, [normalizedSearchTerm, rows]);
+  const totalCount = filteredRows.length;
+  const visibleRows = useMemo(
+    () => filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [filteredRows, page, rowsPerPage]
+  );
+
+  useEffect(() => {
+    if (page > 0 && page * rowsPerPage >= totalCount) {
+      setPage(0);
+    }
+  }, [page, rowsPerPage, totalCount]);
+
+  function handleSearchChange(event) {
+    setSearchTerm(event.target.value);
+    setPage(0);
+  }
+
+  function handleChangeRowsPerPage(event) {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   }
 
   const columns = [
@@ -227,37 +250,76 @@ export default function TaxRegionsPage() {
       />
       <PageTitle title="Country Tax Rates" />
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          Per-country VAT rates apply at checkout. Withholding rates apply to instructor payouts.
-        </Typography>
-        <Button
-          variant="contained"
-          disableElevation
-          startIcon={<AddIcon />}
-          onClick={openCreate}
-          sx={financeContainedButtonSx}
-        >
-          Add Country
-        </Button>
-      </Box>
-
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {extractApiError(error) || error?.message || "Failed to load tax regions."}
         </Alert>
       )}
 
-      <DataGrid
-        rows={data ?? []}
-        columns={columns}
-        getRowId={(r) => r.countryCode}
-        loading={isLoading}
-        disableRowSelectionOnClick
-        autoHeight
-        hideFooter={(data?.length ?? 0) <= 100}
-        sx={GRID_SX}
-      />
+      <Card sx={financeTableCardSx}>
+        <DataGridToolbar
+          filterName={searchTerm}
+          onFilterName={handleSearchChange}
+          searchPlaceholder="Search country name or code..."
+          filterDropdowns={(
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "text.primary" }}>
+                Country tax rates list
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                Per-country VAT rates apply at checkout. Withholding rates apply to instructor payouts.
+              </Typography>
+            </Box>
+          )}
+          customRightAction={(
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: { xs: "space-between", sm: "flex-end" },
+                flexWrap: "wrap",
+                gap: 1.5,
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }} noWrap>
+                {totalCount.toLocaleString("en-US")} countr{totalCount === 1 ? "y" : "ies"}
+              </Typography>
+              <Button
+                variant="contained"
+                disableElevation
+                startIcon={<AddIcon />}
+                onClick={openCreate}
+                sx={{ ...financeContainedButtonSx, flexShrink: 0 }}
+              >
+                Add Country
+              </Button>
+            </Box>
+          )}
+          onRefresh={refetch}
+          isRefreshing={isFetching && !isLoading}
+        />
+
+        <CustomDataGrid
+          rows={visibleRows}
+          columns={columns}
+          loading={isLoading}
+          checkboxSelection={false}
+          height={420}
+          sx={financeTableGridSx}
+        />
+
+        <TablePagination
+          component="div"
+          page={page}
+          count={totalCount}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => setPage(newPage)}
+          rowsPerPageOptions={[5, 10, 25]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={financePaginationSx}
+        />
+      </Card>
 
       {/* Upsert dialog */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="xs" fullWidth>

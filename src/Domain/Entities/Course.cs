@@ -26,7 +26,9 @@ public class Course : BaseAuditableEntity
     public float Price { get; set; }
 
     public int CategoryId { get; set; }
+
     public bool AllowPlatformCoupons { get; set; } = true;
+
     public string Content { get; set; }
 
     public float Ratings { get; set; }

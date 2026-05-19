@@ -190,7 +190,9 @@ export default function CouponsPage({ isAdmin = false }) {
       </Box>
 
       {loading ? (
-        <LoadingSpinner />
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 6 }}>
+          <LoadingSpinner />
+        </Box>
       ) : (
         <Card sx={cardSx}>
           <CouponFiltersToolbar

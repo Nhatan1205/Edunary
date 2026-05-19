@@ -606,6 +606,11 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("AllowPlatformCoupons")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("CongratulationsMessage")
                         .HasColumnType("nvarchar(max)");
 

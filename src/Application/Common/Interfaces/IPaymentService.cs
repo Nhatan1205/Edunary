@@ -14,4 +14,5 @@ public class CoursePaymentInfo
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public decimal Price { get; set; }
+    public bool AllowPlatformCoupons { get; set; } = true;
 }

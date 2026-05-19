@@ -46,6 +46,13 @@ const CartPage = () => {
 
   const discountedTotal = appliedCoupon ? appliedCoupon.discountedTotal : cartTotalPrice
   const couponDiscount = appliedCoupon ? appliedCoupon.totalDiscountAmount : 0
+  const appliedCouponItems = appliedCoupon?.items ?? []
+  const appliedCouponDiscountedItems = appliedCouponItems.filter(item => (item.discountAmount ?? 0) > 0)
+  const isPartialCoupon = Boolean(
+    appliedCoupon &&
+    appliedCouponDiscountedItems.length > 0 &&
+    appliedCouponDiscountedItems.length < appliedCouponItems.length
+  )
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) return
@@ -59,7 +66,14 @@ const CartPage = () => {
       const result = await validateCoupon(couponInput.trim().toUpperCase(), courseIds)
       if (result?.isValid) {
         setAppliedCoupon(result)
-        toast.success(`Coupon applied! You save $${result.totalDiscountAmount?.toFixed(2)}`)
+        const discountedItems = (result.items ?? []).filter(item => (item.discountAmount ?? 0) > 0)
+        const partialApplied = discountedItems.length > 0 && discountedItems.length < (result.items?.length ?? 0)
+        const savings = Number(result.totalDiscountAmount ?? 0)
+        toast.success(
+          partialApplied
+            ? `Coupon applied to eligible courses only. You save $${savings.toFixed(2)}`
+            : `Coupon applied! You save $${savings.toFixed(2)}`
+        )
       } else {
         toast.error(result?.errorMessage || "Invalid coupon code")
         setAppliedCoupon(null)
@@ -315,6 +329,11 @@ const CartPage = () => {
                       Apply
                     </Button>
                   </Box>
+                )}
+                {appliedCoupon && isPartialCoupon && (
+                  <Alert severity="info" sx={{ mt: 1 }}>
+                    This coupon applied to {appliedCouponDiscountedItems.length} of {appliedCouponItems.length} eligible courses. Courses that opted out kept their original price.
+                  </Alert>
                 )}
               </Box>
 

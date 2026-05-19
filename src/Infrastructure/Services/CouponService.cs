@@ -55,7 +55,7 @@ public class CouponService : ICouponService
         var applicableCourseIds = await GetApplicableCourseIdsAsync(coupon, courses, cancellationToken);
 
         if (!applicableCourseIds.Any())
-            return Invalid("This coupon is not valid for the selected courses");
+            return Invalid("This coupon does not apply to any of the selected courses");
 
         // Calculate per-item discounts
         var items = new List<CouponItemDiscount>();
@@ -164,8 +164,7 @@ public class CouponService : ICouponService
         CancellationToken cancellationToken)
     {
         var courseIds = courses.Select(c => int.Parse(c.Id)).ToHashSet();
-
-        return coupon.ScopeType switch
+        var scopedCourseIds = coupon.ScopeType switch
         {
             CouponScopeType.Platform => courseIds,
 
@@ -181,6 +180,18 @@ public class CouponService : ICouponService
 
             _ => new HashSet<int>()
         };
+
+        if (coupon.FunderType != CouponFunderType.Platform)
+            return scopedCourseIds;
+
+        var platformEligibleCourseIds = courses
+            .Where(c => c.AllowPlatformCoupons)
+            .Select(c => int.Parse(c.Id))
+            .ToHashSet();
+
+        return scopedCourseIds
+            .Intersect(platformEligibleCourseIds)
+            .ToHashSet();
     }
 
     private static (float discountedPrice, float discountAmount) ApplyDiscount(Coupon coupon, float originalPrice)

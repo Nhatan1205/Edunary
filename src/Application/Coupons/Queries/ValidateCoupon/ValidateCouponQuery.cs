@@ -33,7 +33,13 @@ public class ValidateCouponQueryHandler : IRequestHandler<ValidateCouponQuery, C
     {
         var courses = await _context.Courses
             .Where(c => request.CourseIds.Contains(c.Id))
-            .Select(c => new CoursePaymentInfo { Id = c.Id.ToString(), Name = c.Title, Price = (decimal)c.Price })
+            .Select(c => new CoursePaymentInfo
+            {
+                Id = c.Id.ToString(),
+                Name = c.Title,
+                Price = (decimal)c.Price,
+                AllowPlatformCoupons = c.AllowPlatformCoupons
+            })
             .ToListAsync(cancellationToken);
 
         if (!courses.Any())

@@ -26,6 +26,7 @@ public class UpdateCourseCommand : IRequest<Result>
     public string CongratulationsMessage { get; init; }
     public float Price { get; init; }
     public int CategoryId { get; init; }
+    public bool? AllowPlatformCoupons { get; init; }
     public string Content { get; init; }
 }
 
@@ -80,6 +81,10 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.Level = (CourseLevel)request.Level;
             entity.Status = (CourseStatus)request.Status;
             entity.Content = request.Content;
+            if (request.AllowPlatformCoupons.HasValue)
+            {
+                entity.AllowPlatformCoupons = request.AllowPlatformCoupons.Value;
+            }
 
             var newTopics = await _context.Topics
                 .Where(t => request.TopicIds.Contains(t.Id))

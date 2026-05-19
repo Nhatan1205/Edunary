@@ -26,6 +26,7 @@ public class GetCourseByIdDto
     public string CongratulationsMessage { get; set; } = null!;
     public float Price { get; set; }
     public int CategoryId { get; set; }
+    public bool AllowPlatformCoupons { get; set; } = true;
     public string Content { get; set; } = null!;
     public int TotalStudents { get; set; }
 

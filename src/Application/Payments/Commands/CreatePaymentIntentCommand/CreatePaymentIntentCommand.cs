@@ -145,7 +145,8 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
                 {
                     Id = course.Id.ToString(),
                     Name = course.Title,
-                    Price = (decimal)course.Price
+                    Price = (decimal)course.Price,
+                    AllowPlatformCoupons = course.AllowPlatformCoupons
                 });
             }
 

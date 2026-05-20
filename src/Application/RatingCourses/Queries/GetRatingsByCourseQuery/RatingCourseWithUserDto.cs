@@ -11,7 +11,7 @@ public class RatingCourseWithUserDto
     public string Review { get; set; } = string.Empty;
     public DateTimeOffset Created { get; set; }
     public DateTimeOffset LastModified { get; set; }
-    public RatingResponseDto? RatingResponse { get; set; }
+    public RatingResponseDto RatingResponse { get; set; }
 }
 
 public class RatingResponseDto

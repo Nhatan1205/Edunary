@@ -239,11 +239,7 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             if (!instructorByCourseId.TryGetValue(courseId, out var instructorId) || string.IsNullOrWhiteSpace(instructorId))
                 continue;
 
-            // Platform-funded coupon: instructor receives original price; platform absorbs the discount.
-            // Instructor-funded coupon or organic: instructor receives the discounted price they agreed to.
-            var baseAmount = orderItem.SalesChannel == SalesChannel.PlatformCoupon
-                ? Math.Round((decimal)orderItem.OriginalPrice, 2)
-                : Math.Round((decimal)orderItem.Price, 2);
+            var baseAmount = Math.Round((decimal)orderItem.Price, 2);
 
             if (baseAmount <= 0)
                 continue;
@@ -321,11 +317,7 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             if (!instructorByCourseId.TryGetValue(courseId, out var instructorId) || string.IsNullOrWhiteSpace(instructorId))
                 continue;
 
-            // Platform-funded coupon: instructor receives original price; platform absorbs the discount.
-            // Instructor-funded coupon or organic: instructor receives the discounted price they agreed to.
-            var baseAmount = orderItem.SalesChannel == SalesChannel.PlatformCoupon
-                ? Math.Round((decimal)orderItem.OriginalPrice, 2)
-                : Math.Round((decimal)orderItem.Price, 2);
+            var baseAmount = Math.Round((decimal)orderItem.Price, 2);
 
             if (baseAmount <= 0)
                 continue;

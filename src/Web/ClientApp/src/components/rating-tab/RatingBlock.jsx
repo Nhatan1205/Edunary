@@ -24,7 +24,7 @@ function RatingBlock({ name, rating = 0, modifiedAt, content, avatar, ratingResp
             <Typography sx={{ fontWeight: 600 }}>{name}</Typography>
             <Stack direction="row" spacing={1} alignItems="center">
               <Rating value={rating} readOnly size="small" />
-              <Typography sx={{ color: "#888", fontSize: 12 }}>{formatDate(modifiedAt)}</Typography>
+              <Typography sx={{ color: "#888", fontSize: 12, lineHeight: 1.4 }}>{formatDate(modifiedAt)}</Typography>
             </Stack>
           </Box>
         </Stack>

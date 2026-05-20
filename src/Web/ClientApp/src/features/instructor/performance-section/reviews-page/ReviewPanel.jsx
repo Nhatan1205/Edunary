@@ -83,6 +83,7 @@ function CourseHeader({ courseId, courseTitle, courseImageUrl, courseRating }) {
           <Typography
             variant="body2"
             fontWeight={500}
+            onClick={() => window.open(`/course/${courseId}`, "_blank")}
             sx={{
               color: "brand.main", cursor: "pointer", lineHeight: 1.4,
               "&:hover": { textDecoration: "underline" },
@@ -141,7 +142,7 @@ function InstructorResponse({ response, onEdit, onDelete }) {
             Instructor
           </Typography>
           {/* Name + Posted date */}
-          <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Stack direction="row" alignItems="baseline" spacing={0.75}>
             <Typography variant="body2" sx={{ color: "brand.main", fontWeight: 500 }}>
               {response.instructorFullName}
             </Typography>

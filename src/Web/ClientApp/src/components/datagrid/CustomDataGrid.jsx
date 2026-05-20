@@ -9,6 +9,7 @@ function CustomDataGrid({
   onSelectionChange = null,
   onRowClick = null,
   height = 400,
+  rowHeight = 52,
   sx = {},
   slots = {},
 }) {
@@ -29,6 +30,7 @@ function CustomDataGrid({
         loading={loading}
         slots={slots}
         hideFooter
+        rowHeight={rowHeight}
         sx={{
           border: 'none',
           '& .MuiDataGrid-columnHeaders': {
@@ -44,8 +46,8 @@ function CustomDataGrid({
           },
 
           '& .MuiDataGrid-row': {
-            minHeight: '52px !important',
-            maxHeight: '52px !important',
+            minHeight: `${rowHeight}px !important`,
+            maxHeight: `${rowHeight}px !important`,
             borderBottom: '1px solid #f0f0f0',
             '&:hover': {
               backgroundColor: '#fafafa',

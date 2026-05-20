@@ -1,63 +1,24 @@
-using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Security;
+using Edunary.Application.Finance.Payouts;
 using Edunary.Domain.Constants;
-using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.Finance.Queries.GetEligiblePayouts;
 
 [Authorize(Roles = Roles.Administrator)]
-public record GetEligiblePayoutsQuery : IRequest<List<EligiblePayoutDto>>
-{
-    public DateTimeOffset? AsOf { get; init; }
-}
+public record GetEligiblePayoutsQuery : IRequest<List<EligiblePayoutDto>>;
 
 public class GetEligiblePayoutsQueryHandler : IRequestHandler<GetEligiblePayoutsQuery, List<EligiblePayoutDto>>
 {
-    private readonly IApplicationDbContext _context;
-    private readonly IIdentityService _identityService;
+    private readonly PayoutEligibilityService _payoutEligibilityService;
 
-    public GetEligiblePayoutsQueryHandler(IApplicationDbContext context, IIdentityService identityService)
+    public GetEligiblePayoutsQueryHandler(PayoutEligibilityService payoutEligibilityService)
     {
-        _context = context;
-        _identityService = identityService;
+        _payoutEligibilityService = payoutEligibilityService;
     }
 
     public async Task<List<EligiblePayoutDto>> Handle(GetEligiblePayoutsQuery request, CancellationToken cancellationToken)
     {
-        var thresholdSetting = await _context.SystemSettings
-            .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Key == SettingKey.Payout_MinThresholdUsd, cancellationToken);
-
-        var threshold = 25m;
-        if (decimal.TryParse(thresholdSetting?.Value, out var parsed))
-            threshold = parsed;
-
-        var eligible = await _context.UserAccountBalances
-            .AsNoTracking()
-            .Where(b => b.AccountCode == LedgerAccountCode.InstructorNetBalance && b.Balance >= threshold)
-            .Select(b => new { b.UserId, b.Balance, b.Currency })
-            .ToListAsync(cancellationToken);
-
-        if (eligible.Count == 0)
-            return new List<EligiblePayoutDto>();
-
-        var userIds = eligible.Select(e => e.UserId).ToList();
-        var users = await _identityService.GetUserIdentitiesByIdsAsync(userIds, cancellationToken);
-        var userMap = users.ToDictionary(u => u.Id, u => u);
-
-        return eligible.Select(e =>
-        {
-            userMap.TryGetValue(e.UserId, out var user);
-            return new EligiblePayoutDto
-            {
-                InstructorId = e.UserId,
-                InstructorName = user?.FullName ?? e.UserId,
-                InstructorEmail = user?.Email ?? string.Empty,
-                NetBalance = e.Balance,
-                Currency = e.Currency ?? "USD",
-            };
-        })
-        .OrderByDescending(e => e.NetBalance)
-        .ToList();
+        var candidates = await _payoutEligibilityService.GetCandidatesAsync(cancellationToken);
+        return candidates.Select(c => c.ToDto()).ToList();
     }
 }

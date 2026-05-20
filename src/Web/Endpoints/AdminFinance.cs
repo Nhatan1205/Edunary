@@ -5,10 +5,12 @@ using Edunary.Application.Finance.Queries.GetFinanceLedger;
 using Edunary.Application.Finance.Queries.GetFinanceSummary;
 using Edunary.Application.Finance.Queries.GetTaxReport;
 using Edunary.Application.Finance.Queries.GetTaxSettings;
+using Edunary.Application.Finance.Payouts;
 using Edunary.Application.Finance.TaxRegions.Commands;
 using Edunary.Application.Finance.TaxRegions.Queries;
 using Edunary.Application.SystemSettings.Commands.UpdateSystemSettingsCommand;
 using MediatR;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Edunary.Web.Endpoints;
 
@@ -21,6 +23,8 @@ public class AdminFinance : EndpointGroupBase
             .MapGet(GetSummary, "summary")
             .MapGet(GetLedger, "ledger")
             .MapGet(GetTaxReport, "tax-report")
+            .MapGet(GetPayoutSettings, "payouts/settings")
+            .MapPut(UpdatePayoutSettings, "payouts/settings")
             .MapGet(GetEligiblePayouts, "payouts/eligible")
             .MapPost(RunPayoutBatch, "payouts/run-batch")
             .MapGet(GetTaxRegions, "tax-regions")
@@ -48,12 +52,21 @@ public class AdminFinance : EndpointGroupBase
     public async Task<List<EligiblePayoutDto>> GetEligiblePayouts(
         ISender sender,
         DateTimeOffset? asOf = null)
-        => await sender.Send(new GetEligiblePayoutsQuery { AsOf = asOf });
+        => await sender.Send(new GetEligiblePayoutsQuery());
 
-    public async Task<IResult> RunPayoutBatch(ISender sender)
+    public async Task<PayoutSettingsDto> GetPayoutSettings(ISender sender)
+        => await sender.Send(new GetPayoutSettingsQuery());
+
+    public async Task<Results<Ok<Result>, BadRequest<Result>>> UpdatePayoutSettings(ISender sender, UpdatePayoutSettingsCommand command)
+    {
+        var result = await sender.Send(command);
+        return result.Succeeded ? TypedResults.Ok(result) : TypedResults.BadRequest(result);
+    }
+
+    public async Task<Results<Ok<Result>, BadRequest<Result>>> RunPayoutBatch(ISender sender)
     {
         var result = await sender.Send(new RunPayoutBatchCommand());
-        return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
+        return result.Succeeded ? TypedResults.Ok(result) : TypedResults.BadRequest(result);
     }
 
     public async Task<List<TaxRegionDto>> GetTaxRegions(ISender sender)

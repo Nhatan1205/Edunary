@@ -10,9 +10,9 @@ const useRunPayoutBatch = () => {
       return await client.runPayoutBatch();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["finance-eligible-payouts"]);
-      queryClient.invalidateQueries(["admin-withdrawal-requests"]);
-      queryClient.invalidateQueries(["admin-withdrawal-request-status-counts"]);
+      queryClient.invalidateQueries({ queryKey: ["finance-eligible-payouts"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-withdrawal-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-withdrawal-request-status-counts"] });
     },
   });
 };

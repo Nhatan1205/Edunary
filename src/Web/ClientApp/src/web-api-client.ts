@@ -5898,6 +5898,128 @@ export class RatingCourseClient {
         return Promise.resolve<RatingCourseDto>(null as any);
     }
 
+    getInstructorReviews(pageNumber: number, pageSize: number, courseId: number | null | undefined, rating: number | null | undefined, notAnswered: boolean | null | undefined, hasComment: boolean | null | undefined, sortBy: string | null | undefined): Promise<PaginatedListOfInstructorReviewDto> {
+        let url_ = this.baseUrl + "/api/RatingCourse/instructor?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (rating !== undefined && rating !== null)
+            url_ += "Rating=" + encodeURIComponent("" + rating) + "&";
+        if (notAnswered !== undefined && notAnswered !== null)
+            url_ += "NotAnswered=" + encodeURIComponent("" + notAnswered) + "&";
+        if (hasComment !== undefined && hasComment !== null)
+            url_ += "HasComment=" + encodeURIComponent("" + hasComment) + "&";
+        if (sortBy !== undefined && sortBy !== null)
+            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetInstructorReviews(_response);
+        });
+    }
+
+    protected processGetInstructorReviews(response: Response): Promise<PaginatedListOfInstructorReviewDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfInstructorReviewDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfInstructorReviewDto>(null as any);
+    }
+
+    upsertRatingResponse(command: UpsertRatingResponseCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/RatingCourse/respond";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpsertRatingResponse(_response);
+        });
+    }
+
+    protected processUpsertRatingResponse(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteRatingResponse(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/RatingCourse/{id}/respond";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteRatingResponse(_response);
+        });
+    }
+
+    protected processDeleteRatingResponse(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     getRatingsByCourse(courseId: number, pageNumber: number | undefined, pageSize: number | undefined, filterRating: number | null | undefined, sortBy: string | null | undefined): Promise<PaginatedListOfRatingCourseWithUserDto> {
         let url_ = this.baseUrl + "/api/RatingCourse/course/{courseId}?";
         if (courseId === undefined || courseId === null)
@@ -18421,6 +18543,7 @@ export class RatingCourseDto implements IRatingCourseDto {
     rating?: number;
     review?: string | undefined;
     lastModified?: Date;
+    ratingResponse?: RatingResponseDto | undefined;
 
     constructor(data?: IRatingCourseDto) {
         if (data) {
@@ -18438,6 +18561,7 @@ export class RatingCourseDto implements IRatingCourseDto {
             this.rating = _data["rating"];
             this.review = _data["review"];
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.ratingResponse = _data["ratingResponse"] ? RatingResponseDto.fromJS(_data["ratingResponse"]) : <any>undefined;
         }
     }
 
@@ -18455,6 +18579,7 @@ export class RatingCourseDto implements IRatingCourseDto {
         data["rating"] = this.rating;
         data["review"] = this.review;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["ratingResponse"] = this.ratingResponse ? this.ratingResponse.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -18465,6 +18590,307 @@ export interface IRatingCourseDto {
     rating?: number;
     review?: string | undefined;
     lastModified?: Date;
+    ratingResponse?: RatingResponseDto | undefined;
+}
+
+export class RatingResponseDto implements IRatingResponseDto {
+    id?: number;
+    responseText?: string | undefined;
+    respondedBy?: string | undefined;
+    instructorFullName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    respondedAt?: Date;
+
+    constructor(data?: IRatingResponseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.responseText = _data["responseText"];
+            this.respondedBy = _data["respondedBy"];
+            this.instructorFullName = _data["instructorFullName"];
+            this.instructorAvatar = _data["instructorAvatar"];
+            this.respondedAt = _data["respondedAt"] ? new Date(_data["respondedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RatingResponseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RatingResponseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["responseText"] = this.responseText;
+        data["respondedBy"] = this.respondedBy;
+        data["instructorFullName"] = this.instructorFullName;
+        data["instructorAvatar"] = this.instructorAvatar;
+        data["respondedAt"] = this.respondedAt ? this.respondedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRatingResponseDto {
+    id?: number;
+    responseText?: string | undefined;
+    respondedBy?: string | undefined;
+    instructorFullName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    respondedAt?: Date;
+}
+
+export class PaginatedListOfInstructorReviewDto implements IPaginatedListOfInstructorReviewDto {
+    items?: InstructorReviewDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfInstructorReviewDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(InstructorReviewDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfInstructorReviewDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfInstructorReviewDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfInstructorReviewDto {
+    items?: InstructorReviewDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class InstructorReviewDto implements IInstructorReviewDto {
+    id?: number;
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseImageUrl?: string | undefined;
+    courseRating?: number;
+    studentId?: string | undefined;
+    studentFullName?: string | undefined;
+    studentAvatar?: string | undefined;
+    rating?: number;
+    review?: string | undefined;
+    created?: Date;
+    lastModified?: Date;
+    ratingResponse?: RatingResponseDto2 | undefined;
+
+    constructor(data?: IInstructorReviewDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.courseTitle = _data["courseTitle"];
+            this.courseImageUrl = _data["courseImageUrl"];
+            this.courseRating = _data["courseRating"];
+            this.studentId = _data["studentId"];
+            this.studentFullName = _data["studentFullName"];
+            this.studentAvatar = _data["studentAvatar"];
+            this.rating = _data["rating"];
+            this.review = _data["review"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.ratingResponse = _data["ratingResponse"] ? RatingResponseDto2.fromJS(_data["ratingResponse"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): InstructorReviewDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorReviewDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["courseTitle"] = this.courseTitle;
+        data["courseImageUrl"] = this.courseImageUrl;
+        data["courseRating"] = this.courseRating;
+        data["studentId"] = this.studentId;
+        data["studentFullName"] = this.studentFullName;
+        data["studentAvatar"] = this.studentAvatar;
+        data["rating"] = this.rating;
+        data["review"] = this.review;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["ratingResponse"] = this.ratingResponse ? this.ratingResponse.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IInstructorReviewDto {
+    id?: number;
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseImageUrl?: string | undefined;
+    courseRating?: number;
+    studentId?: string | undefined;
+    studentFullName?: string | undefined;
+    studentAvatar?: string | undefined;
+    rating?: number;
+    review?: string | undefined;
+    created?: Date;
+    lastModified?: Date;
+    ratingResponse?: RatingResponseDto2 | undefined;
+}
+
+export class RatingResponseDto2 implements IRatingResponseDto2 {
+    id?: number;
+    responseText?: string | undefined;
+    respondedBy?: string | undefined;
+    instructorFullName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    respondedAt?: Date;
+
+    constructor(data?: IRatingResponseDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.responseText = _data["responseText"];
+            this.respondedBy = _data["respondedBy"];
+            this.instructorFullName = _data["instructorFullName"];
+            this.instructorAvatar = _data["instructorAvatar"];
+            this.respondedAt = _data["respondedAt"] ? new Date(_data["respondedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RatingResponseDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new RatingResponseDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["responseText"] = this.responseText;
+        data["respondedBy"] = this.respondedBy;
+        data["instructorFullName"] = this.instructorFullName;
+        data["instructorAvatar"] = this.instructorAvatar;
+        data["respondedAt"] = this.respondedAt ? this.respondedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRatingResponseDto2 {
+    id?: number;
+    responseText?: string | undefined;
+    respondedBy?: string | undefined;
+    instructorFullName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    respondedAt?: Date;
+}
+
+export class UpsertRatingResponseCommand implements IUpsertRatingResponseCommand {
+    ratingCourseId?: number;
+    responseText?: string | undefined;
+
+    constructor(data?: IUpsertRatingResponseCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ratingCourseId = _data["ratingCourseId"];
+            this.responseText = _data["responseText"];
+        }
+    }
+
+    static fromJS(data: any): UpsertRatingResponseCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpsertRatingResponseCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ratingCourseId"] = this.ratingCourseId;
+        data["responseText"] = this.responseText;
+        return data;
+    }
+}
+
+export interface IUpsertRatingResponseCommand {
+    ratingCourseId?: number;
+    responseText?: string | undefined;
 }
 
 export class PaginatedListOfRatingCourseWithUserDto implements IPaginatedListOfRatingCourseWithUserDto {
@@ -18541,6 +18967,7 @@ export class RatingCourseWithUserDto implements IRatingCourseWithUserDto {
     review?: string | undefined;
     created?: Date;
     lastModified?: Date;
+    ratingResponse?: RatingResponseDto3 | undefined;
 
     constructor(data?: IRatingCourseWithUserDto) {
         if (data) {
@@ -18562,6 +18989,7 @@ export class RatingCourseWithUserDto implements IRatingCourseWithUserDto {
             this.review = _data["review"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.ratingResponse = _data["ratingResponse"] ? RatingResponseDto3.fromJS(_data["ratingResponse"]) : <any>undefined;
         }
     }
 
@@ -18583,6 +19011,7 @@ export class RatingCourseWithUserDto implements IRatingCourseWithUserDto {
         data["review"] = this.review;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["ratingResponse"] = this.ratingResponse ? this.ratingResponse.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -18597,6 +19026,63 @@ export interface IRatingCourseWithUserDto {
     review?: string | undefined;
     created?: Date;
     lastModified?: Date;
+    ratingResponse?: RatingResponseDto3 | undefined;
+}
+
+export class RatingResponseDto3 implements IRatingResponseDto3 {
+    id?: number;
+    responseText?: string | undefined;
+    respondedBy?: string | undefined;
+    instructorFullName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    respondedAt?: Date;
+
+    constructor(data?: IRatingResponseDto3) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.responseText = _data["responseText"];
+            this.respondedBy = _data["respondedBy"];
+            this.instructorFullName = _data["instructorFullName"];
+            this.instructorAvatar = _data["instructorAvatar"];
+            this.respondedAt = _data["respondedAt"] ? new Date(_data["respondedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RatingResponseDto3 {
+        data = typeof data === 'object' ? data : {};
+        let result = new RatingResponseDto3();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["responseText"] = this.responseText;
+        data["respondedBy"] = this.respondedBy;
+        data["instructorFullName"] = this.instructorFullName;
+        data["instructorAvatar"] = this.instructorAvatar;
+        data["respondedAt"] = this.respondedAt ? this.respondedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRatingResponseDto3 {
+    id?: number;
+    responseText?: string | undefined;
+    respondedBy?: string | undefined;
+    instructorFullName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    respondedAt?: Date;
 }
 
 export class ReturnResultOfCreatedRoadmapDto implements IReturnResultOfCreatedRoadmapDto {

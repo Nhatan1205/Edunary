@@ -5590,6 +5590,159 @@
         ]
       }
     },
+    "/api/RatingCourse/instructor": {
+      "get": {
+        "tags": [
+          "RatingCourse"
+        ],
+        "operationId": "GetInstructorReviews",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "CourseId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "Rating",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "NotAnswered",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "HasComment",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 6
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 7
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfInstructorReviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/RatingCourse/respond": {
+      "post": {
+        "tags": [
+          "RatingCourse"
+        ],
+        "operationId": "UpsertRatingResponse",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertRatingResponseCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/RatingCourse/{id}/respond": {
+      "delete": {
+        "tags": [
+          "RatingCourse"
+        ],
+        "operationId": "DeleteRatingResponse",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/RatingCourse/course/{courseId}": {
       "get": {
         "tags": [
@@ -12890,6 +13043,181 @@
           "lastModified": {
             "type": "string",
             "format": "date-time"
+          },
+          "ratingResponse": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RatingResponseDto"
+              }
+            ]
+          }
+        }
+      },
+      "RatingResponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "responseText": {
+            "type": "string",
+            "nullable": true
+          },
+          "respondedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorFullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "respondedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaginatedListOfInstructorReviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/InstructorReviewDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "InstructorReviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseRating": {
+            "type": "number",
+            "format": "float"
+          },
+          "studentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentFullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "review": {
+            "type": "string",
+            "nullable": true
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ratingResponse": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RatingResponseDto2"
+              }
+            ]
+          }
+        }
+      },
+      "RatingResponseDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "responseText": {
+            "type": "string",
+            "nullable": true
+          },
+          "respondedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorFullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "respondedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpsertRatingResponseCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ratingCourseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "responseText": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -12962,6 +13290,44 @@
             "format": "date-time"
           },
           "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ratingResponse": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RatingResponseDto3"
+              }
+            ]
+          }
+        }
+      },
+      "RatingResponseDto3": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "responseText": {
+            "type": "string",
+            "nullable": true
+          },
+          "respondedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorFullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "respondedAt": {
             "type": "string",
             "format": "date-time"
           }

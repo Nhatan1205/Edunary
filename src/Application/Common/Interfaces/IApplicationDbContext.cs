@@ -34,6 +34,7 @@ public interface IApplicationDbContext
 
     public DbSet<Announcement> Announcements { get; }
     public DbSet<RatingCourse> RatingCourses { get; }
+    public DbSet<RatingResponse> RatingResponses { get; }
 
     public DbSet<Roadmap> Roadmaps { get; }
     public DbSet<RoadmapTopic> RoadmapTopics { get; }

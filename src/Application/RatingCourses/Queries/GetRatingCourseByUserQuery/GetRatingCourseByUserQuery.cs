@@ -12,13 +12,17 @@ public class GetRatingCourseByUserQuery : IRequest<Result>
 public class GetRatingCourseByUserQueryHandler : IRequestHandler<GetRatingCourseByUserQuery, Result>
 {
     private readonly IApplicationDbContext _context;
-
     private readonly ICurrentUserService _currentUserService;
+    private readonly IIdentityService _identityService;
 
-    public GetRatingCourseByUserQueryHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public GetRatingCourseByUserQueryHandler(
+        IApplicationDbContext context, 
+        ICurrentUserService currentUserService,
+        IIdentityService identityService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _identityService = identityService;
     }
 
     public async Task<Result> Handle(GetRatingCourseByUserQuery request, CancellationToken cancellationToken)
@@ -32,17 +36,9 @@ public class GetRatingCourseByUserQueryHandler : IRequestHandler<GetRatingCourse
                 return Result.Failure("User not authenticated");
             }
 
-            // Verify course exists
             var rating = await _context.RatingCourses
+                .Include(r => r.RatingResponse)
                 .Where(r => r.CourseId == request.CourseId && r.UserId == userId)
-                .Select(r => new RatingCourseDto
-                {
-                    Id = r.Id,
-                    CourseId = r.CourseId,
-                    Rating = r.Rating,
-                    Review = r.Review,
-                    LastModified = r.LastModified
-                })
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (rating == null)
@@ -50,7 +46,39 @@ public class GetRatingCourseByUserQueryHandler : IRequestHandler<GetRatingCourse
                 return Result.Success(null, "No rating found for this user and course");
             }
 
-            return Result.Success(rating);
+            var dto = new RatingCourseDto
+            {
+                Id = rating.Id,
+                CourseId = rating.CourseId,
+                Rating = rating.Rating,
+                Review = rating.Review ?? string.Empty,
+                LastModified = rating.LastModified
+            };
+
+            if (rating.RatingResponse != null)
+            {
+                dto.RatingResponse = new RatingResponseDto
+                {
+                    Id = rating.RatingResponse.Id,
+                    ResponseText = rating.RatingResponse.ResponseText,
+                    RespondedBy = rating.RatingResponse.CreatedBy,
+                    RespondedAt = rating.RatingResponse.Created
+                };
+
+                // Fetch instructor details
+                var instructorUsers = await _identityService.GetUserIdentitiesByIdsAsync(
+                    new List<string> { rating.RatingResponse.CreatedBy }, 
+                    cancellationToken
+                );
+                var instructor = instructorUsers.FirstOrDefault();
+                if (instructor != null)
+                {
+                    dto.RatingResponse.InstructorFullName = instructor.FullName;
+                    dto.RatingResponse.InstructorAvatar = instructor.Avatar;
+                }
+            }
+
+            return Result.Success(dto);
         }
         catch (Exception ex)
         {

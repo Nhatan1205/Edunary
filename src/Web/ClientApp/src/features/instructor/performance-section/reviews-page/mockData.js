@@ -1,0 +1,103 @@
+// Mock data — replace with real API hook when backend is ready.
+// Shape mirrors the planned InstructorReviewDto from backend.
+
+export const MOCK_COURSES = [
+  { id: null, title: "All Courses" },
+  { id: 1, title: "React for Beginners: The Complete Guide" },
+  { id: 2, title: "Advanced Node.js & Microservices" },
+  { id: 3, title: "UI/UX Design Fundamentals" },
+];
+
+export const MOCK_REVIEWS = [
+  {
+    id: 1,
+    courseId: 1,
+    courseTitle: "React for Beginners: The Complete Guide",
+    courseImageUrl: null,
+    courseRating: 4.59,
+    studentId: "u1",
+    studentFullName: "Kristian Okonski",
+    studentAvatar: null,
+    rating: 5,
+    review: "This is an amazing course! Loved every bit of it. The instructor explains concepts clearly and with great examples.",
+    created: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+    lastModified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    reviewResponse: null,
+  },
+  {
+    id: 2,
+    courseId: 1,
+    courseTitle: "React for Beginners: The Complete Guide",
+    courseImageUrl: null,
+    courseRating: 4.59,
+    studentId: "u2",
+    studentFullName: "Alexandros Ntzanidis",
+    studentAvatar: null,
+    rating: 2,
+    review: "Almost 20 mins they talk about what I will get from this course, very boring. Content seems rushed and lacks depth in several sections.",
+    created: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+    lastModified: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    reviewResponse: {
+      id: 101,
+      responseText:
+        "Those are the promo videos, Alexandros. Once enrolled, you could easily skip that entire first section and immediately begin learning starting with section 2 (the first course). Have some patience.",
+      respondedBy: "inst1",
+      instructorFullName: "Lahcen Bouya",
+      instructorAvatar: null,
+      respondedAt: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  },
+  {
+    id: 3,
+    courseId: 2,
+    courseTitle: "Advanced Node.js & Microservices",
+    courseImageUrl: null,
+    courseRating: 4.2,
+    studentId: "u3",
+    studentFullName: "Maria Santos",
+    studentAvatar: null,
+    rating: 4,
+    review: "Really solid course on microservices architecture. Would love more exercises though.",
+    created: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    lastModified: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    reviewResponse: null,
+  },
+  {
+    id: 4,
+    courseId: 2,
+    courseTitle: "Advanced Node.js & Microservices",
+    courseImageUrl: null,
+    courseRating: 4.2,
+    studentId: "u4",
+    studentFullName: "Jason Kim",
+    studentAvatar: null,
+    rating: 1,
+    review: "The audio quality is terrible in half the lectures. Very disappointed.",
+    created: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    lastModified: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    reviewResponse: {
+      id: 102,
+      responseText:
+        "Hi Jason, thank you for pointing this out. We have re-recorded those lectures and the updated versions are now live. Please check lecture 4 onwards and let us know if the issue persists.",
+      respondedBy: "inst1",
+      instructorFullName: "Lahcen Bouya",
+      instructorAvatar: null,
+      respondedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  },
+  {
+    id: 5,
+    courseId: 3,
+    courseTitle: "UI/UX Design Fundamentals",
+    courseImageUrl: null,
+    courseRating: 4.8,
+    studentId: "u5",
+    studentFullName: "Priya Nair",
+    studentAvatar: null,
+    rating: 5,
+    review: "Absolutely loved the color theory section. Best design course I have ever taken.",
+    created: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    lastModified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    reviewResponse: null,
+  },
+];

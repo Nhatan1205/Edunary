@@ -60,6 +60,7 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
 
             // Check if rating already exists for this user and course
             var existingRating = await _context.RatingCourses
+                .Include(r => r.RatingResponse)
                 .FirstOrDefaultAsync(r => r.CourseId == request.CourseId && r.UserId == userId, 
                     cancellationToken);
             
@@ -71,6 +72,12 @@ public class UpsertRatingCourseCommandHandler : IRequestHandler<UpsertRatingCour
             // Save changes to course ratings
             if (existingRating != null)
             {
+                // Delete instructor response if student edits rating
+                if (existingRating.RatingResponse != null)
+                {
+                    _context.RatingResponses.Remove(existingRating.RatingResponse);
+                }
+
                 // Update existing rating
                 existingRating.Rating = request.Rating;
                 existingRating.Review = request.Review;

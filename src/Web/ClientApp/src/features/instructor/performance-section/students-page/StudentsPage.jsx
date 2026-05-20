@@ -8,6 +8,8 @@ import useGetInstructorRecentStudents from "../../../../hooks/enrollment-hooks/u
 import useGetInstructorStudents from "../../../../hooks/enrollment-hooks/useGetInstructorStudents";
 import useGetCoursesAuthor from "../../../../hooks/course-hooks/useGetCoursesAuthor";
 import RecentStudentsSlider from "./components/RecentStudentsSlider";
+import NoData from "../../../../components/NoData";
+import emptyStudentsImg from "../../../../assets/images/empty-students.png";
 
 function StudentsPage() {
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -45,6 +47,8 @@ function StudentsPage() {
     const items = studentsData?.items ?? [];
     const totalCount = studentsData?.totalCount ?? 0;
 
+    const showEmptyState = !recentLoading && !studentsLoading && totalStudents === 0;
+
     return (
         <MainCard>
             {/* ── Header ── */}
@@ -52,36 +56,46 @@ function StudentsPage() {
                 <PageTitle title="Students" subtitle="" />
             </Box>
 
-            {/* ── Total count ── */}
-            <Typography sx={{ fontSize: "1.1rem", fontWeight: 700, color: "text.primary", mb: 0.25 }}>
-                {totalStudents.toLocaleString()} students
-            </Typography>
-
-            {/* ── Recent Students Slider ── */}
-            <RecentStudentsSlider
-                students={topStudents}
-                isLoading={recentLoading}
-                onStudentClick={handleViewDetail}
-            />
-
-            {/* ── Student DataGrid ── */}
-            <Box sx={{ mt: 4 }}>
-                <StudentDataGrid
-                    items={items}
-                    totalCount={totalCount}
-                    isLoading={studentsLoading}
-                    selectedCourse={selectedCourse}
-                    onCourseChange={setSelectedCourse}
-                    sortBy={sortBy}
-                    onSortChange={setSortBy}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    onPageChange={(_, newPage) => setPage(newPage)}
-                    onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                    courses={courseOptions}
-                    onViewDetail={handleViewDetail}
+            {showEmptyState ? (
+                <NoData
+                    image={emptyStudentsImg}
+                    title="No Students Enrolled Yet"
+                    description="Once students enroll in your courses, their profiles, enrollment dates, and learning progress will appear here."
                 />
-            </Box>
+            ) : (
+                <>
+                    {/* ── Total count ── */}
+                    <Typography sx={{ fontSize: "1.1rem", fontWeight: 700, color: "text.primary", mb: 0.25 }}>
+                        {totalStudents.toLocaleString()} students
+                    </Typography>
+
+                    {/* ── Recent Students Slider ── */}
+                    <RecentStudentsSlider
+                        students={topStudents}
+                        isLoading={recentLoading}
+                        onStudentClick={handleViewDetail}
+                    />
+
+                    {/* ── Student DataGrid ── */}
+                    <Box sx={{ mt: 4 }}>
+                        <StudentDataGrid
+                            items={items}
+                            totalCount={totalCount}
+                            isLoading={studentsLoading}
+                            selectedCourse={selectedCourse}
+                            onCourseChange={setSelectedCourse}
+                            sortBy={sortBy}
+                            onSortChange={setSortBy}
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={(_, newPage) => setPage(newPage)}
+                            onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+                            courses={courseOptions}
+                            onViewDetail={handleViewDetail}
+                        />
+                    </Box>
+                </>
+            )}
 
             {/* ── Student Detail Drawer ── */}
             <StudentDetailDrawer

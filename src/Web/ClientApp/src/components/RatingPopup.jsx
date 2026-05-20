@@ -108,33 +108,34 @@ const RatingPopup = ({ open, onClose, courseId }) => {
 
         {/* View Mode - Show existing rating */}
         {!isEditing && existingRating ? (
-          <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
+          <Box display="flex" flexDirection="column" alignItems="flex-start" mb={3} width="100%">
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Your Review
             </Typography>
 
             {/* Star Rating - Read only */}
-            <Box my={2}>
+            <Box my={1}>
               <Rating
                 name="course-rating-readonly"
                 value={ratingValue}
                 readOnly
                 size="large"
-                sx={{
-                  fontSize: '3rem'
-                }}
               />
             </Box>
 
             {/* Review Text */}
-            {feedback && (
+            {!feedback.trim() ? (
+              <Typography variant="body1" color="text.secondary" sx={{ my: 1, width: '100%' }}>
+                There are no written comments for your review.
+              </Typography>
+            ) : (
               <Box
                 sx={{
                   width: '100%',
                   p: 2,
                   bgcolor: '#f5f5f5',
                   borderRadius: 2,
-                  mb: 2
+                  mb: 1
                 }}
               >
                 <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -143,15 +144,52 @@ const RatingPopup = ({ open, onClose, courseId }) => {
               </Box>
             )}
 
+            {/* Instructor Reply Box */}
+            {existingRating.ratingResponse && (
+              <Box
+                sx={{
+                  position: 'relative',
+                  width: '100%',
+                  bgcolor: '#f8f9fa',
+                  p: 2.5,
+                  borderRadius: 2.5,
+                  mt: 2.5,
+                  mb: 1,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: -8,
+                    left: 24,
+                    width: 14,
+                    height: 14,
+                    bgcolor: '#f8f9fa',
+                    borderLeft: '1px solid',
+                    borderTop: '1px solid',
+                    borderColor: 'divider',
+                    transform: 'rotate(45deg)',
+                  }
+                }}
+              >
+                <Typography variant="body2" fontWeight="bold" color="text.primary">
+                  {existingRating.ratingResponse.instructorFullName || "Instructor"} (Instructor)
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                  {existingRating.ratingResponse.responseText}
+                </Typography>
+              </Box>
+            )}
+
             {/* Last updated time */}
             {existingRating?.lastModified && (
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 2 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
                 Last updated: {formatTimeAgo(existingRating.lastModified)}
               </Typography>
             )}
 
             {/* Action Buttons */}
-            <Box display="flex" gap={2} mt={2}>
+            <Box display="flex" justifyContent="flex-end" width="100%" mt={1}>
               <Button
                 variant="contained"
                 onClick={() => setIsEditing(true)}

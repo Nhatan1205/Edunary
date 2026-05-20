@@ -1,6 +1,9 @@
 using Edunary.Application.RatingCourses.Commands.UpsertRatingCourseCommand;
 using Edunary.Application.RatingCourses.Queries.GetRatingCourseByUserQuery;
 using Edunary.Application.RatingCourses.Queries.GetRatingsByCourseQuery;
+using Edunary.Application.RatingCourses.Queries.GetInstructorReviewsQuery;
+using Edunary.Application.RatingCourses.Commands.UpsertRatingResponseCommand;
+using Edunary.Application.RatingCourses.Commands.DeleteRatingResponseCommand;
 using Edunary.Application.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +17,10 @@ public class RatingCourse : EndpointGroupBase
         app.MapGroup(this)
             .RequireAuthorization()
             .MapPost(UpsertRatingCourse)
-            .MapGet(GetRatingCourseByUser);
+            .MapGet(GetRatingCourseByUser)
+            .MapGet(GetInstructorReviews, "instructor")
+            .MapPost(UpsertRatingResponse, "respond")
+            .MapDelete(DeleteRatingResponse, "{id}/respond");
 
         app.MapGroup(this)
             .MapGet(GetRatingsByCourse, "course/{courseId}");
@@ -57,5 +63,36 @@ public class RatingCourse : EndpointGroupBase
             SortBy = sortBy
         };
         return await sender.Send(query);
+    }
+
+    // Get instructor reviews
+    public async Task<PaginatedList<InstructorReviewDto>> GetInstructorReviews(
+        ISender sender,
+        [AsParameters] GetInstructorReviewsQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    // Create or update instructor response
+    public async Task<IResult> UpsertRatingResponse(ISender sender, [FromBody] UpsertRatingResponseCommand command)
+    {
+        var result = await sender.Send(command);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
+
+    // Delete instructor response
+    public async Task<IResult> DeleteRatingResponse(ISender sender, int id)
+    {
+        var command = new DeleteRatingResponseCommand { RatingCourseId = id };
+        var result = await sender.Send(command);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
     }
 }

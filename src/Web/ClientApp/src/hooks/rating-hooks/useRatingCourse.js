@@ -48,7 +48,7 @@ export const useUpsertRatingCourse = () => {
     },
     onSuccess: (result, variables) => {
       // Invalidate queries to refetch updated data
-      queryClient.invalidateQueries({ queryKey: ['ratingCourse', variables.courseId, variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['ratingCourse', variables.courseId] });
       queryClient.invalidateQueries({ queryKey: ['ratingCourses', variables.courseId] });
 
       toast.success('Rating saved successfully');

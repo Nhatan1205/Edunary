@@ -28,6 +28,7 @@ public class GetRatingsByCourseQueryHandler : IRequestHandler<GetRatingsByCourse
     public async Task<PaginatedList<RatingCourseWithUserDto>> Handle(GetRatingsByCourseQuery request, CancellationToken cancellationToken)
     {
         var query = _context.RatingCourses
+            .Include(r => r.RatingResponse)
             .Where(r => r.CourseId == request.CourseId)
             .AsQueryable();
 
@@ -53,20 +54,40 @@ public class GetRatingsByCourseQueryHandler : IRequestHandler<GetRatingsByCourse
                 CourseId = r.CourseId,
                 UserId = r.UserId,
                 Rating = r.Rating,
-                Review = r.Review,
+                Review = r.Review ?? string.Empty,
                 Created = r.Created,
-                LastModified = r.LastModified
+                LastModified = r.LastModified,
+                RatingResponse = r.RatingResponse != null ? new RatingResponseDto
+                {
+                    Id = r.RatingResponse.Id,
+                    ResponseText = r.RatingResponse.ResponseText,
+                    RespondedBy = r.RatingResponse.CreatedBy,
+                    RespondedAt = r.RatingResponse.Created
+                } : null
             })
             .PaginatedListAsync(request.PageNumber, request.PageSize);
 
-        // Fetch user details for each rating
+        // Batch fetch student and instructor details to avoid N+1 query loops
+        var userIds = ratings.Items.Select(r => r.UserId)
+            .Union(ratings.Items.Where(r => r.RatingResponse != null).Select(r => r.RatingResponse!.RespondedBy))
+            .Distinct()
+            .ToList();
+
+        var users = await _identityService.GetUserIdentitiesByIdsAsync(userIds, cancellationToken);
+        var userCache = users.ToDictionary(u => u.Id, u => (u.FullName, u.Avatar));
+
         foreach (var rating in ratings.Items)
         {
-            var user = await _identityService.GetUserById(rating.UserId);
-            if (user != null)
+            if (userCache.TryGetValue(rating.UserId, out var studentInfo))
             {
-                rating.UserFullName = user.FullName;
-                rating.UserAvatar = user.Avatar;
+                rating.UserFullName = studentInfo.FullName;
+                rating.UserAvatar = studentInfo.Avatar;
+            }
+
+            if (rating.RatingResponse != null && userCache.TryGetValue(rating.RatingResponse.RespondedBy, out var instructorInfo))
+            {
+                rating.RatingResponse.InstructorFullName = instructorInfo.FullName;
+                rating.RatingResponse.InstructorAvatar = instructorInfo.Avatar;
             }
         }
 

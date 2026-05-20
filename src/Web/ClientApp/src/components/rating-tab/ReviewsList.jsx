@@ -21,6 +21,7 @@ function ReviewsList({ reviews = [] }) {
           modifiedAt={r.modifiedAt}
           content={r.content}
           avatar={r.avatar}
+          ratingResponse={r.ratingResponse}
         />
       ))}
     </Stack>

@@ -30,6 +30,7 @@ function RatingTab({ courseId }) {
       modifiedAt: item.lastModified || item.created,
       content: item.review || "",
       avatar: item.userAvatar,
+      ratingResponse: item.ratingResponse,
     }));
   }, [ratingsData]);
 

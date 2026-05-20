@@ -76,6 +76,7 @@ import MyCareerPathDetailPage from "./features/user/career-paths/MyCareerPathDet
 import GenerateCareerPathPage from "./features/user/career-paths/generate-career-path/GenerateCareerPathPage";
 import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage";
 import InvitationsPage from "./features/instructor/invitations-page/InvitationsPage";
+import ReviewsPage from "./features/instructor/performance-section/reviews-page/ReviewsPage";
 
 const router = createBrowserRouter([
   {
@@ -375,6 +376,10 @@ const router = createBrowserRouter([
           {
             path: "overview/:tab",
             element: <OverviewPage />,
+          },
+          {
+            path: "reviews",
+            element: <ReviewsPage />,
           },
           {
             path: "revenue",

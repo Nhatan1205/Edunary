@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+
 import {
     Drawer, Box, Typography, Avatar, Divider,
     IconButton, Button, LinearProgress, Skeleton,
@@ -13,9 +13,6 @@ import { formatShortDate, formatTimeAgo } from "../../../../../utils/helpers";
 import useGetInstructorStudentDetail from "../../../../../hooks/enrollment-hooks/useGetInstructorStudentDetail";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function getInitials(name = "") {
-    return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
-}
 
 function progressColor(pct) {
     if (pct >= 80) return "#22C55E";
@@ -108,8 +105,6 @@ function CourseProgressCard({ course }) {
 
 // ── Drawer ────────────────────────────────────────────────────────────────────
 function StudentDetailDrawer({ open, onClose, studentId }) {
-    const navigate = useNavigate();
-
     const { data: detail, isLoading } = useGetInstructorStudentDetail(studentId);
     return (
         <Drawer
@@ -173,18 +168,14 @@ function StudentDetailDrawer({ open, onClose, studentId }) {
                                     justifyContent: "center",
                                 }}
                             >
-                                {detail.avatar ? (
+                                {detail.avatar || defaultAvatar ? (
                                     <Box
                                         component="img"
-                                        src={detail.avatar}
+                                        src={detail.avatar || defaultAvatar}
                                         alt={detail.fullName}
                                         sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                                     />
-                                ) : (
-                                    <Typography sx={{ fontSize: "1.3rem", fontWeight: 800, color: "brand.dark" }}>
-                                        {getInitials(detail.fullName)}
-                                    </Typography>
-                                )}
+                                ) : null}
                             </Box>
 
                             <Box sx={{ textAlign: "center" }}>
@@ -201,7 +192,7 @@ function StudentDetailDrawer({ open, onClose, studentId }) {
                                 <Button
                                     size="small"
                                     endIcon={<OpenInNewIcon sx={{ fontSize: 15 }} />}
-                                    onClick={() => { onClose(); navigate(`/profile/${detail.studentId}`); }}
+                                    onClick={() => { onClose(); window.open(`/profile/${detail.studentId}`, "_blank"); }}
                                     sx={{
                                         borderRadius: "8px",
                                         border: "1.5px solid",
@@ -220,7 +211,7 @@ function StudentDetailDrawer({ open, onClose, studentId }) {
                                     size="small"
                                     variant="contained"
                                     startIcon={<MailOutlineIcon sx={{ fontSize: 15 }} />}
-                                    onClick={() => navigate(`/messages?user=${detail.studentId}`)}
+                                    onClick={() => window.open(`/messages?user=${detail.studentId}`, "_blank")}
                                     sx={{
                                         borderRadius: "8px",
                                         bgcolor: "brand.main",

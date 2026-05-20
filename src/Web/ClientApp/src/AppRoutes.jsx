@@ -39,6 +39,7 @@ import FAQPage from "./features/guest/faq-page/FAQPage";
 import AboutPage from "./features/guest/about-page/AboutPage";
 import OverviewPage from "./features/instructor/performance-section/overview-page/CourseOverviewPage";
 import RevenuePage from "./features/instructor/performance-section/revenue-page/RevenuePage";
+import StudentsPage from "./features/instructor/performance-section/students-page/StudentsPage";
 import PolicyPage from "./features/guest/policy-page/PolicyPage";
 import AnnouncementsPage from "./features/instructor/communication-section/announcements-page/AnnouncementsPage";
 import AnnouncementComposePage from "./features/instructor/communication-section/announcements-page/announcements-compose-page.jsx/AnnouncementComposePage";
@@ -378,7 +379,11 @@ const router = createBrowserRouter([
           {
             path: "revenue",
             element: <RevenuePage />,
-          }
+          },
+          {
+            path: "students",
+            element: <StudentsPage />,
+          },
         ],
       },
       {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -11,11 +10,11 @@ import {
   DialogTitle,
   Grid,
   Paper,
-  Snackbar,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
+import { toast } from "react-toastify";
 import { alpha } from "@mui/material/styles";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SaveIcon from "@mui/icons-material/Save";
@@ -60,7 +59,6 @@ export default function TaxSettingsSection() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState(getSettingsFormData());
-  const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
     if (settings) {
@@ -70,27 +68,19 @@ export default function TaxSettingsSection() {
 
   useEffect(() => {
     if (isSuccess) {
-      setSnack({ open: true, message: "Tax settings updated successfully", severity: "success" });
+      toast.success("Tax settings updated successfully");
     }
   }, [isSuccess]);
 
   useEffect(() => {
     if (updateError) {
-      setSnack({
-        open: true,
-        message: extractApiError(updateError) || updateError?.message || "Failed to update settings",
-        severity: "error",
-      });
+      toast.error(extractApiError(updateError) || updateError?.message || "Failed to update settings");
     }
   }, [updateError]);
 
   useEffect(() => {
     if (error) {
-      setSnack({
-        open: true,
-        message: extractApiError(error) || error?.message || "Failed to load settings",
-        severity: "error",
-      });
+      toast.error(extractApiError(error) || error?.message || "Failed to load settings");
     }
   }, [error]);
 
@@ -116,7 +106,7 @@ export default function TaxSettingsSection() {
     }
 
     if (Object.keys(payload).length === 0) {
-      setSnack({ open: true, message: "No changes to save", severity: "info" });
+      toast.info("No changes to save");
       return;
     }
 
@@ -128,7 +118,7 @@ export default function TaxSettingsSection() {
   const handleReset = () => {
     if (settings) {
       setFormData(getSettingsFormData(settings));
-      setSnack({ open: true, message: "Form reset to current values", severity: "info" });
+      toast.info("Form reset to current values");
     }
   };
 
@@ -340,20 +330,6 @@ export default function TaxSettingsSection() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar
-        open={snack.open}
-        autoHideDuration={4000}
-        onClose={() => setSnack((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnack((s) => ({ ...s, open: false }))}
-          severity={snack.severity}
-          sx={{ width: "100%" }}
-        >
-          {snack.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

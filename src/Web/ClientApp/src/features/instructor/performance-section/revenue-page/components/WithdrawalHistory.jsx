@@ -41,7 +41,7 @@ function WithdrawalHistory() {
   const isWithdrawalView = type === 'withdrawal';
 
   const { data: coursesData } = useGetCoursesAuthor('', 0, 1, 1000);
-  const courses = coursesData?.items ?? [];
+  const courses = useMemo(() => coursesData?.items ?? [], [coursesData]);
   const courseTitleById = useMemo(() => {
     return courses.reduce((acc, c) => {
       if (c?.id != null) {

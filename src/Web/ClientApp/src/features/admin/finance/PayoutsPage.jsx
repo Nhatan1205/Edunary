@@ -13,13 +13,13 @@ import {
   DialogTitle,
   Divider,
   InputAdornment,
-  Snackbar,
   Stack,
   TablePagination,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
+import { toast } from "react-toastify";
 import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
@@ -193,7 +193,6 @@ export default function PayoutsPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [thresholdOpen, setThresholdOpen] = useState(false);
   const [thresholdValue, setThresholdValue] = useState("");
-  const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -217,15 +216,11 @@ export default function PayoutsPage() {
     setConfirmOpen(false);
     runBatch(undefined, {
       onSuccess: (res) => {
-        setSnack({ open: true, message: res?.message ?? "Batch completed", severity: "success" });
+        toast.success(res?.message ?? "Batch completed");
         refetch();
       },
       onError: (err) => {
-        setSnack({
-          open: true,
-          message: extractApiError(err) || err?.message || "Failed to run payout batch.",
-          severity: "error",
-        });
+        toast.error(extractApiError(err) || err?.message || "Failed to run payout batch.");
       },
     });
   }
@@ -246,16 +241,12 @@ export default function PayoutsPage() {
 
     const parsed = Number(thresholdValue);
     if (!Number.isFinite(parsed) || parsed <= 0) {
-      setSnack({
-        open: true,
-        message: "Minimum payout threshold must be greater than 0.",
-        severity: "error",
-      });
+      toast.error("Minimum payout threshold must be greater than 0.");
       return;
     }
 
     if (parsed === minimumThreshold) {
-      setSnack({ open: true, message: "No changes to save", severity: "info" });
+      toast.info("No changes to save");
       return;
     }
 
@@ -264,18 +255,10 @@ export default function PayoutsPage() {
       {
         onSuccess: (res) => {
           setThresholdOpen(false);
-          setSnack({
-            open: true,
-            message: res?.message ?? "Payout settings updated successfully.",
-            severity: "success",
-          });
+          toast.success(res?.message ?? "Payout settings updated successfully.");
         },
         onError: (err) => {
-          setSnack({
-            open: true,
-            message: extractApiError(err) || err?.message || "Failed to update payout settings.",
-            severity: "error",
-          });
+          toast.error(extractApiError(err) || err?.message || "Failed to update payout settings.");
         },
       }
     );
@@ -535,16 +518,6 @@ export default function PayoutsPage() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar
-        open={snack.open}
-        autoHideDuration={4000}
-        onClose={() => setSnack((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert severity={snack.severity} onClose={() => setSnack((s) => ({ ...s, open: false }))}>
-          {snack.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

@@ -141,6 +141,8 @@ function StudentDataGrid({
     items = [],
     totalCount = 0,
     isLoading = false,
+    searchText = "",
+    onSearchChange,
     selectedCourse,
     onCourseChange,
     sortBy,
@@ -172,10 +174,10 @@ function StudentDataGrid({
         <Card sx={cardSx}>
             {/* Toolbar */}
             <DataGridToolbar
-                filterName=""
-                onFilterName={null}
-                searchPlaceholder=""
-                showSearch={false}
+                filterName={searchText}
+                onFilterName={(e) => onSearchChange?.(e.target.value)}
+                searchPlaceholder="Search name or email..."
+                showSearch={true}
                 filterDropdowns={
                     <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
                         {courses.length > 0 && (
@@ -276,7 +278,7 @@ function StudentDataGrid({
                         ))}
 
                         {notFound && (
-                            <DataGridNoData colSpan={HEAD_LABEL.length + 2} />
+                            <DataGridNoData searchQuery={searchText} colSpan={HEAD_LABEL.length + 2} />
                         )}
                     </TableBody>
                 </Table>

@@ -1397,6 +1397,30 @@ public class IdentityService : IIdentityService
         }
     }
 
+    public async Task<List<string>> SearchUserIdsByKeywordAsync(
+        string keyword, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return new List<string>();
+            }
+
+            var search = keyword.Trim().ToLower();
+            return await _context.Users
+                .Where(u => (u.FullName != null && u.FullName.ToLower().Contains(search)) ||
+                            (u.Email != null && u.Email.ToLower().Contains(search)))
+                .Select(u => u.Id)
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception at SearchUserIdsByKeywordAsync. Ex: {0}", ex.Message);
+            return new List<string>();
+        }
+    }
+
     public async Task<Result> AddUserAsync(string email, string fullName, string password)
     {
         try

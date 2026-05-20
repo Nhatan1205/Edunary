@@ -3789,10 +3789,12 @@ export class EnrollmentClient {
         return Promise.resolve<InstructorRecentStudentsDto>(null as any);
     }
 
-    getInstructorStudents(courseId: number | null | undefined, sortBy: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfInstructorStudentDto> {
+    getInstructorStudents(courseId: number | null | undefined, searchText: string | null | undefined, sortBy: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfInstructorStudentDto> {
         let url_ = this.baseUrl + "/api/Enrollment/instructor/students?";
         if (courseId !== undefined && courseId !== null)
             url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
         if (sortBy !== undefined && sortBy !== null)
             url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
         if (pageNumber === undefined || pageNumber === null)

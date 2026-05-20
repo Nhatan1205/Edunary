@@ -138,8 +138,8 @@ function RecentStudentsSlider({ students = [], onStudentClick }) {
                         1280: { slidesPerView: 5, spaceBetween: 16 },
                     }}
                 >
-                    {students.map((s) => (
-                        <SwiperSlide key={`${s.studentId}-${s.courseId}`}>
+                    {students.map((s, index) => (
+                        <SwiperSlide key={`${s.studentId}-${s.courseTitle || index}`}>
                             <StudentCard student={s} onClick={() => onStudentClick?.(s)} />
                         </SwiperSlide>
                     ))}

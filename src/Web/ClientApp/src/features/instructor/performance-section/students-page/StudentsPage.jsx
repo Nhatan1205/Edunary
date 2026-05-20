@@ -10,12 +10,15 @@ import useGetCoursesAuthor from "../../../../hooks/course-hooks/useGetCoursesAut
 import RecentStudentsSlider from "./components/RecentStudentsSlider";
 import NoData from "../../../../components/NoData";
 import emptyStudentsImg from "../../../../assets/images/empty-students.png";
+import useDebounce from "../../../../hooks/common/useDebounce";
 
 function StudentsPage() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedStudentId, setSelectedStudentId] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState([]);
     const [sortBy, setSortBy] = useState("newest");
+    const [searchText, setSearchText] = useState("");
+    const debouncedSearch = useDebounce(searchText, 1000);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -25,6 +28,7 @@ function StudentsPage() {
     const { data: studentsData, isLoading: studentsLoading } =
         useGetInstructorStudents({
             courseId,
+            searchText: debouncedSearch,
             sortBy,
             pageNumber: page + 1,
             pageSize: rowsPerPage,
@@ -32,10 +36,13 @@ function StudentsPage() {
 
     const { data: coursesData } = useGetCoursesAuthor("", 0, 1, 100, 4);
 
-    const courseOptions = (coursesData?.items ?? []).map((c) => ({
-        label: c.title,
-        value: c.id,
-    }));
+    const courseOptions = [
+        { label: "All courses", value: null },
+        ...(coursesData?.items ?? []).map((c) => ({
+            label: c.title,
+            value: c.id,
+        }))
+    ];
 
     const handleViewDetail = (student) => {
         setSelectedStudentId(student.studentId);
@@ -82,6 +89,8 @@ function StudentsPage() {
                             items={items}
                             totalCount={totalCount}
                             isLoading={studentsLoading}
+                            searchText={searchText}
+                            onSearchChange={(v) => { setSearchText(v); setPage(0); }}
                             selectedCourse={selectedCourse}
                             onCourseChange={setSelectedCourse}
                             sortBy={sortBy}

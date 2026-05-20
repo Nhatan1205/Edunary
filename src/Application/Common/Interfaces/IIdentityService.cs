@@ -72,6 +72,10 @@ public interface IIdentityService
         string emailKeyword,
         CancellationToken cancellationToken);
 
+    Task<List<string>> SearchUserIdsByKeywordAsync(
+        string keyword,
+        CancellationToken cancellationToken);
+
     Task<Result> AddUserAsync(string email, string fullName, string password);
 
     Task<Result> RestrictUserAsync(string userId, string currentAdminId, int? durationDays);

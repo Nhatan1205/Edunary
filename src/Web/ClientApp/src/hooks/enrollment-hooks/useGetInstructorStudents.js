@@ -8,6 +8,7 @@ const useGetInstructorStudents = (params) => {
       const client = new EnrollmentClient();
       return await client.getInstructorStudents(
         params.courseId ?? undefined,
+        params.searchText ?? undefined,
         params.sortBy ?? "newest",
         params.pageNumber ?? 1,
         params.pageSize ?? 10

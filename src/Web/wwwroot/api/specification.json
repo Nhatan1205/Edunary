@@ -3592,13 +3592,22 @@
             "x-position": 1
           },
           {
-            "name": "SortBy",
+            "name": "SearchText",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
             "x-position": 2
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           },
           {
             "name": "PageNumber",
@@ -3608,7 +3617,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 3
+            "x-position": 4
           },
           {
             "name": "PageSize",
@@ -3618,7 +3627,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 4
+            "x-position": 5
           }
         ],
         "responses": {

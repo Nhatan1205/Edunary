@@ -2,8 +2,12 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { toast } from "react-toastify"
 import usePaymentClient from "./usePaymentClient"
+import { extractApiError } from "../../utils/helpers.js"
 
-export default function usePaymentInitialization(courses = []) {
+const getErrorMessage = (error, fallback) =>
+  extractApiError(error) || error?.message || fallback
+
+export default function usePaymentInitialization(courses = [], couponCode = "", billingCountryCode = "") {
   const navigate = useNavigate()
   const { createPaymentIntent, confirmPayment } = usePaymentClient()
 
@@ -12,6 +16,8 @@ export default function usePaymentInitialization(courses = []) {
   const [paymentIntentId, setPaymentIntentId] = useState("")
   const [initError, setInitError] = useState("")
   const [redirecting, setRedirecting] = useState(false)
+  const [vatAmount, setVatAmount] = useState(0)
+  const [vatRate, setVatRate] = useState(0)
 
   useEffect(() => {
     if (!courses || courses.length === 0) {
@@ -28,10 +34,16 @@ export default function usePaymentInitialization(courses = []) {
           .map((c) => Number(c.id || c.courseId))
           .filter((id) => Number.isFinite(id) && id > 0)
 
-        const response = await createPaymentIntent({ courseIds })
+        const response = await createPaymentIntent({
+          courseIds,
+          couponCode: couponCode || undefined,
+          billingCountryCode: billingCountryCode || undefined,
+        })
         if (!response?.result) {
+          const message = response?.message || "Failed to initialize payment. Please try again."
           if (!cancelled) {
-            toast.error(response?.message)
+            setInitError(message)
+            toast.error(message)
             navigate("/")
           }
           return
@@ -43,37 +55,53 @@ export default function usePaymentInitialization(courses = []) {
           if (cancelled) return
           setRedirecting(true)
           // confirm free checkout on server
-          const confirmResponse = await confirmPayment(paymentResult.paymentIntentId)
-          if (confirmResponse?.success) {
+          try {
+            const confirmResponse = await confirmPayment(paymentResult.paymentIntentId)
+            if (confirmResponse?.success) {
+              if (!cancelled) {
+                navigate('/payment-success', {
+                  state: {
+                    paymentIntentId: paymentResult.paymentIntentId,
+                    courses,
+                    totalAmount: courses.reduce((s, c) => s + (c.price || 0), 0),
+                    orderId: confirmResponse.orderId,
+                  },
+                })
+              }
+              return
+            }
+            const message = confirmResponse?.message || 'Failed to confirm free checkout'
             if (!cancelled) {
-              navigate('/payment-success', {
-                state: {
-                  paymentIntentId: paymentResult.paymentIntentId,
-                  courses,
-                  totalAmount: courses.reduce((s, c) => s + (c.price || 0), 0),
-                  orderId: confirmResponse.orderId,
-                },
-              })
+              setRedirecting(false)
+              setInitError(message)
+              toast.error(message)
+              navigate("/")
             }
             return
-          }
-          // confirmation failed; stop redirecting and show error
-          if (!cancelled) {
-            setRedirecting(false)
-            toast.error(confirmResponse?.message || 'Failed to confirm free checkout')
-            navigate("/")
+          } catch (error) {
+            const message = getErrorMessage(error, 'Failed to confirm free checkout')
+            if (!cancelled) {
+              setRedirecting(false)
+              setInitError(message)
+              toast.error(message)
+              navigate("/")
+            }
           }
           return
         }
         if (!cancelled) {
           setClientSecret(paymentResult.clientSecret)
           setPaymentIntentId(paymentResult.paymentIntentId)
+          setVatAmount(paymentResult?.vatAmount ?? 0)
+          setVatRate(paymentResult?.vatRate ?? 0)
         }
       } catch (err) {
         console.error("Error initializing payment:", err)
+        const message = getErrorMessage(err, "Failed to initialize payment. Please try again.")
         if (!cancelled) {
-          toast.error("Failed to initialize payment. Please try again.")
-          setInitError("Failed to initialize payment. Please try again.")
+          setRedirecting(false)
+          setInitError(message)
+          toast.error(message)
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -85,7 +113,7 @@ export default function usePaymentInitialization(courses = []) {
     return () => {
       cancelled = true
     }
-  }, [courses, createPaymentIntent, confirmPayment, navigate])
+  }, [courses, couponCode, billingCountryCode, createPaymentIntent, confirmPayment, navigate])
 
-  return { loading, clientSecret, paymentIntentId, initError, redirecting }
+  return { loading, clientSecret, paymentIntentId, initError, redirecting, vatAmount, vatRate }
 }

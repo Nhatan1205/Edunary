@@ -1,10 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import queryClient from '../../configs/reactQuery.js'
 import { CartClient, AddToCartCommand } from '../../web-api-client.ts'
 import { toast } from 'react-toastify'
 
 export const useAddToCart = () => {
-  const queryClient = useQueryClient()
-
   const mutation = useMutation({
     mutationFn: async (courseId) => {
       const cartClient = new CartClient()

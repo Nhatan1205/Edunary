@@ -6,19 +6,29 @@ import {
   Divider,
   Paper,
   Alert,
+  TextField,
+  InputAdornment,
+  Chip,
 } from "@mui/material"
+import LocalOfferIcon from "@mui/icons-material/LocalOffer"
 import LoadingSpinner from "../../../components/LoadingSpinner"
 import CartItem from "./CartItem"
 import { useCart } from "../../../hooks/cart-hooks/useCart"
 import { useNavigate } from "react-router"
+import { toast } from "react-toastify"
 import NoResult from "../../../components/NoResult"
 import emptyCartImg from "../../../assets/images/empty-cart.png"
+import useCouponClient from "../../../hooks/coupon-hooks/useCouponClient"
 
 const CartPage = () => {
   const navigate = useNavigate()
   const { cartItems, loading, error, removeFromCart } = useCart()
+  const { validateCoupon } = useCouponClient()
   const [items, setItems] = useState([])
   const [savingItemId, setSavingItemId] = useState(null)
+  const [couponInput, setCouponInput] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponLoading, setCouponLoading] = useState(false)
 
   const formatPrice = (price) => {
     return `$${price.toFixed(2)}`
@@ -33,6 +43,53 @@ const CartPage = () => {
       .filter(item => !item.isSaved)
       .reduce((sum, item) => sum + (item.price ?? 0), 0)
   }, [items])
+
+  const discountedTotal = appliedCoupon ? appliedCoupon.discountedTotal : cartTotalPrice
+  const couponDiscount = appliedCoupon ? appliedCoupon.totalDiscountAmount : 0
+  const appliedCouponItems = appliedCoupon?.items ?? []
+  const appliedCouponDiscountedItems = appliedCouponItems.filter(item => (item.discountAmount ?? 0) > 0)
+  const isPartialCoupon = Boolean(
+    appliedCoupon &&
+    appliedCouponDiscountedItems.length > 0 &&
+    appliedCouponDiscountedItems.length < appliedCouponItems.length
+  )
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return
+    const courseIds = items
+      .filter(item => !item.isSaved)
+      .map(item => Number(item.courseId ?? item.id))
+      .filter(id => id > 0)
+
+    setCouponLoading(true)
+    try {
+      const result = await validateCoupon(couponInput.trim().toUpperCase(), courseIds)
+      if (result?.isValid) {
+        setAppliedCoupon(result)
+        const discountedItems = (result.items ?? []).filter(item => (item.discountAmount ?? 0) > 0)
+        const partialApplied = discountedItems.length > 0 && discountedItems.length < (result.items?.length ?? 0)
+        const savings = Number(result.totalDiscountAmount ?? 0)
+        toast.success(
+          partialApplied
+            ? `Coupon applied to eligible courses only. You save $${savings.toFixed(2)}`
+            : `Coupon applied! You save $${savings.toFixed(2)}`
+        )
+      } else {
+        toast.error(result?.errorMessage || "Invalid coupon code")
+        setAppliedCoupon(null)
+      }
+    } catch {
+      toast.error("Failed to validate coupon")
+      setAppliedCoupon(null)
+    } finally {
+      setCouponLoading(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponInput("")
+  }
 
   const cartItemCount = useMemo(() => {
     return items.filter(item => !item.isSaved).length
@@ -97,7 +154,9 @@ const CartPage = () => {
     navigate('/payment/checkout', {
       state: {
         courses,
-        totalAmount: cartTotalPrice
+        totalAmount: cartTotalPrice,
+        couponCode: appliedCoupon ? appliedCoupon.couponCode : "",
+        couponDiscount,
       }
     })
   }
@@ -228,6 +287,58 @@ const CartPage = () => {
                 top: { lg: 20 },
               }}
             >
+              {/* Coupon Input */}
+              <Box sx={{ mb: 2 }}>
+                {appliedCoupon ? (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Chip
+                      icon={<LocalOfferIcon fontSize="small" />}
+                      label={appliedCoupon.couponCode}
+                      color="success"
+                      onDelete={handleRemoveCoupon}
+                      size="small"
+                    />
+                    <Typography variant="body2" color="success.main">
+                      -${couponDiscount.toFixed(2)}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <TextField
+                      size="small"
+                      placeholder="Coupon code"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocalOfferIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{ flex: 1, "& .MuiOutlinedInput-root": { fontSize: "0.85rem" } }}
+                    />
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={handleApplyCoupon}
+                      disabled={!couponInput.trim() || couponLoading}
+                      sx={{ whiteSpace: "nowrap", textTransform: "none" }}
+                    >
+                      Apply
+                    </Button>
+                  </Box>
+                )}
+                {appliedCoupon && isPartialCoupon && (
+                  <Alert severity="info" sx={{ mt: 1 }}>
+                    This coupon applied to {appliedCouponDiscountedItems.length} of {appliedCouponItems.length} eligible courses. Courses that opted out kept their original price.
+                  </Alert>
+                )}
+              </Box>
+
+              <Divider sx={{ mb: 2 }} />
+
               <Box sx={{ mb: 3 }}>
                 <Typography
                   variant="h4"
@@ -240,16 +351,25 @@ const CartPage = () => {
                   Total:
                 </Typography>
 
+                {appliedCoupon && (
+                  <Typography
+                    variant="body2"
+                    sx={{ textDecoration: "line-through", color: "text.disabled", mb: 0.5 }}
+                  >
+                    {formatPrice(cartTotalPrice)}
+                  </Typography>
+                )}
+
                 <Typography
                   variant="h4"
                   sx={{
                     fontWeight: "bold",
                     mb: 1,
-                    color: "text.primary",
+                    color: appliedCoupon ? "success.main" : "text.primary",
                     fontSize: { xs: "1.5rem", sm: "2rem" },
                   }}
                 >
-                  {formatPrice(cartTotalPrice)}
+                  {formatPrice(discountedTotal)}
                 </Typography>
               </Box>
 

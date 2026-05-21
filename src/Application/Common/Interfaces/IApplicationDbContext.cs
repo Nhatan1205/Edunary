@@ -70,5 +70,18 @@ public interface IApplicationDbContext
     public DbSet<AssignmentSubmission> AssignmentSubmissions { get; }
     public DbSet<AssignmentFeedback> AssignmentFeedbacks { get; }
 
+    public DbSet<Coupon> Coupons { get; }
+    public DbSet<CouponRedemption> CouponRedemptions { get; }
+
+    public DbSet<FinancialAccount> FinancialAccounts { get; }
+    public DbSet<FinancialTransaction> FinancialTransactions { get; }
+    public DbSet<FinancialEntry> FinancialEntries { get; }
+    public DbSet<UserAccountBalance> UserAccountBalances { get; }
+
+    public DbSet<TaxRegion> TaxRegions { get; }
+    public DbSet<TaxProfile> TaxProfiles { get; }
+
+    public DbSet<RevenueSharePlan> RevenueSharePlans { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

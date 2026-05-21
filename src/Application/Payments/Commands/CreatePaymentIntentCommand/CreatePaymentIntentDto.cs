@@ -5,4 +5,6 @@ public class CreatePaymentIntentDto
     public string ClientSecret { get; set; }
     public decimal Amount { get; set; }
     public string PaymentIntentId { get; set; }
+    public decimal VatAmount { get; set; }
+    public decimal VatRate { get; set; }
 }

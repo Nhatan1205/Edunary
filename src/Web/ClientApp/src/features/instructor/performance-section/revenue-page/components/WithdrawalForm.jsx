@@ -11,16 +11,22 @@ import {
   DialogActions,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useGetInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useGetInstructorWallet';
+import useGetWithdrawalPreview, {
+  fetchWithdrawalPreview,
+} from '../../../../../hooks/instructor-wallet-hooks/useGetWithdrawalPreview';
 import useWithdrawFromInstructorWallet from '../../../../../hooks/instructor-wallet-hooks/useWithdrawFromInstructorWallet';
 import AlertBox from '../../../../../components/AlertBox';
+import { extractApiError } from '../../../../../utils/helpers.js';
 
 function WithdrawalForm({ user, isInfoEnough }) {
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
   const [error, setError] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingAmount, setPendingAmount] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [debouncedAmount, setDebouncedAmount] = useState(null);
 
   const { data: wallet } = useGetInstructorWallet();
   const { mutateAsync: withdrawAsync, isPending } = useWithdrawFromInstructorWallet();
@@ -29,6 +35,66 @@ function WithdrawalForm({ user, isInfoEnough }) {
   const maxWithdrawal = 50000;
   const currencySymbol = '$';
   const currencyCode = 'USD';
+  const hasWithdrawalAmount = withdrawalAmount.trim() !== '';
+  const parsedWithdrawalAmount = hasWithdrawalAmount
+    ? parseFloat(withdrawalAmount)
+    : null;
+  const isPreviewAmountValid = parsedWithdrawalAmount != null
+    && Number.isFinite(parsedWithdrawalAmount)
+    && parsedWithdrawalAmount >= minWithdrawal
+    && parsedWithdrawalAmount <= availableBalance
+    && parsedWithdrawalAmount <= maxWithdrawal;
+  const {
+    data: withdrawalPreview,
+    isFetching: isPreviewFetching,
+    error: previewError,
+  } = useGetWithdrawalPreview({
+    amount: debouncedAmount,
+    currency: currencyCode,
+    enabled: isInfoEnough && isPreviewAmountValid,
+  });
+  const hasCurrentPreviewAmount = isPreviewAmountValid
+    && debouncedAmount === parsedWithdrawalAmount;
+  const livePreview = isInfoEnough && hasCurrentPreviewAmount ? withdrawalPreview : null;
+  const hasPreviewError = isInfoEnough && isPreviewAmountValid && hasCurrentPreviewAmount && previewError;
+  const isPreviewing = isInfoEnough
+    && isPreviewAmountValid
+    && (!livePreview || isPreviewFetching)
+    && !hasPreviewError;
+
+  useEffect(() => {
+    if (!isPreviewAmountValid || !isInfoEnough) {
+      setDebouncedAmount(null);
+      return undefined;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setDebouncedAmount(parsedWithdrawalAmount);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [isInfoEnough, isPreviewAmountValid, parsedWithdrawalAmount]);
+
+  const formatCurrencyAmount = (value) => {
+    const numericValue = Number(value);
+    const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
+    return `${currencySymbol}${safeValue.toLocaleString('en-US')}`;
+  };
+
+  const handleAmountChange = (event) => {
+    setWithdrawalAmount(event.target.value);
+    setError('');
+  };
+  const getPreviewText = (value, fallbackValue) => {
+    if (hasPreviewError) return '--';
+    if (isPreviewing) return 'Calculating...';
+    return formatCurrencyAmount(value ?? fallbackValue);
+  };
+  const withholdingPreviewText = getPreviewText(livePreview?.withholdingAmount, 0);
+  const netPreviewText = getPreviewText(
+    livePreview?.netAmount,
+    isPreviewAmountValid ? parsedWithdrawalAmount : 0
+  );
 
   const validateAndGetAmount = () => {
     if (!withdrawalAmount) {
@@ -61,7 +127,7 @@ function WithdrawalForm({ user, isInfoEnough }) {
     return amount;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     setError('');
 
     if (!isInfoEnough) {
@@ -71,14 +137,27 @@ function WithdrawalForm({ user, isInfoEnough }) {
     const amount = validateAndGetAmount();
     if (amount == null) return;
 
-    setPendingAmount(amount);
-    setIsConfirmOpen(true);
+    try {
+      const canUseLivePreview = livePreview
+        && !isPreviewFetching
+        && !hasPreviewError
+        && Number(livePreview.grossAmount) === amount;
+      const result = canUseLivePreview
+        ? livePreview
+        : await fetchWithdrawalPreview({ amount, currency: currencyCode });
+      setPreview(result);
+      setPendingAmount(amount);
+      setIsConfirmOpen(true);
+    } catch (e) {
+      setError(extractApiError(e) || e?.message || 'Failed to preview withdrawal. Please try again.');
+    }
   };
 
   const handleCancelConfirm = () => {
     if (isPending) return;
     setIsConfirmOpen(false);
     setPendingAmount(null);
+    setPreview(null);
   };
 
   const handleConfirmWithdrawal = async () => {
@@ -90,11 +169,13 @@ function WithdrawalForm({ user, isInfoEnough }) {
       await withdrawAsync({ amount: pendingAmount, currency: currencyCode });
       setIsConfirmOpen(false);
       setPendingAmount(null);
+      setPreview(null);
       setWithdrawalAmount('');
     } catch (e) {
       setIsConfirmOpen(false);
       setPendingAmount(null);
-      setError(e?.message || 'Failed to withdraw. Please try again.');
+      setPreview(null);
+      setError(extractApiError(e) || e?.message || 'Failed to withdraw. Please try again.');
     }
   };
 
@@ -160,7 +241,7 @@ function WithdrawalForm({ user, isInfoEnough }) {
             type="number"
             placeholder="Enter amount ($)"
             value={withdrawalAmount}
-            onChange={(e) => setWithdrawalAmount(e.target.value)}
+            onChange={handleAmountChange}
             variant="outlined"
             size="medium"
             sx={{
@@ -190,10 +271,10 @@ function WithdrawalForm({ user, isInfoEnough }) {
         <Box sx={(theme) => ({ backdrop: 'none', bgcolor: theme.palette.background.muted, p: 1.5, borderRadius: 1 })}>
           <Box display="flex" justifyContent="space-between" mb={1}>
             <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary })}>
-              Withdrawal fee
+              Withholding tax
             </Typography>
             <Typography variant="body2" sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
-              Free
+              {withholdingPreviewText}
             </Typography>
           </Box>
           <Box display="flex" justifyContent="space-between">
@@ -201,7 +282,7 @@ function WithdrawalForm({ user, isInfoEnough }) {
               You'll receive
             </Typography>
             <Typography sx={{ fontWeight: 600, color: "brand.main" }}>
-              {currencySymbol}{withdrawalAmount ? parseFloat(withdrawalAmount).toLocaleString('en-US') : '0'}
+              {netPreviewText}
             </Typography>
           </Box>
         </Box>
@@ -253,6 +334,24 @@ function WithdrawalForm({ user, isInfoEnough }) {
               </Typography>
               <Typography sx={{ fontWeight: 600 }}>
                 {currencySymbol}{(pendingAmount ?? 0).toLocaleString('en-US')} {currencyCode}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary, mb: 0.25 })}>
+                Withholding tax
+              </Typography>
+              <Typography sx={{ fontWeight: 600 }}>
+                {currencySymbol}{Number(preview?.withholdingAmount ?? 0).toLocaleString('en-US')} {currencyCode}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="body2" sx={(theme) => ({ color: theme.palette.text.secondary, mb: 0.25 })}>
+                Net payout
+              </Typography>
+              <Typography sx={{ fontWeight: 600 }}>
+                {currencySymbol}{Number(preview?.netAmount ?? 0).toLocaleString('en-US')} {currencyCode}
               </Typography>
             </Box>
 

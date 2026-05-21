@@ -4,6 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useEffect, useState } from 'react';
 import useUpdatePaymentAccount from '../../../../../hooks/auth-hooks/useUpdatePaymentAccount';
 import AlertBox from '../../../../../components/AlertBox';
+import { extractApiError } from '../../../../../utils/helpers.js';
 
 const brandTextFieldSx = (theme) => ({
   '& .MuiOutlinedInput-root': {
@@ -223,7 +224,7 @@ function PaymentAccount({ user, isInfoEnough }) {
         </AlertBox>
         {updateMutation.isError && (
           <AlertBox severity="error" sx={{ my: 0 }}>
-            Failed to update payout account.
+            {extractApiError(updateMutation.error) || updateMutation.error?.message || 'Failed to update payout account.'}
           </AlertBox>
         )}
       </Stack>

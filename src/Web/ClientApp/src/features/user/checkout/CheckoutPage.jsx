@@ -22,17 +22,21 @@ const stripePromise = loadStripe(Key.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 export default function CheckoutPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [country, setCountry] = useState("Vietnam")
+  const [country, setCountry] = useState("VN")
   const [paymentMethod, setPaymentMethod] = useState("card")
 
   const courses = useMemo(() => {
     return location.state?.courses || []
   }, [location.state?.courses])
 
-  const totalPrice = location.state?.totalAmount ?? courses.reduce((sum, course) => sum + (course.price ?? 0), 0)
+  const couponCode = location.state?.couponCode || ""
+  const couponDiscount = location.state?.couponDiscount || 0
+  const originalTotal = location.state?.totalAmount ?? courses.reduce((sum, course) => sum + (course.price ?? 0), 0)
+  const totalPrice = couponDiscount > 0 ? originalTotal - couponDiscount : originalTotal
 
-  // Step 1: Create PaymentIntent when component mounts
-  const { loading, clientSecret, paymentIntentId, initError, redirecting } = usePaymentInitialization(courses)
+  // Step 1: Create PaymentIntent (re-creates when country changes to pick up correct VAT)
+  const { loading, clientSecret, paymentIntentId, initError, redirecting, vatAmount, vatRate } = usePaymentInitialization(courses, couponCode, country)
+  const totalWithVat = totalPrice + vatAmount
   useEffect(() => {
     if (!courses.length) {
       toast.error("No courses selected for checkout")
@@ -98,7 +102,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <Elements stripe={stripePromise} options={stripeOptions}>
+    <Elements key={clientSecret} stripe={stripePromise} options={stripeOptions}>
       <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
         <Container maxWidth="xl">
           <CheckoutHeader />
@@ -118,7 +122,7 @@ export default function CheckoutPage() {
               >
                 <CheckoutForm
                   courses={courses}
-                  totalPrice={totalPrice}
+                  totalPrice={totalWithVat}
                   country={country}
                   setCountry={setCountry}
                   paymentMethod={paymentMethod}
@@ -131,7 +135,15 @@ export default function CheckoutPage() {
 
             {/* Right Column - Order Summary */}
             <Grid size={{ xs: 12, lg: 4 }}>
-              <OrderSummary courses={courses} totalPrice={totalPrice} />
+              <OrderSummary
+                courses={courses}
+                totalPrice={totalWithVat}
+                originalTotal={originalTotal}
+                couponCode={couponCode}
+                couponDiscount={couponDiscount}
+                vatAmount={vatAmount}
+                vatRate={vatRate}
+              />
             </Grid>
           </Grid>
         </Container>

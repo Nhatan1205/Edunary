@@ -1,22 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import queryClient from '../../configs/reactQuery.js';
+import { UpdatePayoutAccountCommand, UserClient } from '../../web-api-client.ts';
 
 async function updatePayoutAccount(payload) {
-  const response = await fetch('/api/User/payout-account', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to update payout account');
-  }
+  const client = new UserClient();
+  const command = new UpdatePayoutAccountCommand(payload);
+  return await client.updatePayoutAccount(command);
 }
 
 const useUpdatePaymentAccount = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: updatePayoutAccount,
     onSuccess: async () => {

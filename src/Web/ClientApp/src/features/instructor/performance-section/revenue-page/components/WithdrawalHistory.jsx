@@ -41,7 +41,7 @@ function WithdrawalHistory() {
   const isWithdrawalView = type === 'withdrawal';
 
   const { data: coursesData } = useGetCoursesAuthor('', 0, 1, 1000);
-  const courses = coursesData?.items ?? [];
+  const courses = useMemo(() => coursesData?.items ?? [], [coursesData]);
   const courseTitleById = useMemo(() => {
     return courses.reduce((acc, c) => {
       if (c?.id != null) {
@@ -443,21 +443,38 @@ function WithdrawalHistory() {
               <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
                 Date
               </TableCell>
-              <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
-                <TableSortLabel
-                  active={Boolean(amountSort)}
-                  direction={amountSort || 'asc'}
-                  onClick={toggleAmountSort}
-                >
-                  Amount
-                </TableSortLabel>
-              </TableCell>
               {isWithdrawalView ? (
-                <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
-                  Status
-                </TableCell>
+                <>
+                  <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
+                    <TableSortLabel
+                      active={Boolean(amountSort)}
+                      direction={amountSort || 'asc'}
+                      onClick={toggleAmountSort}
+                    >
+                      Gross
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
+                    Withholding
+                  </TableCell>
+                  <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
+                    Net
+                  </TableCell>
+                  <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
+                    Status
+                  </TableCell>
+                </>
               ) : (
                 <>
+                  <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
+                    <TableSortLabel
+                      active={Boolean(amountSort)}
+                      direction={amountSort || 'asc'}
+                      onClick={toggleAmountSort}
+                    >
+                      Amount
+                    </TableSortLabel>
+                  </TableCell>
                   <TableCell sx={(theme) => ({ fontWeight: 600, color: theme.palette.text.primary })}>
                     Order
                   </TableCell>
@@ -489,9 +506,17 @@ function WithdrawalHistory() {
                       {currencySymbol}{(item.amount ?? 0).toLocaleString('en-US')}
                     </TableCell>
                     {isWithdrawalView ? (
-                      <TableCell sx={(theme) => ({ color: theme.palette.text.primary, fontWeight: 600 })}>
-                        {formatWithdrawalStatus(item.status)}
-                      </TableCell>
+                      <>
+                        <TableCell sx={(theme) => ({ color: theme.palette.text.primary, fontWeight: 600 })}>
+                          {currencySymbol}{(item.withholdingAmount ?? 0).toLocaleString('en-US')}
+                        </TableCell>
+                        <TableCell sx={(theme) => ({ color: theme.palette.text.primary, fontWeight: 600 })}>
+                          {currencySymbol}{(item.netAmount ?? 0).toLocaleString('en-US')}
+                        </TableCell>
+                        <TableCell sx={(theme) => ({ color: theme.palette.text.primary, fontWeight: 600 })}>
+                          {formatWithdrawalStatus(item.status)}
+                        </TableCell>
+                      </>
                     ) : (
                       <>
                         <TableCell sx={(theme) => ({ color: theme.palette.text.primary })}>

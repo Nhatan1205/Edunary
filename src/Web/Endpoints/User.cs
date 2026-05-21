@@ -76,13 +76,19 @@ public class User : EndpointGroupBase
         return Results.Ok(result);
     }
 
-    public async Task<IResult> UpdatePayoutAccount(ISender sender, UpdatePayoutAccountCommand command)
+    public async Task<IResult> UpdatePayoutAccount(
+        ISender sender,
+        ICurrentUserService currentUserService,
+        IQueryCacheService cache,
+        UpdatePayoutAccountCommand command)
     {
         var result = await sender.Send(command);
         if (!result.Succeeded)
         {
             return Results.BadRequest(result);
         }
+
+        await cache.RemoveAsync($"users:basic:{currentUserService.UserId}");
         return Results.Ok(result);
     }
     public async Task<IResult> UpdateUserAvatar(ISender sender, ICurrentUserService currentUserService,

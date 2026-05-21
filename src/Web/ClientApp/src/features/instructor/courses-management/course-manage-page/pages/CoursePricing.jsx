@@ -5,6 +5,7 @@ import useGetCourseById from "../../../../../hooks/course-hooks/useGetCourseById
 import { useForm } from "react-hook-form";
 import useUpdateCourse from "../../../../../hooks/course-hooks/useUpdateCourse";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
+import PlatformCouponsCard from "../components/PlatformCouponsCard";
 
 function CoursePricing() {
   const { courseId } = useParams();
@@ -20,6 +21,8 @@ function CoursePricing() {
     },
   });
   const updatecourseMutation = useUpdateCourse();
+  const isUpdating =
+    updatecourseMutation.isPending || updatecourseMutation.isLoading;
 
   const onSubmit = (data) => {
     updatecourseMutation.mutate({
@@ -98,6 +101,9 @@ function CoursePricing() {
           </Button>
         </Box>
       </form>
+      <Box sx={{ mt: 4 }}>
+        <PlatformCouponsCard courseData={courseData} disabled={isUpdating} />
+      </Box>
     </Container>
   );
 }

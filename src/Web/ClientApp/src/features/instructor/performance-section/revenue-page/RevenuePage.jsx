@@ -6,6 +6,7 @@ import AvailableBalance from './components/AvailableBalance';
 import PaymentAccount from './components/PaymentAccount';
 import WithdrawalForm from './components/WithdrawalForm';
 import WithdrawalHistory from './components/WithdrawalHistory';
+import TaxProfile from './components/TaxProfile';
 import useGetBasicUserInfo from '../../../../hooks/auth-hooks/useGetBasicUserInfor';
 
 function RevenuePage() {
@@ -37,6 +38,11 @@ function RevenuePage() {
 
         <Col lg={6} md={12}>
           <PaymentAccount user={user} isInfoEnough={isInfoEnough} />
+        </Col>
+
+        {/* Tax Profile full width */}
+        <Col lg={12} md={12}>
+          <TaxProfile />
         </Col>
 
         {/* Withdrawal History full width */}

@@ -13,6 +13,7 @@ import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import AutoFixHighOutlinedIcon from "@mui/icons-material/AutoFixHighOutlined";
 import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 
 const adminMenuConfig = {
   items: [
@@ -113,7 +114,13 @@ const adminMenuConfig = {
               title: "Topic",
               type: "item",
               url: "/admin/course/topic",
-            }
+            },
+            {
+              id: "coupons",
+              title: "Coupons",
+              type: "item",
+              url: "/admin/coupons",
+            },
           ],
         },
         {
@@ -147,6 +154,32 @@ const adminMenuConfig = {
               title: "Withdrawal Requests",
               type: "item",
               url: "/admin/invoice/withdrawal-requests",
+            },
+          ],
+        },
+        {
+          id: "finance",
+          title: "Finance",
+          type: "collapse",
+          icon: AccountBalanceWalletOutlinedIcon,
+          children: [
+            {
+              id: "finance-dashboard",
+              title: "Finance Dashboard",
+              type: "item",
+              url: "/admin/finance/dashboard",
+            },
+            {
+              id: "finance-payouts",
+              title: "Payouts",
+              type: "item",
+              url: "/admin/finance/payouts",
+            },
+            {
+              id: "finance-tax-regions",
+              title: "Tax Regions",
+              type: "item",
+              url: "/admin/finance/tax-regions",
             },
           ],
         },

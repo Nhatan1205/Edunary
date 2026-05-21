@@ -12,6 +12,7 @@ const useGetCourseById = (id) => {
 
       if (!result || !result.id) {
         navigate("/instructor/courses");
+        return null;
       }
 
       let learningObjectives = JSON.parse(result.learningObjectives || "[]");
@@ -20,6 +21,8 @@ const useGetCourseById = (id) => {
 
       return {
         ...result,
+        allowPlatformCoupons: result.allowPlatformCoupons ?? true,
+        topicIds: (result.topics || []).map((topic) => topic.id),
         learningObjectives,
         requirements,
         targetAudience,

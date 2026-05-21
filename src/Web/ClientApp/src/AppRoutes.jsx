@@ -52,6 +52,7 @@ import ProfileManageLayout from "./layouts/ProfileManageLayout";
 import ProfileInfoPage from "./features/user/profile/pages/ProfileInfoPage";
 import ProfilePhotoPage from "./features/user/profile/pages/ProfilePhotoPage";
 import AccountSecurityPage from "./features/user/profile/pages/AccountSecurityPage";
+import TaxProfilePage from "./features/user/profile/pages/TaxProfilePage";
 import ProfilePage from "./features/guest/profile-page/ProfilePage";
 import InstructorCoursePreviewPage from "./features/instructor/courses-management/course-preview-page/InstructorCoursePreviewPage";
 import CareerPathOverviewPage from "./features/guest/career-paths-overview-page/CareerPathOverviewPage";
@@ -77,6 +78,10 @@ import GenerateCareerPathPage from "./features/user/career-paths/generate-career
 import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage";
 import InvitationsPage from "./features/instructor/invitations-page/InvitationsPage";
 import ReviewsPage from "./features/instructor/performance-section/reviews-page/ReviewsPage";
+import CouponsPage from "./features/instructor/coupons-page/CouponsPage";
+import FinancePage from "./features/admin/finance/FinancePage";
+import PayoutsPage from "./features/admin/finance/PayoutsPage";
+import TaxRegionsPage from "./features/admin/finance/TaxRegionsPage";
 
 const router = createBrowserRouter([
   {
@@ -164,6 +169,22 @@ const router = createBrowserRouter([
         path: "user-embeddings",
         element: <UserEmbeddingPage />,
       },
+      {
+        path: "coupons",
+        element: <CouponsPage isAdmin={true} />,
+      },
+      {
+        path: "finance/dashboard",
+        element: <FinancePage />,
+      },
+      {
+        path: "finance/payouts",
+        element: <PayoutsPage />,
+      },
+      {
+        path: "finance/tax-regions",
+        element: <TaxRegionsPage />,
+      },
     ],
   },
   {
@@ -208,7 +229,7 @@ const router = createBrowserRouter([
           { path: "profile", element: <ProfileInfoPage /> },
           { path: "photo", element: <ProfilePhotoPage /> },
           { path: "security", element: <AccountSecurityPage /> },
-
+          { path: "tax", element: <TaxProfilePage /> },
         ],
       },
       {
@@ -390,6 +411,10 @@ const router = createBrowserRouter([
             element: <StudentsPage />,
           },
         ],
+      },
+      {
+        path: "coupons",
+        element: <CouponsPage />,
       },
       {
         path: "communication",

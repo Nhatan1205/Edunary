@@ -1,3 +1,4 @@
+#nullable enable
 using Edunary.Domain.Enums;
 
 namespace Edunary.Application.InstructorWallets.Queries.GetInstructorWalletTransactions;
@@ -9,6 +10,10 @@ public class InstructorWalletTransactionDto
     public int OrderId { get; set; }
     public int CourseId { get; set; }
     public decimal Amount { get; set; }
+    public decimal? WithholdingAmount { get; set; }
+    public decimal? NetAmount { get; set; }
+    public decimal? WithholdingRate { get; set; }
+    public string? TaxCountryCode { get; set; }
     public string Currency { get; set; } = string.Empty;
     public InstructorWalletTransactionStatus Status { get; set; }
 }

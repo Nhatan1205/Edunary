@@ -1,12 +1,10 @@
 import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import queryClient from "../../configs/reactQuery.js";
 import { useSignalR } from "../common/useSignalR";
 import { tokenService } from "../../utils/tokenService";
 
 const useRealtimeNotifications = (userId) => {
   const { on } = useSignalR();
-  const queryClient = useQueryClient();
-
   // Resolve userId — prefer explicit prop, fallback to token claim
   const resolvedUserId = userId || tokenService.getUserId();
 
@@ -18,7 +16,7 @@ const useRealtimeNotifications = (userId) => {
     });
 
     return cleanup;
-  }, [resolvedUserId, on, queryClient]);
+  }, [resolvedUserId, on]);
 };
 
 export default useRealtimeNotifications;

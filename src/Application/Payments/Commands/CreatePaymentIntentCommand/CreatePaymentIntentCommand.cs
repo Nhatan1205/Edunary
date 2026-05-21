@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
+using Edunary.Application.Coupons.Models;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 
@@ -11,6 +12,8 @@ namespace Edunary.Application.Payments.Commands.CreatePaymentIntentCommand;
 public record CreatePaymentIntentCommand : IRequest<ReturnResult<CreatePaymentIntentDto>>
 {
     public List<int> CourseIds { get; init; }
+    public string CouponCode { get; init; }
+    public string BillingCountryCode { get; init; }
 }
 
 public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIntentCommand, ReturnResult<CreatePaymentIntentDto>>
@@ -18,17 +21,23 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
     private readonly IApplicationDbContext _context;
     private readonly IPaymentService _paymentService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICouponService _couponService;
+    private readonly ITaxCalculatorService _taxCalculatorService;
     private readonly ILogger<CreatePaymentIntentCommandHandler> _logger;
 
     public CreatePaymentIntentCommandHandler(
-        IApplicationDbContext context, 
-        IPaymentService paymentService, 
+        IApplicationDbContext context,
+        IPaymentService paymentService,
         ICurrentUserService currentUserService,
+        ICouponService couponService,
+        ITaxCalculatorService taxCalculatorService,
         ILogger<CreatePaymentIntentCommandHandler> logger)
     {
         _context = context;
         _paymentService = paymentService;
         _currentUserService = currentUserService;
+        _couponService = couponService;
+        _taxCalculatorService = taxCalculatorService;
         _logger = logger;
     }
 
@@ -129,7 +138,6 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
 
             // Prepare course payment info and order items
             var courseList = new List<CoursePaymentInfo>();
-            var orderItems = new List<OrderItem>();
 
             foreach (var course in courses)
             {
@@ -137,19 +145,87 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
                 {
                     Id = course.Id.ToString(),
                     Name = course.Title,
-                    Price = (decimal)course.Price
+                    Price = (decimal)course.Price,
+                    AllowPlatformCoupons = course.AllowPlatformCoupons
                 });
+            }
+
+            // Apply coupon if provided
+            CouponApplicationResult couponResult = null;
+            if (!string.IsNullOrWhiteSpace(request.CouponCode ?? string.Empty))
+            {
+                couponResult = await _couponService.ValidateAndCalculateAsync(
+                    courseList, userId, request.CouponCode, cancellationToken);
+
+                if (!couponResult.IsValid)
+                {
+                    return new ReturnResult<CreatePaymentIntentDto>
+                    {
+                        Result = null,
+                        Message = couponResult.ErrorMessage ?? "Invalid coupon code"
+                    };
+                }
+
+                // Apply discounted prices to courseList for Stripe
+                foreach (var item in couponResult.Items)
+                {
+                    var ci = courseList.First(c => c.Id == item.CourseId.ToString());
+                    ci.Price = (decimal)item.DiscountedPrice;
+                }
+            }
+
+            var originalTotal = courses.Sum(c => (float)c.Price);
+            var totalAmount = courseList.Sum(c => c.Price);
+
+            // Calculate VAT on the discounted total
+            var vatResult = await _taxCalculatorService.CalculateVatAsync(
+                request.BillingCountryCode ?? string.Empty, totalAmount, cancellationToken);
+            var vatAmount = vatResult.TaxAmount;
+            var vatRate = vatResult.Rate;
+
+            // Build order items with pro-rated VAT per item
+            var orderItems = new List<OrderItem>();
+            var vatAllocated = 0m;
+            for (var i = 0; i < courses.Count; i++)
+            {
+                var course = courses[i];
+                var itemDiscount = couponResult?.Items.FirstOrDefault(x => x.CourseId == course.Id);
+                var itemPrice = courseList.First(c => c.Id == course.Id.ToString()).Price;
+
+                decimal itemVat;
+                if (i == courses.Count - 1)
+                {
+                    itemVat = vatAmount - vatAllocated;
+                }
+                else
+                {
+                    itemVat = totalAmount > 0
+                        ? Math.Round(vatAmount * itemPrice / totalAmount, 4, MidpointRounding.ToEven)
+                        : 0m;
+                    vatAllocated += itemVat;
+                }
 
                 orderItems.Add(new OrderItem
                 {
                     CourseId = course.Id,
                     CourseName = course.Title,
-                    Price = course.Price
+                    Price = itemDiscount?.DiscountedPrice ?? course.Price,
+                    OriginalPrice = course.Price,
+                    DiscountAmount = itemDiscount?.DiscountAmount ?? 0f,
+                    AppliedCouponId = couponResult != null && (itemDiscount?.DiscountAmount ?? 0f) > 0
+                        ? couponResult.CouponId
+                        : 0,
+                    VatAmount = (float)itemVat,
+                    SalesChannel = couponResult != null && (itemDiscount?.DiscountAmount ?? 0f) > 0
+                        ? (couponResult.FunderType == CouponFunderType.Instructor
+                            ? SalesChannel.InstructorCoupon
+                            : SalesChannel.PlatformCoupon)
+                        : SalesChannel.Organic
                 });
             }
 
-            var totalAmount = courseList.Sum(c => c.Price);
-            var amountInCents = (long)decimal.Round(totalAmount * 100m, 0, MidpointRounding.AwayFromZero);
+            var stripeTotal = totalAmount + vatAmount;
+            var amountInCents = (long)decimal.Round(stripeTotal * 100m, 0, MidpointRounding.AwayFromZero);
 
             CreatePaymentIntentDto paymentResponse;
 
@@ -160,8 +236,8 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
             }
             else
             {
-                // Create payment intent using Stripe service
-                paymentResponse = await _paymentService.CreatePaymentIntentAsync(courseList, userEmail, cancellationToken);
+                // Create payment intent using Stripe service (passes VAT to include in charge)
+                paymentResponse = await _paymentService.CreatePaymentIntentAsync(courseList, userEmail, vatAmount, cancellationToken);
 
                 if (paymentResponse == null)
                 {
@@ -174,7 +250,11 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
                 }
             }
 
+            paymentResponse.VatAmount = vatAmount;
+            paymentResponse.VatRate = vatRate;
+
             // Create Order in database
+            var discountAmount = couponResult?.TotalDiscountAmount ?? 0f;
             var order = new Order
             {
                 UserId = userId,
@@ -183,11 +263,25 @@ public class CreatePaymentIntentCommandHandler : IRequestHandler<CreatePaymentIn
                 PaymentIntentId = paymentResponse.PaymentIntentId,
                 Status = OrderStatus.Pending,
                 OrderDate = DateTime.UtcNow,
+                CouponCode = request.CouponCode,
+                OriginalAmount = originalTotal,
+                DiscountAmount = discountAmount,
+                BillingCountryCode = request.BillingCountryCode ?? string.Empty,
+                VatAmount = (float)vatAmount,
+                VatRate = (float)vatRate,
                 OrderItems = orderItems
             };
 
             _context.Orders.Add(order);
             var result = await _context.SaveChangesAsync(cancellationToken);
+
+            // Reserve coupon redemption rows (same SaveChanges already called above —
+            // reserve without extra SaveChanges; caller will commit on next operation)
+            if (couponResult != null && result > 0)
+            {
+                await _couponService.ReserveAsync(couponResult, order.Id, userId, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
 
             if (result <= 0)
             {

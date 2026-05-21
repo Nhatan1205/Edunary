@@ -1,5 +1,6 @@
 using System.Reflection;
 using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Finance.Payouts;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
@@ -9,6 +10,7 @@ public static class DependencyInjection
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddScoped<PayoutEligibilityService>();
 
         services.AddMediatR(cfg =>
         {

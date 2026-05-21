@@ -38,26 +38,33 @@ public class StripePaymentService : IPaymentService
     }
 
     public async Task<CreatePaymentIntentDto> CreatePaymentIntentAsync(
-        List<CoursePaymentInfo> courses, 
-        string userEmail, 
+        List<CoursePaymentInfo> courses,
+        string userEmail,
+        decimal vatAmount = 0m,
         CancellationToken cancellationToken = default)
     {
         await SetStripeApiKeyAsync();
 
         var totalAmount = courses.Sum(c => c.Price);
-        var amountInCents = (long)(totalAmount * 100); // Stripe requires amount in cents
+        var chargeAmount = totalAmount + vatAmount;
+        var amountInCents = (long)decimal.Round(chargeAmount * 100m, 0, MidpointRounding.AwayFromZero);
+
+        var metadata = new Dictionary<string, string>
+        {
+            { "course_ids", string.Join(",", courses.Select(c => c.Id)) },
+            { "course_names", string.Join(",", courses.Select(c => c.Name)) },
+            { "user_email", userEmail }
+        };
+
+        if (vatAmount > 0)
+            metadata["vat_amount"] = vatAmount.ToString("F4");
 
         var options = new PaymentIntentCreateOptions
         {
             Amount = amountInCents,
             Currency = "usd",
             ReceiptEmail = userEmail,
-            Metadata = new Dictionary<string, string>
-            {
-                {"course_ids", string.Join(",", courses.Select(c => c.Id))},
-                {"course_names", string.Join(",", courses.Select(c => c.Name))},
-                {"user_email", userEmail}
-            }
+            Metadata = metadata
         };
 
         var paymentIntent = await _paymentIntentService.CreateAsync(options, cancellationToken: cancellationToken);
@@ -65,7 +72,7 @@ public class StripePaymentService : IPaymentService
         return new CreatePaymentIntentDto
         {
             ClientSecret = paymentIntent.ClientSecret,
-            Amount = totalAmount,
+            Amount = chargeAmount,
             PaymentIntentId = paymentIntent.Id
         };
     }

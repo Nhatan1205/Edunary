@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -29,6 +29,7 @@ import useGetAdminWithdrawalRequestStatusCounts from "../../../hooks/instructor-
 import useDebounce from "../../../hooks/common/useDebounce";
 import NoData from "../../../components/NoData";
 import emptyMailbox from "../../../assets/images/empty-mailbox.png";
+import { extractApiError } from "../../../utils/helpers.js";
 
 const STATUS_TABS = ["All", "Processing", "Succeeded", "Cancelled"];
 
@@ -230,7 +231,10 @@ function WithdrawalRequestsPage() {
     refetch,
   } = useGetAdminWithdrawalRequests(page + 1, rowsPerPage, queryOptions);
 
-  const { data: statusCounts } = useGetAdminWithdrawalRequestStatusCounts();
+  const {
+    data: statusCounts,
+    error: statusCountsError,
+  } = useGetAdminWithdrawalRequestStatusCounts();
 
   const {
     mutateAsync: mutateStatusAsync,
@@ -280,16 +284,21 @@ function WithdrawalRequestsPage() {
     setPage(0);
   };
 
-  const handleAction = async (requestId, action) => {
-    resetMutation();
-    setActiveRequestId(requestId);
+  const handleAction = useCallback(
+    async (requestId, action) => {
+      resetMutation();
+      setActiveRequestId(requestId);
 
-    try {
-      await mutateStatusAsync({ requestId, action });
-    } finally {
-      setActiveRequestId(null);
-    }
-  };
+      try {
+        await mutateStatusAsync({ requestId, action });
+      } catch {
+        // Mutation state already captures the failure; keep the handler settled.
+      } finally {
+        setActiveRequestId(null);
+      }
+    },
+    [mutateStatusAsync, resetMutation]
+  );
 
   const columns = useMemo(
     () => [
@@ -337,13 +346,45 @@ function WithdrawalRequestsPage() {
       },
       {
         field: "amount",
-        headerName: "Amount",
+        headerName: "Gross",
         flex: 0.95,
         minWidth: 150,
         align: "left",
         renderCell: (params) => (
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             {(params.row.amount ?? 0).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}{" "}
+            {params.row.currency || "USD"}
+          </Typography>
+        ),
+      },
+      {
+        field: "withholdingAmount",
+        headerName: "Withholding",
+        flex: 0.95,
+        minWidth: 150,
+        align: "left",
+        renderCell: (params) => (
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {(params.row.withholdingAmount ?? 0).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}{" "}
+            {params.row.currency || "USD"}
+          </Typography>
+        ),
+      },
+      {
+        field: "netAmount",
+        headerName: "Net",
+        flex: 0.95,
+        minWidth: 150,
+        align: "left",
+        renderCell: (params) => (
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {(params.row.netAmount ?? 0).toLocaleString("en-US", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}{" "}
@@ -433,7 +474,7 @@ function WithdrawalRequestsPage() {
         },
       },
     ],
-    [isMutating, activeRequestId, page, rowsPerPage]
+    [isMutating, activeRequestId, page, rowsPerPage, handleAction]
   );
 
   return (
@@ -452,13 +493,21 @@ function WithdrawalRequestsPage() {
 
       {isError ? (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error?.message || "Failed to load withdrawal requests."}
+          {extractApiError(error) || error?.message || "Failed to load withdrawal requests."}
+        </Alert>
+      ) : null}
+
+      {statusCountsError ? (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {extractApiError(statusCountsError) ||
+            statusCountsError?.message ||
+            "Failed to load withdrawal request status counts."}
         </Alert>
       ) : null}
 
       {isMutateError ? (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {mutateError?.message || "Failed to process withdrawal request."}
+          {extractApiError(mutateError) || mutateError?.message || "Failed to process withdrawal request."}
         </Alert>
       ) : null}
 

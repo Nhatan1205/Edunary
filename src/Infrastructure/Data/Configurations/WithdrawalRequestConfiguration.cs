@@ -12,6 +12,21 @@ public class WithdrawalRequestConfiguration : IEntityTypeConfiguration<Withdrawa
             .HasPrecision(18, 2)
             .IsRequired();
 
+        builder.Property(x => x.WithholdingRate)
+            .HasPrecision(6, 4)
+            .IsRequired();
+
+        builder.Property(x => x.WithholdingAmount)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
+        builder.Property(x => x.NetAmount)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
+        builder.Property(x => x.TaxCountryCode)
+            .HasMaxLength(2);
+
         builder.Property(x => x.Currency)
             .HasMaxLength(10)
             .IsRequired();

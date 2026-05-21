@@ -1,13 +1,10 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Common.Security;
 using Edunary.Domain.Entities;
 using Edunary.Application.Finance.Payouts;
-using Edunary.Domain.Constants;
 
 namespace Edunary.Application.Finance.Commands.RunPayoutBatch;
 
-[Authorize(Roles = Roles.Administrator)]
 public record RunPayoutBatchCommand : IRequest<Result>;
 
 public class RunPayoutBatchCommandHandler : IRequestHandler<RunPayoutBatchCommand, Result>

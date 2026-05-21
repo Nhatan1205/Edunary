@@ -9,6 +9,7 @@ using Edunary.Application.Finance.Payouts;
 using Edunary.Application.Finance.TaxRegions.Commands;
 using Edunary.Application.Finance.TaxRegions.Queries;
 using Edunary.Application.SystemSettings.Commands.UpdateSystemSettingsCommand;
+using Edunary.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -19,7 +20,7 @@ public class AdminFinance : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .RequireAuthorization()
+            .RequireAuthorization(Policies.SuperAdmin)
             .MapGet(GetSummary, "summary")
             .MapGet(GetLedger, "ledger")
             .MapGet(GetTaxReport, "tax-report")

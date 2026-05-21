@@ -1,14 +1,12 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Common.Security;
 using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.Finance.Queries.GetFinanceLedger;
 
-[Authorize(Roles = Roles.Administrator)]
 public record GetFinanceLedgerQuery : IRequest<PaginatedList<FinanceLedgerEntryDto>>
 {
     public int PageNumber { get; init; } = 1;

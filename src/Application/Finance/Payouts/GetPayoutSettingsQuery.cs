@@ -1,9 +1,5 @@
-using Edunary.Application.Common.Security;
-using Edunary.Domain.Constants;
-
 namespace Edunary.Application.Finance.Payouts;
 
-[Authorize(Roles = Roles.Administrator)]
 public record GetPayoutSettingsQuery : IRequest<PayoutSettingsDto>;
 
 public class GetPayoutSettingsQueryHandler : IRequestHandler<GetPayoutSettingsQuery, PayoutSettingsDto>

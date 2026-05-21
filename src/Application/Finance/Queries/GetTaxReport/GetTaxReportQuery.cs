@@ -1,12 +1,10 @@
 using Edunary.Application.Common.Interfaces;
-using Edunary.Application.Common.Security;
 using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.Finance.Queries.GetTaxReport;
 
-[Authorize(Roles = Roles.Administrator)]
 public record GetTaxReportQuery : IRequest<TaxReportDto>
 {
     /// <summary>Period in "YYYY-MM" format. Defaults to current month.</summary>

@@ -1,10 +1,7 @@
-using Edunary.Application.Common.Security;
 using Edunary.Application.Finance.Payouts;
-using Edunary.Domain.Constants;
 
 namespace Edunary.Application.Finance.Queries.GetEligiblePayouts;
 
-[Authorize(Roles = Roles.Administrator)]
 public record GetEligiblePayoutsQuery : IRequest<List<EligiblePayoutDto>>;
 
 public class GetEligiblePayoutsQueryHandler : IRequestHandler<GetEligiblePayoutsQuery, List<EligiblePayoutDto>>

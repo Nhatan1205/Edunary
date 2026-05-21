@@ -1,13 +1,11 @@
 using System.Globalization;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Common.Security;
 using Edunary.Domain.Constants;
 using Edunary.Domain.Entities;
 
 namespace Edunary.Application.Finance.Payouts;
 
-[Authorize(Roles = Roles.Administrator)]
 public record UpdatePayoutSettingsCommand : IRequest<Result>
 {
     public decimal MinimumThresholdUsd { get; init; }

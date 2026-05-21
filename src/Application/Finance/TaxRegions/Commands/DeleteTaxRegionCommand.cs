@@ -1,12 +1,9 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Common.Security;
-using Edunary.Domain.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.Finance.TaxRegions.Commands;
 
-[Authorize(Roles = Roles.Administrator)]
 public record DeleteTaxRegionCommand(string CountryCode) : IRequest<Result>;
 
 public class DeleteTaxRegionCommandHandler : IRequestHandler<DeleteTaxRegionCommand, Result>

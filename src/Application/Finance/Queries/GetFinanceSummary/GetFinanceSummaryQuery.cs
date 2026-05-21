@@ -1,12 +1,10 @@
 using Edunary.Application.Common.Interfaces;
-using Edunary.Application.Common.Security;
 using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.Finance.Queries.GetFinanceSummary;
 
-[Authorize(Roles = Roles.Administrator)]
 public record GetFinanceSummaryQuery : IRequest<FinanceSummaryDto>
 {
     public DateTimeOffset? From { get; init; }

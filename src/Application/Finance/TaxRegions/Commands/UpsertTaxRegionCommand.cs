@@ -1,13 +1,10 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.Common.Security;
-using Edunary.Domain.Constants;
 using Edunary.Domain.Entities;
 using FluentValidation;
 
 namespace Edunary.Application.Finance.TaxRegions.Commands;
 
-[Authorize(Roles = Roles.Administrator)]
 public record UpsertTaxRegionCommand : IRequest<Result>
 {
     public string CountryCode { get; init; } = string.Empty;

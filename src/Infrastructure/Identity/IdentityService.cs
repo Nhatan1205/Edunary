@@ -1044,6 +1044,11 @@ public class IdentityService : IIdentityService
                         return Result.Failure(rsRegister.Errors);
                     }
                     user = await _userManager.FindByNameAsync(email);
+                    if (user != null && !user.EmailConfirmed)
+                    {
+                        user.EmailConfirmed = true;
+                        await _userManager.UpdateAsync(user);
+                    }
                 }
                 bool isFirstLogin = user.LastLoginTime == null;
                 rs = await Login(email, null, AccountType.Social, isFirstLogin, defaultPassword);

@@ -9,6 +9,7 @@ import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs"
 import SummaryTab from "./FinancePageTabs/SummaryTab";
 import LedgerTab from "./FinancePageTabs/LedgerTab";
 import TaxReportTab from "./FinancePageTabs/TaxReportTab";
+import { financePageContainerSx } from "./FinancePageTabs/shared";
 
 const TABS = ["Summary", "Ledger", "Tax Report"];
 
@@ -16,7 +17,7 @@ export default function FinancePage() {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <Box>
+    <Box sx={financePageContainerSx}>
       <CustomBreadcrumbs
         heading="Finance"
         links={[

@@ -20,6 +20,8 @@ export default function CouponFiltersToolbar({
   ownerFilter,
   onClearOwnerFilter,
   onOpenOwnerDialog,
+  onRefresh,
+  isRefreshing,
 }) {
   return (
     <DataGridToolbar
@@ -56,6 +58,8 @@ export default function CouponFiltersToolbar({
           </Button>
         </Box>
       ) : undefined}
+      onRefresh={onRefresh}
+      isRefreshing={isRefreshing}
     />
   )
 }

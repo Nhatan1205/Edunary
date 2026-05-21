@@ -20,7 +20,7 @@ public class Coupons : EndpointGroupBase
         group.MapPatch(DeactivateCoupon, "{id:int}/deactivate");
     }
 
-    public async Task<List<CouponDto>> GetCoupons(ISender sender, [AsParameters] GetCouponsQuery query)
+    public async Task<PaginatedList<CouponDto>> GetCoupons(ISender sender, [AsParameters] GetCouponsQuery query)
         => await sender.Send(query);
 
     public async Task<IResult> CreateCoupon(ISender sender, CreateCouponCommand command)

@@ -1,5 +1,9 @@
 import { Box, Typography } from "@mui/material";
 
+export const financePageContainerSx = {
+  px: { xs: 2, sm: 3, md: "40px", lg: "120px", xl: "240px" },
+};
+
 export const financeTableCardSx = {
   borderRadius: "16px",
   bgcolor: "#FFFFFF",

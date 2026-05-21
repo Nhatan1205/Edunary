@@ -14,3 +14,14 @@ export const fieldSx = {
     "&.Mui-focused fieldset": { borderColor: "brand.main", borderWidth: "2px" },
   },
 }
+
+export const couponPaginationSx = {
+  borderTop: "1px solid #F3F4F6",
+  "& .MuiTablePagination-toolbar": { minHeight: 52, px: 2 },
+  "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+    fontSize: "0.8rem",
+    color: "#6B7280",
+    mb: 0,
+  },
+  "& .MuiTablePagination-select": { fontSize: "0.8rem" },
+}

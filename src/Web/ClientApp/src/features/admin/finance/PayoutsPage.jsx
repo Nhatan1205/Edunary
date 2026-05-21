@@ -36,6 +36,7 @@ import useRunPayoutBatch from "../../../hooks/finance-hooks/useRunPayoutBatch";
 import useUpdatePayoutSettings from "../../../hooks/finance-hooks/useUpdatePayoutSettings";
 import { extractApiError } from "../../../utils/helpers.js";
 import {
+  financePageContainerSx,
   financePaginationSx,
   financeTableCardSx,
   financeTableGridSx,
@@ -290,7 +291,7 @@ export default function PayoutsPage() {
   const isBusy = isLoading || settingsLoading;
 
   return (
-    <Box>
+    <Box sx={financePageContainerSx}>
       <CustomBreadcrumbs
         heading="Payouts"
         links={[

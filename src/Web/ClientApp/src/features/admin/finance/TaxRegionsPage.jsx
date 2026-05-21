@@ -32,6 +32,7 @@ import useUpsertTaxRegion from "../../../hooks/finance-hooks/useUpsertTaxRegion"
 import useDeleteTaxRegion from "../../../hooks/finance-hooks/useDeleteTaxRegion";
 import { extractApiError } from "../../../utils/helpers.js";
 import {
+  financePageContainerSx,
   financePaginationSx,
   financeTableCardSx,
   financeTableGridSx,
@@ -239,7 +240,7 @@ export default function TaxRegionsPage() {
   ];
 
   return (
-    <Box>
+    <Box sx={financePageContainerSx}>
       <CustomBreadcrumbs
         heading="Tax Regions"
         links={[

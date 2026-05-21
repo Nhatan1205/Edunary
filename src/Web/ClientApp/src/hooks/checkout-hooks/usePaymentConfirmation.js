@@ -1,7 +1,7 @@
 import usePaymentClient from "./usePaymentClient"
 import { useNavigate } from "react-router"
 import { toast } from "react-toastify"
-import { useQueryClient } from "@tanstack/react-query"
+import queryClient from "../../configs/reactQuery.js"
 import { extractApiError } from "../../utils/helpers.js"
 
 const getErrorMessage = (error, fallback) =>
@@ -10,7 +10,6 @@ const getErrorMessage = (error, fallback) =>
 export default function usePaymentConfirmation() {
   const { confirmPayment } = usePaymentClient()
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
 
   const confirmPaymentAndNavigate = async (paymentIntentId, courses = [], totalAmount = 0) => {
     try {

@@ -1,10 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import queryClient from "../../configs/reactQuery.js";
 import { LearnerProfilesClient } from "../../web-api-client.ts";
 import { toast } from "react-toastify";
 
 const useUpsertLearnerProfile = () => {
-    const queryClient = useQueryClient();
-
     return useMutation({
         mutationFn: async (command) => {
             const client = new LearnerProfilesClient();

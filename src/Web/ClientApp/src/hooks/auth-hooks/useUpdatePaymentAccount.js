@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import queryClient from '../../configs/reactQuery.js';
 import { UpdatePayoutAccountCommand, UserClient } from '../../web-api-client.ts';
 
 async function updatePayoutAccount(payload) {
@@ -8,8 +9,6 @@ async function updatePayoutAccount(payload) {
 }
 
 const useUpdatePaymentAccount = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: updatePayoutAccount,
     onSuccess: async () => {

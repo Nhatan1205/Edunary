@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Alert, Box, Button, Card, TablePagination } from "@mui/material"
-import { useQueryClient } from "@tanstack/react-query"
+import queryClient from "../../../configs/reactQuery.js"
 import AddIcon from "@mui/icons-material/Add"
 import { toast } from "react-toastify"
 import PageTitle from "../../../components/PageTitle"
@@ -21,7 +21,6 @@ const adminPageContainerSx = {
 }
 
 export default function CouponsPage({ isAdmin = false }) {
-  const queryClient = useQueryClient()
   const { createCoupon, deactivateCoupon } = useCouponClient()
   const { data: coursesData, isLoading: coursesLoading } = useGetCoursesAuthor("", 0, 1, 100)
   const myCourses = coursesData?.items || []

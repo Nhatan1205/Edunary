@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { InstructorWalletClient, WithdrawFromInstructorWalletCommand } from "../../web-api-client.ts";
+import queryClient from "../../configs/reactQuery.js";
 
 const useWithdrawFromInstructorWallet = () => {
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ amount, currency = "USD" }) => {

@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { InstructorTaxClient, UpsertMyTaxProfileCommand } from '../../web-api-client.ts';
+import queryClient from '../../configs/reactQuery.js';
 
 const useUpdateTaxProfile = () => {
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ realName, taxIdentificationNumber, taxCountryCode }) => {

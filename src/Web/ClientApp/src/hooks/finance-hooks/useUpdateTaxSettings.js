@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AdminFinanceClient, UpdateTaxSettingsRequest } from "../../web-api-client.ts";
+import queryClient from "../../configs/reactQuery.js";
 
 const useUpdateTaxSettings = () => {
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (payload) => {

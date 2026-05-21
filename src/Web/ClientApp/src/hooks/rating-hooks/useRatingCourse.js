@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import queryClient from '../../configs/reactQuery.js';
 import { toast } from 'react-toastify';
 import { RatingCourseClient, UpsertRatingCourseCommand } from '../../web-api-client.ts';
 
@@ -34,8 +35,6 @@ export const useGetRatingsByCourse = (courseId, pageNumber = 1, pageSize = 10, f
 
 // Add new or update RatingCourse by user
 export const useUpsertRatingCourse = () => {
-  const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: async ({ courseId, rating, review }) => {
       const client = new RatingCourseClient();

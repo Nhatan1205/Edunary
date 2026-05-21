@@ -1,11 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import queryClient from '../../configs/reactQuery.js'
 import { CartClient } from '../../web-api-client.ts'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext.jsx'
 
 export const useCart = () => {
   const { isAuthenticated } = useAuth()
-  const queryClient = useQueryClient()
 
   const { data: cartItems = [], isLoading: loading, error } = useQuery({
     queryKey: ["cart"],

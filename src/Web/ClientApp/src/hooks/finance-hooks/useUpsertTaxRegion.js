@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AdminFinanceClient, UpsertTaxRegionCommand } from "../../web-api-client.ts";
 import { extractApiError } from "../../utils/helpers.js";
+import queryClient from "../../configs/reactQuery.js";
 
 const useUpsertTaxRegion = () => {
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data) => {

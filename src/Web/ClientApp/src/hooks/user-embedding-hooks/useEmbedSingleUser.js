@@ -1,9 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import queryClient from "../../configs/reactQuery.js";
 import { toast } from "react-toastify";
 import { UserEmbeddingsClient } from "../../web-api-client.ts";
 
 const useEmbedSingleUser = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (userId) => {
       const client = new UserEmbeddingsClient();

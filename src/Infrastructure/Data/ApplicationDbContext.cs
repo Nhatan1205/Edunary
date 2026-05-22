@@ -88,6 +88,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<RevenueSharePlan> RevenueSharePlans => Set<RevenueSharePlan>();
 
+    public DbSet<CourseReviewSubmission> CourseReviewSubmissions => Set<CourseReviewSubmission>();
+    public DbSet<CourseReviewFeedback> CourseReviewFeedbacks => Set<CourseReviewFeedback>();
+    public DbSet<CourseApprovedSnapshot> CourseApprovedSnapshots => Set<CourseApprovedSnapshot>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

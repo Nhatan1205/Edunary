@@ -12,13 +12,13 @@ public class KnowledgeBase : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapGet(GetDocuments)
             .MapDelete(DeleteDocument, "{id}");
 
         app.MapGroup(this)
             .DisableAntiforgery()
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapPost(UploadDocument);
     }
 

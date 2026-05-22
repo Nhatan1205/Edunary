@@ -84,6 +84,7 @@ function StatusChip({ status }) {
 
 function RoleChip({ role }) {
     const map = {
+        SuperAdmin: { color: "warning.darker", bgcolor: "warning.lighter" },
         Administrator: { color: "secondaryBrand.dark", bgcolor: "secondaryBrand.lighter" },
         User: { color: "brand.dark", bgcolor: "brand.lighter" },
     };

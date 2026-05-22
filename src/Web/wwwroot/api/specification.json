@@ -144,6 +144,468 @@
         ]
       }
     },
+    "/api/AdminFinance/summary": {
+      "get": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "GetSummary",
+        "parameters": [
+          {
+            "name": "From",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "To",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminFinance/ledger": {
+      "get": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "GetLedger",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "AccountCode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "UserId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "From",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "To",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 6
+          },
+          {
+            "name": "TransactionType",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/LedgerTransactionType"
+                }
+              ]
+            },
+            "x-position": 7
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfFinanceLedgerEntryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminFinance/tax-report": {
+      "get": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "GetTaxReport",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxReportDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminFinance/payouts/settings": {
+      "get": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "GetPayoutSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "UpdatePayoutSettings",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePayoutSettingsCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminFinance/payouts/eligible": {
+      "get": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "GetEligiblePayouts",
+        "parameters": [
+          {
+            "name": "asOf",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EligiblePayoutDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminFinance/payouts/run-batch": {
+      "post": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "RunPayoutBatch",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminFinance/tax-regions": {
+      "get": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "GetTaxRegions",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaxRegionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "UpsertTaxRegion",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertTaxRegionCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminFinance/tax-regions/{countryCode}": {
+      "delete": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "DeleteTaxRegion",
+        "parameters": [
+          {
+            "name": "countryCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminFinance/tax-settings": {
+      "get": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "GetTaxSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "AdminFinance"
+        ],
+        "operationId": "UpdateTaxSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaxSettingsRequest"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Announcement": {
       "post": {
         "tags": [
@@ -1574,6 +2036,211 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Coupons": {
+      "get": {
+        "tags": [
+          "Coupons"
+        ],
+        "operationId": "GetCoupons",
+        "parameters": [
+          {
+            "name": "CourseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "ActiveOnly",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "OwnerUserId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "Code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "TypeFilter",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 6
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 7
+          },
+          {
+            "name": "SortField",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 8
+          },
+          {
+            "name": "SortDir",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 9
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfCouponDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Coupons"
+        ],
+        "operationId": "CreateCoupon",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCouponCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Coupons/validate": {
+      "post": {
+        "tags": [
+          "Coupons"
+        ],
+        "operationId": "ValidateCoupon",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateCouponQuery"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CouponApplicationResult"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Coupons/{id}/deactivate": {
+      "patch": {
+        "tags": [
+          "Coupons"
+        ],
+        "operationId": "DeactivateCoupon",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "security": [
@@ -3686,6 +4353,58 @@
         ]
       }
     },
+    "/api/InstructorTax/profile": {
+      "get": {
+        "tags": [
+          "InstructorTax"
+        ],
+        "operationId": "GetMyInstructorTaxProfile",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxProfileDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "InstructorTax"
+        ],
+        "operationId": "UpsertMyTaxProfile",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertMyTaxProfileCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/InstructorWallet": {
       "get": {
         "tags": [
@@ -3804,6 +4523,42 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedListOfInstructorWalletTransactionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/InstructorWallet/withdraw/preview": {
+      "post": {
+        "tags": [
+          "InstructorWallet"
+        ],
+        "operationId": "GetWithdrawalPreview",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetWithdrawalPreviewQuery"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalPreviewDto"
                 }
               }
             }
@@ -4972,6 +5727,29 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaymentStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Payment/tax-regions": {
+      "get": {
+        "tags": [
+          "Payment"
+        ],
+        "operationId": "GetCheckoutTaxRegions",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaxRegionDto2"
+                  }
                 }
               }
             }
@@ -6486,6 +7264,58 @@
             }
           }
         }
+      }
+    },
+    "/api/TaxProfile": {
+      "get": {
+        "tags": [
+          "TaxProfile"
+        ],
+        "operationId": "GetMyTaxProfile",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxProfileDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "TaxProfile"
+        ],
+        "operationId": "UpdateMyTaxProfile",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertMyTaxProfileCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/TodoItems": {
@@ -8067,6 +8897,353 @@
           }
         }
       },
+      "FinanceSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "grossSales": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "vatCollected": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "platformRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "instructorGrossEarnings": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "instructorNetEarnings": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "withholdingTax": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "pendingPayouts": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaginatedListOfFinanceLedgerEntryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FinanceLedgerEntryDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FinanceLedgerEntryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "transactionType": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "side": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "referenceType": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LedgerTransactionType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "OrderPaid",
+          "OrderRefunded",
+          "PayoutInitiated",
+          "PayoutCompleted",
+          "WithholdingTaxAccrued",
+          "VatAccrued",
+          "TaxRemitted",
+          "Adjustment"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "TaxReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "period": {
+            "type": "string",
+            "nullable": true
+          },
+          "vatByRegion": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/VatByRegionDto"
+            }
+          },
+          "totalVatCollected": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalWithholdingTax": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "VatByRegionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "vatAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "orderCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PayoutSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "minimumThresholdUsd": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "UpdatePayoutSettingsCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "minimumThresholdUsd": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "EligiblePayoutDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "instructorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "netBalance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasPayoutAccount": {
+            "type": "boolean"
+          },
+          "hasInstructorWallet": {
+            "type": "boolean"
+          },
+          "hasProcessingWithdrawal": {
+            "type": "boolean"
+          },
+          "withholdingRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "withholdingAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "estimatedNetAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "isBatchReady": {
+            "type": "boolean"
+          },
+          "blockingReasons": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TaxRegionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "vatRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "withholdingRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpsertTaxRegionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "vatRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "withholdingRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TaxSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "defaultVatRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "defaultWithholdingRate": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "UpdateTaxSettingsRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "defaultVatRate": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "defaultWithholdingRate": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          }
+        }
+      },
       "ReturnResultOfCreateAnnouncementCommandDto": {
         "type": "object",
         "additionalProperties": false,
@@ -9221,6 +10398,287 @@
           }
         }
       },
+      "PaginatedListOfCouponDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CouponDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CouponDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/CouponType"
+          },
+          "discountValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "scopeType": {
+            "$ref": "#/components/schemas/CouponScopeType"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ownerUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ownerFullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "ownerEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "funderType": {
+            "$ref": "#/components/schemas/CouponFunderType"
+          },
+          "maxRedemptions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "redemptionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxRedemptionsPerUser": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CouponType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Percentage",
+          "FixedAmount",
+          "CustomPrice",
+          "Free"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "CouponScopeType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "SpecificCourse",
+          "InstructorCourses",
+          "Platform"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "CouponFunderType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Instructor",
+          "Platform"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "CreateCouponCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/CouponType"
+          },
+          "discountValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "scopeType": {
+            "$ref": "#/components/schemas/CouponScopeType"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "funderType": {
+            "$ref": "#/components/schemas/CouponFunderType"
+          },
+          "maxRedemptions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxRedemptionsPerUser": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CouponApplicationResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isValid": {
+            "type": "boolean"
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "couponCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "couponId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "funderType": {
+            "$ref": "#/components/schemas/CouponFunderType"
+          },
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CouponItemDiscount"
+            }
+          },
+          "totalDiscountAmount": {
+            "type": "number",
+            "format": "float"
+          },
+          "discountedTotal": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "CouponItemDiscount": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "originalPrice": {
+            "type": "number",
+            "format": "float"
+          },
+          "discountedPrice": {
+            "type": "number",
+            "format": "float"
+          },
+          "discountAmount": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "ValidateCouponQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
       "PaginatedListOfCourseAnswerDto": {
         "type": "object",
         "additionalProperties": false,
@@ -9623,6 +11081,9 @@
           "categoryId": {
             "type": "integer",
             "format": "int32"
+          },
+          "allowPlatformCoupons": {
+            "type": "boolean"
           },
           "content": {
             "type": "string",
@@ -10778,6 +12239,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "allowPlatformCoupons": {
+            "type": "boolean",
+            "nullable": true
+          },
           "content": {
             "type": "string",
             "nullable": true
@@ -11446,6 +12911,46 @@
           }
         }
       },
+      "TaxProfileDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "realName": {
+            "type": "string"
+          },
+          "taxIdentificationNumber": {
+            "type": "string"
+          },
+          "taxCountryCode": {
+            "type": "string"
+          },
+          "countryName": {
+            "type": "string"
+          },
+          "withholdingRate": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "UpsertMyTaxProfileCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "realName": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxIdentificationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxCountryCode": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "InstructorWalletDto": {
         "type": "object",
         "additionalProperties": false,
@@ -11523,9 +13028,27 @@
             "type": "number",
             "format": "decimal"
           },
-          "currency": {
+          "withholdingAmount": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "withholdingRate": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "taxCountryCode": {
             "type": "string",
             "nullable": true
+          },
+          "currency": {
+            "type": "string"
           },
           "status": {
             "$ref": "#/components/schemas/InstructorWalletTransactionStatus"
@@ -11545,6 +13068,48 @@
           1,
           2
         ]
+      },
+      "WithdrawalPreviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "grossAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "withholdingRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "withholdingAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "taxCountryCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "GetWithdrawalPreviewQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
       },
       "WithdrawFromInstructorWalletCommand": {
         "type": "object",
@@ -11604,36 +13169,45 @@
             "format": "date-time"
           },
           "instructorId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "instructorName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "instructorEmail": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "amount": {
             "type": "number",
             "format": "decimal"
           },
-          "currency": {
+          "withholdingAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "withholdingRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "taxCountryCode": {
             "type": "string",
             "nullable": true
+          },
+          "currency": {
+            "type": "string"
           },
           "bank": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "bankNumber": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "bankAccountHolder": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "status": {
             "$ref": "#/components/schemas/InstructorWalletTransactionStatus"
@@ -12384,6 +13958,14 @@
           "paymentIntentId": {
             "type": "string",
             "nullable": true
+          },
+          "vatAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "vatRate": {
+            "type": "number",
+            "format": "decimal"
           }
         }
       },
@@ -12398,6 +13980,14 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          "couponCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "billingCountryCode": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -12475,6 +14065,28 @@
             "nullable": true
           },
           "price": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "TaxRegionDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "vatRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "withholdingRate": {
             "type": "number",
             "format": "decimal"
           }

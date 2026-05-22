@@ -112,10 +112,13 @@ public static class DependencyInjection
         services.AddAuthorization(options =>
         {
             options.AddPolicy(Policies.CanPurge, policy =>
-                policy.RequireRole(Roles.Administrator));
+                policy.RequireRole(Roles.Administrator, Roles.SuperAdmin));
+
+            options.AddPolicy(Policies.Admin, policy =>
+                policy.RequireRole(Roles.Administrator, Roles.SuperAdmin));
 
             options.AddPolicy(Policies.SuperAdmin, policy =>
-                policy.RequireRole(Roles.Administrator));
+                policy.RequireRole(Roles.SuperAdmin));
         });
 
         var appSettingsSection = configuration.GetSection("AppSettings");

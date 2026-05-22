@@ -121,6 +121,494 @@ export class ActivityLogsClient {
     }
 }
 
+export class AdminFinanceClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getSummary(from: Date | null | undefined, to: Date | null | undefined): Promise<FinanceSummaryDto> {
+        let url_ = this.baseUrl + "/api/AdminFinance/summary?";
+        if (from !== undefined && from !== null)
+            url_ += "From=" + encodeURIComponent(from ? "" + from.toISOString() : "") + "&";
+        if (to !== undefined && to !== null)
+            url_ += "To=" + encodeURIComponent(to ? "" + to.toISOString() : "") + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetSummary(_response);
+        });
+    }
+
+    protected processGetSummary(response: Response): Promise<FinanceSummaryDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FinanceSummaryDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FinanceSummaryDto>(null as any);
+    }
+
+    getLedger(pageNumber: number, pageSize: number, accountCode: string | null | undefined, userId: string | null | undefined, from: Date | null | undefined, to: Date | null | undefined, transactionType: LedgerTransactionType | null | undefined): Promise<PaginatedListOfFinanceLedgerEntryDto> {
+        let url_ = this.baseUrl + "/api/AdminFinance/ledger?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (accountCode !== undefined && accountCode !== null)
+            url_ += "AccountCode=" + encodeURIComponent("" + accountCode) + "&";
+        if (userId !== undefined && userId !== null)
+            url_ += "UserId=" + encodeURIComponent("" + userId) + "&";
+        if (from !== undefined && from !== null)
+            url_ += "From=" + encodeURIComponent(from ? "" + from.toISOString() : "") + "&";
+        if (to !== undefined && to !== null)
+            url_ += "To=" + encodeURIComponent(to ? "" + to.toISOString() : "") + "&";
+        if (transactionType !== undefined && transactionType !== null)
+            url_ += "TransactionType=" + encodeURIComponent("" + transactionType) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLedger(_response);
+        });
+    }
+
+    protected processGetLedger(response: Response): Promise<PaginatedListOfFinanceLedgerEntryDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfFinanceLedgerEntryDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfFinanceLedgerEntryDto>(null as any);
+    }
+
+    getTaxReport(period: string | null | undefined): Promise<TaxReportDto> {
+        let url_ = this.baseUrl + "/api/AdminFinance/tax-report?";
+        if (period !== undefined && period !== null)
+            url_ += "period=" + encodeURIComponent("" + period) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTaxReport(_response);
+        });
+    }
+
+    protected processGetTaxReport(response: Response): Promise<TaxReportDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TaxReportDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TaxReportDto>(null as any);
+    }
+
+    getPayoutSettings(): Promise<PayoutSettingsDto> {
+        let url_ = this.baseUrl + "/api/AdminFinance/payouts/settings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPayoutSettings(_response);
+        });
+    }
+
+    protected processGetPayoutSettings(response: Response): Promise<PayoutSettingsDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PayoutSettingsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PayoutSettingsDto>(null as any);
+    }
+
+    updatePayoutSettings(command: UpdatePayoutSettingsCommand | undefined): Promise<Result> {
+        let url_ = this.baseUrl + "/api/AdminFinance/payouts/settings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdatePayoutSettings(_response);
+        });
+    }
+
+    protected processUpdatePayoutSettings(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = Result.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getEligiblePayouts(asOf: Date | null | undefined): Promise<EligiblePayoutDto[]> {
+        let url_ = this.baseUrl + "/api/AdminFinance/payouts/eligible?";
+        if (asOf !== undefined && asOf !== null)
+            url_ += "asOf=" + encodeURIComponent(asOf ? "" + asOf.toISOString() : "") + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEligiblePayouts(_response);
+        });
+    }
+
+    protected processGetEligiblePayouts(response: Response): Promise<EligiblePayoutDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(EligiblePayoutDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<EligiblePayoutDto[]>(null as any);
+    }
+
+    runPayoutBatch(): Promise<Result> {
+        let url_ = this.baseUrl + "/api/AdminFinance/payouts/run-batch";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRunPayoutBatch(_response);
+        });
+    }
+
+    protected processRunPayoutBatch(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = Result.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+
+    getTaxRegions(): Promise<TaxRegionDto[]> {
+        let url_ = this.baseUrl + "/api/AdminFinance/tax-regions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTaxRegions(_response);
+        });
+    }
+
+    protected processGetTaxRegions(response: Response): Promise<TaxRegionDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TaxRegionDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TaxRegionDto[]>(null as any);
+    }
+
+    upsertTaxRegion(command: UpsertTaxRegionCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/AdminFinance/tax-regions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpsertTaxRegion(_response);
+        });
+    }
+
+    protected processUpsertTaxRegion(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteTaxRegion(countryCode: string | null): Promise<void> {
+        let url_ = this.baseUrl + "/api/AdminFinance/tax-regions/{countryCode}";
+        if (countryCode === undefined || countryCode === null)
+            throw new Error("The parameter 'countryCode' must be defined.");
+        url_ = url_.replace("{countryCode}", encodeURIComponent("" + countryCode));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteTaxRegion(_response);
+        });
+    }
+
+    protected processDeleteTaxRegion(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getTaxSettings(): Promise<TaxSettingsDto> {
+        let url_ = this.baseUrl + "/api/AdminFinance/tax-settings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTaxSettings(_response);
+        });
+    }
+
+    protected processGetTaxSettings(response: Response): Promise<TaxSettingsDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TaxSettingsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TaxSettingsDto>(null as any);
+    }
+
+    updateTaxSettings(request: UpdateTaxSettingsRequest | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/AdminFinance/tax-settings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateTaxSettings(_response);
+        });
+    }
+
+    protected processUpdateTaxSettings(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class AnnouncementClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1679,6 +2167,186 @@ export class CategoriesClient {
             });
         }
         return Promise.resolve<Result>(null as any);
+    }
+}
+
+export class CouponsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getCoupons(courseId: number, activeOnly: boolean, ownerUserId: string | null | undefined, code: string | null | undefined, typeFilter: number | null | undefined, pageNumber: number, pageSize: number, sortField: string | null | undefined, sortDir: string | null | undefined): Promise<PaginatedListOfCouponDto> {
+        let url_ = this.baseUrl + "/api/Coupons?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        if (activeOnly === undefined || activeOnly === null)
+            throw new Error("The parameter 'activeOnly' must be defined and cannot be null.");
+        else
+            url_ += "ActiveOnly=" + encodeURIComponent("" + activeOnly) + "&";
+        if (ownerUserId !== undefined && ownerUserId !== null)
+            url_ += "OwnerUserId=" + encodeURIComponent("" + ownerUserId) + "&";
+        if (code !== undefined && code !== null)
+            url_ += "Code=" + encodeURIComponent("" + code) + "&";
+        if (typeFilter !== undefined && typeFilter !== null)
+            url_ += "TypeFilter=" + encodeURIComponent("" + typeFilter) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (sortField !== undefined && sortField !== null)
+            url_ += "SortField=" + encodeURIComponent("" + sortField) + "&";
+        if (sortDir !== undefined && sortDir !== null)
+            url_ += "SortDir=" + encodeURIComponent("" + sortDir) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoupons(_response);
+        });
+    }
+
+    protected processGetCoupons(response: Response): Promise<PaginatedListOfCouponDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfCouponDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfCouponDto>(null as any);
+    }
+
+    createCoupon(command: CreateCouponCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Coupons";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCoupon(_response);
+        });
+    }
+
+    protected processCreateCoupon(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    validateCoupon(query: ValidateCouponQuery | undefined): Promise<CouponApplicationResult> {
+        let url_ = this.baseUrl + "/api/Coupons/validate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processValidateCoupon(_response);
+        });
+    }
+
+    protected processValidateCoupon(response: Response): Promise<CouponApplicationResult> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CouponApplicationResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CouponApplicationResult>(null as any);
+    }
+
+    deactivateCoupon(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/Coupons/{id}/deactivate";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PATCH",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeactivateCoupon(_response);
+        });
+    }
+
+    protected processDeactivateCoupon(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -3877,6 +4545,87 @@ export class EnrollmentClient {
     }
 }
 
+export class InstructorTaxClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getMyInstructorTaxProfile(): Promise<TaxProfileDto> {
+        let url_ = this.baseUrl + "/api/InstructorTax/profile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyInstructorTaxProfile(_response);
+        });
+    }
+
+    protected processGetMyInstructorTaxProfile(response: Response): Promise<TaxProfileDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TaxProfileDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TaxProfileDto>(null as any);
+    }
+
+    upsertMyTaxProfile(command: UpsertMyTaxProfileCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/InstructorTax/profile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpsertMyTaxProfile(_response);
+        });
+    }
+
+    protected processUpsertMyTaxProfile(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class InstructorWalletClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -3975,6 +4724,45 @@ export class InstructorWalletClient {
             });
         }
         return Promise.resolve<PaginatedListOfInstructorWalletTransactionDto>(null as any);
+    }
+
+    getWithdrawalPreview(query: GetWithdrawalPreviewQuery | undefined): Promise<WithdrawalPreviewDto> {
+        let url_ = this.baseUrl + "/api/InstructorWallet/withdraw/preview";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetWithdrawalPreview(_response);
+        });
+    }
+
+    protected processGetWithdrawalPreview(response: Response): Promise<WithdrawalPreviewDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = WithdrawalPreviewDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<WithdrawalPreviewDto>(null as any);
     }
 
     withdraw(command: WithdrawFromInstructorWalletCommand | undefined): Promise<void> {
@@ -5204,6 +5992,48 @@ export class PaymentClient {
             });
         }
         return Promise.resolve<PaymentStatusDto>(null as any);
+    }
+
+    getCheckoutTaxRegions(): Promise<TaxRegionDto2[]> {
+        let url_ = this.baseUrl + "/api/Payment/tax-regions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCheckoutTaxRegions(_response);
+        });
+    }
+
+    protected processGetCheckoutTaxRegions(response: Response): Promise<TaxRegionDto2[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TaxRegionDto2.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TaxRegionDto2[]>(null as any);
     }
 }
 
@@ -6786,6 +7616,87 @@ export class SystemSettingsClient {
             });
         }
         return Promise.resolve<{ [key: string]: string; }>(null as any);
+    }
+}
+
+export class TaxProfileClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getMyTaxProfile(): Promise<TaxProfileDto> {
+        let url_ = this.baseUrl + "/api/TaxProfile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyTaxProfile(_response);
+        });
+    }
+
+    protected processGetMyTaxProfile(response: Response): Promise<TaxProfileDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TaxProfileDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TaxProfileDto>(null as any);
+    }
+
+    updateMyTaxProfile(command: UpsertMyTaxProfileCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/TaxProfile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateMyTaxProfile(_response);
+        });
+    }
+
+    protected processUpdateMyTaxProfile(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -8657,6 +9568,673 @@ export class DeleteActivityLogsCommand implements IDeleteActivityLogsCommand {
 
 export interface IDeleteActivityLogsCommand {
     ids?: number[] | undefined;
+}
+
+export class FinanceSummaryDto implements IFinanceSummaryDto {
+    grossSales?: number;
+    vatCollected?: number;
+    platformRevenue?: number;
+    instructorGrossEarnings?: number;
+    instructorNetEarnings?: number;
+    withholdingTax?: number;
+    pendingPayouts?: number;
+    currency?: string | undefined;
+
+    constructor(data?: IFinanceSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.grossSales = _data["grossSales"];
+            this.vatCollected = _data["vatCollected"];
+            this.platformRevenue = _data["platformRevenue"];
+            this.instructorGrossEarnings = _data["instructorGrossEarnings"];
+            this.instructorNetEarnings = _data["instructorNetEarnings"];
+            this.withholdingTax = _data["withholdingTax"];
+            this.pendingPayouts = _data["pendingPayouts"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): FinanceSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new FinanceSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["grossSales"] = this.grossSales;
+        data["vatCollected"] = this.vatCollected;
+        data["platformRevenue"] = this.platformRevenue;
+        data["instructorGrossEarnings"] = this.instructorGrossEarnings;
+        data["instructorNetEarnings"] = this.instructorNetEarnings;
+        data["withholdingTax"] = this.withholdingTax;
+        data["pendingPayouts"] = this.pendingPayouts;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IFinanceSummaryDto {
+    grossSales?: number;
+    vatCollected?: number;
+    platformRevenue?: number;
+    instructorGrossEarnings?: number;
+    instructorNetEarnings?: number;
+    withholdingTax?: number;
+    pendingPayouts?: number;
+    currency?: string | undefined;
+}
+
+export class PaginatedListOfFinanceLedgerEntryDto implements IPaginatedListOfFinanceLedgerEntryDto {
+    items?: FinanceLedgerEntryDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfFinanceLedgerEntryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(FinanceLedgerEntryDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfFinanceLedgerEntryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfFinanceLedgerEntryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfFinanceLedgerEntryDto {
+    items?: FinanceLedgerEntryDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class FinanceLedgerEntryDto implements IFinanceLedgerEntryDto {
+    id?: number;
+    transactionId?: string;
+    transactionType?: string | undefined;
+    accountCode?: string | undefined;
+    side?: string | undefined;
+    amount?: number;
+    userId?: string | undefined;
+    description?: string | undefined;
+    occurredAt?: Date;
+    referenceType?: string | undefined;
+    referenceId?: string | undefined;
+    currency?: string | undefined;
+
+    constructor(data?: IFinanceLedgerEntryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.transactionId = _data["transactionId"];
+            this.transactionType = _data["transactionType"];
+            this.accountCode = _data["accountCode"];
+            this.side = _data["side"];
+            this.amount = _data["amount"];
+            this.userId = _data["userId"];
+            this.description = _data["description"];
+            this.occurredAt = _data["occurredAt"] ? new Date(_data["occurredAt"].toString()) : <any>undefined;
+            this.referenceType = _data["referenceType"];
+            this.referenceId = _data["referenceId"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): FinanceLedgerEntryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new FinanceLedgerEntryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["transactionId"] = this.transactionId;
+        data["transactionType"] = this.transactionType;
+        data["accountCode"] = this.accountCode;
+        data["side"] = this.side;
+        data["amount"] = this.amount;
+        data["userId"] = this.userId;
+        data["description"] = this.description;
+        data["occurredAt"] = this.occurredAt ? this.occurredAt.toISOString() : <any>undefined;
+        data["referenceType"] = this.referenceType;
+        data["referenceId"] = this.referenceId;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IFinanceLedgerEntryDto {
+    id?: number;
+    transactionId?: string;
+    transactionType?: string | undefined;
+    accountCode?: string | undefined;
+    side?: string | undefined;
+    amount?: number;
+    userId?: string | undefined;
+    description?: string | undefined;
+    occurredAt?: Date;
+    referenceType?: string | undefined;
+    referenceId?: string | undefined;
+    currency?: string | undefined;
+}
+
+export enum LedgerTransactionType {
+    OrderPaid = 0,
+    OrderRefunded = 1,
+    PayoutInitiated = 2,
+    PayoutCompleted = 3,
+    WithholdingTaxAccrued = 4,
+    VatAccrued = 5,
+    TaxRemitted = 6,
+    Adjustment = 7,
+}
+
+export class TaxReportDto implements ITaxReportDto {
+    period?: string | undefined;
+    vatByRegion?: VatByRegionDto[] | undefined;
+    totalVatCollected?: number;
+    totalWithholdingTax?: number;
+
+    constructor(data?: ITaxReportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.period = _data["period"];
+            if (Array.isArray(_data["vatByRegion"])) {
+                this.vatByRegion = [] as any;
+                for (let item of _data["vatByRegion"])
+                    this.vatByRegion!.push(VatByRegionDto.fromJS(item));
+            }
+            this.totalVatCollected = _data["totalVatCollected"];
+            this.totalWithholdingTax = _data["totalWithholdingTax"];
+        }
+    }
+
+    static fromJS(data: any): TaxReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TaxReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["period"] = this.period;
+        if (Array.isArray(this.vatByRegion)) {
+            data["vatByRegion"] = [];
+            for (let item of this.vatByRegion)
+                data["vatByRegion"].push(item.toJSON());
+        }
+        data["totalVatCollected"] = this.totalVatCollected;
+        data["totalWithholdingTax"] = this.totalWithholdingTax;
+        return data;
+    }
+}
+
+export interface ITaxReportDto {
+    period?: string | undefined;
+    vatByRegion?: VatByRegionDto[] | undefined;
+    totalVatCollected?: number;
+    totalWithholdingTax?: number;
+}
+
+export class VatByRegionDto implements IVatByRegionDto {
+    countryCode?: string | undefined;
+    vatAmount?: number;
+    orderCount?: number;
+
+    constructor(data?: IVatByRegionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.countryCode = _data["countryCode"];
+            this.vatAmount = _data["vatAmount"];
+            this.orderCount = _data["orderCount"];
+        }
+    }
+
+    static fromJS(data: any): VatByRegionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new VatByRegionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["countryCode"] = this.countryCode;
+        data["vatAmount"] = this.vatAmount;
+        data["orderCount"] = this.orderCount;
+        return data;
+    }
+}
+
+export interface IVatByRegionDto {
+    countryCode?: string | undefined;
+    vatAmount?: number;
+    orderCount?: number;
+}
+
+export class PayoutSettingsDto implements IPayoutSettingsDto {
+    minimumThresholdUsd?: number;
+
+    constructor(data?: IPayoutSettingsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.minimumThresholdUsd = _data["minimumThresholdUsd"];
+        }
+    }
+
+    static fromJS(data: any): PayoutSettingsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PayoutSettingsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["minimumThresholdUsd"] = this.minimumThresholdUsd;
+        return data;
+    }
+}
+
+export interface IPayoutSettingsDto {
+    minimumThresholdUsd?: number;
+}
+
+export class UpdatePayoutSettingsCommand implements IUpdatePayoutSettingsCommand {
+    minimumThresholdUsd?: number;
+
+    constructor(data?: IUpdatePayoutSettingsCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.minimumThresholdUsd = _data["minimumThresholdUsd"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePayoutSettingsCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePayoutSettingsCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["minimumThresholdUsd"] = this.minimumThresholdUsd;
+        return data;
+    }
+}
+
+export interface IUpdatePayoutSettingsCommand {
+    minimumThresholdUsd?: number;
+}
+
+export class EligiblePayoutDto implements IEligiblePayoutDto {
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorEmail?: string | undefined;
+    netBalance?: number;
+    currency?: string | undefined;
+    hasPayoutAccount?: boolean;
+    hasInstructorWallet?: boolean;
+    hasProcessingWithdrawal?: boolean;
+    withholdingRate?: number;
+    withholdingAmount?: number;
+    estimatedNetAmount?: number;
+    isBatchReady?: boolean;
+    blockingReasons?: string[] | undefined;
+
+    constructor(data?: IEligiblePayoutDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.instructorId = _data["instructorId"];
+            this.instructorName = _data["instructorName"];
+            this.instructorEmail = _data["instructorEmail"];
+            this.netBalance = _data["netBalance"];
+            this.currency = _data["currency"];
+            this.hasPayoutAccount = _data["hasPayoutAccount"];
+            this.hasInstructorWallet = _data["hasInstructorWallet"];
+            this.hasProcessingWithdrawal = _data["hasProcessingWithdrawal"];
+            this.withholdingRate = _data["withholdingRate"];
+            this.withholdingAmount = _data["withholdingAmount"];
+            this.estimatedNetAmount = _data["estimatedNetAmount"];
+            this.isBatchReady = _data["isBatchReady"];
+            if (Array.isArray(_data["blockingReasons"])) {
+                this.blockingReasons = [] as any;
+                for (let item of _data["blockingReasons"])
+                    this.blockingReasons!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): EligiblePayoutDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new EligiblePayoutDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["instructorId"] = this.instructorId;
+        data["instructorName"] = this.instructorName;
+        data["instructorEmail"] = this.instructorEmail;
+        data["netBalance"] = this.netBalance;
+        data["currency"] = this.currency;
+        data["hasPayoutAccount"] = this.hasPayoutAccount;
+        data["hasInstructorWallet"] = this.hasInstructorWallet;
+        data["hasProcessingWithdrawal"] = this.hasProcessingWithdrawal;
+        data["withholdingRate"] = this.withholdingRate;
+        data["withholdingAmount"] = this.withholdingAmount;
+        data["estimatedNetAmount"] = this.estimatedNetAmount;
+        data["isBatchReady"] = this.isBatchReady;
+        if (Array.isArray(this.blockingReasons)) {
+            data["blockingReasons"] = [];
+            for (let item of this.blockingReasons)
+                data["blockingReasons"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IEligiblePayoutDto {
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorEmail?: string | undefined;
+    netBalance?: number;
+    currency?: string | undefined;
+    hasPayoutAccount?: boolean;
+    hasInstructorWallet?: boolean;
+    hasProcessingWithdrawal?: boolean;
+    withholdingRate?: number;
+    withholdingAmount?: number;
+    estimatedNetAmount?: number;
+    isBatchReady?: boolean;
+    blockingReasons?: string[] | undefined;
+}
+
+export class TaxRegionDto implements ITaxRegionDto {
+    countryCode?: string | undefined;
+    countryName?: string | undefined;
+    vatRate?: number;
+    withholdingRate?: number;
+    isActive?: boolean;
+
+    constructor(data?: ITaxRegionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.countryCode = _data["countryCode"];
+            this.countryName = _data["countryName"];
+            this.vatRate = _data["vatRate"];
+            this.withholdingRate = _data["withholdingRate"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): TaxRegionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TaxRegionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["countryCode"] = this.countryCode;
+        data["countryName"] = this.countryName;
+        data["vatRate"] = this.vatRate;
+        data["withholdingRate"] = this.withholdingRate;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ITaxRegionDto {
+    countryCode?: string | undefined;
+    countryName?: string | undefined;
+    vatRate?: number;
+    withholdingRate?: number;
+    isActive?: boolean;
+}
+
+export class UpsertTaxRegionCommand implements IUpsertTaxRegionCommand {
+    countryCode?: string | undefined;
+    countryName?: string | undefined;
+    vatRate?: number;
+    withholdingRate?: number;
+    isActive?: boolean;
+
+    constructor(data?: IUpsertTaxRegionCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.countryCode = _data["countryCode"];
+            this.countryName = _data["countryName"];
+            this.vatRate = _data["vatRate"];
+            this.withholdingRate = _data["withholdingRate"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): UpsertTaxRegionCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpsertTaxRegionCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["countryCode"] = this.countryCode;
+        data["countryName"] = this.countryName;
+        data["vatRate"] = this.vatRate;
+        data["withholdingRate"] = this.withholdingRate;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IUpsertTaxRegionCommand {
+    countryCode?: string | undefined;
+    countryName?: string | undefined;
+    vatRate?: number;
+    withholdingRate?: number;
+    isActive?: boolean;
+}
+
+export class TaxSettingsDto implements ITaxSettingsDto {
+    defaultVatRate?: number;
+    defaultWithholdingRate?: number;
+
+    constructor(data?: ITaxSettingsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.defaultVatRate = _data["defaultVatRate"];
+            this.defaultWithholdingRate = _data["defaultWithholdingRate"];
+        }
+    }
+
+    static fromJS(data: any): TaxSettingsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TaxSettingsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["defaultVatRate"] = this.defaultVatRate;
+        data["defaultWithholdingRate"] = this.defaultWithholdingRate;
+        return data;
+    }
+}
+
+export interface ITaxSettingsDto {
+    defaultVatRate?: number;
+    defaultWithholdingRate?: number;
+}
+
+export class UpdateTaxSettingsRequest implements IUpdateTaxSettingsRequest {
+    defaultVatRate?: number | undefined;
+    defaultWithholdingRate?: number | undefined;
+
+    constructor(data?: IUpdateTaxSettingsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.defaultVatRate = _data["defaultVatRate"];
+            this.defaultWithholdingRate = _data["defaultWithholdingRate"];
+        }
+    }
+
+    static fromJS(data: any): UpdateTaxSettingsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTaxSettingsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["defaultVatRate"] = this.defaultVatRate;
+        data["defaultWithholdingRate"] = this.defaultWithholdingRate;
+        return data;
+    }
+}
+
+export interface IUpdateTaxSettingsRequest {
+    defaultVatRate?: number | undefined;
+    defaultWithholdingRate?: number | undefined;
 }
 
 export class ReturnResultOfCreateAnnouncementCommandDto implements IReturnResultOfCreateAnnouncementCommandDto {
@@ -11192,6 +12770,444 @@ export interface IDeleteCategoryCommand {
     id?: number;
 }
 
+export class PaginatedListOfCouponDto implements IPaginatedListOfCouponDto {
+    items?: CouponDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfCouponDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CouponDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfCouponDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfCouponDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfCouponDto {
+    items?: CouponDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class CouponDto implements ICouponDto {
+    id?: number;
+    code?: string | undefined;
+    name?: string | undefined;
+    description?: string | undefined;
+    type?: CouponType;
+    discountValue?: number;
+    scopeType?: CouponScopeType;
+    courseId?: number;
+    ownerUserId?: string | undefined;
+    ownerFullName?: string | undefined;
+    ownerEmail?: string | undefined;
+    funderType?: CouponFunderType;
+    maxRedemptions?: number;
+    redemptionCount?: number;
+    maxRedemptionsPerUser?: number;
+    startsAt?: Date;
+    expiresAt?: Date;
+    isActive?: boolean;
+    created?: Date;
+
+    constructor(data?: ICouponDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.code = _data["code"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.type = _data["type"];
+            this.discountValue = _data["discountValue"];
+            this.scopeType = _data["scopeType"];
+            this.courseId = _data["courseId"];
+            this.ownerUserId = _data["ownerUserId"];
+            this.ownerFullName = _data["ownerFullName"];
+            this.ownerEmail = _data["ownerEmail"];
+            this.funderType = _data["funderType"];
+            this.maxRedemptions = _data["maxRedemptions"];
+            this.redemptionCount = _data["redemptionCount"];
+            this.maxRedemptionsPerUser = _data["maxRedemptionsPerUser"];
+            this.startsAt = _data["startsAt"] ? new Date(_data["startsAt"].toString()) : <any>undefined;
+            this.expiresAt = _data["expiresAt"] ? new Date(_data["expiresAt"].toString()) : <any>undefined;
+            this.isActive = _data["isActive"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CouponDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CouponDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["code"] = this.code;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["type"] = this.type;
+        data["discountValue"] = this.discountValue;
+        data["scopeType"] = this.scopeType;
+        data["courseId"] = this.courseId;
+        data["ownerUserId"] = this.ownerUserId;
+        data["ownerFullName"] = this.ownerFullName;
+        data["ownerEmail"] = this.ownerEmail;
+        data["funderType"] = this.funderType;
+        data["maxRedemptions"] = this.maxRedemptions;
+        data["redemptionCount"] = this.redemptionCount;
+        data["maxRedemptionsPerUser"] = this.maxRedemptionsPerUser;
+        data["startsAt"] = this.startsAt ? this.startsAt.toISOString() : <any>undefined;
+        data["expiresAt"] = this.expiresAt ? this.expiresAt.toISOString() : <any>undefined;
+        data["isActive"] = this.isActive;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICouponDto {
+    id?: number;
+    code?: string | undefined;
+    name?: string | undefined;
+    description?: string | undefined;
+    type?: CouponType;
+    discountValue?: number;
+    scopeType?: CouponScopeType;
+    courseId?: number;
+    ownerUserId?: string | undefined;
+    ownerFullName?: string | undefined;
+    ownerEmail?: string | undefined;
+    funderType?: CouponFunderType;
+    maxRedemptions?: number;
+    redemptionCount?: number;
+    maxRedemptionsPerUser?: number;
+    startsAt?: Date;
+    expiresAt?: Date;
+    isActive?: boolean;
+    created?: Date;
+}
+
+export enum CouponType {
+    Percentage = 0,
+    FixedAmount = 1,
+    CustomPrice = 2,
+    Free = 3,
+}
+
+export enum CouponScopeType {
+    SpecificCourse = 0,
+    InstructorCourses = 1,
+    Platform = 2,
+}
+
+export enum CouponFunderType {
+    Instructor = 0,
+    Platform = 1,
+}
+
+export class CreateCouponCommand implements ICreateCouponCommand {
+    code?: string | undefined;
+    name?: string | undefined;
+    description?: string | undefined;
+    type?: CouponType;
+    discountValue?: number;
+    scopeType?: CouponScopeType;
+    courseId?: number;
+    funderType?: CouponFunderType;
+    maxRedemptions?: number;
+    maxRedemptionsPerUser?: number;
+    startsAt?: Date;
+    expiresAt?: Date;
+
+    constructor(data?: ICreateCouponCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.type = _data["type"];
+            this.discountValue = _data["discountValue"];
+            this.scopeType = _data["scopeType"];
+            this.courseId = _data["courseId"];
+            this.funderType = _data["funderType"];
+            this.maxRedemptions = _data["maxRedemptions"];
+            this.maxRedemptionsPerUser = _data["maxRedemptionsPerUser"];
+            this.startsAt = _data["startsAt"] ? new Date(_data["startsAt"].toString()) : <any>undefined;
+            this.expiresAt = _data["expiresAt"] ? new Date(_data["expiresAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CreateCouponCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCouponCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["type"] = this.type;
+        data["discountValue"] = this.discountValue;
+        data["scopeType"] = this.scopeType;
+        data["courseId"] = this.courseId;
+        data["funderType"] = this.funderType;
+        data["maxRedemptions"] = this.maxRedemptions;
+        data["maxRedemptionsPerUser"] = this.maxRedemptionsPerUser;
+        data["startsAt"] = this.startsAt ? this.startsAt.toISOString() : <any>undefined;
+        data["expiresAt"] = this.expiresAt ? this.expiresAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICreateCouponCommand {
+    code?: string | undefined;
+    name?: string | undefined;
+    description?: string | undefined;
+    type?: CouponType;
+    discountValue?: number;
+    scopeType?: CouponScopeType;
+    courseId?: number;
+    funderType?: CouponFunderType;
+    maxRedemptions?: number;
+    maxRedemptionsPerUser?: number;
+    startsAt?: Date;
+    expiresAt?: Date;
+}
+
+export class CouponApplicationResult implements ICouponApplicationResult {
+    isValid?: boolean;
+    errorMessage?: string | undefined;
+    couponCode?: string | undefined;
+    couponId?: number;
+    funderType?: CouponFunderType;
+    items?: CouponItemDiscount[] | undefined;
+    totalDiscountAmount?: number;
+    discountedTotal?: number;
+
+    constructor(data?: ICouponApplicationResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isValid = _data["isValid"];
+            this.errorMessage = _data["errorMessage"];
+            this.couponCode = _data["couponCode"];
+            this.couponId = _data["couponId"];
+            this.funderType = _data["funderType"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CouponItemDiscount.fromJS(item));
+            }
+            this.totalDiscountAmount = _data["totalDiscountAmount"];
+            this.discountedTotal = _data["discountedTotal"];
+        }
+    }
+
+    static fromJS(data: any): CouponApplicationResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new CouponApplicationResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isValid"] = this.isValid;
+        data["errorMessage"] = this.errorMessage;
+        data["couponCode"] = this.couponCode;
+        data["couponId"] = this.couponId;
+        data["funderType"] = this.funderType;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalDiscountAmount"] = this.totalDiscountAmount;
+        data["discountedTotal"] = this.discountedTotal;
+        return data;
+    }
+}
+
+export interface ICouponApplicationResult {
+    isValid?: boolean;
+    errorMessage?: string | undefined;
+    couponCode?: string | undefined;
+    couponId?: number;
+    funderType?: CouponFunderType;
+    items?: CouponItemDiscount[] | undefined;
+    totalDiscountAmount?: number;
+    discountedTotal?: number;
+}
+
+export class CouponItemDiscount implements ICouponItemDiscount {
+    courseId?: number;
+    originalPrice?: number;
+    discountedPrice?: number;
+    discountAmount?: number;
+
+    constructor(data?: ICouponItemDiscount) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.originalPrice = _data["originalPrice"];
+            this.discountedPrice = _data["discountedPrice"];
+            this.discountAmount = _data["discountAmount"];
+        }
+    }
+
+    static fromJS(data: any): CouponItemDiscount {
+        data = typeof data === 'object' ? data : {};
+        let result = new CouponItemDiscount();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["originalPrice"] = this.originalPrice;
+        data["discountedPrice"] = this.discountedPrice;
+        data["discountAmount"] = this.discountAmount;
+        return data;
+    }
+}
+
+export interface ICouponItemDiscount {
+    courseId?: number;
+    originalPrice?: number;
+    discountedPrice?: number;
+    discountAmount?: number;
+}
+
+export class ValidateCouponQuery implements IValidateCouponQuery {
+    code?: string | undefined;
+    courseIds?: number[] | undefined;
+
+    constructor(data?: IValidateCouponQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            if (Array.isArray(_data["courseIds"])) {
+                this.courseIds = [] as any;
+                for (let item of _data["courseIds"])
+                    this.courseIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ValidateCouponQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValidateCouponQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        if (Array.isArray(this.courseIds)) {
+            data["courseIds"] = [];
+            for (let item of this.courseIds)
+                data["courseIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IValidateCouponQuery {
+    code?: string | undefined;
+    courseIds?: number[] | undefined;
+}
+
 export class PaginatedListOfCourseAnswerDto implements IPaginatedListOfCourseAnswerDto {
     items?: CourseAnswerDto[] | undefined;
     pageNumber?: number;
@@ -11801,6 +13817,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     congratulationsMessage?: string | undefined;
     price?: number;
     categoryId?: number;
+    allowPlatformCoupons?: boolean;
     content?: string | undefined;
     totalStudents?: number;
 
@@ -11834,6 +13851,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             this.congratulationsMessage = _data["congratulationsMessage"];
             this.price = _data["price"];
             this.categoryId = _data["categoryId"];
+            this.allowPlatformCoupons = _data["allowPlatformCoupons"];
             this.content = _data["content"];
             this.totalStudents = _data["totalStudents"];
         }
@@ -11867,6 +13885,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["congratulationsMessage"] = this.congratulationsMessage;
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
+        data["allowPlatformCoupons"] = this.allowPlatformCoupons;
         data["content"] = this.content;
         data["totalStudents"] = this.totalStudents;
         return data;
@@ -11889,6 +13908,7 @@ export interface IGetCourseByIdDto {
     congratulationsMessage?: string | undefined;
     price?: number;
     categoryId?: number;
+    allowPlatformCoupons?: boolean;
     content?: string | undefined;
     totalStudents?: number;
 }
@@ -13926,6 +15946,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
     congratulationsMessage?: string | undefined;
     price?: number;
     categoryId?: number;
+    allowPlatformCoupons?: boolean | undefined;
     content?: string | undefined;
 
     constructor(data?: IUpdateCourseCommand) {
@@ -13970,6 +15991,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
             this.congratulationsMessage = _data["congratulationsMessage"];
             this.price = _data["price"];
             this.categoryId = _data["categoryId"];
+            this.allowPlatformCoupons = _data["allowPlatformCoupons"];
             this.content = _data["content"];
         }
     }
@@ -14014,6 +16036,7 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
         data["congratulationsMessage"] = this.congratulationsMessage;
         data["price"] = this.price;
         data["categoryId"] = this.categoryId;
+        data["allowPlatformCoupons"] = this.allowPlatformCoupons;
         data["content"] = this.content;
         return data;
     }
@@ -14035,6 +16058,7 @@ export interface IUpdateCourseCommand {
     congratulationsMessage?: string | undefined;
     price?: number;
     categoryId?: number;
+    allowPlatformCoupons?: boolean | undefined;
     content?: string | undefined;
 }
 
@@ -15237,6 +17261,102 @@ export interface IInstructorStudentCourseDetailDto {
     totalItems?: number;
 }
 
+export class TaxProfileDto implements ITaxProfileDto {
+    realName?: string;
+    taxIdentificationNumber?: string;
+    taxCountryCode?: string;
+    countryName?: string;
+    withholdingRate?: number;
+
+    constructor(data?: ITaxProfileDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.realName = _data["realName"];
+            this.taxIdentificationNumber = _data["taxIdentificationNumber"];
+            this.taxCountryCode = _data["taxCountryCode"];
+            this.countryName = _data["countryName"];
+            this.withholdingRate = _data["withholdingRate"];
+        }
+    }
+
+    static fromJS(data: any): TaxProfileDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TaxProfileDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["realName"] = this.realName;
+        data["taxIdentificationNumber"] = this.taxIdentificationNumber;
+        data["taxCountryCode"] = this.taxCountryCode;
+        data["countryName"] = this.countryName;
+        data["withholdingRate"] = this.withholdingRate;
+        return data;
+    }
+}
+
+export interface ITaxProfileDto {
+    realName?: string;
+    taxIdentificationNumber?: string;
+    taxCountryCode?: string;
+    countryName?: string;
+    withholdingRate?: number;
+}
+
+export class UpsertMyTaxProfileCommand implements IUpsertMyTaxProfileCommand {
+    realName?: string | undefined;
+    taxIdentificationNumber?: string | undefined;
+    taxCountryCode?: string | undefined;
+
+    constructor(data?: IUpsertMyTaxProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.realName = _data["realName"];
+            this.taxIdentificationNumber = _data["taxIdentificationNumber"];
+            this.taxCountryCode = _data["taxCountryCode"];
+        }
+    }
+
+    static fromJS(data: any): UpsertMyTaxProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpsertMyTaxProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["realName"] = this.realName;
+        data["taxIdentificationNumber"] = this.taxIdentificationNumber;
+        data["taxCountryCode"] = this.taxCountryCode;
+        return data;
+    }
+}
+
+export interface IUpsertMyTaxProfileCommand {
+    realName?: string | undefined;
+    taxIdentificationNumber?: string | undefined;
+    taxCountryCode?: string | undefined;
+}
+
 export class InstructorWalletDto implements IInstructorWalletDto {
     id?: number;
     balance?: number;
@@ -15355,7 +17475,11 @@ export class InstructorWalletTransactionDto implements IInstructorWalletTransact
     orderId?: number;
     courseId?: number;
     amount?: number;
-    currency?: string | undefined;
+    withholdingAmount?: number | undefined;
+    netAmount?: number | undefined;
+    withholdingRate?: number | undefined;
+    taxCountryCode?: string | undefined;
+    currency?: string;
     status?: InstructorWalletTransactionStatus;
 
     constructor(data?: IInstructorWalletTransactionDto) {
@@ -15374,6 +17498,10 @@ export class InstructorWalletTransactionDto implements IInstructorWalletTransact
             this.orderId = _data["orderId"];
             this.courseId = _data["courseId"];
             this.amount = _data["amount"];
+            this.withholdingAmount = _data["withholdingAmount"];
+            this.netAmount = _data["netAmount"];
+            this.withholdingRate = _data["withholdingRate"];
+            this.taxCountryCode = _data["taxCountryCode"];
             this.currency = _data["currency"];
             this.status = _data["status"];
         }
@@ -15393,6 +17521,10 @@ export class InstructorWalletTransactionDto implements IInstructorWalletTransact
         data["orderId"] = this.orderId;
         data["courseId"] = this.courseId;
         data["amount"] = this.amount;
+        data["withholdingAmount"] = this.withholdingAmount;
+        data["netAmount"] = this.netAmount;
+        data["withholdingRate"] = this.withholdingRate;
+        data["taxCountryCode"] = this.taxCountryCode;
         data["currency"] = this.currency;
         data["status"] = this.status;
         return data;
@@ -15405,7 +17537,11 @@ export interface IInstructorWalletTransactionDto {
     orderId?: number;
     courseId?: number;
     amount?: number;
-    currency?: string | undefined;
+    withholdingAmount?: number | undefined;
+    netAmount?: number | undefined;
+    withholdingRate?: number | undefined;
+    taxCountryCode?: string | undefined;
+    currency?: string;
     status?: InstructorWalletTransactionStatus;
 }
 
@@ -15413,6 +17549,102 @@ export enum InstructorWalletTransactionStatus {
     Succeeded = 0,
     Processing = 1,
     Cancelled = 2,
+}
+
+export class WithdrawalPreviewDto implements IWithdrawalPreviewDto {
+    grossAmount?: number;
+    withholdingRate?: number;
+    withholdingAmount?: number;
+    netAmount?: number;
+    taxCountryCode?: string | undefined;
+    currency?: string;
+
+    constructor(data?: IWithdrawalPreviewDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.grossAmount = _data["grossAmount"];
+            this.withholdingRate = _data["withholdingRate"];
+            this.withholdingAmount = _data["withholdingAmount"];
+            this.netAmount = _data["netAmount"];
+            this.taxCountryCode = _data["taxCountryCode"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): WithdrawalPreviewDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new WithdrawalPreviewDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["grossAmount"] = this.grossAmount;
+        data["withholdingRate"] = this.withholdingRate;
+        data["withholdingAmount"] = this.withholdingAmount;
+        data["netAmount"] = this.netAmount;
+        data["taxCountryCode"] = this.taxCountryCode;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IWithdrawalPreviewDto {
+    grossAmount?: number;
+    withholdingRate?: number;
+    withholdingAmount?: number;
+    netAmount?: number;
+    taxCountryCode?: string | undefined;
+    currency?: string;
+}
+
+export class GetWithdrawalPreviewQuery implements IGetWithdrawalPreviewQuery {
+    amount?: number;
+    currency?: string;
+
+    constructor(data?: IGetWithdrawalPreviewQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.currency = _data["currency"];
+        }
+    }
+
+    static fromJS(data: any): GetWithdrawalPreviewQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetWithdrawalPreviewQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["currency"] = this.currency;
+        return data;
+    }
+}
+
+export interface IGetWithdrawalPreviewQuery {
+    amount?: number;
+    currency?: string;
 }
 
 export class WithdrawFromInstructorWalletCommand implements IWithdrawFromInstructorWalletCommand {
@@ -15522,14 +17754,18 @@ export interface IPaginatedListOfAdminWithdrawalRequestDto {
 export class AdminWithdrawalRequestDto implements IAdminWithdrawalRequestDto {
     id?: number;
     created?: Date;
-    instructorId?: string | undefined;
-    instructorName?: string | undefined;
-    instructorEmail?: string | undefined;
+    instructorId?: string;
+    instructorName?: string;
+    instructorEmail?: string;
     amount?: number;
-    currency?: string | undefined;
-    bank?: string | undefined;
-    bankNumber?: string | undefined;
-    bankAccountHolder?: string | undefined;
+    withholdingAmount?: number;
+    netAmount?: number;
+    withholdingRate?: number;
+    taxCountryCode?: string | undefined;
+    currency?: string;
+    bank?: string;
+    bankNumber?: string;
+    bankAccountHolder?: string;
     status?: InstructorWalletTransactionStatus;
 
     constructor(data?: IAdminWithdrawalRequestDto) {
@@ -15549,6 +17785,10 @@ export class AdminWithdrawalRequestDto implements IAdminWithdrawalRequestDto {
             this.instructorName = _data["instructorName"];
             this.instructorEmail = _data["instructorEmail"];
             this.amount = _data["amount"];
+            this.withholdingAmount = _data["withholdingAmount"];
+            this.netAmount = _data["netAmount"];
+            this.withholdingRate = _data["withholdingRate"];
+            this.taxCountryCode = _data["taxCountryCode"];
             this.currency = _data["currency"];
             this.bank = _data["bank"];
             this.bankNumber = _data["bankNumber"];
@@ -15572,6 +17812,10 @@ export class AdminWithdrawalRequestDto implements IAdminWithdrawalRequestDto {
         data["instructorName"] = this.instructorName;
         data["instructorEmail"] = this.instructorEmail;
         data["amount"] = this.amount;
+        data["withholdingAmount"] = this.withholdingAmount;
+        data["netAmount"] = this.netAmount;
+        data["withholdingRate"] = this.withholdingRate;
+        data["taxCountryCode"] = this.taxCountryCode;
         data["currency"] = this.currency;
         data["bank"] = this.bank;
         data["bankNumber"] = this.bankNumber;
@@ -15584,14 +17828,18 @@ export class AdminWithdrawalRequestDto implements IAdminWithdrawalRequestDto {
 export interface IAdminWithdrawalRequestDto {
     id?: number;
     created?: Date;
-    instructorId?: string | undefined;
-    instructorName?: string | undefined;
-    instructorEmail?: string | undefined;
+    instructorId?: string;
+    instructorName?: string;
+    instructorEmail?: string;
     amount?: number;
-    currency?: string | undefined;
-    bank?: string | undefined;
-    bankNumber?: string | undefined;
-    bankAccountHolder?: string | undefined;
+    withholdingAmount?: number;
+    netAmount?: number;
+    withholdingRate?: number;
+    taxCountryCode?: string | undefined;
+    currency?: string;
+    bank?: string;
+    bankNumber?: string;
+    bankAccountHolder?: string;
     status?: InstructorWalletTransactionStatus;
 }
 
@@ -16993,6 +19241,8 @@ export class CreatePaymentIntentDto implements ICreatePaymentIntentDto {
     clientSecret?: string | undefined;
     amount?: number;
     paymentIntentId?: string | undefined;
+    vatAmount?: number;
+    vatRate?: number;
 
     constructor(data?: ICreatePaymentIntentDto) {
         if (data) {
@@ -17008,6 +19258,8 @@ export class CreatePaymentIntentDto implements ICreatePaymentIntentDto {
             this.clientSecret = _data["clientSecret"];
             this.amount = _data["amount"];
             this.paymentIntentId = _data["paymentIntentId"];
+            this.vatAmount = _data["vatAmount"];
+            this.vatRate = _data["vatRate"];
         }
     }
 
@@ -17023,6 +19275,8 @@ export class CreatePaymentIntentDto implements ICreatePaymentIntentDto {
         data["clientSecret"] = this.clientSecret;
         data["amount"] = this.amount;
         data["paymentIntentId"] = this.paymentIntentId;
+        data["vatAmount"] = this.vatAmount;
+        data["vatRate"] = this.vatRate;
         return data;
     }
 }
@@ -17031,10 +19285,14 @@ export interface ICreatePaymentIntentDto {
     clientSecret?: string | undefined;
     amount?: number;
     paymentIntentId?: string | undefined;
+    vatAmount?: number;
+    vatRate?: number;
 }
 
 export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
     courseIds?: number[] | undefined;
+    couponCode?: string | undefined;
+    billingCountryCode?: string | undefined;
 
     constructor(data?: ICreatePaymentIntentCommand) {
         if (data) {
@@ -17052,6 +19310,8 @@ export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
                 for (let item of _data["courseIds"])
                     this.courseIds!.push(item);
             }
+            this.couponCode = _data["couponCode"];
+            this.billingCountryCode = _data["billingCountryCode"];
         }
     }
 
@@ -17069,12 +19329,16 @@ export class CreatePaymentIntentCommand implements ICreatePaymentIntentCommand {
             for (let item of this.courseIds)
                 data["courseIds"].push(item);
         }
+        data["couponCode"] = this.couponCode;
+        data["billingCountryCode"] = this.billingCountryCode;
         return data;
     }
 }
 
 export interface ICreatePaymentIntentCommand {
     courseIds?: number[] | undefined;
+    couponCode?: string | undefined;
+    billingCountryCode?: string | undefined;
 }
 
 export class ConfirmPaymentDto implements IConfirmPaymentDto {
@@ -17263,6 +19527,54 @@ export interface IOrderItemDto {
     courseId?: number;
     courseName?: string | undefined;
     price?: number;
+}
+
+export class TaxRegionDto2 implements ITaxRegionDto2 {
+    countryCode?: string | undefined;
+    countryName?: string | undefined;
+    vatRate?: number;
+    withholdingRate?: number;
+
+    constructor(data?: ITaxRegionDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.countryCode = _data["countryCode"];
+            this.countryName = _data["countryName"];
+            this.vatRate = _data["vatRate"];
+            this.withholdingRate = _data["withholdingRate"];
+        }
+    }
+
+    static fromJS(data: any): TaxRegionDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new TaxRegionDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["countryCode"] = this.countryCode;
+        data["countryName"] = this.countryName;
+        data["vatRate"] = this.vatRate;
+        data["withholdingRate"] = this.withholdingRate;
+        return data;
+    }
+}
+
+export interface ITaxRegionDto2 {
+    countryCode?: string | undefined;
+    countryName?: string | undefined;
+    vatRate?: number;
+    withholdingRate?: number;
 }
 
 export class QdrantCollectionListDto implements IQdrantCollectionListDto {

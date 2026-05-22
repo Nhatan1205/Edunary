@@ -69,6 +69,12 @@ public class ApplicationDbContextInitialiser
     public async Task TrySeedAsync()
     {
         // Default roles
+        var superAdminRole = new ApplicationRole(Roles.SuperAdmin);
+        if (_roleManager.Roles.All(r => r.Name != superAdminRole.Name))
+        {
+            await _roleManager.CreateAsync(superAdminRole);
+        }
+
         var administratorRole = new ApplicationRole(Roles.Administrator);
 
         if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
@@ -89,6 +95,17 @@ public class ApplicationDbContextInitialiser
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
                 await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
+            }
+        }
+
+        var superAdmin = new ApplicationUser { UserName = "superadmin@localhost.com", Email = "superadmin@localhost.com" };
+
+        if (_userManager.Users.All(u => u.UserName != superAdmin.UserName))
+        {
+            await _userManager.CreateAsync(superAdmin, "SuperAdmin1!");
+            if (!string.IsNullOrWhiteSpace(superAdminRole.Name))
+            {
+                await _userManager.AddToRolesAsync(superAdmin, new[] { superAdminRole.Name });
             }
         }
 

@@ -11,7 +11,7 @@ public class ActivityLogs : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapGet(GetActivityLogs)
             .MapDelete(DeleteActivityLogs);
     }

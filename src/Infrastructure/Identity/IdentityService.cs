@@ -1454,6 +1454,12 @@ public class IdentityService : IIdentityService
             if (user == null)
                 return Result.Failure("User not found.");
 
+            // Protect the SuperAdmin account — cannot be banned or suspended
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.Contains(Roles.SuperAdmin))
+                return Result.Failure("Cannot restrict the SuperAdmin account.");
+
+
             if (durationDays.HasValue)
             {
                 user.Status = UserStatus.Suspended;
@@ -1500,14 +1506,19 @@ public class IdentityService : IIdentityService
             if (userId == currentAdminId)
                 return Result.Failure("Cannot change your own role.");
 
+            // SuperAdmin can only promote/demote to User or Administrator, not to SuperAdmin (only 1 SuperAdmin allowed)
             if (newRole != Roles.User && newRole != Roles.Administrator)
-                return Result.Failure("Invalid role. Must be 'User' or 'Administrator'.");
+                return Result.Failure("Invalid role. Can only assign 'User' or 'Administrator' role.");
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return Result.Failure("User not found.");
 
             var currentRoles = await _userManager.GetRolesAsync(user);
+
+            // Protect the single SuperAdmin account — its role cannot be changed
+            if (currentRoles.Contains(Roles.SuperAdmin))
+                return Result.Failure("Cannot change the role of the SuperAdmin account.");
 
             if (currentRoles.Contains(newRole))
                 return Result.Failure($"User already has role '{newRole}'.");

@@ -72,9 +72,11 @@ const statusMap = {
 };
 
 const roleMap = {
-    Administrator: { bg: "secondaryBrand.lighter", color: "secondaryBrand.dark" },
-    User:          { bg: "brand.lighter",           color: "brand.dark" },
+    SuperAdmin:    { bg: "warning.lighter", color: "warning.darker" },
+    Administrator: { bg: "secondaryBrand.lighter",   color: "secondaryBrand.dark" },
+    User:          { bg: "brand.lighter",             color: "brand.dark" },
 };
+
 
 const courseStatusMap = {
     Published: { bg: "success.lighter", color: "success.dark" },

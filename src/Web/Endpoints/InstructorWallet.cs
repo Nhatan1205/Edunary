@@ -26,7 +26,7 @@ public class InstructorWallet : EndpointGroupBase
 
         // Admin
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapGet(GetAdminWithdrawalRequests, "admin/withdrawal-requests")
             .MapGet(GetAdminWithdrawalRequestStatusCounts, "admin/withdrawal-requests/status-counts")
             .MapPost(ApproveWithdrawal, "withdrawals/{id:int}/approve")

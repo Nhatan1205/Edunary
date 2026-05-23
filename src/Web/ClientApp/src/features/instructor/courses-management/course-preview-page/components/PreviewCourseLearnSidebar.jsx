@@ -126,10 +126,12 @@ export default function PreviewCourseLearnSidebar({ onClose, courseContents, exp
               <Collapse in={isExpanded}>
                 <Box sx={{ bgcolor: "background.surface" }}>
                   {section.items.map((item, itemIndex) => {
-                    const isSelected = selectedItem?.itemId === item.itemId;
+                    const isSelected = selectedItem?.itemId
+                      ? selectedItem.itemId === item.itemId
+                      : selectedItem?.id === item.id;
                     return (
                       <Box
-                        key={item.itemId}
+                        key={item.itemId ?? item.id}
                         onClick={() => handleItemClick(item)}
                         sx={{ cursor: "pointer" }}
                       >

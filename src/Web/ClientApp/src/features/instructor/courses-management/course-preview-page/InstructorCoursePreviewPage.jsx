@@ -21,10 +21,11 @@ export default function InstructorCoursePreviewPage() {
   useEffect(() => {
     setIsLoading(true);
     const channel = new BroadcastChannel(`preview_channel_${courseId}`);
-    
+
     channel.onmessage = (event) => {
       if (event.data.type === 'SEND_DATA') {
         const sections = event.data.payload;
+        console.log("data: ", sections);
         setCourseContents(sections);
         setIsLoading(false);
         if (sections.length > 0) {
@@ -84,12 +85,12 @@ export default function InstructorCoursePreviewPage() {
         <Slide direction="left" in={isSidebarOpen} mountOnEnter unmountOnExit>
           <Box sx={{ width: "350px", borderLeft: "1px solid #3e4143", bgcolor: "#fff", display: "flex", flexDirection: "column", position: isMobile ? "fixed" : "sticky", top: { xs: "64px", md: "72px" }, right: 0, bottom: 0, height: `calc(100vh - 72px)`, overflowY: "auto", zIndex: 1000 }}>
             <PreviewCourseLearnSidebar
-               onClose={() => setIsSidebarOpen(false)}
-               courseContents={courseContents}
-               expandedSections={expandedSections}
-               handleSectionToggle={handleSectionToggle}
-               selectedItem={selectedItem}
-               handleItemClick={handleItemClick}
+              onClose={() => setIsSidebarOpen(false)}
+              courseContents={courseContents}
+              expandedSections={expandedSections}
+              handleSectionToggle={handleSectionToggle}
+              selectedItem={selectedItem}
+              handleItemClick={handleItemClick}
             />
           </Box>
         </Slide>

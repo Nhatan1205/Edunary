@@ -44,7 +44,7 @@ public class User : EndpointGroupBase
             .MapGet(GetTopInstructors, "top-instructors");
 
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapGet(AdminGetUsers, "admin")
             .MapGet(AdminGetUserStatusCounts, "admin/status-counts")
             .MapGet(AdminGetUserDetail, "admin/{userId}")

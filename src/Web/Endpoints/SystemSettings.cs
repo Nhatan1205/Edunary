@@ -11,7 +11,7 @@ public class SystemSettings : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapPost(GetSystemSettings)
             .MapPut(UpdateSystemSettings);
 

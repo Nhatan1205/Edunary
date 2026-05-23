@@ -20,7 +20,7 @@ public class Categories : EndpointGroupBase
 
         // Admin
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapGet(AdminGetCategoryStats, "admin/stats")
             .MapGet(AdminGetCategories, "admin")
             .MapPost(AdminCreateCategory, "admin")

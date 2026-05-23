@@ -12,7 +12,7 @@ public class CourseEmbeddings : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapPost(BatchEmbed, "batch-embed")
             .MapGet(GetSyncStatus, "sync-status")
             .MapPost(EmbedSingle, "{id:int}/embed")

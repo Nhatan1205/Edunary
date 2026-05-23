@@ -184,11 +184,14 @@ export const tokenService = {
     const role = this.getUserRole();
     if (!role) return false;
 
+    const adminRoles = ['admin', 'administrator', 'superadmin'];
+
     // Handle both string and array roles
     if (Array.isArray(role)) {
-      return role.some(r => r?.toLowerCase() === 'admin' || r?.toLowerCase() === 'administrator');
+      return role.some(r => adminRoles.includes(r?.toLowerCase()));
     }
 
-    return role.toLowerCase() === 'admin' || role.toLowerCase() === 'administrator';
+    return adminRoles.includes(role.toLowerCase());
   },
+
 };

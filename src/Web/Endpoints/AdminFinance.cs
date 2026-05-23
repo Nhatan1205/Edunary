@@ -20,7 +20,7 @@ public class AdminFinance : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapGet(GetSummary, "summary")
             .MapGet(GetLedger, "ledger")
             .MapGet(GetTaxReport, "tax-report")

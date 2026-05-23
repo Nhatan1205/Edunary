@@ -1,4 +1,4 @@
-﻿using Edunary.Application.Common.Models;
+using Edunary.Application.Common.Models;
 using Edunary.Application.Topics.Commands.CreateTopicCommand;
 using Edunary.Application.Topics.Commands.DeleteTopicCommand;
 using Edunary.Application.Topics.Commands.UpdateTopicCommand;
@@ -18,7 +18,7 @@ public class Topics : EndpointGroupBase
 
         // Admin
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapPost(CreateTopic, "admin")
             .MapPut(UpdateTopic, "admin")
             .MapDelete(DeleteTopic, "admin");

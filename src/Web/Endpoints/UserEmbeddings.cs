@@ -12,7 +12,7 @@ public class UserEmbeddings : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapPost(BatchEmbedUsers, "user-batch-embed")
             .MapGet(GetUserEmbeddingSyncStatus, "sync-status")
             .MapPost(EmbedSingleUser, "{userId}/embed");

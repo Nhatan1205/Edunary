@@ -13,7 +13,7 @@ public class QdrantDashboard : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapGet(GetCollections)
             .MapGet(GetCollectionInfo, "{name}")
             .MapGet(GetPoints, "{name}/points")

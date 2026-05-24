@@ -118,6 +118,26 @@ export default function CourseManageSidebar({ sections, setActiveLabel }) {
                         },
                       }}
                     />
+                    {item.badgeCount > 0 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          bgcolor: "error.main",
+                          color: "#fff",
+                          fontSize: "0.72rem",
+                          fontWeight: 700,
+                          minWidth: 18,
+                          height: 18,
+                          borderRadius: "50%",
+                          px: 0.5,
+                          mr: 1.5,
+                        }}
+                      >
+                        {item.badgeCount}
+                      </Box>
+                    )}
                   </ListItem>
                 );
               })}

@@ -26,7 +26,7 @@ public class CourseReviews : EndpointGroupBase
             .MapPut(ResolveReviewFeedback, "feedback/{feedbackId:int}/resolve");
 
         app.MapGroup(this)
-            .RequireAuthorization(Policies.SuperAdmin)
+            .RequireAuthorization(Policies.Admin)
             .MapGet(GetCourseReviewSubmissions, "admin/pending")
             .MapGet(GetCourseReviewSubmissionsCounts, "admin/pending/counts")
             .MapGet(GetCoursePreviewForAdmin, "admin/preview/{submissionId:int}")

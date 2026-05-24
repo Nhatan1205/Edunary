@@ -3,6 +3,7 @@ import {
   Box, Typography, Button, Divider, Chip,
   IconButton, Drawer, Alert, CircularProgress,
   Select, MenuItem, FormControl, InputLabel, Tooltip,
+  Collapse,
 } from "@mui/material";
 import AddCommentOutlinedIcon from "@mui/icons-material/AddCommentOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
@@ -11,6 +12,8 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import FeedbackOutlinedIcon from "@mui/icons-material/FeedbackOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CloseIcon from "@mui/icons-material/Close";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import DOMPurify from "dompurify";
 import TextEditor from "../../../../../../components/TextEditor";
 import {
@@ -206,8 +209,151 @@ function FeedbackItemRow({ item, onDelete, isDeleting, updateMutation, disabled 
   );
 }
 
+// ── HistorySubmissionRow ──────────────────────────────────────────────────────
+
+function HistorySubmissionRow({ item }) {
+  const [expanded, setExpanded] = useState(false);
+  const feedbacks = item.feedbacks ?? [];
+
+  const map = {
+    0: { label: "Pending Review", color: "warning" },
+    1: { label: "Needs Changes", color: "error" },
+    2: { label: "Approved", color: "success" },
+  };
+  const statusCfg = map[item.status] ?? map[0];
+
+  return (
+    <Box sx={{ mb: 1.5 }}>
+      <Box
+        onClick={() => setExpanded((p) => !p)}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: 1.5,
+          py: 1,
+          bgcolor: "action.hover",
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: expanded ? "6px 6px 0 0" : "6px",
+          cursor: "pointer",
+          transition: "all 0.2s ease",
+          "&:hover": { bgcolor: "action.selected" },
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+          <Typography variant="caption" sx={{ fontWeight: 700 }}>
+            Sub #{item.submissionNumber}
+          </Typography>
+          <Chip
+            label={statusCfg.label}
+            color={statusCfg.color}
+            size="small"
+            sx={{ fontWeight: 600, height: 16, fontSize: "0.65rem" }}
+          />
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            {feedbacks.length} item{feedbacks.length === 1 ? "" : "s"}
+          </Typography>
+          {expanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
+        </Box>
+      </Box>
+
+      <Collapse in={expanded}>
+        <Box
+          sx={{
+            px: 1.5,
+            py: 1.5,
+            border: "1px solid",
+            borderTop: 0,
+            borderColor: "divider",
+            borderRadius: "0 0 6px 6px",
+            bgcolor: "background.paper",
+            opacity: 0.85,
+          }}
+        >
+          {item.adminNote && (
+            <Box
+              sx={{
+                mb: 1.5,
+                p: 1,
+                bgcolor: "info.lighter",
+                borderRadius: 1,
+                borderLeft: "3px solid",
+                borderColor: "info.main",
+              }}
+            >
+              <Typography variant="caption" sx={{ fontWeight: 600, color: "info.darker", display: "block" }}>
+                Admin Note:
+              </Typography>
+              <Typography variant="caption" sx={{ color: "info.darker", fontSize: "0.75rem" }}>
+                {item.adminNote}
+              </Typography>
+            </Box>
+          )}
+
+          {feedbacks.length === 0 ? (
+            <Typography variant="caption" sx={{ color: "text.secondary", fontStyle: "italic" }}>
+              No feedback items.
+            </Typography>
+          ) : (
+            feedbacks.map((fb) => (
+              <Box
+                key={fb.id}
+                sx={{
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderLeft: "3px solid",
+                  borderLeftColor: fb.feedbackType === 0 ? "error.main" : "warning.main",
+                  borderRadius: "0 6px 6px 0",
+                  mb: 1,
+                  p: 1,
+                  bgcolor: "background.paper",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                  <FeedbackTypeChip type={fb.feedbackType} />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      bgcolor: "background.muted",
+                      color: "text.secondary",
+                      px: 0.5,
+                      borderRadius: "4px",
+                      fontWeight: 600,
+                      fontSize: "0.6rem",
+                    }}
+                  >
+                    {CATEGORY_LABELS[fb.category] ?? fb.category}
+                  </Typography>
+                  {fb.isResolved && (
+                    <Chip
+                      label="Resolved"
+                      size="small"
+                      color="success"
+                      sx={{ height: 14, fontSize: "0.55rem", fontWeight: 700 }}
+                    />
+                  )}
+                </Box>
+                <Typography
+                  variant="caption"
+                  component="div"
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(fb.content) }}
+                  sx={{ color: "text.secondary", lineHeight: 1.5, fontSize: "0.75rem" }}
+                />
+              </Box>
+            ))
+          )}
+        </Box>
+      </Collapse>
+    </Box>
+  );
+}
+
 export default function FeedbackDrawer({
   open, onClose, feedbacks, submissionInfo,
+  submissionHistory = [],
   saveMutation, deleteMutation, updateMutation, requestChangesMutation, approveMutation, onApproveClick,
 }) {
   const isNeedFixed = submissionInfo?.status === 1;
@@ -272,6 +418,18 @@ export default function FeedbackDrawer({
               updateMutation={updateMutation}
               disabled={isNeedFixed} />
           ))
+        )}
+
+        {submissionHistory && submissionHistory.length > 0 && (
+          <Box sx={{ mt: 4 }}>
+            <Divider sx={{ my: 2.5 }} />
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5, color: "text.primary" }}>
+              Previous Submissions ({submissionHistory.length})
+            </Typography>
+            {submissionHistory.map((item) => (
+              <HistorySubmissionRow key={item.submissionNumber} item={item} />
+            ))}
+          </Box>
         )}
       </Box>
 

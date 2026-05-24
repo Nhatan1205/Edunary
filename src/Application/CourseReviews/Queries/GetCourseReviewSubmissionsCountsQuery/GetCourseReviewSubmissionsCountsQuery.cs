@@ -23,6 +23,9 @@ public class GetCourseReviewSubmissionsCountsQueryHandler : IRequestHandler<GetC
     {
         var query = _context.CourseReviewSubmissions.AsNoTracking();
 
+        // Only get the latest submission for each course
+        query = query.Where(s => !_context.CourseReviewSubmissions.Any(s2 => s2.CourseId == s.CourseId && s2.SubmissionNumber > s.SubmissionNumber));
+
         if (request.IsFirstSubmissionOnly == true)
         {
             query = query.Where(s => s.SubmissionNumber == 1);

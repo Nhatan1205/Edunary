@@ -82,18 +82,18 @@ public class RequestChangesCommandHandler : IRequestHandler<RequestChangesComman
             imageUrl: submission.Course.ImageUrl ?? string.Empty);
 
         // Email instructor
-        // var instructor = await _identityService.GetUserById(instructorId);
-        // if (instructor != null && !string.IsNullOrEmpty(instructor.Email))
-        // {
-        //     var actionUrl = $"{_appSettings.ClientUrl}/instructor/courses/{courseId}/review";
-        //     var html = EmailTemplates.BuildCourseNeedsChangesTemplate(
-        //         instructor.FullName ?? instructor.Email,
-        //         courseTitle,
-        //         request.AdminNote,
-        //         actionUrl);
+        var instructor = await _identityService.GetUserById(instructorId);
+        if (instructor != null && !string.IsNullOrEmpty(instructor.Email))
+        {
+            var actionUrl = $"{_appSettings.ClientUrl}/instructor/courses/{courseId}/manage/feedback";
+            var html = EmailTemplates.BuildCourseNeedsChangesTemplate(
+                instructor.FullName ?? instructor.Email,
+                courseTitle,
+                request.AdminNote,
+                actionUrl);
 
-        //     await _emailService.SendEmailAsync(instructor.Email, "Your course requires changes", html);
-        // }
+            await _emailService.SendEmailAsync(instructor.Email, "Your course requires changes", html);
+        }
 
         return Result.Success(message: "Changes requested successfully.");
     }

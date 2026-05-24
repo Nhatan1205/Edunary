@@ -102,7 +102,7 @@ public class ApproveCourseCommandHandler : IRequestHandler<ApproveCourseCommand,
             CongratulationsMessage = course.CongratulationsMessage,
             Price = course.Price,
             CategoryId = course.CategoryId,
-            AllowPlatformCoupons = course.AllowPlatformCoupons
+            AllowPlatformCoupons = course.AllowPlatformCoupons,
             Content = course.Content,
             TopicIds = JsonSerializer.Serialize(course.Topics.Select(t => t.Id).ToList()),
             MediaFilesJson = JsonSerializer.Serialize(
@@ -173,30 +173,30 @@ public class ApproveCourseCommandHandler : IRequestHandler<ApproveCourseCommand,
 
         // Notify instructor
 
-        // var instructorId = course.CreatedBy;
+        var instructorId = course.CreatedBy;
 
-        // await _notifyService.NotifyUserAsync(
-        //     instructorId,
-        //     "Course Approved & Published! 🎉",
-        //     $"Your course \"{course.Title}\" has been approved and is now live.",
-        //     "course_approved",
-        //     new { courseId },
-        //     cancellationToken,
-        //     courseId: courseId,
-        //     url: $"/courses/{courseId}",
-        //     imageUrl: course.ImageUrl ?? string.Empty);
+        await _notifyService.NotifyUserAsync(
+            instructorId,
+            "Course Approved & Published! 🎉",
+            $"Your course \"{course.Title}\" has been approved and is now live.",
+            "course_approved",
+            new { courseId },
+            cancellationToken,
+            courseId: courseId,
+            url: $"/course/{courseId}",
+            imageUrl: course.ImageUrl ?? string.Empty);
 
-        // var instructor = await _identityService.GetUserById(instructorId);
-        // if (instructor != null && !string.IsNullOrEmpty(instructor.Email))
-        // {
-        //     var courseUrl = $"{_appSettings.ClientUrl}/courses/{courseId}";
-        //     var html = EmailTemplates.BuildCourseApprovedTemplate(
-        //         instructor.FullName ?? instructor.Email,
-        //         course.Title,
-        //         courseUrl);
+        var instructor = await _identityService.GetUserById(instructorId);
+        if (instructor != null && !string.IsNullOrEmpty(instructor.Email))
+        {
+            var courseUrl = $"{_appSettings.ClientUrl}/course/{courseId}";
+            var html = EmailTemplates.BuildCourseApprovedTemplate(
+                instructor.FullName ?? instructor.Email,
+                course.Title,
+                courseUrl);
 
-        //     await _emailService.SendEmailAsync(instructor.Email, $"Your course \"{course.Title}\" is now published!", html);
-        // }
+            await _emailService.SendEmailAsync(instructor.Email, $"Your course \"{course.Title}\" is now published!", html);
+        }
 
         return Result.Success(message: "Course approved and published successfully.");
     }

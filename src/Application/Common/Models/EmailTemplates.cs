@@ -404,6 +404,247 @@ public static class EmailTemplates
         </html>";
             }
 
+    public static string BuildCourseNeedsChangesTemplate(
+        string instructorName,
+        string courseTitle,
+        string adminNote,
+        string actionUrl,
+        string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
+    {
+        var encodedInstructor = System.Net.WebUtility.HtmlEncode(instructorName);
+        var encodedCourse = System.Net.WebUtility.HtmlEncode(courseTitle);
+        var encodedNote = System.Net.WebUtility.HtmlEncode(adminNote ?? string.Empty);
+
+        return $@"<!doctype html>
+        <html lang=""en"">
+        <head>
+          <meta charset=""utf-8"" />
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+        </head>
+        <body style=""margin:0;padding:0;background:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1d1f;"">
+          <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;"">
+            <tr>
+              <td align=""center"" style=""padding:32px 20px 0;"">
+                <table role=""presentation"" width=""560"" cellpadding=""0"" cellspacing=""0"">
+                  <!-- Logo -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <img src=""{logoUrl}"" alt=""Edunary"" width=""32"" height=""32""
+                        style=""display:inline-block;vertical-align:middle;margin-right:6px;border:0;"" />
+                      <span style=""font-size:20px;font-weight:700;vertical-align:middle;color:#00A76F;"">Edunary</span>
+                    </td>
+                  </tr>
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:24px;""></td></tr>
+                  <!-- Status badge -->
+                  <tr>
+                    <td style=""padding-bottom:20px;"">
+                      <span style=""background:#FFF3CD;color:#856404;font-size:13px;font-weight:600;padding:4px 12px;border-radius:20px;"">Changes Required</span>
+                    </td>
+                  </tr>
+                  <!-- Body -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <p style=""margin:0 0 12px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        Hi <strong>{encodedInstructor}</strong>,
+                      </p>
+                      <p style=""margin:0 0 12px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        Your course <strong>&ldquo;{encodedCourse}&rdquo;</strong> has been reviewed and requires changes before it can be published.
+                      </p>
+                      {(string.IsNullOrWhiteSpace(adminNote) ? "" : $@"<div style=""background:#f8f9fa;border-left:4px solid #ffc107;padding:12px 16px;border-radius:4px;margin-bottom:16px;"">
+                        <p style=""margin:0;font-size:14px;color:#6a6f73;font-style:italic;"">&ldquo;{encodedNote}&rdquo;</p>
+                      </div>")}
+                      <p style=""margin:0 0 20px;font-size:14px;color:#6a6f73;"">
+                        Please address the feedback items in your instructor dashboard, then resubmit for review.
+                      </p>
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""border-radius:4px;background:#00A76F;"">
+                            <a href=""{actionUrl}"" style=""display:inline-block;padding:12px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:4px;"">
+                              View Feedback
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- Divider -->
+                  <tr><td style=""border-top:3px solid #e8e8e8;padding-top:20px;""></td></tr>
+                  <!-- Footer -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <p style=""margin:0;font-size:12px;color:#6a6f73;"">
+                        You're receiving this email because you submitted a course for review on Edunary.<br/>
+                        &copy; {DateTime.UtcNow.Year} Edunary Inc.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>";
+    }
+
+    public static string BuildCourseApprovedTemplate(
+        string instructorName,
+        string courseTitle,
+        string courseUrl,
+        string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
+    {
+        var encodedInstructor = System.Net.WebUtility.HtmlEncode(instructorName);
+        var encodedCourse = System.Net.WebUtility.HtmlEncode(courseTitle);
+
+        return $@"<!doctype html>
+        <html lang=""en"">
+        <head>
+          <meta charset=""utf-8"" />
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+        </head>
+        <body style=""margin:0;padding:0;background:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1d1f;"">
+          <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;"">
+            <tr>
+              <td align=""center"" style=""padding:32px 20px 0;"">
+                <table role=""presentation"" width=""560"" cellpadding=""0"" cellspacing=""0"">
+                  <!-- Logo -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <img src=""{logoUrl}"" alt=""Edunary"" width=""32"" height=""32""
+                        style=""display:inline-block;vertical-align:middle;margin-right:6px;border:0;"" />
+                      <span style=""font-size:20px;font-weight:700;vertical-align:middle;color:#00A76F;"">Edunary</span>
+                    </td>
+                  </tr>
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:24px;""></td></tr>
+                  <!-- Status badge -->
+                  <tr>
+                    <td style=""padding-bottom:20px;"">
+                      <span style=""background:#D4EDDA;color:#155724;font-size:13px;font-weight:600;padding:4px 12px;border-radius:20px;"">🎉 Approved & Published</span>
+                    </td>
+                  </tr>
+                  <!-- Body -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <p style=""margin:0 0 12px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        Congratulations <strong>{encodedInstructor}</strong>!
+                      </p>
+                      <p style=""margin:0 0 20px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        Your course <strong>&ldquo;{encodedCourse}&rdquo;</strong> has been approved and is now live on the Edunary marketplace. Students can now find and enroll in your course.
+                      </p>
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""border-radius:4px;background:#00A76F;"">
+                            <a href=""{courseUrl}"" style=""display:inline-block;padding:12px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:4px;"">
+                              View Your Course
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- Divider -->
+                  <tr><td style=""border-top:3px solid #e8e8e8;padding-top:20px;""></td></tr>
+                  <!-- Footer -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <p style=""margin:0;font-size:12px;color:#6a6f73;"">
+                        You're receiving this email because you submitted a course for review on Edunary.<br/>
+                        &copy; {DateTime.UtcNow.Year} Edunary Inc.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>";
+    }
+
+    public static string BuildCourseUnpublishedTemplate(
+        string instructorName,
+        string courseTitle,
+        string reason,
+        string actionUrl,
+        string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
+    {
+        var encodedInstructor = System.Net.WebUtility.HtmlEncode(instructorName);
+        var encodedCourse = System.Net.WebUtility.HtmlEncode(courseTitle);
+        var encodedReason = System.Net.WebUtility.HtmlEncode(reason ?? string.Empty);
+
+        return $@"<!doctype html>
+        <html lang=""en"">
+        <head>
+          <meta charset=""utf-8"" />
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+        </head>
+        <body style=""margin:0;padding:0;background:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1d1f;"">
+          <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;"">
+            <tr>
+              <td align=""center"" style=""padding:32px 20px 0;"">
+                <table role=""presentation"" width=""560"" cellpadding=""0"" cellspacing=""0"">
+                  <!-- Logo -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <img src=""{logoUrl}"" alt=""Edunary"" width=""32"" height=""32""
+                        style=""display:inline-block;vertical-align:middle;margin-right:6px;border:0;"" />
+                      <span style=""font-size:20px;font-weight:700;vertical-align:middle;color:#00A76F;"">Edunary</span>
+                    </td>
+                  </tr>
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:24px;""></td></tr>
+                  <!-- Status badge -->
+                  <tr>
+                    <td style=""padding-bottom:20px;"">
+                      <span style=""background:#F8D7DA;color:#721C24;font-size:13px;font-weight:600;padding:4px 12px;border-radius:20px;"">Course Unpublished</span>
+                    </td>
+                  </tr>
+                  <!-- Body -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <p style=""margin:0 0 12px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        Hi <strong>{encodedInstructor}</strong>,
+                      </p>
+                      <p style=""margin:0 0 12px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        Your course <strong>&ldquo;{encodedCourse}&rdquo;</strong> has been unpublished by our admin team and is no longer visible in the marketplace.
+                      </p>
+                      {(string.IsNullOrWhiteSpace(reason) ? "" : $@"<div style=""background:#f8f9fa;border-left:4px solid #dc3545;padding:12px 16px;border-radius:4px;margin-bottom:16px;"">
+                        <p style=""margin:0;font-size:14px;color:#6a6f73;""><strong>Reason:</strong> {encodedReason}</p>
+                      </div>")}
+                      <p style=""margin:0 0 20px;font-size:14px;color:#6a6f73;"">
+                        Existing enrolled students can still access the course content. To re-publish, please address any concerns and submit the course for review again.
+                      </p>
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""border-radius:4px;background:#00A76F;"">
+                            <a href=""{actionUrl}"" style=""display:inline-block;padding:12px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:4px;"">
+                              Go to Course Management
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- Divider -->
+                  <tr><td style=""border-top:3px solid #e8e8e8;padding-top:20px;""></td></tr>
+                  <!-- Footer -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <p style=""margin:0;font-size:12px;color:#6a6f73;"">
+                        You're receiving this email because you are an instructor on Edunary.<br/>
+                        &copy; {DateTime.UtcNow.Year} Edunary Inc.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>";
+    }
+
     public static string BuildCollaboratorInvitationTemplate(string ownerName, string courseTitle, string invitationsUrl, string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
     {
         var encodedOwner = System.Net.WebUtility.HtmlEncode(ownerName);

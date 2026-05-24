@@ -15974,6 +15974,8 @@ export class SubmissionHistoryItemDto implements ISubmissionHistoryItemDto {
     status?: ReviewSubmissionStatus;
     createdAt?: Date;
     reviewedAt?: Date | undefined;
+    adminNote?: string | undefined;
+    feedbacks?: FeedbackItemDto[] | undefined;
 
     constructor(data?: ISubmissionHistoryItemDto) {
         if (data) {
@@ -15990,6 +15992,12 @@ export class SubmissionHistoryItemDto implements ISubmissionHistoryItemDto {
             this.status = _data["status"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.reviewedAt = _data["reviewedAt"] ? new Date(_data["reviewedAt"].toString()) : <any>undefined;
+            this.adminNote = _data["adminNote"];
+            if (Array.isArray(_data["feedbacks"])) {
+                this.feedbacks = [] as any;
+                for (let item of _data["feedbacks"])
+                    this.feedbacks!.push(FeedbackItemDto.fromJS(item));
+            }
         }
     }
 
@@ -16006,6 +16014,12 @@ export class SubmissionHistoryItemDto implements ISubmissionHistoryItemDto {
         data["status"] = this.status;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["reviewedAt"] = this.reviewedAt ? this.reviewedAt.toISOString() : <any>undefined;
+        data["adminNote"] = this.adminNote;
+        if (Array.isArray(this.feedbacks)) {
+            data["feedbacks"] = [];
+            for (let item of this.feedbacks)
+                data["feedbacks"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -16015,6 +16029,8 @@ export interface ISubmissionHistoryItemDto {
     status?: ReviewSubmissionStatus;
     createdAt?: Date;
     reviewedAt?: Date | undefined;
+    adminNote?: string | undefined;
+    feedbacks?: FeedbackItemDto[] | undefined;
 }
 
 export class ResolveReviewFeedbackCommand implements IResolveReviewFeedbackCommand {

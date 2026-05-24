@@ -29,7 +29,7 @@ const CATEGORY_LABELS = {
 
 // ── FeedbackCard ─────────────────────────────────────────────────────────────
 
-function FeedbackCard({ item, onToggleResolved }) {
+export function FeedbackCard({ item, onToggleResolved, readOnly = false, disableCollapse = false }) {
   const [expanded, setExpanded] = useState(true);
 
   return (
@@ -53,10 +53,10 @@ function FeedbackCard({ item, onToggleResolved }) {
           justifyContent: "space-between",
           px: 2.5,
           py: 2.5,
-          cursor: "pointer",
-          "&:hover": { bgcolor: "background.alt" },
+          cursor: disableCollapse ? "default" : "pointer",
+          "&:hover": { bgcolor: disableCollapse ? "transparent" : "background.alt" },
         }}
-        onClick={() => setExpanded((p) => !p)}
+        onClick={disableCollapse ? undefined : () => setExpanded((p) => !p)}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
           <Typography
@@ -87,38 +87,42 @@ function FeedbackCard({ item, onToggleResolved }) {
           )}
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
-          <Button
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleResolved(item.id, item.isResolved);
-            }}
-            sx={{
-              color: item.isResolved ? "success.main" : "text.secondary",
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: "0.8rem",
-              textDecoration: "none",
-              p: 0.5,
-              minWidth: 0,
-              "&:hover": {
-                textDecoration: "underline",
-                bgcolor: "transparent",
-              },
-            }}
-          >
-            {item.isResolved ? "Unmark as fixed" : "Mark as fixed"}
-          </Button>
-          {expanded ? (
-            <ExpandLessIcon sx={{ fontSize: 18, color: "text.tertiary", ml: 0.5 }} />
-          ) : (
-            <ExpandMoreIcon sx={{ fontSize: 18, color: "text.tertiary", ml: 0.5 }} />
+          {!readOnly && (
+            <Button
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleResolved(item.id, item.isResolved);
+              }}
+              sx={{
+                color: item.isResolved ? "success.main" : "text.secondary",
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: "0.8rem",
+                textDecoration: "none",
+                p: 0.5,
+                minWidth: 0,
+                "&:hover": {
+                  textDecoration: "underline",
+                  bgcolor: "transparent",
+                },
+              }}
+            >
+              {item.isResolved ? "Unmark as fixed" : "Mark as fixed"}
+            </Button>
+          )}
+          {!disableCollapse && (
+            expanded ? (
+              <ExpandLessIcon sx={{ fontSize: 18, color: "text.tertiary", ml: 0.5 }} />
+            ) : (
+              <ExpandMoreIcon sx={{ fontSize: 18, color: "text.tertiary", ml: 0.5 }} />
+            )
           )}
         </Box>
       </Box>
 
       {/* Card body */}
-      <Collapse in={expanded}>
+      <Collapse in={disableCollapse ? true : expanded}>
         <Box sx={{ px: 2.5, pt: 2, pb: 3.5 }}>
           <Typography
             variant="body2"

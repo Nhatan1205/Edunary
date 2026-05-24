@@ -1,4 +1,6 @@
+using AutoMapper;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,26 +16,33 @@ public class GetCourseReviewStatusQueryHandler : IRequestHandler<GetCourseReview
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly ICourseAuthorizationService _courseAuth;
+    private readonly IIdentityService _identityService;
+    private readonly IMapper _mapper;
 
     public GetCourseReviewStatusQueryHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
-        ICourseAuthorizationService courseAuth)
+        ICourseAuthorizationService courseAuth,
+        IIdentityService identityService,
+        IMapper mapper)
     {
         _context = context;
         _currentUserService = currentUserService;
         _courseAuth = courseAuth;
+        _identityService = identityService;
+        _mapper = mapper;
     }
 
     public async Task<CourseReviewStatusDto> Handle(GetCourseReviewStatusQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
 
-        // Access check — owner or collaborator
+        // Access check — owner, collaborator, or administrator
         var hasAccess = await _courseAuth.HasCourseAccessAsync(
             request.CourseId, userId, CoursePermission.None, cancellationToken);
+        var isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator);
 
-        if (!hasAccess)
+        if (!hasAccess && !isAdmin)
         {
             throw new UnauthorizedAccessException("You do not have access to this course.");
         }
@@ -46,56 +55,19 @@ public class GetCourseReviewStatusQueryHandler : IRequestHandler<GetCourseReview
 
         Guard.Against.NotFound(request.CourseId, course);
 
-        // Load all submissions (ordered)
+        // Load all submissions with feedbacks (ordered)
         var submissions = await _context.CourseReviewSubmissions
             .AsNoTracking()
+            .Include(s => s.Feedbacks)
             .Where(s => s.CourseId == request.CourseId)
             .OrderByDescending(s => s.SubmissionNumber)
             .ToListAsync(cancellationToken);
 
-        // Build history from all submissions (no feedbacks — compact)
-        var history = submissions
-            .Skip(1) // skip latest, it's shown in full
-            .Select(s => new SubmissionHistoryItemDto
-            {
-                SubmissionNumber = s.SubmissionNumber,
-                Status = s.Status,
-                CreatedAt = s.Created,
-                ReviewedAt = s.ReviewedAt,
-            })
-            .ToList();
+        // Build history from all submissions (include feedbacks)
+        var history = _mapper.Map<List<SubmissionHistoryItemDto>>(submissions.Skip(1));
 
         var latest = submissions.FirstOrDefault();
-        LatestSubmissionDto latestDto = null;
-
-        if (latest != null)
-        {
-            // Load feedbacks for latest submission only
-            var feedbacks = await _context.CourseReviewFeedbacks
-                .AsNoTracking()
-                .Where(f => f.CourseReviewSubmissionId == latest.Id)
-                .OrderBy(f => f.FeedbackType) // RequiredFix (0) first
-                .ToListAsync(cancellationToken);
-
-            var feedbackDtos = feedbacks.Select(f => new FeedbackItemDto
-            {
-                Id = f.Id,
-                FeedbackType = f.FeedbackType,
-                Category = f.Category,
-                Content = f.Content,
-                IsResolved = f.IsResolved,
-            }).ToList();
-
-            latestDto = new LatestSubmissionDto
-            {
-                Id = latest.Id,
-                SubmissionNumber = latest.SubmissionNumber,
-                Status = latest.Status,
-                ReviewedAt = latest.ReviewedAt,
-                AdminNote = latest.AdminNote,
-                Feedbacks = feedbackDtos,
-            };
-        }
+        var latestDto = latest != null ? _mapper.Map<LatestSubmissionDto>(latest) : null;
 
         return new CourseReviewStatusDto
         {

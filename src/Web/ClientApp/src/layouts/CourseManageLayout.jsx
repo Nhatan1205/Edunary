@@ -5,6 +5,7 @@ import { Outlet, useParams, useLocation, useNavigate, Link as RouterLink } from 
 import PageTitle from "../components/PageTitle";
 import { useMemo, useState, useEffect } from "react";
 import useSubmitCourseForReview from "../hooks/course-review-hooks/useSubmitCourseForReview";
+import useGetCourseReviewStatus from "../hooks/course-review-hooks/useGetCourseReviewStatus";
 
 const HEADER_HEIGHT = 64;
 const SIDEBAR_WIDTH = 272;
@@ -18,6 +19,10 @@ function CourseManageLayout() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const submitMutation = useSubmitCourseForReview();
+
+  const { data: reviewStatusData } = useGetCourseReviewStatus(courseId);
+  const isCoursePublic = reviewStatusData?.courseStatus === 1; // 1 = CourseStatus.Public
+  const feedbackCount = reviewStatusData?.latestSubmission?.feedbacks?.filter(f => !f.isResolved).length ?? 0;
 
   const handleSubmitReview = () => {
     submitMutation.mutate(Number(courseId), {
@@ -86,11 +91,12 @@ function CourseManageLayout() {
           {
             label: "Edunary feedback",
             path: `/instructor/course/${courseId}/manage/feedback`,
+            badgeCount: feedbackCount,
           },
         ],
       },
     ],
-    [courseId],
+    [courseId, feedbackCount],
   );
 
   useEffect(() => {
@@ -160,30 +166,32 @@ function CourseManageLayout() {
           />
 
           {/* ── Submit for review button pinned at sidebar bottom ── */}
-          <Box sx={{ mt: "auto", px: 2, pb: 3, pt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
-            <Button
-              id="submit-for-review-btn"
-              fullWidth
-              variant="contained"
-              onClick={() => setSubmitDialogOpen(true)}
-              sx={{
-                bgcolor: "brand.main",
-                color: "#fff",
-                textTransform: "none",
-                fontWeight: 700,
-                fontSize: "0.875rem",
-                borderRadius: "10px",
-                py: 1.1,
-                boxShadow: "none",
-                "&:hover": {
-                  bgcolor: "brand.dark",
+          {!isCoursePublic && (
+            <Box sx={{ mt: "auto", px: 2, pb: 3, pt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
+              <Button
+                id="submit-for-review-btn"
+                fullWidth
+                variant="contained"
+                onClick={() => setSubmitDialogOpen(true)}
+                sx={{
+                  bgcolor: "brand.main",
+                  color: "#fff",
+                  textTransform: "none",
+                  fontWeight: 700,
+                  fontSize: "0.875rem",
+                  borderRadius: "10px",
+                  py: 1.1,
                   boxShadow: "none",
-                },
-              }}
-            >
-              Submit for review
-            </Button>
-          </Box>
+                  "&:hover": {
+                    bgcolor: "brand.dark",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                Submit for review
+              </Button>
+            </Box>
+          )}
         </Box>
 
         {/* Main content column */}

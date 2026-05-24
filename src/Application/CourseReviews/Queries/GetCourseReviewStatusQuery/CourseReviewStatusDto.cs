@@ -1,3 +1,5 @@
+using AutoMapper;
+using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 
 namespace Edunary.Application.CourseReviews.Queries.GetCourseReviewStatusQuery;
@@ -18,6 +20,15 @@ public class LatestSubmissionDto
     public DateTimeOffset? ReviewedAt { get; set; }
     public string AdminNote { get; set; }
     public List<FeedbackItemDto> Feedbacks { get; set; } = new();
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<CourseReviewSubmission, LatestSubmissionDto>()
+                .ForMember(d => d.Feedbacks, opt => opt.MapFrom(s => s.Feedbacks.OrderBy(f => f.FeedbackType)));
+        }
+    }
 }
 
 public class FeedbackItemDto
@@ -27,6 +38,14 @@ public class FeedbackItemDto
     public ReviewFeedbackCategory Category { get; set; }
     public string Content { get; set; }
     public bool IsResolved { get; set; }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<CourseReviewFeedback, FeedbackItemDto>();
+        }
+    }
 }
 
 public class SubmissionHistoryItemDto
@@ -35,4 +54,16 @@ public class SubmissionHistoryItemDto
     public ReviewSubmissionStatus Status { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? ReviewedAt { get; set; }
+    public string AdminNote { get; set; }
+    public List<FeedbackItemDto> Feedbacks { get; set; } = new();
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<CourseReviewSubmission, SubmissionHistoryItemDto>()
+                .ForMember(d => d.CreatedAt, opt => opt.MapFrom(s => s.Created))
+                .ForMember(d => d.Feedbacks, opt => opt.MapFrom(s => s.Feedbacks.OrderBy(f => f.FeedbackType)));
+        }
+    }
 }

@@ -10,6 +10,7 @@ import DOMPurify from "dompurify";
 
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import useGetCoursePreviewForAdmin from "../../../../../hooks/course-review-hooks/useGetCoursePreviewForAdmin";
+import useGetCourseReviewStatus from "../../../../../hooks/course-review-hooks/useGetCourseReviewStatus";
 import useSaveReviewFeedback from "../../../../../hooks/course-review-hooks/useSaveReviewFeedback";
 import useDeleteReviewFeedback from "../../../../../hooks/course-review-hooks/useDeleteReviewFeedback";
 import useUpdateReviewFeedback from "../../../../../hooks/course-review-hooks/useUpdateReviewFeedback";
@@ -202,6 +203,9 @@ export default function CourseApprovalDetailPage() {
   const submissionInfo = previewData?.submissionInfo;
   const curriculumSections = previewData?.curriculumSections ?? [];
 
+  const { data: reviewStatusData } = useGetCourseReviewStatus(course?.id);
+  const submissionHistory = reviewStatusData?.submissionHistory ?? [];
+
   const requiredUnresolved = feedbacks.filter((f) => f.feedbackType === 0).length;
   const statusCfg = STATUS_COLORS[submissionInfo?.status] ?? STATUS_COLORS[0];
 
@@ -329,6 +333,7 @@ export default function CourseApprovalDetailPage() {
         feedbacks={feedbacks}
         submissionInfo={submissionInfo}
         courseId={course?.id}
+        submissionHistory={submissionHistory}
         saveMutation={saveFeedbackMutation}
         deleteMutation={deleteFeedbackMutation}
         updateMutation={updateFeedbackMutation}

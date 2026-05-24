@@ -118,8 +118,8 @@ function CourseOverviewPage() {
             <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} sx={{ px: 2, gap: 1 }}>
               <MetricTab
                 label="This month so far"
-                value={`$ 0`}
-                subValue="$0.00 total revenue"
+                value={`$ ${Number(courseStats?.summary?.totalRevenueThisMonth || 0).toFixed(2)}`}
+                subValue={`$${Number(courseStats?.summary?.totalRevenue || 0).toFixed(2)} total revenue`}
                 active={tab === 'revenue'}
                 onClick={() => handleTabClick('revenue')}
               />

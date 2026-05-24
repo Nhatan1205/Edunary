@@ -65,6 +65,16 @@ public class GetCoursesStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, 
             ratingQuery = ratingQuery.Where(r => r.CourseId == request.CourseId);
         }
 
+        // -------------------------------
+        // Base QUERY for revenue
+        // -------------------------------
+        var revenueQuery = _context.InstructorWalletTransactions
+            .Where(t => t.InstructorWallet.InstructorId == userId);
+
+        if (request.CourseId is not null)
+        {
+            revenueQuery = revenueQuery.Where(t => t.CourseId == request.CourseId);
+        }
 
         // -------------------------------
         // Date Range
@@ -73,6 +83,7 @@ public class GetCoursesStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, 
 
         var statsEnrollmentQuery = enrollmentQuery.Where(e => e.Created >= startDate);
         var statsRatingQuery = ratingQuery.Where(r => r.Created >= startDate);
+        var statsRevenueQuery = revenueQuery.Where(t => t.Created >= startDate);
 
         // -------------------------------
         // build DATA for CHART
@@ -80,6 +91,10 @@ public class GetCoursesStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, 
         List<DataPointDto> data;
         switch (request.Metric)
         {
+            case "revenue":
+                data = await BuildRevenueStats(statsRevenueQuery, aggregation);
+                break;
+
             case "rating":
                 data = await BuildRatingStats(statsRatingQuery, aggregation);
                 break;
@@ -130,12 +145,17 @@ public class GetCoursesStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, 
             : 0;
 
 
+        var totalRevenue = await revenueQuery.SumAsync(t => (decimal?)t.Amount) ?? 0m;
+        var totalRevenueThisMonth = await revenueQuery
+            .Where(t => t.Created >= startOfMonth)
+            .SumAsync(t => (decimal?)t.Amount) ?? 0m;
+
         var summaryDto = new GetCourseStatsSummaryDto
         {
             TotalEnrollments = totalEnrollments,
             TotalEnrollmentsThisMonth = totalEnrollmentsThisMonth,
-            TotalRevenue = 0,
-            TotalRevenueThisMonth = 0,
+            TotalRevenue = (float)totalRevenue,
+            TotalRevenueThisMonth = (float)totalRevenueThisMonth,
             AverageRating = (float)avgRating,
             AverageRatingThisMonth = (float)avgRatingThisMonth
         };
@@ -144,6 +164,43 @@ public class GetCoursesStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, 
             Stats = statsDto,
             Summary = summaryDto
         };
+    }
+
+    // =====================================================================
+    // BUILD REVENUE STATS
+    // =====================================================================
+    private async Task<List<DataPointDto>> BuildRevenueStats(IQueryable<InstructorWalletTransaction> query, string aggregation)
+    {
+        if (aggregation == "daily")
+        {
+            return await query
+                .GroupBy(t => t.Created.Date)
+                .Select(g => new DataPointDto
+                {
+                    Date = g.Key,
+                    Value = (float)g.Sum(x => x.Amount)
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+        }
+
+        var monthlyData = await query
+            .GroupBy(t => new { t.Created.Year, t.Created.Month })
+            .Select(g => new
+            {
+                g.Key.Year,
+                g.Key.Month,
+                Total = g.Sum(x => x.Amount)
+            })
+            .OrderBy(x => x.Year)
+            .ThenBy(x => x.Month)
+            .ToListAsync();
+
+        return monthlyData.Select(x => new DataPointDto
+        {
+            Date = new DateTime(x.Year, x.Month, 1),
+            Value = (float)x.Total
+        }).ToList();
     }
 
     // =====================================================================

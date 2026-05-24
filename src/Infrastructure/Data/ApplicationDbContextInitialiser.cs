@@ -1,3 +1,4 @@
+using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Constants;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
@@ -31,13 +32,20 @@ public class ApplicationDbContextInitialiser
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly IWithdrawalPayoutLedgerService _withdrawalPayoutLedgerService;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+    public ApplicationDbContextInitialiser(
+        ILogger<ApplicationDbContextInitialiser> logger,
+        ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager,
+        RoleManager<ApplicationRole> roleManager,
+        IWithdrawalPayoutLedgerService withdrawalPayoutLedgerService)
     {
         _logger = logger;
         _context = context;
         _userManager = userManager;
         _roleManager = roleManager;
+        _withdrawalPayoutLedgerService = withdrawalPayoutLedgerService;
     }
 
     public async Task InitialiseAsync()
@@ -235,6 +243,7 @@ public class ApplicationDbContextInitialiser
         await SeedFinancialAccountsAsync();
         await SeedTaxRegionsAsync();
         await SeedRevenueSharePlansAsync();
+        await BackfillPendingPayoutLedgerAsync();
     }
 
     private async Task SeedTaxRegionsAsync()
@@ -319,5 +328,15 @@ public class ApplicationDbContextInitialiser
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    private async Task BackfillPendingPayoutLedgerAsync()
+    {
+        var backfilled = await _withdrawalPayoutLedgerService.BackfillProcessingWithdrawalsAsync(CancellationToken.None);
+
+        if (backfilled > 0)
+        {
+            _logger.LogInformation("Backfilled {Count} pending payout ledger transaction(s).", backfilled);
+        }
     }
 }

@@ -13,10 +13,14 @@ public class CancelWithdrawalRequestCommand : IRequest<Result>
 public class CancelWithdrawalRequestCommandHandler : IRequestHandler<CancelWithdrawalRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IWithdrawalPayoutLedgerService _withdrawalPayoutLedgerService;
 
-    public CancelWithdrawalRequestCommandHandler(IApplicationDbContext context)
+    public CancelWithdrawalRequestCommandHandler(
+        IApplicationDbContext context,
+        IWithdrawalPayoutLedgerService withdrawalPayoutLedgerService)
     {
         _context = context;
+        _withdrawalPayoutLedgerService = withdrawalPayoutLedgerService;
     }
 
     public async Task<Result> Handle(CancelWithdrawalRequestCommand request, CancellationToken cancellationToken)
@@ -51,6 +55,15 @@ public class CancelWithdrawalRequestCommandHandler : IRequestHandler<CancelWithd
         if (currentStatus != InstructorWalletTransactionStatus.Processing)
         {
             return Result.Failure("Withdrawal request is not in processing state");
+        }
+
+        var reversed = await _withdrawalPayoutLedgerService.ReverseInitiatedAsync(
+            request.RequestId,
+            "Withdrawal request cancelled",
+            cancellationToken);
+        if (reversed == null)
+        {
+            return Result.Failure("Withdrawal initiation ledger not found");
         }
 
         withdrawalRequest.Status = InstructorWalletTransactionStatus.Cancelled;

@@ -43,7 +43,6 @@ public class GetFinanceSummaryQueryHandler : IRequestHandler<GetFinanceSummaryQu
             grouped.FirstOrDefault(g => g.AccountCode == code && g.Side == side)?.Total ?? 0m;
 
         var instructorGrossCredits = Get(LedgerAccountCode.InstructorGrossEarnings, EntrySide.Credit);
-        var instructorGrossDebits = Get(LedgerAccountCode.InstructorGrossEarnings, EntrySide.Debit);
         var payoutPendingCredits = Get(LedgerAccountCode.PayoutPending, EntrySide.Credit);
         var payoutPendingDebits = Get(LedgerAccountCode.PayoutPending, EntrySide.Debit);
 
@@ -52,7 +51,7 @@ public class GetFinanceSummaryQueryHandler : IRequestHandler<GetFinanceSummaryQu
             GrossSales = Get(LedgerAccountCode.CashStripe, EntrySide.Debit),
             VatCollected = Get(LedgerAccountCode.VatLiability, EntrySide.Credit),
             PlatformRevenue = Get(LedgerAccountCode.PlatformRevenue, EntrySide.Credit),
-            InstructorGrossEarnings = instructorGrossCredits - instructorGrossDebits,
+            InstructorGrossEarnings = instructorGrossCredits,
             InstructorNetEarnings = Get(LedgerAccountCode.InstructorNetBalance, EntrySide.Credit),
             WithholdingTax = Get(LedgerAccountCode.IrsWithholdingLiability, EntrySide.Credit),
             PendingPayouts = payoutPendingCredits - payoutPendingDebits,

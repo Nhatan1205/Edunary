@@ -46,7 +46,7 @@ function CourseSetting() {
     deleteCourseMutation.mutate(courseId);
   };
 
-  if (isCourseDataLoading) {
+  if (isCourseDataLoading || !courseData) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
         <LoadingSpinner />
@@ -133,7 +133,7 @@ function CourseSetting() {
               <Button
                 variant="outlined"
                 onClick={handleDeleteClick}
-                disabled={courseData.totalStudents > 0 || isDeleting || isUpdating}
+                disabled={(courseData?.totalStudents ?? 0) > 0 || isDeleting || isUpdating}
                 sx={{
                   width: "160px",
                   textTransform: "none",

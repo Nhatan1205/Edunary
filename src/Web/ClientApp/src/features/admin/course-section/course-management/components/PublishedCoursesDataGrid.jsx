@@ -70,8 +70,6 @@ const HEAD_LABEL = [
 function SortPopover({ sortBy, onChange }) {
   const [anchor, setAnchor] = useState(null);
 
-  const selectedOption = SORT_OPTIONS.find((o) => o.value === sortBy) ?? SORT_OPTIONS[0];
-
   return (
     <>
       <Tooltip title="Sort">

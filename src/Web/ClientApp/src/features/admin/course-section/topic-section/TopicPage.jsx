@@ -113,7 +113,7 @@ function TopicPage() {
     const isSaving = createTopic.isPending || updateTopic.isPending;
 
     return (
-        <Box sx={{ px: "240px" }}>
+        <Box sx={{ px: { xs: 2, sm: 3, md: "40px", lg: "120px", xl: "240px" } }}>
             {/* ── Header ── */}
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <PageTitle title="Topic Management" />

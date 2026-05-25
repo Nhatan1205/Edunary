@@ -45,7 +45,7 @@ public class GetPublishedCoursesForAdminQueryHandler : IRequestHandler<GetPublis
     public async Task<PaginatedList<PublishedCourseForAdminDto>> Handle(GetPublishedCoursesForAdminQuery request, CancellationToken cancellationToken)
     {
         var query = _context.Courses
-            .Where(c => c.Status == CourseStatus.Public);
+            .Where(c => c.Status == CourseStatus.Public || c.Status == CourseStatus.Private);
 
         // Search filter
         if (!string.IsNullOrWhiteSpace(request.SearchQuery))

@@ -1,4 +1,4 @@
-import { Box, Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import RevenueTrendChart from "./revenue/RevenueTrendChart";
 import RevenueBreakdownDonut from "./revenue/RevenueBreakdownDonut";
 import TopCoursesRevenueChart from "./revenue/TopCoursesRevenueChart";
@@ -8,17 +8,30 @@ export default function RevenueTab() {
   const { data: summaryData, isLoading: summaryLoading } = useGetFinanceSummary(null, null);
 
   return (
-    <Box>
+    <Box sx={{ width: "100%", maxWidth: "100%", minWidth: 0 }}>
       <RevenueTrendChart />
 
-      <Grid container spacing={2} sx={{ mt: 2 }}>
-        <Grid item xs={12} md={5}>
+      <Box
+        sx={{
+          mt: 2,
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "minmax(0, 1fr)",
+            md: "minmax(280px, 0.82fr) minmax(360px, 1.18fr)",
+          },
+          alignItems: "stretch",
+          gap: 2,
+          width: "100%",
+          minWidth: 0,
+        }}
+      >
+        <Box sx={{ minWidth: 0 }}>
           <RevenueBreakdownDonut summaryData={summaryData} isLoading={summaryLoading} />
-        </Grid>
-        <Grid item xs={12} md={7}>
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
           <TopCoursesRevenueChart />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 }

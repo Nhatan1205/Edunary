@@ -37,7 +37,8 @@ public class DeactivateCouponCommandHandler : IRequestHandler<DeactivateCouponCo
             return Result.Failure("Coupon not found");
 
         var userId = _currentUserService.UserId;
-        var isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator);
+        var isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator)
+            || await _identityService.IsInRoleAsync(userId, Roles.SuperAdmin);
 
         if (!isAdmin && coupon.OwnerUserId != userId)
             return Result.Failure("You are not authorized to deactivate this coupon");

@@ -92,7 +92,7 @@ public class RequestChangesCommandHandler : IRequestHandler<RequestChangesComman
                 request.AdminNote,
                 actionUrl);
 
-            await _emailService.SendEmailAsync(instructor.Email, "Your course requires changes", html);
+            await _emailService.SendBulkEmailsAsync(new[] { instructor.Email }, "Your course requires changes", html);
         }
 
         return Result.Success(message: "Changes requested successfully.");

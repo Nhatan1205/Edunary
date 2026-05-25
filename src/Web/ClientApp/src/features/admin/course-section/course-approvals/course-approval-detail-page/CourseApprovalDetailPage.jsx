@@ -212,11 +212,9 @@ export default function CourseApprovalDetailPage() {
   const handleApprove = useCallback(() => {
     if (!submissionInfo?.submissionId) return;
     approveMutation.mutate(submissionInfo.submissionId, {
-      onSuccess: (res) => {
-        if (res?.succeeded) {
-          setApproveDialogOpen(false);
-          navigate("/admin/course/approvals");
-        }
+      onSuccess: () => {
+        setApproveDialogOpen(false);
+        navigate("/admin/course/approvals");
       },
     });
   }, [approveMutation, submissionInfo, navigate]);

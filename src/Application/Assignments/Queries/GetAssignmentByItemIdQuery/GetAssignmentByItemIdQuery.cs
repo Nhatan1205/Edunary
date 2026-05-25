@@ -38,7 +38,8 @@ public class GetAssignmentByItemIdQueryHandler : IRequestHandler<GetAssignmentBy
 
         bool isInstructor = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, CoursePermission.None, cancellationToken);
 
-        bool isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator);
+        bool isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator)
+            || await _identityService.IsInRoleAsync(userId, Roles.SuperAdmin);
 
         var assignment = await _context.Assignments
             .Include(a => a.Questions.OrderBy(q => q.SortOrder))

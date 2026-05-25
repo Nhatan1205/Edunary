@@ -10,6 +10,8 @@ using Edunary.Application.CourseReviews.Queries.GetCoursePreviewForAdminQuery;
 using Edunary.Application.CourseReviews.Queries.GetCourseReviewStatusQuery;
 using Edunary.Application.CourseReviews.Queries.GetCourseReviewSubmissionsQuery;
 using Edunary.Application.CourseReviews.Queries.GetCourseReviewSubmissionsCountsQuery;
+using Edunary.Application.CourseReviews.Queries.GetCourseChangesComparisonQuery;
+using Edunary.Application.CourseReviews.Services;
 using Edunary.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +36,8 @@ public class CourseReviews : EndpointGroupBase
             .MapPut(UpdateReviewFeedback, "admin/feedback/{feedbackId:int}")
             .MapDelete(DeleteReviewFeedback, "admin/feedback/{feedbackId:int}")
             .MapPost(RequestChanges, "admin/request-changes")
-            .MapPost(ApproveCourse, "admin/approve");
+            .MapPost(ApproveCourse, "admin/approve")
+            .MapGet(GetCourseChangesComparison, "admin/compare/{courseId:int}");
     }
 
 
@@ -111,5 +114,11 @@ public class CourseReviews : EndpointGroupBase
         var result = await sender.Send(command);
         return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
     }
+
+    public async Task<ComparisonResultDto> GetCourseChangesComparison(ISender sender, int courseId)
+    {
+        return await sender.Send(new GetCourseChangesComparisonQuery { CourseId = courseId });
+    }
 }
+
 

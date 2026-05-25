@@ -86,6 +86,8 @@ import TaxRegionsPage from "./features/admin/finance/TaxRegionsPage";
 import CourseApprovalsPage from "./features/admin/course-section/course-approvals/course-approvals-page/CourseApprovalsPage";
 import CourseApprovalDetailPage from "./features/admin/course-section/course-approvals/course-approval-detail-page/CourseApprovalDetailPage";
 import AdminCoursePreviewPage from "./features/admin/course-section/course-approvals/admin-course-preview-page/AdminCoursePreviewPage";
+import CourseManagementPage from "./features/admin/course-section/course-management/CourseManagementPage";
+import CourseChangesPage from "./features/admin/course-section/course-changes/CourseChangesPage";
 
 const router = createBrowserRouter([
   {
@@ -118,6 +120,14 @@ const router = createBrowserRouter([
           {
             path: "topic",
             element: <TopicPage />,
+          },
+          {
+            path: "list",
+            element: <CourseManagementPage />,
+          },
+          {
+            path: ":courseId/changes",
+            element: <CourseChangesPage />,
           },
         ]
       },

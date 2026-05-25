@@ -4,6 +4,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Courses.Commands.CreateCourse;
 using Edunary.Application.Courses.Commands.DeleteCourse;
 using Edunary.Application.Courses.Commands.UpdateCourse;
+using Edunary.Application.Courses.Commands.UnpublishCourseCommand;
 using Edunary.Application.Courses.Queries.GetCourseById;
 using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Application.Courses.Queries.GetCoursesHomepageQuery;
@@ -14,6 +15,9 @@ using Edunary.Application.Courses.Queries.GetEnrolledCoursesQuery;
 using Edunary.Application.Courses.Queries.GetHomepageCoursesQuery;
 using Edunary.Application.Courses.Queries.GetPublicCourseById;
 using Edunary.Application.Courses.Queries.GetPublicCoursesByUserIdQuery;
+using Edunary.Application.Courses.Queries.GetPublishedCoursesForAdminQuery;
+using Edunary.Application.Courses.Queries.GetCourseManagementStatsQuery;
+using Edunary.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -34,6 +38,13 @@ public class Courses : EndpointGroupBase
             .MapGet(GetCourseStats,"stats")
             .MapPut(UpdateCourse)
             .MapDelete(DeleteCourse);
+
+        // Admin endpoints
+        app.MapGroup(this)
+            .RequireAuthorization(Policies.Admin)
+            .MapPost(UnpublishCourse, "admin/unpublish")
+            .MapGet(GetPublishedCoursesForAdmin, "admin/published")
+            .MapGet(GetCourseManagementStats, "admin/course-stats");
 
         // Public endpoint without authorization
         app.MapGroup(this)
@@ -112,5 +123,26 @@ public class Courses : EndpointGroupBase
         return await sender.Send(query);
     }
 
+    public async Task<IResult> UnpublishCourse(ISender sender, [FromBody] UnpublishCourseCommand command)
+    {
+        var result = await sender.Send(command);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
+
+    public async Task<PaginatedList<PublishedCourseForAdminDto>> GetPublishedCoursesForAdmin(ISender sender, [AsParameters] GetPublishedCoursesForAdminQuery query)
+    {
+        return await sender.Send(query);
+    }
+
+    public async Task<CourseManagementStatsDto> GetCourseManagementStats(ISender sender)
+    {
+        return await sender.Send(new GetCourseManagementStatsQuery());
+    }
+
 }
+
 

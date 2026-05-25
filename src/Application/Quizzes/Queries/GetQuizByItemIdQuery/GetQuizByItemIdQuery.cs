@@ -40,7 +40,8 @@ public class GetQuizByItemIdQueryHandler : IRequestHandler<GetQuizByItemIdQuery,
 
         bool hasInstructorAccess = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, cancellationToken: cancellationToken);
 
-        bool isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator);
+        bool isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator)
+            || await _identityService.IsInRoleAsync(userId, Roles.SuperAdmin);
 
         if (!isEnrolled && !hasInstructorAccess && !isAdmin)
             return null;

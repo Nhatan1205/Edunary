@@ -446,7 +446,7 @@ export default function FeedbackDrawer({
             disabled={feedbacks.length === 0 || requestChangesMutation.isPending || isNeedFixed}
             onClick={() => requestChangesMutation.mutate(
               { submissionId: submissionInfo?.submissionId, adminNote: "" },
-              { onSuccess: (res) => { if (res?.succeeded) onClose(); } }
+              { onSuccess: () => { onClose(); } }
             )}
             sx={{ textTransform: "none", fontWeight: 700, borderRadius: "10px" }}>
             {requestChangesMutation.isPending ? "Sending…" : "Request Changes"}

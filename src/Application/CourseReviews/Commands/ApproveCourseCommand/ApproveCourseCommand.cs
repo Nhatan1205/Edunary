@@ -195,7 +195,7 @@ public class ApproveCourseCommandHandler : IRequestHandler<ApproveCourseCommand,
                 course.Title,
                 courseUrl);
 
-            await _emailService.SendEmailAsync(instructor.Email, $"Your course \"{course.Title}\" is now published!", html);
+            await _emailService.SendBulkEmailsAsync(new[] { instructor.Email }, $"Your course \"{course.Title}\" is now published!", html);
         }
 
         return Result.Success(message: "Course approved and published successfully.");

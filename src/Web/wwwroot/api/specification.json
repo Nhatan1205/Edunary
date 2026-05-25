@@ -13156,6 +13156,27 @@
             "items": {
               "$ref": "#/components/schemas/ChangeGroupDto"
             }
+          },
+          "curriculumComparison": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CurriculumSectionComparisonDto"
+            }
+          },
+          "quizComparison": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/QuizComparisonDto"
+            }
+          },
+          "assignmentComparison": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AssignmentComparisonDto"
+            }
           }
         }
       },
@@ -13232,6 +13253,355 @@
           "newValue": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "CurriculumSectionComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sectionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "newTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CurriculumItemComparisonDto"
+            }
+          }
+        }
+      },
+      "CurriculumItemComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "newTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "quizId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "propertyChanges": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PropertyChangeDto"
+            }
+          }
+        }
+      },
+      "PropertyChangeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "propertyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "newValue": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "QuizComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "quizId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "newTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "settingChanges": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/QuizSettingChangeDto"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/QuizQuestionComparisonDto"
+            }
+          }
+        }
+      },
+      "QuizSettingChangeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "settingName": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "newValue": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "QuizQuestionComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldName": {
+            "type": "string",
+            "nullable": true
+          },
+          "newName": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldType": {
+            "type": "string",
+            "nullable": true
+          },
+          "newType": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldExplanation": {
+            "type": "string",
+            "nullable": true
+          },
+          "newExplanation": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "choices": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/QuizChoiceComparisonDto"
+            }
+          }
+        }
+      },
+      "QuizChoiceComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "choiceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldText": {
+            "type": "string",
+            "nullable": true
+          },
+          "newText": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldIsCorrect": {
+            "type": "boolean"
+          },
+          "newIsCorrect": {
+            "type": "boolean"
+          },
+          "oldSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AssignmentComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "newTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "settingChanges": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AssignmentSettingChangeDto"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AssignmentQuestionComparisonDto"
+            }
+          }
+        }
+      },
+      "AssignmentSettingChangeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "settingName": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "newValue": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AssignmentQuestionComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldQuestionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "newQuestionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldExampleAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "newExampleAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newSortOrder": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

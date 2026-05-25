@@ -17153,6 +17153,9 @@ export class ComparisonResultDto implements IComparisonResultDto {
     approvedSubmissionNumber?: number | undefined;
     totalChanges?: number;
     changeGroups?: ChangeGroupDto[] | undefined;
+    curriculumComparison?: CurriculumSectionComparisonDto[] | undefined;
+    quizComparison?: QuizComparisonDto[] | undefined;
+    assignmentComparison?: AssignmentComparisonDto[] | undefined;
 
     constructor(data?: IComparisonResultDto) {
         if (data) {
@@ -17178,6 +17181,21 @@ export class ComparisonResultDto implements IComparisonResultDto {
                 this.changeGroups = [] as any;
                 for (let item of _data["changeGroups"])
                     this.changeGroups!.push(ChangeGroupDto.fromJS(item));
+            }
+            if (Array.isArray(_data["curriculumComparison"])) {
+                this.curriculumComparison = [] as any;
+                for (let item of _data["curriculumComparison"])
+                    this.curriculumComparison!.push(CurriculumSectionComparisonDto.fromJS(item));
+            }
+            if (Array.isArray(_data["quizComparison"])) {
+                this.quizComparison = [] as any;
+                for (let item of _data["quizComparison"])
+                    this.quizComparison!.push(QuizComparisonDto.fromJS(item));
+            }
+            if (Array.isArray(_data["assignmentComparison"])) {
+                this.assignmentComparison = [] as any;
+                for (let item of _data["assignmentComparison"])
+                    this.assignmentComparison!.push(AssignmentComparisonDto.fromJS(item));
             }
         }
     }
@@ -17205,6 +17223,21 @@ export class ComparisonResultDto implements IComparisonResultDto {
             for (let item of this.changeGroups)
                 data["changeGroups"].push(item.toJSON());
         }
+        if (Array.isArray(this.curriculumComparison)) {
+            data["curriculumComparison"] = [];
+            for (let item of this.curriculumComparison)
+                data["curriculumComparison"].push(item.toJSON());
+        }
+        if (Array.isArray(this.quizComparison)) {
+            data["quizComparison"] = [];
+            for (let item of this.quizComparison)
+                data["quizComparison"].push(item.toJSON());
+        }
+        if (Array.isArray(this.assignmentComparison)) {
+            data["assignmentComparison"] = [];
+            for (let item of this.assignmentComparison)
+                data["assignmentComparison"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -17220,6 +17253,9 @@ export interface IComparisonResultDto {
     approvedSubmissionNumber?: number | undefined;
     totalChanges?: number;
     changeGroups?: ChangeGroupDto[] | undefined;
+    curriculumComparison?: CurriculumSectionComparisonDto[] | undefined;
+    quizComparison?: QuizComparisonDto[] | undefined;
+    assignmentComparison?: AssignmentComparisonDto[] | undefined;
 }
 
 export class ChangeGroupDto implements IChangeGroupDto {
@@ -17384,6 +17420,650 @@ export interface IChangeDetailDto {
     item?: string | undefined;
     oldValue?: string | undefined;
     newValue?: string | undefined;
+}
+
+export class CurriculumSectionComparisonDto implements ICurriculumSectionComparisonDto {
+    sectionId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    oldIndex?: number;
+    newIndex?: number;
+    items?: CurriculumItemComparisonDto[] | undefined;
+
+    constructor(data?: ICurriculumSectionComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sectionId = _data["sectionId"];
+            this.status = _data["status"];
+            this.oldTitle = _data["oldTitle"];
+            this.newTitle = _data["newTitle"];
+            this.oldIndex = _data["oldIndex"];
+            this.newIndex = _data["newIndex"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CurriculumItemComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CurriculumSectionComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CurriculumSectionComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sectionId"] = this.sectionId;
+        data["status"] = this.status;
+        data["oldTitle"] = this.oldTitle;
+        data["newTitle"] = this.newTitle;
+        data["oldIndex"] = this.oldIndex;
+        data["newIndex"] = this.newIndex;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICurriculumSectionComparisonDto {
+    sectionId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    oldIndex?: number;
+    newIndex?: number;
+    items?: CurriculumItemComparisonDto[] | undefined;
+}
+
+export class CurriculumItemComparisonDto implements ICurriculumItemComparisonDto {
+    itemId?: string | undefined;
+    type?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    oldIndex?: number;
+    newIndex?: number;
+    quizId?: number | undefined;
+    assignmentId?: number | undefined;
+    propertyChanges?: PropertyChangeDto[] | undefined;
+
+    constructor(data?: ICurriculumItemComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.itemId = _data["itemId"];
+            this.type = _data["type"];
+            this.status = _data["status"];
+            this.oldTitle = _data["oldTitle"];
+            this.newTitle = _data["newTitle"];
+            this.oldIndex = _data["oldIndex"];
+            this.newIndex = _data["newIndex"];
+            this.quizId = _data["quizId"];
+            this.assignmentId = _data["assignmentId"];
+            if (Array.isArray(_data["propertyChanges"])) {
+                this.propertyChanges = [] as any;
+                for (let item of _data["propertyChanges"])
+                    this.propertyChanges!.push(PropertyChangeDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CurriculumItemComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CurriculumItemComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["itemId"] = this.itemId;
+        data["type"] = this.type;
+        data["status"] = this.status;
+        data["oldTitle"] = this.oldTitle;
+        data["newTitle"] = this.newTitle;
+        data["oldIndex"] = this.oldIndex;
+        data["newIndex"] = this.newIndex;
+        data["quizId"] = this.quizId;
+        data["assignmentId"] = this.assignmentId;
+        if (Array.isArray(this.propertyChanges)) {
+            data["propertyChanges"] = [];
+            for (let item of this.propertyChanges)
+                data["propertyChanges"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICurriculumItemComparisonDto {
+    itemId?: string | undefined;
+    type?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    oldIndex?: number;
+    newIndex?: number;
+    quizId?: number | undefined;
+    assignmentId?: number | undefined;
+    propertyChanges?: PropertyChangeDto[] | undefined;
+}
+
+export class PropertyChangeDto implements IPropertyChangeDto {
+    propertyName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+
+    constructor(data?: IPropertyChangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.propertyName = _data["propertyName"];
+            this.oldValue = _data["oldValue"];
+            this.newValue = _data["newValue"];
+        }
+    }
+
+    static fromJS(data: any): PropertyChangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PropertyChangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["propertyName"] = this.propertyName;
+        data["oldValue"] = this.oldValue;
+        data["newValue"] = this.newValue;
+        return data;
+    }
+}
+
+export interface IPropertyChangeDto {
+    propertyName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+}
+
+export class QuizComparisonDto implements IQuizComparisonDto {
+    quizId?: number;
+    itemId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    settingChanges?: QuizSettingChangeDto[] | undefined;
+    questions?: QuizQuestionComparisonDto[] | undefined;
+
+    constructor(data?: IQuizComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.quizId = _data["quizId"];
+            this.itemId = _data["itemId"];
+            this.status = _data["status"];
+            this.oldTitle = _data["oldTitle"];
+            this.newTitle = _data["newTitle"];
+            if (Array.isArray(_data["settingChanges"])) {
+                this.settingChanges = [] as any;
+                for (let item of _data["settingChanges"])
+                    this.settingChanges!.push(QuizSettingChangeDto.fromJS(item));
+            }
+            if (Array.isArray(_data["questions"])) {
+                this.questions = [] as any;
+                for (let item of _data["questions"])
+                    this.questions!.push(QuizQuestionComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QuizComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["quizId"] = this.quizId;
+        data["itemId"] = this.itemId;
+        data["status"] = this.status;
+        data["oldTitle"] = this.oldTitle;
+        data["newTitle"] = this.newTitle;
+        if (Array.isArray(this.settingChanges)) {
+            data["settingChanges"] = [];
+            for (let item of this.settingChanges)
+                data["settingChanges"].push(item.toJSON());
+        }
+        if (Array.isArray(this.questions)) {
+            data["questions"] = [];
+            for (let item of this.questions)
+                data["questions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IQuizComparisonDto {
+    quizId?: number;
+    itemId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    settingChanges?: QuizSettingChangeDto[] | undefined;
+    questions?: QuizQuestionComparisonDto[] | undefined;
+}
+
+export class QuizSettingChangeDto implements IQuizSettingChangeDto {
+    settingName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+
+    constructor(data?: IQuizSettingChangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.settingName = _data["settingName"];
+            this.oldValue = _data["oldValue"];
+            this.newValue = _data["newValue"];
+        }
+    }
+
+    static fromJS(data: any): QuizSettingChangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizSettingChangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["settingName"] = this.settingName;
+        data["oldValue"] = this.oldValue;
+        data["newValue"] = this.newValue;
+        return data;
+    }
+}
+
+export interface IQuizSettingChangeDto {
+    settingName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+}
+
+export class QuizQuestionComparisonDto implements IQuizQuestionComparisonDto {
+    questionId?: number;
+    status?: string | undefined;
+    oldName?: string | undefined;
+    newName?: string | undefined;
+    oldType?: string | undefined;
+    newType?: string | undefined;
+    oldExplanation?: string | undefined;
+    newExplanation?: string | undefined;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+    choices?: QuizChoiceComparisonDto[] | undefined;
+
+    constructor(data?: IQuizQuestionComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.questionId = _data["questionId"];
+            this.status = _data["status"];
+            this.oldName = _data["oldName"];
+            this.newName = _data["newName"];
+            this.oldType = _data["oldType"];
+            this.newType = _data["newType"];
+            this.oldExplanation = _data["oldExplanation"];
+            this.newExplanation = _data["newExplanation"];
+            this.oldSortOrder = _data["oldSortOrder"];
+            this.newSortOrder = _data["newSortOrder"];
+            if (Array.isArray(_data["choices"])) {
+                this.choices = [] as any;
+                for (let item of _data["choices"])
+                    this.choices!.push(QuizChoiceComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QuizQuestionComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizQuestionComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["questionId"] = this.questionId;
+        data["status"] = this.status;
+        data["oldName"] = this.oldName;
+        data["newName"] = this.newName;
+        data["oldType"] = this.oldType;
+        data["newType"] = this.newType;
+        data["oldExplanation"] = this.oldExplanation;
+        data["newExplanation"] = this.newExplanation;
+        data["oldSortOrder"] = this.oldSortOrder;
+        data["newSortOrder"] = this.newSortOrder;
+        if (Array.isArray(this.choices)) {
+            data["choices"] = [];
+            for (let item of this.choices)
+                data["choices"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IQuizQuestionComparisonDto {
+    questionId?: number;
+    status?: string | undefined;
+    oldName?: string | undefined;
+    newName?: string | undefined;
+    oldType?: string | undefined;
+    newType?: string | undefined;
+    oldExplanation?: string | undefined;
+    newExplanation?: string | undefined;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+    choices?: QuizChoiceComparisonDto[] | undefined;
+}
+
+export class QuizChoiceComparisonDto implements IQuizChoiceComparisonDto {
+    choiceId?: number;
+    status?: string | undefined;
+    oldText?: string | undefined;
+    newText?: string | undefined;
+    oldIsCorrect?: boolean;
+    newIsCorrect?: boolean;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+
+    constructor(data?: IQuizChoiceComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.choiceId = _data["choiceId"];
+            this.status = _data["status"];
+            this.oldText = _data["oldText"];
+            this.newText = _data["newText"];
+            this.oldIsCorrect = _data["oldIsCorrect"];
+            this.newIsCorrect = _data["newIsCorrect"];
+            this.oldSortOrder = _data["oldSortOrder"];
+            this.newSortOrder = _data["newSortOrder"];
+        }
+    }
+
+    static fromJS(data: any): QuizChoiceComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizChoiceComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["choiceId"] = this.choiceId;
+        data["status"] = this.status;
+        data["oldText"] = this.oldText;
+        data["newText"] = this.newText;
+        data["oldIsCorrect"] = this.oldIsCorrect;
+        data["newIsCorrect"] = this.newIsCorrect;
+        data["oldSortOrder"] = this.oldSortOrder;
+        data["newSortOrder"] = this.newSortOrder;
+        return data;
+    }
+}
+
+export interface IQuizChoiceComparisonDto {
+    choiceId?: number;
+    status?: string | undefined;
+    oldText?: string | undefined;
+    newText?: string | undefined;
+    oldIsCorrect?: boolean;
+    newIsCorrect?: boolean;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+}
+
+export class AssignmentComparisonDto implements IAssignmentComparisonDto {
+    assignmentId?: number;
+    itemId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    settingChanges?: AssignmentSettingChangeDto[] | undefined;
+    questions?: AssignmentQuestionComparisonDto[] | undefined;
+
+    constructor(data?: IAssignmentComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.assignmentId = _data["assignmentId"];
+            this.itemId = _data["itemId"];
+            this.status = _data["status"];
+            this.oldTitle = _data["oldTitle"];
+            this.newTitle = _data["newTitle"];
+            if (Array.isArray(_data["settingChanges"])) {
+                this.settingChanges = [] as any;
+                for (let item of _data["settingChanges"])
+                    this.settingChanges!.push(AssignmentSettingChangeDto.fromJS(item));
+            }
+            if (Array.isArray(_data["questions"])) {
+                this.questions = [] as any;
+                for (let item of _data["questions"])
+                    this.questions!.push(AssignmentQuestionComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AssignmentComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AssignmentComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["assignmentId"] = this.assignmentId;
+        data["itemId"] = this.itemId;
+        data["status"] = this.status;
+        data["oldTitle"] = this.oldTitle;
+        data["newTitle"] = this.newTitle;
+        if (Array.isArray(this.settingChanges)) {
+            data["settingChanges"] = [];
+            for (let item of this.settingChanges)
+                data["settingChanges"].push(item.toJSON());
+        }
+        if (Array.isArray(this.questions)) {
+            data["questions"] = [];
+            for (let item of this.questions)
+                data["questions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAssignmentComparisonDto {
+    assignmentId?: number;
+    itemId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    settingChanges?: AssignmentSettingChangeDto[] | undefined;
+    questions?: AssignmentQuestionComparisonDto[] | undefined;
+}
+
+export class AssignmentSettingChangeDto implements IAssignmentSettingChangeDto {
+    settingName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+
+    constructor(data?: IAssignmentSettingChangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.settingName = _data["settingName"];
+            this.oldValue = _data["oldValue"];
+            this.newValue = _data["newValue"];
+        }
+    }
+
+    static fromJS(data: any): AssignmentSettingChangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AssignmentSettingChangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["settingName"] = this.settingName;
+        data["oldValue"] = this.oldValue;
+        data["newValue"] = this.newValue;
+        return data;
+    }
+}
+
+export interface IAssignmentSettingChangeDto {
+    settingName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+}
+
+export class AssignmentQuestionComparisonDto implements IAssignmentQuestionComparisonDto {
+    questionId?: number;
+    status?: string | undefined;
+    oldQuestionText?: string | undefined;
+    newQuestionText?: string | undefined;
+    oldExampleAnswer?: string | undefined;
+    newExampleAnswer?: string | undefined;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+
+    constructor(data?: IAssignmentQuestionComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.questionId = _data["questionId"];
+            this.status = _data["status"];
+            this.oldQuestionText = _data["oldQuestionText"];
+            this.newQuestionText = _data["newQuestionText"];
+            this.oldExampleAnswer = _data["oldExampleAnswer"];
+            this.newExampleAnswer = _data["newExampleAnswer"];
+            this.oldSortOrder = _data["oldSortOrder"];
+            this.newSortOrder = _data["newSortOrder"];
+        }
+    }
+
+    static fromJS(data: any): AssignmentQuestionComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AssignmentQuestionComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["questionId"] = this.questionId;
+        data["status"] = this.status;
+        data["oldQuestionText"] = this.oldQuestionText;
+        data["newQuestionText"] = this.newQuestionText;
+        data["oldExampleAnswer"] = this.oldExampleAnswer;
+        data["newExampleAnswer"] = this.newExampleAnswer;
+        data["oldSortOrder"] = this.oldSortOrder;
+        data["newSortOrder"] = this.newSortOrder;
+        return data;
+    }
+}
+
+export interface IAssignmentQuestionComparisonDto {
+    questionId?: number;
+    status?: string | undefined;
+    oldQuestionText?: string | undefined;
+    newQuestionText?: string | undefined;
+    oldExampleAnswer?: string | undefined;
+    newExampleAnswer?: string | undefined;
+    oldSortOrder?: number;
+    newSortOrder?: number;
 }
 
 export class ReturnResultOfCreatedCourseDto implements IReturnResultOfCreatedCourseDto {

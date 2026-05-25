@@ -59,12 +59,33 @@ public class UpdateQuizQuestionsCommandHandler : IRequestHandler<UpdateQuizQuest
         {
             if (qDto.Id.HasValue)
             {
-                Question existing = quiz.Questions.First(q => q.Id == qDto.Id.Value);
-                existing.Name = qDto.Name;
-                existing.Type = qDto.Type;
-                existing.Explanation = qDto.Explanation;
-                existing.SortOrder = qDto.SortOrder;
-                SyncChoices(existing, qDto.Choices);
+                Question existing = quiz.Questions.FirstOrDefault(q => q.Id == qDto.Id.Value);
+                if (existing != null)
+                {
+                    existing.Name = qDto.Name;
+                    existing.Type = qDto.Type;
+                    existing.Explanation = qDto.Explanation;
+                    existing.SortOrder = qDto.SortOrder;
+                    SyncChoices(existing, qDto.Choices);
+                }
+                else
+                {
+                    Question newQ = new Question
+                    {
+                        QuizId = quiz.Id,
+                        Name = qDto.Name,
+                        Type = qDto.Type,
+                        Explanation = qDto.Explanation,
+                        SortOrder = qDto.SortOrder,
+                        Choices = qDto.Choices.Select(c => new Choice
+                        {
+                            Text = c.Text,
+                            IsCorrect = c.IsCorrect,
+                            SortOrder = c.SortOrder
+                        }).ToList()
+                    };
+                    _context.Questions.Add(newQ);
+                }
             }
             else
             {
@@ -111,10 +132,22 @@ public class UpdateQuizQuestionsCommandHandler : IRequestHandler<UpdateQuizQuest
         {
             if (cDto.Id.HasValue)
             {
-                Choice existing = question.Choices.First(c => c.Id == cDto.Id.Value);
-                existing.Text = cDto.Text;
-                existing.IsCorrect = cDto.IsCorrect;
-                existing.SortOrder = cDto.SortOrder;
+                Choice existing = question.Choices.FirstOrDefault(c => c.Id == cDto.Id.Value);
+                if (existing != null)
+                {
+                    existing.Text = cDto.Text;
+                    existing.IsCorrect = cDto.IsCorrect;
+                    existing.SortOrder = cDto.SortOrder;
+                }
+                else
+                {
+                    question.Choices.Add(new Choice
+                    {
+                        Text = cDto.Text,
+                        IsCorrect = cDto.IsCorrect,
+                        SortOrder = cDto.SortOrder
+                    });
+                }
             }
             else
             {

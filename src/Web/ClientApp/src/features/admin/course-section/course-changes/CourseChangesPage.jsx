@@ -1,170 +1,106 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import DOMPurify from "dompurify";
 import {
   Box,
   Typography,
   Card,
   Button,
   Avatar,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Chip,
   Grid,
   Divider,
-  Skeleton,
+  List,
+  ListItemButton,
+  ListItemText,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import InfoIcon from "@mui/icons-material/Info";
 import UnpublishedIcon from "@mui/icons-material/Unpublished";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import EditIcon from "@mui/icons-material/Edit";
 
 import CustomBreadcrumbs from "../../../../components/breadcrumb/CustomBreadcrumbs";
 import PageTitle from "../../../../components/PageTitle";
-import LoadingSpinner from "../../../../components/LoadingSpinner";
 import useGetCourseChangesComparison from "../../../../hooks/course-review-hooks/useGetCourseChangesComparison";
 import useUnpublishCourse from "../../../../hooks/course-hooks/useUnpublishCourse";
 import UnpublishDialog from "../course-management/components/UnpublishDialog";
+
+import HtmlDiffModal from "./components/HtmlDiffModal";
+import QuizComparisonModal from "./components/QuizComparisonModal";
+import AssignmentComparisonModal from "./components/AssignmentComparisonModal";
+import LandingPageComparison from "./components/LandingPageComparison";
+import IntendedLearnersComparison from "./components/IntendedLearnersComparison";
+import PricingComparison from "./components/PricingComparison";
+import CourseMessagesComparison from "./components/CourseMessagesComparison";
+import CurriculumComparison from "./components/CurriculumComparison";
 
 const cardSx = {
   p: 3,
   borderRadius: "16px",
   bgcolor: "#FFFFFF",
   border: "1px solid #E5E7EB",
-  boxShadow: "0px 1px 3px rgba(16,24,40,0.06), 0px 4px 8px rgba(16,24,40,0.04)",
+  boxShadow: "0px 1px 3px rgba(16,24,40,0.05)",
   mb: 3,
 };
-
-function ChangeTypeChip({ type }) {
-  const styles = {
-    added: { bgcolor: "success.lighter", color: "success.main", label: "Added" },
-    removed: { bgcolor: "error.lighter", color: "error.main", label: "Removed" },
-    modified: { bgcolor: "warning.lighter", color: "warning.main", label: "Modified" },
-  };
-
-  const style = styles[type] || styles.modified;
-
-  return (
-    <Chip
-      label={style.label}
-      size="small"
-      sx={{
-        bgcolor: style.bgcolor,
-        color: style.color,
-        fontWeight: 700,
-        fontSize: "0.7rem",
-        height: 20,
-      }}
-    />
-  );
-}
-
-function RenderDiffValue({ field, value, color }) {
-  if (!value || value === "—") return <Typography variant="body2" sx={{ color: color, mt: 0.5 }}>—</Typography>;
-
-  if (field === "Course Image") {
-    return (
-      <Box sx={{ mt: 1, maxWidth: 320, borderRadius: "8px", overflow: "hidden", border: "1px solid #E5E7EB" }}>
-        <img src={value} alt="Preview" style={{ width: "100%", height: "auto", display: "block" }} />
-      </Box>
-    );
-  }
-
-  const isHtml = ["Description", "Welcome Message", "Congratulations Message"].includes(field);
-
-  if (isHtml) {
-    return (
-      <Typography
-        variant="body2"
-        component="div"
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}
-        sx={{
-          color: color,
-          mt: 0.5,
-          lineHeight: 1.6,
-          wordBreak: "break-word",
-          "& p": { mt: 0, mb: 1 },
-          "& ul": { pl: 2, mt: 0 },
-          "& li": { mb: 0.5 },
-        }}
-      />
-    );
-  }
-
-  return (
-    <Typography variant="body2" sx={{ color: color, mt: 0.5, wordBreak: "break-word", fontWeight: color === "success.main" ? 600 : 400 }}>
-      {value}
-    </Typography>
-  );
-}
-
-function DetailItem({ detail }) {
-  const isAdded = detail.type === "added";
-  const isRemoved = detail.type === "removed";
-
-  return (
-    <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1, py: 0.5 }}>
-      {isAdded && <AddIcon sx={{ color: "success.main", fontSize: 16, mt: 0.25 }} />}
-      {isRemoved && <RemoveIcon sx={{ color: "error.main", fontSize: 16, mt: 0.25 }} />}
-      {!isAdded && !isRemoved && <EditIcon sx={{ color: "warning.main", fontSize: 16, mt: 0.25 }} />}
-
-      <Box sx={{ flex: 1 }}>
-        {detail.item && (
-          <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
-            {detail.item}
-          </Typography>
-        )}
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          {detail.value && detail.value}
-          {detail.oldValue && (
-            <span>
-              {" "}
-              Before: <span style={{ textDecoration: "line-through" }}>{detail.oldValue}</span> | After:{" "}
-              <strong>{detail.newValue}</strong>
-            </span>
-          )}
-        </Typography>
-      </Box>
-    </Box>
-  );
-}
 
 export default function CourseChangesPage() {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const [unpublishOpen, setUnpublishOpen] = useState(false);
-  const [expandedAccordions, setExpandedAccordions] = useState({});
+  const [activeCategory, setActiveCategory] = useState("Landing Page");
+  
+  // HTML Diff states
+  const [diffModalOpen, setDiffModalOpen] = useState(false);
+  const [diffTarget, setDiffTarget] = useState({ field: "", oldValue: "", newValue: "" });
+
+  // Quiz / Assignment details states
+  const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [selectedAssign, setSelectedAssign] = useState(null);
+
+  // Curriculum Tree Collapsible states
+  const [expandedSections, setExpandedSections] = useState({});
+  const [expandedItems, setExpandedItems] = useState({});
 
   const id = parseInt(courseId, 10);
-
-  const { data: comparison, isLoading: compareLoading, refetch } = useGetCourseChangesComparison(id);
+  const { data: comparison } = useGetCourseChangesComparison(id);
   const { mutate: unpublish, isPending: unpublishPending } = useUnpublishCourse();
 
   const allCategories = [
-    "Basic Info",
+    "Landing Page",
     "Intended Learners",
-    "Topics",
-    "Media",
+    "Pricing",
+    "Course Messages",
     "Curriculum",
-    "Assessment",
   ];
 
+  const activeData = comparison;
+
+  // Define variables securely
+  const hasChanges = activeData?.hasChanges ?? false;
+  const noSnapshot = activeData?.noSnapshot ?? false;
+
+  // Auto-expand modified items and sections by default
   useEffect(() => {
-    if (comparison?.changeGroups) {
-      const initial = {};
-      allCategories.forEach((cat) => {
-        const group = comparison.changeGroups.find((g) => g.category === cat);
-        initial[cat] = (group?.changes?.length ?? 0) > 0;
+    if (activeData?.curriculumComparison) {
+      const initialSecs = {};
+      const initialItems = {};
+      activeData.curriculumComparison.forEach((sec) => {
+        if (sec.status !== "unchanged") {
+          initialSecs[sec.sectionId] = true;
+        }
+        sec.items?.forEach((item) => {
+          if (item.status !== "unchanged") {
+            initialItems[item.itemId] = true;
+            initialSecs[sec.sectionId] = true; // Auto-expand parent section
+          }
+        });
       });
-      setExpandedAccordions(initial);
+      setExpandedSections(initialSecs);
+      setExpandedItems(initialItems);
     }
-  }, [comparison]);
+  }, [activeData]);
 
   const handleUnpublishConfirm = (reason) => {
     unpublish(
@@ -178,83 +114,131 @@ export default function CourseChangesPage() {
     );
   };
 
-  if (compareLoading) {
-    return (
-      <Box sx={{ px: { xs: 2, sm: 3, md: "40px", lg: "120px", xl: "240px" } }}>
-        <Box sx={{ mb: 2 }}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate("/admin/course/list")}
-            sx={{ color: "text.secondary", fontWeight: 600 }}
-            disabled
-          >
-            Back to Course Management
-          </Button>
-        </Box>
+  const getChangesForCategory = (category) => {
+    if (category === "Landing Page") {
+      const landingGroup = activeData?.changeGroups?.find((g) => g.category === "Landing Page");
+      let landingChanges = landingGroup?.changes ?? [];
 
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <PageTitle title="Course Changes Comparison" />
-        </Box>
+      if (landingChanges.length === 0) {
+        const basicGroup = activeData?.changeGroups?.find((g) => g.category === "Basic Info");
+        landingChanges = basicGroup?.changes?.filter((c) =>
+          ["Title", "Subtitle", "Description", "Level", "Course Image", "Category"].includes(c.field)
+        ) ?? [];
+      }
 
-        <CustomBreadcrumbs />
+      const topicsGroup = activeData?.changeGroups?.find((g) => g.category === "Topics");
+      const topicsChanges = topicsGroup?.changes ?? [];
 
-        {/* Course Header Info Skeleton */}
-        <Card sx={cardSx}>
-          <Grid container spacing={3} alignItems="center">
-            <Grid size={{ xs: 12, sm: 3, md: 2 }}>
-              <Skeleton
-                variant="rounded"
-                width="100%"
-                height="auto"
-                sx={{ aspectRatio: "16/9", borderRadius: "10px" }}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 9, md: 10 }}>
-              <Skeleton variant="text" width="60%" height={32} />
-              <Skeleton variant="text" width="45%" height={20} sx={{ mt: 1 }} />
-              <Skeleton variant="text" width="30%" height={16} sx={{ mt: 1 }} />
-            </Grid>
-          </Grid>
-        </Card>
+      return [...landingChanges, ...topicsChanges];
+    }
 
-        {/* Summary Status Banner Skeleton */}
-        <Skeleton variant="rounded" width="100%" height={56} sx={{ borderRadius: "16px", mb: 3 }} />
+    if (category === "Pricing") {
+      const pricingGroup = activeData?.changeGroups?.find((g) => g.category === "Pricing" || g.category === "Pricing & Promotion");
+      if (pricingGroup?.changes?.length > 0) {
+        return pricingGroup.changes;
+      }
+      const basicGroup = activeData?.changeGroups?.find((g) => g.category === "Basic Info");
+      return basicGroup?.changes?.filter((c) =>
+        ["Price", "Allow Platform Coupons", "AllowPlatformCoupons"].includes(c.field)
+      ) ?? [];
+    }
 
-        {/* Accordions Skeletons */}
-        <Box sx={{ mb: 4 }}>
-          {Array.from({ length: 4 }).map((_, idx) => (
-            <Skeleton
-              key={idx}
-              variant="rounded"
-              width="100%"
-              height={56}
-              sx={{ mb: 1.5, borderRadius: "12px" }}
-            />
-          ))}
-        </Box>
+    if (category === "Course Messages") {
+      const msgGroup = activeData?.changeGroups?.find((g) => g.category === "Course Messages" || g.category === "Messages");
+      if (msgGroup?.changes?.length > 0) {
+        return msgGroup.changes;
+      }
+      const basicGroup = activeData?.changeGroups?.find((g) => g.category === "Basic Info");
+      return basicGroup?.changes?.filter((c) =>
+        ["Welcome Message", "Congratulations Message", "WelcomeMessage", "CongratulationsMessage"].includes(c.field)
+      ) ?? [];
+    }
 
-        {/* Action Footer Bar Skeleton */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mt: 4,
-            pt: 3,
-            borderTop: "1px solid #E5E7EB",
-          }}
-        >
-          <Skeleton variant="rounded" width={160} height={40} sx={{ borderRadius: "8px" }} />
-          <Skeleton variant="rounded" width={180} height={40} sx={{ borderRadius: "8px" }} />
-        </Box>
-      </Box>
-    );
-  }
+    if (category === "Intended Learners") {
+      const group = activeData?.changeGroups?.find((g) => g.category === "Intended Learners");
+      return group?.changes ?? [];
+    }
 
-  const hasChanges = comparison?.hasChanges ?? false;
-  const noSnapshot = comparison?.noSnapshot ?? false;
+    return [];
+  };
 
-  const changeGroups = comparison?.changeGroups ?? [];
+  const getChangeCountForCategory = (category) => {
+    if (category === "Curriculum") {
+      let count = 0;
+      activeData?.curriculumComparison?.forEach((sec) => {
+        if (sec.status !== "unchanged") count++;
+        sec.items?.forEach((item) => {
+          if (item.status !== "unchanged") count++;
+        });
+      });
+      return count;
+    }
+    return getChangesForCategory(category).length;
+  };
+
+  const toggleSection = (secId) => {
+    setExpandedSections((prev) => ({ ...prev, [secId]: !prev[secId] }));
+  };
+
+  const toggleItem = (itemId) => {
+    setExpandedItems((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
+  };
+
+  const renderCategoryDetails = () => {
+    switch (activeCategory) {
+      case "Landing Page":
+        return (
+          <LandingPageComparison
+            changes={getChangesForCategory("Landing Page")}
+            onCompareClick={(field, oldValue, newValue) => {
+              setDiffTarget({ field, oldValue, newValue });
+              setDiffModalOpen(true);
+            }}
+          />
+        );
+      case "Intended Learners":
+        return <IntendedLearnersComparison changes={getChangesForCategory("Intended Learners")} />;
+      case "Pricing":
+        return <PricingComparison changes={getChangesForCategory("Pricing")} />;
+      case "Course Messages":
+        return (
+          <CourseMessagesComparison
+            changes={getChangesForCategory("Course Messages")}
+            onCompareClick={(field, oldValue, newValue) => {
+              setDiffTarget({ field, oldValue, newValue });
+              setDiffModalOpen(true);
+            }}
+          />
+        );
+      case "Curriculum":
+        return (
+          <CurriculumComparison
+            comparisonList={activeData?.curriculumComparison ?? []}
+            activeData={activeData}
+            expandedSections={expandedSections}
+            toggleSection={toggleSection}
+            expandedItems={expandedItems}
+            toggleItem={toggleItem}
+            onCompareClick={(field, oldValue, newValue) => {
+              setDiffTarget({ field, oldValue, newValue });
+              setDiffModalOpen(true);
+            }}
+            onShowQuizDetails={(quizId) => {
+              const quizComp = activeData?.quizComparison?.find((q) => q.quizId === quizId);
+              setSelectedQuiz(quizComp);
+              setQuizModalOpen(true);
+            }}
+            onShowAssignmentDetails={(assignmentId) => {
+              const assignComp = activeData?.assignmentComparison?.find((a) => a.assignmentId === assignmentId);
+              setSelectedAssign(assignComp);
+              setAssignModalOpen(true);
+            }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <Box sx={{ px: { xs: 2, sm: 3, md: "40px", lg: "120px", xl: "240px" } }}>
@@ -268,8 +252,20 @@ export default function CourseChangesPage() {
         </Button>
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      {/* Header with Title and Action buttons */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2, mb: 3 }}>
         <PageTitle title="Course Changes Comparison" />
+        <Box sx={{ display: "flex", gap: 1.5 }}>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<UnpublishedIcon />}
+            onClick={() => setUnpublishOpen(true)}
+            sx={{ borderRadius: "10px", fontWeight: 700 }}
+          >
+            Unpublish Course
+          </Button>
+        </Box>
       </Box>
 
       <CustomBreadcrumbs />
@@ -280,24 +276,24 @@ export default function CourseChangesPage() {
           <Grid size={{ xs: 12, sm: 3, md: 2 }}>
             <Avatar
               variant="rounded"
-              src={comparison?.courseImageUrl}
+              src={activeData?.courseImageUrl}
               sx={{ width: "100%", height: "auto", aspectRatio: "16/9", borderRadius: "10px", border: "1px solid #E5E7EB" }}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 9, md: 10 }}>
             <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary" }}>
-              {comparison?.courseTitle}
+              {activeData?.courseTitle}
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-              {comparison?.courseSubtitle}
+              {activeData?.courseSubtitle}
             </Typography>
             <Typography variant="caption" sx={{ display: "block", color: "text.tertiary", mt: 1 }}>
               {noSnapshot ? (
                 "No approved snapshot available for comparison."
               ) : (
                 <>
-                  Last Approved: <strong>{new Date(comparison?.snapshotTakenAt).toLocaleString()}</strong> |
-                  Submission Attempt: <strong>#{comparison?.approvedSubmissionNumber}</strong>
+                  Last Approved: <strong>{new Date(activeData?.snapshotTakenAt).toLocaleString()}</strong> |
+                  Submission Attempt: <strong>#{activeData?.approvedSubmissionNumber}</strong>
                 </>
               )}
             </Typography>
@@ -317,8 +313,7 @@ export default function CourseChangesPage() {
         <Card sx={{ ...cardSx, bgcolor: "warning.lighter", border: "1px solid", borderColor: "warning.light", display: "flex", gap: 2, alignItems: "center" }}>
           <WarningAmberIcon color="warning" />
           <Typography variant="body2" sx={{ color: "warning.darker", fontWeight: 600 }}>
-            {comparison.totalChanges} change{comparison.totalChanges > 1 ? "s" : ""} detected across{" "}
-            {changeGroups.length} categories since last approval.
+            Changes detected across multiple categories since last approval. Review the details below.
           </Typography>
         </Card>
       ) : (
@@ -330,149 +325,131 @@ export default function CourseChangesPage() {
         </Card>
       )}
 
-      {/* Accordions */}
+      {/* Sidebar + Detail View Layout */}
       {!noSnapshot && (
-        <Box sx={{ mb: 4 }}>
-          {allCategories.map((category) => {
-            const group = changeGroups.find((g) => g.category === category);
-            const groupChanges = group?.changes ?? [];
-            const hasGroupChanges = groupChanges.length > 0;
+        <Grid container spacing={3}>
+          {/* Sidebar (Sticky) */}
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Box
+              sx={{
+                position: "sticky",
+                top: "100px",
+                zIndex: 10,
+              }}
+            >
+              <Card sx={{ p: 2, borderRadius: "16px", border: "1px solid #E5E7EB", boxShadow: "none", bgcolor: "#FFF" }}>
+                <List component="nav" sx={{ p: 0 }}>
+                  {allCategories.map((category) => {
+                    const isActive = activeCategory === category;
+                    const changeCount = getChangeCountForCategory(category);
+                    const hasChangesInCategory = changeCount > 0;
 
-            return (
-              <Accordion
-                key={category}
-                expanded={!!expandedAccordions[category]}
-                onChange={(_, isExpanded) => {
-                  setExpandedAccordions((prev) => ({ ...prev, [category]: isExpanded }));
-                }}
-                disabled={!hasGroupChanges}
-                sx={{
-                  border: "1px solid #E5E7EB",
-                  borderRadius: "12px !important",
-                  boxShadow: "none",
-                  mb: 1.5,
-                  "&:before": { display: "none" },
-                  ...(hasGroupChanges && {
-                    boxShadow: "0px 1px 3px rgba(16,24,40,0.05)",
-                  }),
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={hasGroupChanges ? <ExpandMoreIcon /> : null}
-                  sx={{ px: 3, py: 0.5 }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: "100%" }}>
-                    {hasGroupChanges ? (
-                      <WarningAmberIcon color="warning" sx={{ fontSize: 20 }} />
-                    ) : (
-                      <CheckCircleIcon color="success" sx={{ fontSize: 20 }} />
-                    )}
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: hasGroupChanges ? "text.primary" : "text.secondary" }}>
-                      {category}
-                    </Typography>
-                    {hasGroupChanges && (
-                      <Chip
-                        label={`${groupChanges.length} changes`}
-                        size="small"
-                        color="warning"
-                        sx={{ fontSize: "0.75rem", fontWeight: 600, height: 20 }}
-                      />
-                    )}
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails sx={{ px: 3, pb: 3, pt: 1, borderTop: "1px solid #F3F4F6" }}>
-                  {groupChanges.map((change, idx) => (
-                    <Box key={idx} sx={{ mt: idx === 0 ? 0 : 2.5 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "text.primary" }}>
-                          {change.field}
-                        </Typography>
-                        <ChangeTypeChip type={change.changeType} />
-                      </Box>
-
-                      {/* Display summary if present */}
-                      {change.summary && (
-                        <Typography variant="body2" sx={{ color: "text.secondary", mb: 1, fontWeight: 500 }}>
-                          {change.summary}
-                        </Typography>
-                      )}
-
-                      {/* Before / After side-by-side or stacked block for scalar fields */}
-                      {change.changeType === "modified" && change.oldValue !== undefined && change.newValue !== undefined && (
-                        <Box
-                          sx={{
-                            p: 2,
-                            borderRadius: "10px",
-                            bgcolor: "grey.50",
-                            border: "1px dashed #E5E7EB",
-                            mt: 1,
+                    return (
+                      <ListItemButton
+                        key={category}
+                        selected={isActive}
+                        onClick={() => setActiveCategory(category)}
+                        sx={{
+                          borderRadius: "10px",
+                          mb: 1,
+                          py: 1.5,
+                          px: 2,
+                          "&.Mui-selected": {
+                            bgcolor: "brand.lighter",
+                            color: "brand.dark",
+                            "&:hover": {
+                              bgcolor: "brand.lighter",
+                            },
+                          },
+                        }}
+                      >
+                        <ListItemText
+                          primary={category}
+                          primaryTypographyProps={{
+                            variant: "body2",
+                            fontWeight: isActive ? 700 : 500,
+                            color: isActive ? "brand.dark" : "text.primary",
                           }}
-                        >
-                          <Grid container spacing={2}>
-                            <Grid size={{ xs: 12, md: 6 }}>
-                              <Typography variant="caption" sx={{ color: "text.tertiary", fontWeight: 600 }}>
-                                BEFORE
-                              </Typography>
-                              <RenderDiffValue field={change.field} value={change.oldValue} color="error.main" />
-                            </Grid>
-                            <Grid size={{ xs: 12, md: 6 }}>
-                              <Typography variant="caption" sx={{ color: "text.tertiary", fontWeight: 600 }}>
-                                AFTER
-                              </Typography>
-                              <RenderDiffValue field={change.field} value={change.newValue} color="success.main" />
-                            </Grid>
-                          </Grid>
-                        </Box>
-                      )}
+                        />
+                        {hasChangesInCategory && (
+                          <Chip
+                            label={changeCount}
+                            size="small"
+                            color="warning"
+                            sx={{
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
+                              height: 20,
+                              minWidth: 20,
+                              px: 0.5,
+                            }}
+                          />
+                        )}
+                      </ListItemButton>
+                    );
+                  })}
+                </List>
+              </Card>
+            </Box>
+          </Grid>
 
-                      {/* Display nested detail items */}
-                      {change.details && change.details.length > 0 && (
-                        <Box sx={{ pl: 1.5, mt: 1, borderLeft: "2px solid #E5E7EB" }}>
-                          {change.details.map((detail, dIdx) => (
-                            <DetailItem key={dIdx} detail={detail} />
-                          ))}
-                        </Box>
-                      )}
+          {/* Details Column */}
+          <Grid size={{ xs: 12, md: 9 }}>
+            <Card sx={{ p: 4, borderRadius: "16px", border: "1px solid #E5E7EB", boxShadow: "none", minHeight: "500px", bgcolor: "#FFF" }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  {activeCategory} Changes Detail
+                </Typography>
+                {getChangeCountForCategory(activeCategory) === 0 && (
+                  <Chip
+                    icon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
+                    label="No changes in this category"
+                    color="success"
+                    variant="outlined"
+                    size="small"
+                    sx={{ fontWeight: 600 }}
+                  />
+                )}
+              </Box>
 
-                      {idx < groupChanges.length - 1 && <Divider sx={{ mt: 2.5 }} />}
-                    </Box>
-                  ))}
-                </AccordionDetails>
-              </Accordion>
-            );
-          })}
-        </Box>
+              <Divider sx={{ mb: 3 }} />
+
+              {/* RENDER ACTIVE CATEGORY CONTENT */}
+              {renderCategoryDetails()}
+            </Card>
+          </Grid>
+        </Grid>
       )}
 
-      {/* Action Footer Bar */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mt: 4,
-          pt: 3,
-          borderTop: "1px solid #E5E7EB",
-        }}
-      >
-        <Button
-          variant="outlined"
-          color="error"
-          startIcon={<UnpublishedIcon />}
-          onClick={() => setUnpublishOpen(true)}
-          sx={{ borderRadius: "8px", fontWeight: 600 }}
-        >
-          Unpublish Course
-        </Button>
-      </Box>
-
-      {/* Dialog */}
+      {/* Dialogs & Modals */}
       <UnpublishDialog
         open={unpublishOpen}
         onClose={() => setUnpublishOpen(false)}
         onConfirm={handleUnpublishConfirm}
-        courseTitle={comparison?.courseTitle ?? ""}
+        courseTitle={activeData?.courseTitle ?? ""}
         isSubmitting={unpublishPending}
+      />
+
+      <HtmlDiffModal
+        open={diffModalOpen}
+        onClose={() => setDiffModalOpen(false)}
+        field={diffTarget.field}
+        oldValue={diffTarget.oldValue}
+        newValue={diffTarget.newValue}
+      />
+
+      <QuizComparisonModal
+        open={quizModalOpen}
+        onClose={() => setQuizModalOpen(false)}
+        title={selectedQuiz?.newTitle ?? ""}
+        quiz={selectedQuiz}
+      />
+
+      <AssignmentComparisonModal
+        open={assignModalOpen}
+        onClose={() => setAssignModalOpen(false)}
+        title={selectedAssign?.newTitle ?? ""}
+        assignment={selectedAssign}
       />
 
       <Box sx={{ height: 80 }} />

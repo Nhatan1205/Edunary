@@ -36,6 +36,6 @@ public class ItemDto
     [JsonPropertyName("isFreePreview")]
     public bool IsFreePreview { get; set; } = false;
     [JsonPropertyName("videoId")]
-    public int VideoId { get; set; }
+    public int VideoId { get; set; } = 0;
 }
 

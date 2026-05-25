@@ -121,6 +121,8 @@ public class ApproveCourseCommandHandler : IRequestHandler<ApproveCourseCommand,
                 {
                     q.Id,
                     q.Title,
+                    q.Description,
+                    q.RelatedItemId,
                     q.ItemId,
                     q.TimeLimitMinutes,
                     q.PassingScore,
@@ -129,12 +131,14 @@ public class ApproveCourseCommandHandler : IRequestHandler<ApproveCourseCommand,
                     q.RandomizeQuestions,
                     Questions = q.Questions.OrderBy(x => x.SortOrder).Select(x => new
                     {
+                        x.Id,
                         x.Name,
                         Type = (int)x.Type,
                         x.Explanation,
                         x.SortOrder,
                         Choices = x.Choices.OrderBy(c => c.SortOrder).Select(c => new
                         {
+                            c.Id,
                             c.Text,
                             c.IsCorrect,
                             c.SortOrder,
@@ -152,6 +156,7 @@ public class ApproveCourseCommandHandler : IRequestHandler<ApproveCourseCommand,
                     a.EstimatedDurationMinutes,
                     Questions = a.Questions.OrderBy(x => x.SortOrder).Select(x => new
                     {
+                        x.Id,
                         x.QuestionText,
                         x.ExampleAnswer,
                         x.SortOrder,

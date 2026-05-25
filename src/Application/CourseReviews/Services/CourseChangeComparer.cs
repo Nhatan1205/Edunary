@@ -39,17 +39,27 @@ public class CourseChangeComparer
         };
 
         // 1. Basic Info
-        var basicInfoChanges = CompareBasicInfo(snapshot, currentCourse, allCategories);
-        if (basicInfoChanges.Any())
+        var basicChanges = CompareBasicInfo(snapshot, currentCourse, allCategories);
+
+        // Group changes by frontend tabs
+        // Tab 1: Landing Page (Basic Info fields except Price and Messages + Topics)
+        var landingPageChanges = new List<ChangedFieldDto>();
+        var landingFields = new[] { "Title", "Subtitle", "Description", "Level", "Course Image", "Category" };
+        landingPageChanges.AddRange(basicChanges.Where(c => landingFields.Contains(c.Field)));
+
+        var topicChanges = CompareTopics(snapshot, currentTopics, allTopics);
+        landingPageChanges.AddRange(topicChanges);
+
+        if (landingPageChanges.Any())
         {
             result.ChangeGroups.Add(new ChangeGroupDto
             {
-                Category = "Basic Info",
-                Changes = basicInfoChanges
+                Category = "Landing Page",
+                Changes = landingPageChanges
             });
         }
 
-        // 2. Intended Learners
+        // Tab 2: Intended Learners
         var intendedLearnerChanges = CompareIntendedLearners(snapshot, currentCourse);
         if (intendedLearnerChanges.Any())
         {
@@ -60,51 +70,57 @@ public class CourseChangeComparer
             });
         }
 
-        // 3. Topics
-        var topicChanges = CompareTopics(snapshot, currentTopics, allTopics);
-        if (topicChanges.Any())
+        // Tab 3: Pricing
+        var pricingChanges = new List<ChangedFieldDto>();
+        var pricingFields = new[] { "Price", "Allow Platform Coupons" };
+        pricingChanges.AddRange(basicChanges.Where(c => pricingFields.Contains(c.Field)));
+        if (pricingChanges.Any())
         {
             result.ChangeGroups.Add(new ChangeGroupDto
             {
-                Category = "Topics",
-                Changes = topicChanges
+                Category = "Pricing",
+                Changes = pricingChanges
             });
         }
 
-        // 4. Media
-        var mediaChanges = CompareMedia(snapshot, currentMedia);
-        if (mediaChanges.Any())
+        // Tab 4: Course Messages
+        var msgChanges = new List<ChangedFieldDto>();
+        var msgFields = new[] { "Welcome Message", "Congratulations Message" };
+        msgChanges.AddRange(basicChanges.Where(c => msgFields.Contains(c.Field)));
+        if (msgChanges.Any())
         {
             result.ChangeGroups.Add(new ChangeGroupDto
             {
-                Category = "Media",
-                Changes = mediaChanges
+                Category = "Course Messages",
+                Changes = msgChanges
             });
         }
 
-        // 5. Curriculum
-        var curriculumChanges = CompareCurriculum(snapshot, currentCourse);
-        if (curriculumChanges.Any())
+        // Deserialize snapshot media files
+        var oldMedia = new List<SnapshotMediaDto>();
+        try
         {
-            result.ChangeGroups.Add(new ChangeGroupDto
+            if (!string.IsNullOrEmpty(snapshot.MediaFilesJson))
             {
-                Category = "Curriculum",
-                Changes = curriculumChanges
-            });
+                oldMedia = JsonSerializer.Deserialize<List<SnapshotMediaDto>>(snapshot.MediaFilesJson) ?? new();
+            }
         }
+        catch { }
 
-        // 6. Assessment
-        var assessmentChanges = CompareAssessments(snapshot, currentQuizzes, currentAssignments);
-        if (assessmentChanges.Any())
-        {
-            result.ChangeGroups.Add(new ChangeGroupDto
-            {
-                Category = "Assessment",
-                Changes = assessmentChanges
-            });
-        }
+        // Tab 5: Curriculum Comparison (Structured tree)
+        result.CurriculumComparison = CompareCurriculum(snapshot, currentCourse, oldMedia, currentMedia);
 
-        result.TotalChanges = result.ChangeGroups.Sum(g => g.Changes.Count);
+        // Quiz and Assignment comparisons
+        result.QuizComparison = CompareQuizzesDetails(snapshot, currentQuizzes);
+        result.AssignmentComparison = CompareAssignmentsDetails(snapshot, currentAssignments);
+
+        // Compute total changes
+        result.TotalChanges = result.ChangeGroups.Sum(g => g.Changes.Count)
+            + result.CurriculumComparison.Count(c => c.Status != "unchanged")
+            + result.CurriculumComparison.SelectMany(c => c.Items).Count(i => i.Status != "unchanged")
+            + result.QuizComparison.Count(q => q.Status != "unchanged")
+            + result.AssignmentComparison.Count(a => a.Status != "unchanged");
+
         result.HasChanges = result.TotalChanges > 0;
 
         return result;
@@ -118,7 +134,6 @@ public class CourseChangeComparer
         CompareScalar(changes, "Subtitle", snapshot.Subtitle, current.Subtitle);
         CompareScalar(changes, "Description", snapshot.Description, current.Description);
         CompareScalar(changes, "Level", snapshot.Level.ToString(), current.Level.ToString());
-        // Format price in USD instead of local OS currency
         CompareScalar(changes, "Price", snapshot.Price.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("en-US")), current.Price.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("en-US")));
         CompareScalar(changes, "Allow Platform Coupons", snapshot.AllowPlatformCoupons.ToString(), current.AllowPlatformCoupons.ToString());
         CompareScalar(changes, "Welcome Message", snapshot.WelcomeMessage, current.WelcomeMessage);
@@ -197,79 +212,13 @@ public class CourseChangeComparer
         return changes;
     }
 
-    private List<ChangedFieldDto> CompareMedia(CourseApprovedSnapshot snapshot, List<MediaFile> currentMedia)
+    private List<CurriculumSectionComparisonDto> CompareCurriculum(
+        CourseApprovedSnapshot snapshot,
+        Course current,
+        List<SnapshotMediaDto> oldMedia,
+        List<MediaFile> currentMedia)
     {
-        var changes = new List<ChangedFieldDto>();
-        var oldMedia = new List<SnapshotMediaDto>();
-
-        try
-        {
-            if (!string.IsNullOrEmpty(snapshot.MediaFilesJson))
-            {
-                oldMedia = JsonSerializer.Deserialize<List<SnapshotMediaDto>>(snapshot.MediaFilesJson) ?? new();
-            }
-        }
-        catch { }
-
-        var newMedia = currentMedia.Select(m => new SnapshotMediaDto
-        {
-            Id = m.Id,
-            FileName = m.FileName,
-            FileUrl = m.FileUrl,
-            ContentType = m.ContentType
-        }).ToList();
-
-        var oldIds = oldMedia.Select(m => m.Id).ToList();
-        var newIds = newMedia.Select(m => m.Id).ToList();
-
-        var added = newMedia.Where(m => !oldIds.Contains(m.Id)).ToList();
-        var removed = oldMedia.Where(m => !newIds.Contains(m.Id)).ToList();
-        var common = newMedia.Where(m => oldIds.Contains(m.Id)).ToList();
-
-        var details = new List<ChangeDetailDto>();
-
-        foreach (var item in added)
-        {
-            details.Add(new ChangeDetailDto { Type = "added", Value = $"{item.FileName} ({item.ContentType})" });
-        }
-
-        foreach (var item in removed)
-        {
-            details.Add(new ChangeDetailDto { Type = "removed", Value = $"{item.FileName} ({item.ContentType})" });
-        }
-
-        foreach (var newItem in common)
-        {
-            var oldItem = oldMedia.First(m => m.Id == newItem.Id);
-            if (oldItem.FileName != newItem.FileName || oldItem.FileUrl != newItem.FileUrl)
-            {
-                details.Add(new ChangeDetailDto
-                {
-                    Type = "modified",
-                    Item = newItem.FileName,
-                    OldValue = oldItem.FileUrl,
-                    NewValue = newItem.FileUrl
-                });
-            }
-        }
-
-        if (details.Any())
-        {
-            changes.Add(new ChangedFieldDto
-            {
-                Field = "Course Media Files",
-                ChangeType = "modified",
-                Summary = $"Added {added.Count}, removed {removed.Count}, modified {details.Count(d => d.Type == "modified")} files",
-                Details = details
-            });
-        }
-
-        return changes;
-    }
-
-    private List<ChangedFieldDto> CompareCurriculum(CourseApprovedSnapshot snapshot, Course current)
-    {
-        var changes = new List<ChangedFieldDto>();
+        var list = new List<CurriculumSectionComparisonDto>();
         CourseContentSchema oldCurriculum = null;
         CourseContentSchema newCurriculum = null;
 
@@ -293,7 +242,7 @@ public class CourseChangeComparer
 
         if (oldCurriculum == null && newCurriculum == null)
         {
-            return changes;
+            return list;
         }
 
         var oldSections = oldCurriculum?.Contents ?? new();
@@ -306,44 +255,60 @@ public class CourseChangeComparer
         var removedSec = oldSections.Where(s => !newSecIds.Contains(s.SectionId)).ToList();
         var commonSec = newSections.Where(s => oldSecIds.Contains(s.SectionId)).ToList();
 
-        // 1. Sections changes
+        var oldSecIndexes = oldSections.Select((s, idx) => new { s.SectionId, Index = idx }).ToDictionary(x => x.SectionId, x => x.Index);
+        var newSecIndexes = newSections.Select((s, idx) => new { s.SectionId, Index = idx }).ToDictionary(x => x.SectionId, x => x.Index);
+
         foreach (var sec in addedSec)
         {
-            changes.Add(new ChangedFieldDto
+            list.Add(new CurriculumSectionComparisonDto
             {
-                Field = $"Section: {sec.Title}",
-                ChangeType = "added",
-                Summary = $"Added new section with {sec.Items.Count} items"
+                SectionId = sec.SectionId,
+                Status = "added",
+                NewTitle = sec.Title,
+                NewIndex = newSecIndexes.GetValueOrDefault(sec.SectionId, -1),
+                OldIndex = -1,
+                Items = sec.Items.Select((item, idx) => new CurriculumItemComparisonDto
+                {
+                    ItemId = item.ItemId,
+                    Type = item.Type,
+                    Status = "added",
+                    NewTitle = item.Title,
+                    NewIndex = idx,
+                    OldIndex = -1,
+                    QuizId = item.QuizId > 0 ? item.QuizId : null,
+                    AssignmentId = item.AssignmentId > 0 ? item.AssignmentId : null
+                }).ToList()
             });
         }
 
         foreach (var sec in removedSec)
         {
-            changes.Add(new ChangedFieldDto
+            list.Add(new CurriculumSectionComparisonDto
             {
-                Field = $"Section: {sec.Title}",
-                ChangeType = "removed",
-                Summary = $"Removed section and all its items"
+                SectionId = sec.SectionId,
+                Status = "removed",
+                OldTitle = sec.Title,
+                OldIndex = oldSecIndexes.GetValueOrDefault(sec.SectionId, -1),
+                NewIndex = -1,
+                Items = sec.Items.Select((item, idx) => new CurriculumItemComparisonDto
+                {
+                    ItemId = item.ItemId,
+                    Type = item.Type,
+                    Status = "removed",
+                    OldTitle = item.Title,
+                    OldIndex = idx,
+                    NewIndex = -1,
+                    QuizId = item.QuizId > 0 ? item.QuizId : null,
+                    AssignmentId = item.AssignmentId > 0 ? item.AssignmentId : null
+                }).ToList()
             });
         }
 
         foreach (var newSec in commonSec)
         {
             var oldSec = oldSections.First(s => s.SectionId == newSec.SectionId);
-            var secChangesDetails = new List<ChangeDetailDto>();
+            var itemsCompareList = new List<CurriculumItemComparisonDto>();
 
-            if (oldSec.Title != newSec.Title)
-            {
-                secChangesDetails.Add(new ChangeDetailDto
-                {
-                    Type = "modified",
-                    Item = "Section Title",
-                    OldValue = oldSec.Title,
-                    NewValue = newSec.Title
-                });
-            }
-
-            // Compare Items inside section
             var oldItems = oldSec.Items ?? new();
             var newItems = newSec.Items ?? new();
 
@@ -354,88 +319,169 @@ public class CourseChangeComparer
             var removedItems = oldItems.Where(i => !newItemIds.Contains(i.ItemId)).ToList();
             var commonItems = newItems.Where(i => oldItemIds.Contains(i.ItemId)).ToList();
 
+            var oldItemIndexes = oldItems.Select((i, idx) => new { i.ItemId, Index = idx }).ToDictionary(x => x.ItemId, x => x.Index);
+            var newItemIndexes = newItems.Select((i, idx) => new { i.ItemId, Index = idx }).ToDictionary(x => x.ItemId, x => x.Index);
+
             foreach (var item in addedItems)
             {
-                secChangesDetails.Add(new ChangeDetailDto
+                var itemDto = new CurriculumItemComparisonDto
                 {
-                    Type = "added",
-                    Value = $"{item.Title} ({item.Type})"
-                });
+                    ItemId = item.ItemId,
+                    Type = item.Type,
+                    Status = "added",
+                    NewTitle = item.Title,
+                    NewIndex = newItemIndexes.GetValueOrDefault(item.ItemId, -1),
+                    OldIndex = -1,
+                    QuizId = item.QuizId > 0 ? item.QuizId : null,
+                    AssignmentId = item.AssignmentId > 0 ? item.AssignmentId : null
+                };
+
+                if (item.Type == "lecture")
+                {
+                    if (item.VideoId > 0)
+                    {
+                        var newVid = currentMedia.FirstOrDefault(m => m.Id == item.VideoId);
+                        var newVidJson = newVid != null ? JsonSerializer.Serialize(new { fileName = newVid.FileName, duration = newVid.Duration ?? "0:00", fileSize = FormatSize(newVid.FileSize), fileUrl = newVid.FileUrl }) : "";
+                        itemDto.PropertyChanges.Add(new PropertyChangeDto { PropertyName = "Video", OldValue = "", NewValue = newVidJson });
+                    }
+                    if (!string.IsNullOrEmpty(item.Content))
+                    {
+                        itemDto.PropertyChanges.Add(new PropertyChangeDto { PropertyName = "Content", OldValue = "", NewValue = item.Content });
+                    }
+                }
+
+                itemsCompareList.Add(itemDto);
             }
 
             foreach (var item in removedItems)
             {
-                secChangesDetails.Add(new ChangeDetailDto
+                itemsCompareList.Add(new CurriculumItemComparisonDto
                 {
-                    Type = "removed",
-                    Value = $"{item.Title} ({item.Type})"
+                    ItemId = item.ItemId,
+                    Type = item.Type,
+                    Status = "removed",
+                    OldTitle = item.Title,
+                    OldIndex = oldItemIndexes.GetValueOrDefault(item.ItemId, -1),
+                    NewIndex = -1,
+                    QuizId = item.QuizId > 0 ? item.QuizId : null,
+                    AssignmentId = item.AssignmentId > 0 ? item.AssignmentId : null
                 });
             }
 
             foreach (var newItem in commonItems)
             {
                 var oldItem = oldItems.First(i => i.ItemId == newItem.ItemId);
-                var itemChanges = new List<string>();
+                var propertyChanges = new List<PropertyChangeDto>();
 
                 if (oldItem.Title != newItem.Title)
                 {
-                    itemChanges.Add($"Title: '{oldItem.Title}' → '{newItem.Title}'");
+                    propertyChanges.Add(new PropertyChangeDto { PropertyName = "Title", OldValue = oldItem.Title, NewValue = newItem.Title });
                 }
+
                 if (oldItem.Description != newItem.Description)
                 {
-                    itemChanges.Add("Description changed");
+                    propertyChanges.Add(new PropertyChangeDto { PropertyName = "Description", OldValue = oldItem.Description, NewValue = newItem.Description });
                 }
-                if (oldItem.Type != newItem.Type)
+
+                if (oldItem.Content != newItem.Content)
                 {
-                    itemChanges.Add($"Type: '{oldItem.Type}' → '{newItem.Type}'");
+                    propertyChanges.Add(new PropertyChangeDto { PropertyName = "Content", OldValue = oldItem.Content, NewValue = newItem.Content });
                 }
+
                 if (oldItem.VideoId != newItem.VideoId)
                 {
-                    itemChanges.Add("Video content updated");
+                    var oldVid = oldMedia.FirstOrDefault(m => m.Id == oldItem.VideoId);
+                    var newVid = currentMedia.FirstOrDefault(m => m.Id == newItem.VideoId);
+
+                    var oldVidJson = oldVid != null ? JsonSerializer.Serialize(new { fileName = oldVid.FileName, duration = oldVid.Duration ?? "0:00", fileSize = FormatSize(oldVid.FileSize), fileUrl = oldVid.FileUrl }) : "";
+                    var newVidJson = newVid != null ? JsonSerializer.Serialize(new { fileName = newVid.FileName, duration = newVid.Duration ?? "0:00", fileSize = FormatSize(newVid.FileSize), fileUrl = newVid.FileUrl }) : "";
+
+                    propertyChanges.Add(new PropertyChangeDto { PropertyName = "Video", OldValue = oldVidJson, NewValue = newVidJson });
                 }
+                else if (newItem.VideoId > 0)
+                {
+                    var oldVid = oldMedia.FirstOrDefault(m => m.Id == oldItem.VideoId);
+                    var newVid = currentMedia.FirstOrDefault(m => m.Id == newItem.VideoId);
+
+                    if (oldVid != null && newVid != null && (oldVid.FileName != newVid.FileName || oldVid.FileUrl != newVid.FileUrl || oldVid.FileSize != newVid.FileSize))
+                    {
+                        var oldVidJson = JsonSerializer.Serialize(new { fileName = oldVid.FileName, duration = oldVid.Duration ?? "0:00", fileSize = FormatSize(oldVid.FileSize), fileUrl = oldVid.FileUrl });
+                        var newVidJson = JsonSerializer.Serialize(new { fileName = newVid.FileName, duration = newVid.Duration ?? "0:00", fileSize = FormatSize(newVid.FileSize), fileUrl = newVid.FileUrl });
+                        propertyChanges.Add(new PropertyChangeDto { PropertyName = "Video", OldValue = oldVidJson, NewValue = newVidJson });
+                    }
+                }
+
+                // Compare resources
+                var oldResources = oldItem.Resources ?? new();
+                var newResources = newItem.Resources ?? new();
+
+                bool resourcesChanged = oldResources.Count != newResources.Count ||
+                                       oldResources.Any(or => !newResources.Any(nr => nr.Id == or.Id && nr.FileName == or.FileName && nr.FileUrl == or.FileUrl));
+
+                if (resourcesChanged)
+                {
+                    var oldResJson = JsonSerializer.Serialize(oldResources.Select(r => new { id = r.Id, fileName = r.FileName, fileUrl = r.FileUrl }));
+                    var newResJson = JsonSerializer.Serialize(newResources.Select(r => new { id = r.Id, fileName = r.FileName, fileUrl = r.FileUrl }));
+                    propertyChanges.Add(new PropertyChangeDto { PropertyName = "Resources", OldValue = oldResJson, NewValue = newResJson });
+                }
+
                 if (oldItem.QuizId != newItem.QuizId)
                 {
-                    itemChanges.Add("Quiz reference updated");
+                    propertyChanges.Add(new PropertyChangeDto { PropertyName = "QuizReference", OldValue = oldItem.QuizId.ToString(), NewValue = newItem.QuizId.ToString() });
                 }
+
                 if (oldItem.AssignmentId != newItem.AssignmentId)
                 {
-                    itemChanges.Add("Assignment reference updated");
+                    propertyChanges.Add(new PropertyChangeDto { PropertyName = "AssignmentReference", OldValue = oldItem.AssignmentId.ToString(), NewValue = newItem.AssignmentId.ToString() });
                 }
 
-                if (itemChanges.Any())
-                {
-                    secChangesDetails.Add(new ChangeDetailDto
-                    {
-                        Type = "modified",
-                        Item = newItem.Title,
-                        Value = string.Join(", ", itemChanges)
-                    });
-                }
-            }
+                var itemStatus = propertyChanges.Any() ? "modified" : "unchanged";
 
-            if (secChangesDetails.Any())
-            {
-                changes.Add(new ChangedFieldDto
+                itemsCompareList.Add(new CurriculumItemComparisonDto
                 {
-                    Field = $"Section: {newSec.Title}",
-                    ChangeType = "modified",
-                    Summary = $"Modified section content",
-                    Details = secChangesDetails
+                    ItemId = newItem.ItemId,
+                    Type = newItem.Type,
+                    Status = itemStatus,
+                    OldTitle = oldItem.Title,
+                    NewTitle = newItem.Title,
+                    OldIndex = oldItemIndexes.GetValueOrDefault(newItem.ItemId, -1),
+                    NewIndex = newItemIndexes.GetValueOrDefault(newItem.ItemId, -1),
+                    QuizId = newItem.QuizId > 0 ? newItem.QuizId : null,
+                    AssignmentId = newItem.AssignmentId > 0 ? newItem.AssignmentId : null,
+                    PropertyChanges = propertyChanges
                 });
             }
+
+            var sectionStatus = "unchanged";
+            if (oldSec.Title != newSec.Title)
+            {
+                sectionStatus = "modified";
+            }
+            else if (itemsCompareList.Any(i => i.Status != "unchanged"))
+            {
+                sectionStatus = "modified";
+            }
+
+            list.Add(new CurriculumSectionComparisonDto
+            {
+                SectionId = newSec.SectionId,
+                Status = sectionStatus,
+                OldTitle = oldSec.Title,
+                NewTitle = newSec.Title,
+                OldIndex = oldSecIndexes.GetValueOrDefault(newSec.SectionId, -1),
+                NewIndex = newSecIndexes.GetValueOrDefault(newSec.SectionId, -1),
+                Items = itemsCompareList.OrderBy(x => x.NewIndex > 0 ? x.NewIndex : x.OldIndex).ToList()
+            });
         }
 
-        return changes;
+        return list.OrderBy(x => x.NewIndex > 0 ? x.NewIndex : x.OldIndex).ToList();
     }
 
-    private List<ChangedFieldDto> CompareAssessments(
+    private List<QuizComparisonDto> CompareQuizzesDetails(
         CourseApprovedSnapshot snapshot,
-        List<Quiz> currentQuizzes,
-        List<Assignment> currentAssignments)
+        List<Quiz> currentQuizzes)
     {
-        var changes = new List<ChangedFieldDto>();
-
-        // Compare Quizzes
+        var list = new List<QuizComparisonDto>();
         var oldQuizzes = new List<SnapshotQuizDto>();
         try
         {
@@ -455,92 +501,333 @@ public class CourseChangeComparer
 
         foreach (var q in addedQuizzes)
         {
-            changes.Add(new ChangedFieldDto
+            list.Add(new QuizComparisonDto
             {
-                Field = $"Quiz: {q.Title}",
-                ChangeType = "added",
-                Summary = $"Added new quiz with {q.Questions?.Count ?? 0} questions"
+                QuizId = q.Id,
+                ItemId = q.ItemId,
+                Status = "added",
+                NewTitle = q.Title,
+                Questions = q.Questions?.OrderBy(x => x.SortOrder).Select(x => new QuizQuestionComparisonDto
+                {
+                    QuestionId = x.Id,
+                    Status = "added",
+                    NewName = x.Name,
+                    NewType = x.Type.ToString(),
+                    NewExplanation = x.Explanation,
+                    NewSortOrder = x.SortOrder,
+                    Choices = x.Choices?.OrderBy(c => c.SortOrder).Select(c => new QuizChoiceComparisonDto
+                    {
+                        ChoiceId = c.Id,
+                        Status = "added",
+                        NewText = c.Text,
+                        NewIsCorrect = c.IsCorrect,
+                        NewSortOrder = c.SortOrder
+                    }).ToList() ?? new()
+                }).ToList() ?? new()
             });
         }
 
         foreach (var q in removedQuizzes)
         {
-            changes.Add(new ChangedFieldDto
+            list.Add(new QuizComparisonDto
             {
-                Field = $"Quiz: {q.Title}",
-                ChangeType = "removed",
-                Summary = "Removed quiz"
+                QuizId = q.Id,
+                ItemId = q.ItemId,
+                Status = "removed",
+                OldTitle = q.Title,
+                Questions = q.Questions?.OrderBy(x => x.SortOrder).Select(x => new QuizQuestionComparisonDto
+                {
+                    QuestionId = x.Id,
+                    Status = "removed",
+                    OldName = x.Name,
+                    OldType = ((QuestionType)x.Type).ToString(),
+                    OldExplanation = x.Explanation,
+                    OldSortOrder = x.SortOrder,
+                    Choices = x.Choices?.OrderBy(c => c.SortOrder).Select(c => new QuizChoiceComparisonDto
+                    {
+                        ChoiceId = c.Id,
+                        Status = "removed",
+                        OldText = c.Text,
+                        OldIsCorrect = c.IsCorrect,
+                        OldSortOrder = c.SortOrder
+                    }).ToList() ?? new()
+                }).ToList() ?? new()
             });
         }
 
         foreach (var newQ in commonQuizzes)
         {
             var oldQ = oldQuizzes.First(q => q.Id == newQ.Id);
-            var quizChanges = new List<ChangeDetailDto>();
+            var settingChanges = new List<QuizSettingChangeDto>();
 
-            if (oldQ.Title != newQ.Title)
-            {
-                quizChanges.Add(new ChangeDetailDto { Type = "modified", Item = "Title", OldValue = oldQ.Title, NewValue = newQ.Title });
-            }
             if (oldQ.TimeLimitMinutes != newQ.TimeLimitMinutes)
             {
-                quizChanges.Add(new ChangeDetailDto { Type = "modified", Item = "Time Limit", OldValue = $"{oldQ.TimeLimitMinutes}m", NewValue = $"{newQ.TimeLimitMinutes}m" });
+                settingChanges.Add(new QuizSettingChangeDto { SettingName = "Time Limit", OldValue = $"{oldQ.TimeLimitMinutes} minutes", NewValue = $"{newQ.TimeLimitMinutes} minutes" });
             }
             if (oldQ.PassingScore != newQ.PassingScore)
             {
-                quizChanges.Add(new ChangeDetailDto { Type = "modified", Item = "Passing Score", OldValue = $"{oldQ.PassingScore}%", NewValue = $"{newQ.PassingScore}%" });
+                settingChanges.Add(new QuizSettingChangeDto { SettingName = "Passing Score", OldValue = $"{oldQ.PassingScore}%", NewValue = $"{newQ.PassingScore}%" });
             }
             if (oldQ.MaxAttempts != newQ.MaxAttempts)
             {
-                quizChanges.Add(new ChangeDetailDto { Type = "modified", Item = "Max Attempts", OldValue = oldQ.MaxAttempts.ToString(), NewValue = newQ.MaxAttempts.ToString() });
+                settingChanges.Add(new QuizSettingChangeDto { SettingName = "Max Attempts", OldValue = $"{oldQ.MaxAttempts} attempts", NewValue = $"{newQ.MaxAttempts} attempts" });
+            }
+            if (oldQ.RandomizeQuestions != newQ.RandomizeQuestions)
+            {
+                settingChanges.Add(new QuizSettingChangeDto { SettingName = "Randomize Questions", OldValue = oldQ.RandomizeQuestions.ToString(), NewValue = newQ.RandomizeQuestions.ToString() });
+            }
+            if ((oldQ.Description ?? "") != (newQ.Description ?? ""))
+            {
+                settingChanges.Add(new QuizSettingChangeDto { SettingName = "Description", OldValue = oldQ.Description ?? "—", NewValue = newQ.Description ?? "—" });
+            }
+            if ((oldQ.RelatedItemId ?? "") != (newQ.RelatedItemId ?? ""))
+            {
+                settingChanges.Add(new QuizSettingChangeDto { SettingName = "Related Lecture Item", OldValue = oldQ.RelatedItemId ?? "—", NewValue = newQ.RelatedItemId ?? "—" });
             }
 
-            // Compare questions list
-            var oldQuestions = oldQ.Questions ?? new List<SnapshotQuizQuestionDto>();
-            var newQuestions = newQ.Questions?.OrderBy(x => x.SortOrder).ToList() ?? new List<Question>();
+            var questionsCompare = CompareQuizQuestions(oldQ.Questions ?? new(), newQ.Questions?.ToList() ?? new());
 
-            if (oldQuestions.Count != newQuestions.Count)
+            var status = "unchanged";
+            if (oldQ.Title != newQ.Title || settingChanges.Any() || questionsCompare.Any(q => q.Status != "unchanged"))
             {
-                quizChanges.Add(new ChangeDetailDto
-                {
-                    Type = "modified",
-                    Item = "Questions Count",
-                    OldValue = oldQuestions.Count.ToString(),
-                    NewValue = newQuestions.Count.ToString()
-                });
+                status = "modified";
+            }
+
+            list.Add(new QuizComparisonDto
+            {
+                QuizId = newQ.Id,
+                ItemId = newQ.ItemId,
+                Status = status,
+                OldTitle = oldQ.Title,
+                NewTitle = newQ.Title,
+                SettingChanges = settingChanges,
+                Questions = questionsCompare
+            });
+        }
+
+        return list;
+    }
+
+    private List<QuizQuestionComparisonDto> CompareQuizQuestions(List<SnapshotQuizQuestionDto> oldQuestions, List<Question> newQuestions)
+    {
+        var list = new List<QuizQuestionComparisonDto>();
+        var oldQuestionsMapped = oldQuestions.Select(q => q).ToList();
+        var newQuestionsMapped = newQuestions.Select(q => q).ToList();
+
+        var matchedNewIds = new HashSet<int>();
+        var matchedOldIdxs = new HashSet<int>();
+
+        // 1. Try matching by Id
+        foreach (var newQ in newQuestionsMapped)
+        {
+            var oldQIdx = oldQuestionsMapped.FindIndex(o => o.Id > 0 && newQ.Id > 0 && o.Id == newQ.Id);
+            if (oldQIdx >= 0)
+            {
+                matchedNewIds.Add(newQ.Id);
+                matchedOldIdxs.Add(oldQIdx);
+                
+                var oldQ = oldQuestionsMapped[oldQIdx];
+                list.Add(CompareQuizQuestion(oldQ, newQ));
+            }
+        }
+
+        // 2. Fallback to SortOrder or Name
+        foreach (var newQ in newQuestionsMapped)
+        {
+            if (matchedNewIds.Contains(newQ.Id)) continue;
+
+            var oldQIdx = oldQuestionsMapped.FindIndex(o => !matchedOldIdxs.Contains(oldQuestionsMapped.IndexOf(o)) && o.SortOrder == newQ.SortOrder);
+            if (oldQIdx < 0)
+            {
+                oldQIdx = oldQuestionsMapped.FindIndex(o => !matchedOldIdxs.Contains(oldQuestionsMapped.IndexOf(o)) && o.Name == newQ.Name);
+            }
+
+            if (oldQIdx >= 0)
+            {
+                matchedNewIds.Add(newQ.Id);
+                matchedOldIdxs.Add(oldQIdx);
+
+                var oldQ = oldQuestionsMapped[oldQIdx];
+                list.Add(CompareQuizQuestion(oldQ, newQ));
             }
             else
             {
-                for (int i = 0; i < newQuestions.Count; i++)
+                list.Add(new QuizQuestionComparisonDto
                 {
-                    var oldQuest = oldQuestions[i];
-                    var newQuest = newQuestions[i];
-                    if (oldQuest.Name != newQuest.Name)
+                    QuestionId = newQ.Id,
+                    Status = "added",
+                    NewName = newQ.Name,
+                    NewType = newQ.Type.ToString(),
+                    NewExplanation = newQ.Explanation,
+                    NewSortOrder = newQ.SortOrder,
+                    Choices = newQ.Choices?.OrderBy(c => c.SortOrder).Select(c => new QuizChoiceComparisonDto
                     {
-                        quizChanges.Add(new ChangeDetailDto
-                        {
-                            Type = "modified",
-                            Item = $"Question #{i + 1}",
-                            OldValue = oldQuest.Name,
-                            NewValue = newQuest.Name
-                        });
-                    }
-                }
-            }
-
-            if (quizChanges.Any())
-            {
-                changes.Add(new ChangedFieldDto
-                {
-                    Field = $"Quiz: {newQ.Title}",
-                    ChangeType = "modified",
-                    Summary = "Modified quiz settings or questions",
-                    Details = quizChanges
+                        ChoiceId = c.Id,
+                        Status = "added",
+                        NewText = c.Text,
+                        NewIsCorrect = c.IsCorrect,
+                        NewSortOrder = c.SortOrder
+                    }).ToList() ?? new()
                 });
             }
         }
 
-        // Compare Assignments
+        // 3. Removed
+        for (int i = 0; i < oldQuestionsMapped.Count; i++)
+        {
+            if (matchedOldIdxs.Contains(i)) continue;
+            var oldQ = oldQuestionsMapped[i];
+            list.Add(new QuizQuestionComparisonDto
+            {
+                QuestionId = oldQ.Id,
+                Status = "removed",
+                OldName = oldQ.Name,
+                OldType = ((QuestionType)oldQ.Type).ToString(),
+                OldExplanation = oldQ.Explanation,
+                OldSortOrder = oldQ.SortOrder,
+                Choices = oldQ.Choices?.OrderBy(c => c.SortOrder).Select(c => new QuizChoiceComparisonDto
+                {
+                    ChoiceId = c.Id,
+                    Status = "removed",
+                    OldText = c.Text,
+                    OldIsCorrect = c.IsCorrect,
+                    OldSortOrder = c.SortOrder
+                }).ToList() ?? new()
+            });
+        }
+
+        return list.OrderBy(x => x.NewSortOrder > 0 ? x.NewSortOrder : x.OldSortOrder).ToList();
+    }
+
+    private QuizQuestionComparisonDto CompareQuizQuestion(SnapshotQuizQuestionDto oldQ, Question newQ)
+    {
+        var status = "unchanged";
+        var oldTypeStr = ((QuestionType)oldQ.Type).ToString();
+        var newTypeStr = newQ.Type.ToString();
+
+        if (oldQ.Name != newQ.Name || oldQ.Type != (int)newQ.Type || oldQ.Explanation != newQ.Explanation || oldQ.SortOrder != newQ.SortOrder)
+        {
+            status = "modified";
+        }
+
+        var choicesCompare = CompareQuizChoices(oldQ.Choices ?? new(), newQ.Choices?.ToList() ?? new());
+        if (choicesCompare.Any(c => c.Status != "unchanged"))
+        {
+            status = "modified";
+        }
+
+        return new QuizQuestionComparisonDto
+        {
+            QuestionId = newQ.Id,
+            Status = status,
+            OldName = oldQ.Name,
+            NewName = newQ.Name,
+            OldType = oldTypeStr,
+            NewType = newTypeStr,
+            OldExplanation = oldQ.Explanation,
+            NewExplanation = newQ.Explanation,
+            OldSortOrder = oldQ.SortOrder,
+            NewSortOrder = newQ.SortOrder,
+            Choices = choicesCompare
+        };
+    }
+
+    private List<QuizChoiceComparisonDto> CompareQuizChoices(List<SnapshotQuizChoiceDto> oldChoices, List<Choice> newChoices)
+    {
+        var list = new List<QuizChoiceComparisonDto>();
+        var matchedNewIds = new HashSet<int>();
+        var matchedOldIdxs = new HashSet<int>();
+
+        // 1. Try matching by Id
+        foreach (var newC in newChoices)
+        {
+            var oldCIdx = oldChoices.FindIndex(o => o.Id > 0 && newC.Id > 0 && o.Id == newC.Id);
+            if (oldCIdx >= 0)
+            {
+                matchedNewIds.Add(newC.Id);
+                matchedOldIdxs.Add(oldCIdx);
+
+                var oldC = oldChoices[oldCIdx];
+                list.Add(CompareQuizChoice(oldC, newC));
+            }
+        }
+
+        // 2. Fallback to SortOrder or Text
+        foreach (var newC in newChoices)
+        {
+            if (matchedNewIds.Contains(newC.Id)) continue;
+
+            var oldCIdx = oldChoices.FindIndex(o => !matchedOldIdxs.Contains(oldChoices.IndexOf(o)) && o.SortOrder == newC.SortOrder);
+            if (oldCIdx < 0)
+            {
+                oldCIdx = oldChoices.FindIndex(o => !matchedOldIdxs.Contains(oldChoices.IndexOf(o)) && o.Text == newC.Text);
+            }
+
+            if (oldCIdx >= 0)
+            {
+                matchedNewIds.Add(newC.Id);
+                matchedOldIdxs.Add(oldCIdx);
+
+                var oldC = oldChoices[oldCIdx];
+                list.Add(CompareQuizChoice(oldC, newC));
+            }
+            else
+            {
+                list.Add(new QuizChoiceComparisonDto
+                {
+                    ChoiceId = newC.Id,
+                    Status = "added",
+                    NewText = newC.Text,
+                    NewIsCorrect = newC.IsCorrect,
+                    NewSortOrder = newC.SortOrder
+                });
+            }
+        }
+
+        // 3. Removed
+        for (int i = 0; i < oldChoices.Count; i++)
+        {
+            if (matchedOldIdxs.Contains(i)) continue;
+            var oldC = oldChoices[i];
+            list.Add(new QuizChoiceComparisonDto
+            {
+                ChoiceId = oldC.Id,
+                Status = "removed",
+                OldText = oldC.Text,
+                OldIsCorrect = oldC.IsCorrect,
+                OldSortOrder = oldC.SortOrder
+            });
+        }
+
+        return list.OrderBy(x => x.NewSortOrder > 0 ? x.NewSortOrder : x.OldSortOrder).ToList();
+    }
+
+    private QuizChoiceComparisonDto CompareQuizChoice(SnapshotQuizChoiceDto oldC, Choice newC)
+    {
+        var status = "unchanged";
+        if (oldC.Text != newC.Text || oldC.IsCorrect != newC.IsCorrect || oldC.SortOrder != newC.SortOrder)
+        {
+            status = "modified";
+        }
+
+        return new QuizChoiceComparisonDto
+        {
+            ChoiceId = newC.Id,
+            Status = status,
+            OldText = oldC.Text,
+            NewText = newC.Text,
+            OldIsCorrect = oldC.IsCorrect,
+            NewIsCorrect = newC.IsCorrect,
+            OldSortOrder = oldC.SortOrder,
+            NewSortOrder = newC.SortOrder
+        };
+    }
+
+    private List<AssignmentComparisonDto> CompareAssignmentsDetails(
+        CourseApprovedSnapshot snapshot,
+        List<Assignment> currentAssignments)
+    {
+        var list = new List<AssignmentComparisonDto>();
         var oldAssignments = new List<SnapshotAssignmentDto>();
         try
         {
@@ -560,59 +847,172 @@ public class CourseChangeComparer
 
         foreach (var a in addedAssign)
         {
-            changes.Add(new ChangedFieldDto
+            list.Add(new AssignmentComparisonDto
             {
-                Field = $"Assignment: {a.Title}",
-                ChangeType = "added",
-                Summary = "Added new assignment"
+                AssignmentId = a.Id,
+                ItemId = a.ItemId,
+                Status = "added",
+                NewTitle = a.Title,
+                Questions = a.Questions?.OrderBy(x => x.SortOrder).Select(x => new AssignmentQuestionComparisonDto
+                {
+                    QuestionId = x.Id,
+                    Status = "added",
+                    NewQuestionText = x.QuestionText,
+                    NewExampleAnswer = x.ExampleAnswer,
+                    NewSortOrder = x.SortOrder
+                }).ToList() ?? new()
             });
         }
 
         foreach (var a in removedAssign)
         {
-            changes.Add(new ChangedFieldDto
+            list.Add(new AssignmentComparisonDto
             {
-                Field = $"Assignment: {a.Title}",
-                ChangeType = "removed",
-                Summary = "Removed assignment"
+                AssignmentId = a.Id,
+                ItemId = a.ItemId,
+                Status = "removed",
+                OldTitle = a.Title,
+                Questions = a.Questions?.OrderBy(x => x.SortOrder).Select(x => new AssignmentQuestionComparisonDto
+                {
+                    QuestionId = x.Id,
+                    Status = "removed",
+                    OldQuestionText = x.QuestionText,
+                    OldExampleAnswer = x.ExampleAnswer,
+                    OldSortOrder = x.SortOrder
+                }).ToList() ?? new()
             });
         }
 
         foreach (var newA in commonAssign)
         {
             var oldA = oldAssignments.First(a => a.Id == newA.Id);
-            var assignChanges = new List<ChangeDetailDto>();
+            var settingChanges = new List<AssignmentSettingChangeDto>();
 
-            if (oldA.Title != newA.Title)
-            {
-                assignChanges.Add(new ChangeDetailDto { Type = "modified", Item = "Title", OldValue = oldA.Title, NewValue = newA.Title });
-            }
             if (oldA.Description != newA.Description)
             {
-                assignChanges.Add(new ChangeDetailDto { Type = "modified", Item = "Description", OldValue = "Modified description", NewValue = "Modified description" });
+                settingChanges.Add(new AssignmentSettingChangeDto { SettingName = "Description", OldValue = oldA.Description ?? "—", NewValue = newA.Description ?? "—" });
             }
             if (oldA.Instructions != newA.Instructions)
             {
-                assignChanges.Add(new ChangeDetailDto { Type = "modified", Item = "Instructions", OldValue = "Modified instructions", NewValue = "Modified instructions" });
+                settingChanges.Add(new AssignmentSettingChangeDto { SettingName = "Instructions", OldValue = oldA.Instructions ?? "—", NewValue = newA.Instructions ?? "—" });
             }
             if (oldA.EstimatedDurationMinutes != newA.EstimatedDurationMinutes)
             {
-                assignChanges.Add(new ChangeDetailDto { Type = "modified", Item = "Estimated Duration", OldValue = $"{oldA.EstimatedDurationMinutes}m", NewValue = $"{newA.EstimatedDurationMinutes}m" });
+                settingChanges.Add(new AssignmentSettingChangeDto { SettingName = "Estimated Duration", OldValue = $"{oldA.EstimatedDurationMinutes} minutes", NewValue = $"{newA.EstimatedDurationMinutes} minutes" });
             }
 
-            if (assignChanges.Any())
+            var questionsCompare = CompareAssignmentQuestions(oldA.Questions ?? new(), newA.Questions?.ToList() ?? new());
+
+            var status = "unchanged";
+            if (oldA.Title != newA.Title || settingChanges.Any() || questionsCompare.Any(q => q.Status != "unchanged"))
             {
-                changes.Add(new ChangedFieldDto
+                status = "modified";
+            }
+
+            list.Add(new AssignmentComparisonDto
+            {
+                AssignmentId = newA.Id,
+                ItemId = newA.ItemId,
+                Status = status,
+                OldTitle = oldA.Title,
+                NewTitle = newA.Title,
+                SettingChanges = settingChanges,
+                Questions = questionsCompare
+            });
+        }
+
+        return list;
+    }
+
+    private List<AssignmentQuestionComparisonDto> CompareAssignmentQuestions(List<SnapshotAssignmentQuestionDto> oldQuestions, List<AssignmentQuestion> newQuestions)
+    {
+        var list = new List<AssignmentQuestionComparisonDto>();
+        var matchedNewIds = new HashSet<int>();
+        var matchedOldIdxs = new HashSet<int>();
+
+        // 1. Match by Id
+        foreach (var newQ in newQuestions)
+        {
+            var oldQIdx = oldQuestions.FindIndex(o => o.Id > 0 && newQ.Id > 0 && o.Id == newQ.Id);
+            if (oldQIdx >= 0)
+            {
+                matchedNewIds.Add(newQ.Id);
+                matchedOldIdxs.Add(oldQIdx);
+
+                var oldQ = oldQuestions[oldQIdx];
+                list.Add(CompareAssignmentQuestion(oldQ, newQ));
+            }
+        }
+
+        // 2. Fallback to SortOrder or Text
+        foreach (var newQ in newQuestions)
+        {
+            if (matchedNewIds.Contains(newQ.Id)) continue;
+
+            var oldQIdx = oldQuestions.FindIndex(o => !matchedOldIdxs.Contains(oldQuestions.IndexOf(o)) && o.SortOrder == newQ.SortOrder);
+            if (oldQIdx < 0)
+            {
+                oldQIdx = oldQuestions.FindIndex(o => !matchedOldIdxs.Contains(oldQuestions.IndexOf(o)) && o.QuestionText == newQ.QuestionText);
+            }
+
+            if (oldQIdx >= 0)
+            {
+                matchedNewIds.Add(newQ.Id);
+                matchedOldIdxs.Add(oldQIdx);
+
+                var oldQ = oldQuestions[oldQIdx];
+                list.Add(CompareAssignmentQuestion(oldQ, newQ));
+            }
+            else
+            {
+                list.Add(new AssignmentQuestionComparisonDto
                 {
-                    Field = $"Assignment: {newA.Title}",
-                    ChangeType = "modified",
-                    Summary = "Modified assignment details",
-                    Details = assignChanges
+                    QuestionId = newQ.Id,
+                    Status = "added",
+                    NewQuestionText = newQ.QuestionText,
+                    NewExampleAnswer = newQ.ExampleAnswer,
+                    NewSortOrder = newQ.SortOrder
                 });
             }
         }
 
-        return changes;
+        // 3. Removed
+        for (int i = 0; i < oldQuestions.Count; i++)
+        {
+            if (matchedOldIdxs.Contains(i)) continue;
+            var oldQ = oldQuestions[i];
+            list.Add(new AssignmentQuestionComparisonDto
+            {
+                QuestionId = oldQ.Id,
+                Status = "removed",
+                OldQuestionText = oldQ.QuestionText,
+                OldExampleAnswer = oldQ.ExampleAnswer,
+                OldSortOrder = oldQ.SortOrder
+            });
+        }
+
+        return list.OrderBy(x => x.NewSortOrder > 0 ? x.NewSortOrder : x.OldSortOrder).ToList();
+    }
+
+    private AssignmentQuestionComparisonDto CompareAssignmentQuestion(SnapshotAssignmentQuestionDto oldQ, AssignmentQuestion newQ)
+    {
+        var status = "unchanged";
+        if (oldQ.QuestionText != newQ.QuestionText || oldQ.ExampleAnswer != newQ.ExampleAnswer || oldQ.SortOrder != newQ.SortOrder)
+        {
+            status = "modified";
+        }
+
+        return new AssignmentQuestionComparisonDto
+        {
+            QuestionId = newQ.Id,
+            Status = status,
+            OldQuestionText = oldQ.QuestionText,
+            NewQuestionText = newQ.QuestionText,
+            OldExampleAnswer = oldQ.ExampleAnswer,
+            NewExampleAnswer = newQ.ExampleAnswer,
+            OldSortOrder = oldQ.SortOrder,
+            NewSortOrder = newQ.SortOrder
+        };
     }
 
     private void CompareScalar(List<ChangedFieldDto> changes, string fieldName, string oldVal, string newVal)
@@ -678,6 +1078,19 @@ public class CourseChangeComparer
         }
     }
 
+    private static string FormatSize(long bytes)
+    {
+        string[] suffixes = { "B", "KB", "MB", "GB" };
+        int counter = 0;
+        decimal number = bytes;
+        while (Math.Round(number / 1024) >= 1)
+        {
+            number /= 1024;
+            counter++;
+        }
+        return $"{number:n1} {suffixes[counter]}";
+    }
+
     // Helper classes for deserialization of snapshots
     private class SnapshotMediaDto
     {
@@ -685,12 +1098,16 @@ public class CourseChangeComparer
         public string FileName { get; set; }
         public string FileUrl { get; set; }
         public string ContentType { get; set; }
+        public string Duration { get; set; }
+        public long FileSize { get; set; }
     }
 
     private class SnapshotQuizDto
     {
         public int Id { get; set; }
         public string Title { get; set; }
+        public string Description { get; set; }
+        public string RelatedItemId { get; set; }
         public string ItemId { get; set; }
         public int TimeLimitMinutes { get; set; }
         public int PassingScore { get; set; }
@@ -702,6 +1119,7 @@ public class CourseChangeComparer
 
     private class SnapshotQuizQuestionDto
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public int Type { get; set; }
         public string Explanation { get; set; }
@@ -711,6 +1129,7 @@ public class CourseChangeComparer
 
     private class SnapshotQuizChoiceDto
     {
+        public int Id { get; set; }
         public string Text { get; set; }
         public bool IsCorrect { get; set; }
         public int SortOrder { get; set; }
@@ -724,6 +1143,15 @@ public class CourseChangeComparer
         public string Description { get; set; }
         public string Instructions { get; set; }
         public int EstimatedDurationMinutes { get; set; }
+        public List<SnapshotAssignmentQuestionDto> Questions { get; set; }
+    }
+
+    private class SnapshotAssignmentQuestionDto
+    {
+        public int Id { get; set; }
+        public string QuestionText { get; set; }
+        public string ExampleAnswer { get; set; }
+        public int SortOrder { get; set; }
     }
 }
 
@@ -739,6 +1167,9 @@ public class ComparisonResultDto
     public int? ApprovedSubmissionNumber { get; set; }
     public int TotalChanges { get; set; }
     public List<ChangeGroupDto> ChangeGroups { get; set; } = new();
+    public List<CurriculumSectionComparisonDto> CurriculumComparison { get; set; } = new();
+    public List<QuizComparisonDto> QuizComparison { get; set; } = new();
+    public List<AssignmentComparisonDto> AssignmentComparison { get; set; } = new();
 }
 
 public class ChangeGroupDto
@@ -764,4 +1195,111 @@ public class ChangeDetailDto
     public string Item { get; set; }
     public string OldValue { get; set; }
     public string NewValue { get; set; }
+}
+
+public class CurriculumSectionComparisonDto
+{
+    public string SectionId { get; set; }
+    public string Status { get; set; }
+    public string OldTitle { get; set; }
+    public string NewTitle { get; set; }
+    public int OldIndex { get; set; }
+    public int NewIndex { get; set; }
+    public List<CurriculumItemComparisonDto> Items { get; set; } = new();
+}
+
+public class CurriculumItemComparisonDto
+{
+    public string ItemId { get; set; }
+    public string Type { get; set; }
+    public string Status { get; set; }
+    public string OldTitle { get; set; }
+    public string NewTitle { get; set; }
+    public int OldIndex { get; set; }
+    public int NewIndex { get; set; }
+    public int? QuizId { get; set; }
+    public int? AssignmentId { get; set; }
+    public List<PropertyChangeDto> PropertyChanges { get; set; } = new();
+}
+
+public class PropertyChangeDto
+{
+    public string PropertyName { get; set; }
+    public string OldValue { get; set; }
+    public string NewValue { get; set; }
+}
+
+public class QuizComparisonDto
+{
+    public int QuizId { get; set; }
+    public string ItemId { get; set; }
+    public string Status { get; set; }
+    public string OldTitle { get; set; }
+    public string NewTitle { get; set; }
+    public List<QuizSettingChangeDto> SettingChanges { get; set; } = new();
+    public List<QuizQuestionComparisonDto> Questions { get; set; } = new();
+}
+
+public class QuizSettingChangeDto
+{
+    public string SettingName { get; set; }
+    public string OldValue { get; set; }
+    public string NewValue { get; set; }
+}
+
+public class QuizQuestionComparisonDto
+{
+    public int QuestionId { get; set; }
+    public string Status { get; set; }
+    public string OldName { get; set; }
+    public string NewName { get; set; }
+    public string OldType { get; set; }
+    public string NewType { get; set; }
+    public string OldExplanation { get; set; }
+    public string NewExplanation { get; set; }
+    public int OldSortOrder { get; set; }
+    public int NewSortOrder { get; set; }
+    public List<QuizChoiceComparisonDto> Choices { get; set; } = new();
+}
+
+public class QuizChoiceComparisonDto
+{
+    public int ChoiceId { get; set; }
+    public string Status { get; set; }
+    public string OldText { get; set; }
+    public string NewText { get; set; }
+    public bool OldIsCorrect { get; set; }
+    public bool NewIsCorrect { get; set; }
+    public int OldSortOrder { get; set; }
+    public int NewSortOrder { get; set; }
+}
+
+public class AssignmentComparisonDto
+{
+    public int AssignmentId { get; set; }
+    public string ItemId { get; set; }
+    public string Status { get; set; }
+    public string OldTitle { get; set; }
+    public string NewTitle { get; set; }
+    public List<AssignmentSettingChangeDto> SettingChanges { get; set; } = new();
+    public List<AssignmentQuestionComparisonDto> Questions { get; set; } = new();
+}
+
+public class AssignmentSettingChangeDto
+{
+    public string SettingName { get; set; }
+    public string OldValue { get; set; }
+    public string NewValue { get; set; }
+}
+
+public class AssignmentQuestionComparisonDto
+{
+    public int QuestionId { get; set; }
+    public string Status { get; set; }
+    public string OldQuestionText { get; set; }
+    public string NewQuestionText { get; set; }
+    public string OldExampleAnswer { get; set; }
+    public string NewExampleAnswer { get; set; }
+    public int OldSortOrder { get; set; }
+    public int NewSortOrder { get; set; }
 }

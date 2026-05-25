@@ -21,10 +21,17 @@ function CourseSetting() {
 
   const isDeleting = deleteCourseMutation.isPending || deleteCourseMutation.isLoading;
   const isUpdating = updatecourseMutation.isPending || updatecourseMutation.isLoading;
-  const handleTogglePublish = () => {
-    if (!courseData) return;
+  const canTogglePublish = courseData?.status === 1 || courseData?.status === 2;
+  const getButtonText = () => {
+    if (courseData?.status === 1) return "Public";
+    if (courseData?.status === 2) return "Private";
+    return "Unpublished";
+  };
 
-    const newStatus = courseData.status === 0 ? 1 : 0;
+  const handleTogglePublish = () => {
+    if (!courseData || !canTogglePublish) return;
+
+    const newStatus = courseData.status === 1 ? 2 : 1;
 
     updatecourseMutation.mutate({
       ...courseData,
@@ -77,7 +84,7 @@ function CourseSetting() {
               color: "text.primary",
             }}
           >
-            This course is not published on the Edunary marketplace.
+            This course is {courseData?.status === 1 ? "" : "not "}published on the Edunary marketplace.
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -91,7 +98,7 @@ function CourseSetting() {
               <Button
                 variant="outlined"
                 onClick={handleTogglePublish}
-                disabled={isUpdating || isDeleting}
+                disabled={isUpdating || isDeleting || !canTogglePublish}
                 sx={{
                   width: "160px",
                   textTransform: "none",
@@ -110,7 +117,7 @@ function CourseSetting() {
                     <LoadingSpinner size={20} />
                   </Box>
                 ) : (
-                  courseData?.status === 0 ? "Publish" : "Unpublish"
+                  getButtonText()
                 )}
               </Button>
               <Typography
@@ -118,8 +125,9 @@ function CourseSetting() {
                   color: "#1a1a1a",
                 }}
               >
-                New students cannot find your course via search, but existing
-                students can still access content.
+                {courseData?.status === 1
+                  ? "New students can find your course via search, enroll, and purchase the course."
+                  : "New students cannot find your course via search, but existing students can still access content."}
               </Typography>
             </Box>
 

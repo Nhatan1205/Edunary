@@ -91,7 +91,11 @@ export default function CourseChangesPage() {
           initialSecs[sec.sectionId] = true;
         }
         sec.items?.forEach((item) => {
-          if (item.status !== "unchanged") {
+          const quizComp = item.type === "quiz" && activeData?.quizComparison?.find((q) => q.quizId === item.quizId);
+          const assignComp = item.type === "assignment" && activeData?.assignmentComparison?.find((a) => a.assignmentId === item.assignmentId);
+          const hasUnderlyingChanges = (quizComp && quizComp.status !== "unchanged") || (assignComp && assignComp.status !== "unchanged");
+
+          if (item.status !== "unchanged" || hasUnderlyingChanges) {
             initialItems[item.itemId] = true;
             initialSecs[sec.sectionId] = true; // Auto-expand parent section
           }

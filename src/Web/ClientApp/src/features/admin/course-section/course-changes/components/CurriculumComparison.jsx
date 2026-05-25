@@ -127,9 +127,13 @@ export default function CurriculumComparison({
                   </Typography>
                 ) : (
                   section.items.map((item, iIndex) => {
+                    const quizComp = item.type === "quiz" && activeData?.quizComparison?.find((q) => q.quizId === item.quizId);
+                    const assignComp = item.type === "assignment" && activeData?.assignmentComparison?.find((a) => a.assignmentId === item.assignmentId);
+                    const hasUnderlyingChanges = (quizComp && quizComp.status !== "unchanged") || (assignComp && assignComp.status !== "unchanged");
+
                     const isItemAdded = item.status === "added" || isSecAdded;
                     const isItemRemoved = item.status === "removed" || isSecRemoved;
-                    const isItemModified = item.status === "modified" && !isSecAdded && !isSecRemoved;
+                    const isItemModified = (item.status === "modified" || hasUnderlyingChanges) && !isSecAdded && !isSecRemoved;
                     const isItemExpanded = !!expandedItems[item.itemId];
                     const canExpand = isItemModified || isItemAdded;
 
@@ -238,6 +242,26 @@ export default function CurriculumComparison({
                                           sx={{ borderRadius: "8px", fontWeight: 600 }}
                                         >
                                           Compare Content
+                                        </Button>
+                                      </Box>
+                                    );
+                                  }
+
+                                  // 2b. Description change
+                                  if (change.propertyName === "Description") {
+                                    return (
+                                      <Box key={pIdx} sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary" }}>
+                                          Lecture description updated
+                                        </Typography>
+                                        <Button
+                                          variant="outlined"
+                                          startIcon={<CompareIcon />}
+                                          size="small"
+                                          onClick={() => onCompareClick(`${item.newTitle} Description`, change.oldValue, change.newValue)}
+                                          sx={{ borderRadius: "8px", fontWeight: 600 }}
+                                        >
+                                          Compare Description
                                         </Button>
                                       </Box>
                                     );

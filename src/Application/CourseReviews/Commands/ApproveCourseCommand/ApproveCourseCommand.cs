@@ -3,8 +3,8 @@ using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 using Edunary.Domain.Common;
+using Edunary.Domain.Events.Courses;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace Edunary.Application.CourseReviews.Commands.ApproveCourseCommand;
@@ -18,25 +18,13 @@ public class ApproveCourseCommandHandler : IRequestHandler<ApproveCourseCommand,
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IIdentityService _identityService;
-    private readonly INotifyService _notifyService;
-    private readonly IEmailService _emailService;
-    private readonly AppSettings _appSettings;
 
     public ApproveCourseCommandHandler(
         IApplicationDbContext context,
-        ICurrentUserService currentUserService,
-        IIdentityService identityService,
-        INotifyService notifyService,
-        IEmailService emailService,
-        IOptions<AppSettings> appSettings)
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;
-        _identityService = identityService;
-        _notifyService = notifyService;
-        _emailService = emailService;
-        _appSettings = appSettings.Value;
     }
 
     public async Task<Result> Handle(ApproveCourseCommand request, CancellationToken cancellationToken)
@@ -173,35 +161,9 @@ public class ApproveCourseCommandHandler : IRequestHandler<ApproveCourseCommand,
         submission.ReviewedAt = DateTimeOffset.UtcNow;
 
         course.Status = CourseStatus.Public;
+        course.AddDomainEvent(new CourseApprovedEvent(course));
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        // Notify instructor
-
-        var instructorId = course.CreatedBy;
-
-        await _notifyService.NotifyUserAsync(
-            instructorId,
-            "Course Approved & Published! 🎉",
-            $"Your course \"{course.Title}\" has been approved and is now live.",
-            "course_approved",
-            new { courseId },
-            cancellationToken,
-            courseId: courseId,
-            url: $"/course/{courseId}",
-            imageUrl: course.ImageUrl ?? string.Empty);
-
-        var instructor = await _identityService.GetUserById(instructorId);
-        if (instructor != null && !string.IsNullOrEmpty(instructor.Email))
-        {
-            var courseUrl = $"{_appSettings.ClientUrl}/course/{courseId}";
-            var html = EmailTemplates.BuildCourseApprovedTemplate(
-                instructor.FullName ?? instructor.Email,
-                course.Title,
-                courseUrl);
-
-            await _emailService.SendBulkEmailsAsync(new[] { instructor.Email }, $"Your course \"{course.Title}\" is now published!", html);
-        }
 
         return Result.Success(message: "Course approved and published successfully.");
     }

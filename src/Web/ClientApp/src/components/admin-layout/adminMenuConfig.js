@@ -121,6 +121,18 @@ const adminMenuConfig = {
               type: "item",
               url: "/admin/coupons",
             },
+            {
+              id: "course-list",
+              title: "List",
+              type: "item",
+              url: "/admin/course/list",
+            },
+            {
+              id: "course-approvals",
+              title: "Approvals",
+              type: "item",
+              url: "/admin/course/approvals",
+            },
           ],
         },
         {

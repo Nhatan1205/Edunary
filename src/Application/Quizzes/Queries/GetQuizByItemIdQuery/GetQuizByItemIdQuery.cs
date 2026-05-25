@@ -1,6 +1,7 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
+using Edunary.Domain.Constants;
 
 namespace Edunary.Application.Quizzes.Queries.GetQuizByItemIdQuery;
 
@@ -15,28 +16,34 @@ public class GetQuizByItemIdQueryHandler : IRequestHandler<GetQuizByItemIdQuery,
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly ICourseAuthorizationService _courseAuth;
+    private readonly IIdentityService _identityService;
 
     public GetQuizByItemIdQueryHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
-        ICourseAuthorizationService courseAuth)
+        ICourseAuthorizationService courseAuth,
+        IIdentityService identityService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _courseAuth = courseAuth;
+        _identityService = identityService;
     }
 
     public async Task<QuizDto> Handle(GetQuizByItemIdQuery request, CancellationToken cancellationToken)
     {
         string userId = _currentUserService.UserId;
 
-        // Accept: course instructor/collaborator OR enrolled student
+        // Accept: course instructor/collaborator OR enrolled student OR administrator
         bool isEnrolled = await _context.Enrollments
             .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == userId, cancellationToken);
 
         bool hasInstructorAccess = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, cancellationToken: cancellationToken);
 
-        if (!isEnrolled && !hasInstructorAccess)
+        bool isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator)
+            || await _identityService.IsInRoleAsync(userId, Roles.SuperAdmin);
+
+        if (!isEnrolled && !hasInstructorAccess && !isAdmin)
             return null;
 
         Quiz quiz = await _context.Quizzes

@@ -48,7 +48,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
                 Title = request.Title,
                 CategoryId = request.CategoryId,
                 Price = request.Price,
-                Status = CourseStatus.Draft
+                Status = CourseStatus.Unpublished
             };
 
             entity.AddDomainEvent(new CourseCreatedEvent(entity));

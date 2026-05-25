@@ -59,6 +59,10 @@ public class Course : BaseAuditableEntity
 
     public ICollection<CourseCollaborator> Collaborators { get; set; } = new List<CourseCollaborator>();
 
+    public ICollection<CourseReviewSubmission> ReviewSubmissions { get; set; } = new List<CourseReviewSubmission>();
+
+    public ICollection<CourseApprovedSnapshot> ApprovedSnapshots { get; set; } = new List<CourseApprovedSnapshot>();
+
     public void UpdateTotalStudents()
     {
         TotalStudents++;

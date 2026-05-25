@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Enums;
+using Edunary.Domain.Constants;
 
 namespace Edunary.Application.Assignments.Queries.GetAssignmentByItemIdQuery;
 
@@ -37,19 +38,22 @@ public class GetAssignmentByItemIdQueryHandler : IRequestHandler<GetAssignmentBy
 
         bool isInstructor = await _courseAuth.HasCourseAccessAsync(request.CourseId, userId, CoursePermission.None, cancellationToken);
 
+        bool isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator)
+            || await _identityService.IsInRoleAsync(userId, Roles.SuperAdmin);
+
         var assignment = await _context.Assignments
             .Include(a => a.Questions.OrderBy(q => q.SortOrder))
             .Include(a => a.Course)
             .FirstOrDefaultAsync(
                 a => a.CourseId == request.CourseId
                     && a.ItemId == request.ItemId
-                    && (isInstructor || isEnrolled),
+                    && (isInstructor || isEnrolled || isAdmin),
                 cancellationToken);
 
         if (assignment == null) return null;
 
         // Students can only see published assignments
-        if (!isInstructor && !assignment.IsPublished) return null;
+        if (!isInstructor && !isAdmin && !assignment.IsPublished) return null;
 
         AssignmentDto dto = new AssignmentDto
         {

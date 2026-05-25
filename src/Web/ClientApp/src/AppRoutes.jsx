@@ -27,6 +27,7 @@ import CourseMessages from "./features/instructor/courses-management/course-mana
 import CourseCurriculum from "./features/instructor/courses-management/course-manage-page/pages/CourseCurriculum";
 import CourseCaptions from "./features/instructor/courses-management/course-manage-page/pages/CourseCaptions";
 import CourseAccessiblity from "./features/instructor/courses-management/course-manage-page/pages/CourseAccessiblity";
+import CourseFeedbackPage from "./features/instructor/courses-management/course-manage-page/pages/course-feedback-page/CourseFeedbackPage";
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
 import MyLearning from "./features/user/my-learning/MyLearning";
@@ -82,6 +83,11 @@ import CouponsPage from "./features/instructor/coupons-page/CouponsPage";
 import FinancePage from "./features/admin/finance/FinancePage";
 import PayoutsPage from "./features/admin/finance/PayoutsPage";
 import TaxRegionsPage from "./features/admin/finance/TaxRegionsPage";
+import CourseApprovalsPage from "./features/admin/course-section/course-approvals/course-approvals-page/CourseApprovalsPage";
+import CourseApprovalDetailPage from "./features/admin/course-section/course-approvals/course-approval-detail-page/CourseApprovalDetailPage";
+import AdminCoursePreviewPage from "./features/admin/course-section/course-approvals/admin-course-preview-page/AdminCoursePreviewPage";
+import CourseManagementPage from "./features/admin/course-section/course-management/CourseManagementPage";
+import CourseChangesPage from "./features/admin/course-section/course-changes/CourseChangesPage";
 
 const router = createBrowserRouter([
   {
@@ -114,6 +120,14 @@ const router = createBrowserRouter([
           {
             path: "topic",
             element: <TopicPage />,
+          },
+          {
+            path: "list",
+            element: <CourseManagementPage />,
+          },
+          {
+            path: ":courseId/changes",
+            element: <CourseChangesPage />,
           },
         ]
       },
@@ -184,6 +198,14 @@ const router = createBrowserRouter([
       {
         path: "finance/tax-regions",
         element: <TaxRegionsPage />,
+      },
+      {
+        path: "course/approvals",
+        element: <CourseApprovalsPage />,
+      },
+      {
+        path: "course/approvals/:submissionId",
+        element: <CourseApprovalDetailPage />,
       },
     ],
   },
@@ -467,6 +489,14 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: "/admin/course/approvals/:submissionId/preview/:courseId",
+    element: (
+      <AdminRoute>
+        <AdminCoursePreviewPage />
+      </AdminRoute>
+    ),
+  },
+  {
     path: "/personalize",
     element: (
       <ProtectedRoute>
@@ -525,6 +555,10 @@ const router = createBrowserRouter([
       {
         path: "accessibility",
         element: <CourseAccessiblity />,
+      },
+      {
+        path: "feedback",
+        element: <CourseFeedbackPage />,
       },
     ],
   },

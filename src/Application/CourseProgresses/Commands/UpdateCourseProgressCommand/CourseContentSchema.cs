@@ -57,7 +57,7 @@ public class ItemSchema
     [JsonPropertyName("contentType")]
     public string ContentType { get; set; } = string.Empty;
     [JsonPropertyName("videoId")]
-    public int VideoId { get; set; }
+    public int VideoId { get; set; } = 0;
     [JsonPropertyName("videoDuration")]
     public string VideoDuration { get; set; } = "1 minute";
     [JsonPropertyName("isFreePreview")]

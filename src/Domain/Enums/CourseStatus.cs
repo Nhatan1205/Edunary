@@ -1,6 +1,10 @@
-﻿namespace Edunary.Domain.Enums;
+namespace Edunary.Domain.Enums;
+
 public enum CourseStatus
 {
-    Draft = 0,
+    Unpublished = 0,    
     Public = 1,
+    Private = 2,         
+    PendingReview = 3, 
+    NeedsChanges = 4,   
 }

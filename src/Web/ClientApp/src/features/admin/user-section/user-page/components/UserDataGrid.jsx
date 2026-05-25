@@ -63,16 +63,6 @@ const SORT_OPTIONS = [
     { value: "newest", label: "Newest", icon: <FiberNewIcon sx={{ fontSize: 16 }} /> },
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-function applySort(list, sortBy) {
-    const copy = [...list];
-    if (sortBy === "name") return copy.sort((a, b) => (a.fullName ?? "").localeCompare(b.fullName ?? ""));
-    if (sortBy === "lastLogin") return copy.sort((a, b) => (b.lastLoginTime ?? 0) > (a.lastLoginTime ?? 0) ? 1 : -1);
-    // newest
-    return copy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
-
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 function StatusChip({ status }) {
@@ -335,16 +325,11 @@ function UserDataGrid({
     isRefreshing = false,
 }) {
     const table = useDataGrid({ defaultOrderBy: "fullName" });
-
-    // RoleFilterDropdown cần array of selected roles, nhưng API nhận 1 role string
-    // Wrap/unwrap để tương thích UI cũ
     const selectedRoles = roleFilter ? [roleFilter] : [];
     const handleRoleChange = useCallback((roles) => {
         onRoleChange(roles.length === 1 ? roles[0] : "");
     }, [onRoleChange]);
 
-    // counts cho Status Tabs — dùng statusCounts từ API riêng (không phụ thuộc filter)
-    // Nếu chưa có data thì hiện 0
     const counts = {
         All: statusCounts?.total ?? 0,
         Active: statusCounts?.active ?? 0,
@@ -473,11 +458,9 @@ function UserDataGrid({
                                     </Box>
                                 </TableCell>
 
-                                {/* Role — API trả roles[] array, lấy phần tử đầu */}
                                 <TableCell sx={bCell}><RoleChip role={row.roles?.[0] ?? "User"} /></TableCell>
                                 <TableCell sx={bCell}><StatusChip status={row.status} /></TableCell>
 
-                                {/* Courses — API dùng enrolledCourseCount, createdCourseCount */}
                                 <TableCell sx={bCell}>
                                     <Typography variant="caption" sx={{ display: "block", color: "text.secondary", lineHeight: 1.5 }}>📚 {row.enrolledCourseCount ?? 0} enrolled</Typography>
                                     <Typography variant="caption" sx={{ display: "block", color: "text.secondary", lineHeight: 1.5 }}>📝 {row.createdCourseCount ?? 0} created</Typography>

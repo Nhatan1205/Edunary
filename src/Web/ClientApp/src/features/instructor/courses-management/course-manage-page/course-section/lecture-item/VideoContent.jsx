@@ -128,7 +128,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
     } else {
       setSelectedVideoFile(file);
       const totalChunks = Math.ceil(file.size / (5 * 1024 * 1024));
-      
+
       setVideoUploadInfo({
         fileName: file.name,
         type: "Video",
@@ -191,7 +191,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
 
       setSelectedVideoFile(pendingFile);
       const totalChunks = Math.ceil(pendingFile.size / (5 * 1024 * 1024));
-      
+
       setVideoUploadInfo({
         fileName: pendingFile.name,
         type: "Video",
@@ -250,7 +250,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
       onUpdate(item.itemId, {
         content: null,
         contentType: null,
-        videoId: null,
+        videoId: 0,
         videoDuration: null,
         thumbnailUrl: null
       });
@@ -299,7 +299,7 @@ function VideoContent({ item, onUpdate, onCancel }) {
       // Set the uploaded content to display the video
       setUploadedContent(content.fileName);
       setShowVideoUploadForm(false);
-    
+
       if (onUpdate) {
         onUpdate(item.itemId, {
           content: content.fileName,

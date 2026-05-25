@@ -1,9 +1,11 @@
-import { Box, Divider, Paper, Typography } from "@mui/material";
+import { Box, Divider, Paper, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import CourseManageHeader from "../features/instructor/courses-management/course-manage-page/CourseManageHeader";
 import CourseManageSidebar from "../features/instructor/courses-management/course-manage-page/CourseManageSidebar";
-import { Outlet, useParams, useLocation, useNavigate } from "react-router";
+import { Outlet, useParams, useLocation, useNavigate, Link as RouterLink } from "react-router";
 import PageTitle from "../components/PageTitle";
 import { useMemo, useState, useEffect } from "react";
+import useSubmitCourseForReview from "../hooks/course-review-hooks/useSubmitCourseForReview";
+import useGetCourseReviewStatus from "../hooks/course-review-hooks/useGetCourseReviewStatus";
 
 const HEADER_HEIGHT = 64;
 const SIDEBAR_WIDTH = 272;
@@ -12,6 +14,24 @@ function CourseManageLayout() {
   const [activeLabel, setActiveLabel] = useState("Course landing page");
   const { courseId } = useParams();
   const navigate = useNavigate();
+
+  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const submitMutation = useSubmitCourseForReview();
+
+  const { data: reviewStatusData } = useGetCourseReviewStatus(courseId);
+  const isCoursePublic = reviewStatusData?.courseStatus === 1; // 1 = CourseStatus.Public
+  const feedbackCount = reviewStatusData?.latestSubmission?.feedbacks?.filter(f => !f.isResolved).length ?? 0;
+
+  const handleSubmitReview = () => {
+    submitMutation.mutate(Number(courseId), {
+      onSuccess: () => {
+        setSubmitDialogOpen(false);
+        setSubmitSuccess(true);
+      },
+    });
+  };
 
   useEffect(() => {
     if (!/^\d+$/.test(courseId)) {
@@ -65,8 +85,18 @@ function CourseManageLayout() {
           },
         ],
       },
+      {
+        title: "Publish your course",
+        items: [
+          {
+            label: "Edunary feedback",
+            path: `/instructor/course/${courseId}/manage/feedback`,
+            badgeCount: feedbackCount,
+          },
+        ],
+      },
     ],
-    [courseId],
+    [courseId, feedbackCount],
   );
 
   useEffect(() => {
@@ -115,6 +145,7 @@ function CourseManageLayout() {
             top: `${HEADER_HEIGHT}px`,
             height: `calc(100vh - ${HEADER_HEIGHT}px)`,
             overflowY: "auto",
+            overflowX: "hidden",
             /* Tùy chỉnh thanh cuộn cho đẹp hơn */
             "&::-webkit-scrollbar": {
               width: "6px",
@@ -133,6 +164,34 @@ function CourseManageLayout() {
             sections={sections}
             setActiveLabel={setActiveLabel}
           />
+
+          {/* ── Submit for review button pinned at sidebar bottom ── */}
+          {!isCoursePublic && (
+            <Box sx={{ mt: "auto", px: 2, pb: 3, pt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
+              <Button
+                id="submit-for-review-btn"
+                fullWidth
+                variant="contained"
+                onClick={() => setSubmitDialogOpen(true)}
+                sx={{
+                  bgcolor: "brand.main",
+                  color: "#fff",
+                  textTransform: "none",
+                  fontWeight: 700,
+                  fontSize: "0.875rem",
+                  borderRadius: "10px",
+                  py: 1.1,
+                  boxShadow: "none",
+                  "&:hover": {
+                    bgcolor: "brand.dark",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                Submit for review
+              </Button>
+            </Box>
+          )}
         </Box>
 
         {/* Main content column */}
@@ -203,6 +262,81 @@ function CourseManageLayout() {
           </Paper>
         </Box>
       </Box>
+
+      {/* Submit Confirmation Dialog */}
+      <Dialog
+        open={submitDialogOpen}
+        onClose={() => !submitMutation.isPending && setSubmitDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: "16px", p: 1 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>Submit for Review</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            Are you sure you want to submit this course for review? Admins will verify your content before publishing.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+          <Button
+            onClick={() => setSubmitDialogOpen(false)}
+            disabled={submitMutation.isPending}
+            sx={{ textTransform: "none", borderRadius: "10px", color: "text.secondary" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSubmitReview}
+            disabled={submitMutation.isPending}
+            sx={{
+              bgcolor: "brand.main",
+              color: "#fff",
+              textTransform: "none",
+              fontWeight: 700,
+              borderRadius: "10px",
+              boxShadow: "none",
+              "&:hover": { bgcolor: "brand.dark", boxShadow: "none" },
+            }}
+          >
+            {submitMutation.isPending ? "Submitting..." : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Success Dialog */}
+      <Dialog
+        open={submitSuccess}
+        onClose={() => setSubmitSuccess(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: "16px", p: 1 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, color: "success.main" }}>Success</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            Your course has been submitted for review successfully!
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            variant="contained"
+            onClick={() => setSubmitSuccess(false)}
+            sx={{
+              bgcolor: "brand.main",
+              color: "#fff",
+              textTransform: "none",
+              fontWeight: 700,
+              borderRadius: "10px",
+              boxShadow: "none",
+              px: 3,
+              "&:hover": { bgcolor: "brand.dark", boxShadow: "none" },
+            }}
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

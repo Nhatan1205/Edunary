@@ -3923,6 +3923,471 @@ export class CourseQuestionsClient {
     }
 }
 
+export class CourseReviewsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    submitCourseForReview(command: SubmitCourseForReviewCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/submit";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSubmitCourseForReview(_response);
+        });
+    }
+
+    protected processSubmitCourseForReview(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getCourseReviewStatus(courseId: number): Promise<CourseReviewStatusDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/status/{courseId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseReviewStatus(_response);
+        });
+    }
+
+    protected processGetCourseReviewStatus(response: Response): Promise<CourseReviewStatusDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CourseReviewStatusDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseReviewStatusDto>(null as any);
+    }
+
+    resolveReviewFeedback(feedbackId: number, command: ResolveReviewFeedbackCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/feedback/{feedbackId}/resolve";
+        if (feedbackId === undefined || feedbackId === null)
+            throw new Error("The parameter 'feedbackId' must be defined.");
+        url_ = url_.replace("{feedbackId}", encodeURIComponent("" + feedbackId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processResolveReviewFeedback(_response);
+        });
+    }
+
+    protected processResolveReviewFeedback(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getCourseReviewSubmissions(pageNumber: number, pageSize: number, status: ReviewSubmissionStatus | null | undefined, isFirstSubmissionOnly: boolean | null | undefined, searchQuery: string | null | undefined, sortBy: string | null | undefined): Promise<PaginatedListOfCourseReviewSubmissionDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/pending?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (status !== undefined && status !== null)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (isFirstSubmissionOnly !== undefined && isFirstSubmissionOnly !== null)
+            url_ += "IsFirstSubmissionOnly=" + encodeURIComponent("" + isFirstSubmissionOnly) + "&";
+        if (searchQuery !== undefined && searchQuery !== null)
+            url_ += "SearchQuery=" + encodeURIComponent("" + searchQuery) + "&";
+        if (sortBy !== undefined && sortBy !== null)
+            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseReviewSubmissions(_response);
+        });
+    }
+
+    protected processGetCourseReviewSubmissions(response: Response): Promise<PaginatedListOfCourseReviewSubmissionDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfCourseReviewSubmissionDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfCourseReviewSubmissionDto>(null as any);
+    }
+
+    getCourseReviewSubmissionsCounts(isFirstSubmissionOnly: boolean | null | undefined, searchQuery: string | null | undefined): Promise<CourseReviewSubmissionsCountsDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/pending/counts?";
+        if (isFirstSubmissionOnly !== undefined && isFirstSubmissionOnly !== null)
+            url_ += "IsFirstSubmissionOnly=" + encodeURIComponent("" + isFirstSubmissionOnly) + "&";
+        if (searchQuery !== undefined && searchQuery !== null)
+            url_ += "SearchQuery=" + encodeURIComponent("" + searchQuery) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseReviewSubmissionsCounts(_response);
+        });
+    }
+
+    protected processGetCourseReviewSubmissionsCounts(response: Response): Promise<CourseReviewSubmissionsCountsDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CourseReviewSubmissionsCountsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseReviewSubmissionsCountsDto>(null as any);
+    }
+
+    getCoursePreviewForAdmin(submissionId: number): Promise<AdminCoursePreviewDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/preview/{submissionId}";
+        if (submissionId === undefined || submissionId === null)
+            throw new Error("The parameter 'submissionId' must be defined.");
+        url_ = url_.replace("{submissionId}", encodeURIComponent("" + submissionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoursePreviewForAdmin(_response);
+        });
+    }
+
+    protected processGetCoursePreviewForAdmin(response: Response): Promise<AdminCoursePreviewDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminCoursePreviewDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AdminCoursePreviewDto>(null as any);
+    }
+
+    saveReviewFeedback(command: SaveReviewFeedbackCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/feedback";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSaveReviewFeedback(_response);
+        });
+    }
+
+    protected processSaveReviewFeedback(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    updateReviewFeedback(feedbackId: number, command: UpdateReviewFeedbackCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/feedback/{feedbackId}";
+        if (feedbackId === undefined || feedbackId === null)
+            throw new Error("The parameter 'feedbackId' must be defined.");
+        url_ = url_.replace("{feedbackId}", encodeURIComponent("" + feedbackId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateReviewFeedback(_response);
+        });
+    }
+
+    protected processUpdateReviewFeedback(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteReviewFeedback(feedbackId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/feedback/{feedbackId}";
+        if (feedbackId === undefined || feedbackId === null)
+            throw new Error("The parameter 'feedbackId' must be defined.");
+        url_ = url_.replace("{feedbackId}", encodeURIComponent("" + feedbackId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteReviewFeedback(_response);
+        });
+    }
+
+    protected processDeleteReviewFeedback(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    requestChanges(command: RequestChangesCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/request-changes";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRequestChanges(_response);
+        });
+    }
+
+    protected processRequestChanges(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    approveCourse(command: ApproveCourseCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/approve";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processApproveCourse(_response);
+        });
+    }
+
+    protected processApproveCourse(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getCourseChangesComparison(courseId: number): Promise<ComparisonResultDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/admin/compare/{courseId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseChangesComparison(_response);
+        });
+    }
+
+    protected processGetCourseChangesComparison(response: Response): Promise<ComparisonResultDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ComparisonResultDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ComparisonResultDto>(null as any);
+    }
+}
+
 export class CoursesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -4213,6 +4678,129 @@ export class CoursesClient {
             });
         }
         return Promise.resolve<CourseStatsVM>(null as any);
+    }
+
+    unpublishCourse(command: UnpublishCourseCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Courses/admin/unpublish";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUnpublishCourse(_response);
+        });
+    }
+
+    protected processUnpublishCourse(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getPublishedCoursesForAdmin(pageNumber: number, pageSize: number, searchQuery: string | null | undefined, categoryId: number | null | undefined, modifiedOnly: boolean, sortBy: string | null | undefined): Promise<PaginatedListOfPublishedCourseForAdminDto> {
+        let url_ = this.baseUrl + "/api/Courses/admin/published?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (searchQuery !== undefined && searchQuery !== null)
+            url_ += "SearchQuery=" + encodeURIComponent("" + searchQuery) + "&";
+        if (categoryId !== undefined && categoryId !== null)
+            url_ += "CategoryId=" + encodeURIComponent("" + categoryId) + "&";
+        if (modifiedOnly === undefined || modifiedOnly === null)
+            throw new Error("The parameter 'modifiedOnly' must be defined and cannot be null.");
+        else
+            url_ += "ModifiedOnly=" + encodeURIComponent("" + modifiedOnly) + "&";
+        if (sortBy !== undefined && sortBy !== null)
+            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPublishedCoursesForAdmin(_response);
+        });
+    }
+
+    protected processGetPublishedCoursesForAdmin(response: Response): Promise<PaginatedListOfPublishedCourseForAdminDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfPublishedCourseForAdminDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfPublishedCourseForAdminDto>(null as any);
+    }
+
+    getCourseManagementStats(): Promise<CourseManagementStatsDto> {
+        let url_ = this.baseUrl + "/api/Courses/admin/course-stats";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourseManagementStats(_response);
+        });
+    }
+
+    protected processGetCourseManagementStats(response: Response): Promise<CourseManagementStatsDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CourseManagementStatsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourseManagementStatsDto>(null as any);
     }
 
     getCoursesWithPagination(query: GetCoursesWithPaginationQuery | undefined): Promise<PaginatedListOfGetCourseDto> {
@@ -13921,8 +14509,11 @@ export enum CourseLevel {
 }
 
 export enum CourseStatus {
-    Draft = 0,
+    Unpublished = 0,
     Public = 1,
+    Private = 2,
+    PendingReview = 3,
+    NeedsChanges = 4,
 }
 
 export class TopicItemDto implements ITopicItemDto {
@@ -15305,6 +15896,2176 @@ export interface IUpdateCourseQuestionCommand {
     detail?: string | undefined;
 }
 
+export class SubmitCourseForReviewCommand implements ISubmitCourseForReviewCommand {
+    courseId?: number;
+
+    constructor(data?: ISubmitCourseForReviewCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): SubmitCourseForReviewCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubmitCourseForReviewCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface ISubmitCourseForReviewCommand {
+    courseId?: number;
+}
+
+export class CourseReviewStatusDto implements ICourseReviewStatusDto {
+    courseId?: number;
+    courseStatus?: CourseStatus;
+    latestSubmission?: LatestSubmissionDto | undefined;
+    submissionHistory?: SubmissionHistoryItemDto[] | undefined;
+
+    constructor(data?: ICourseReviewStatusDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.courseStatus = _data["courseStatus"];
+            this.latestSubmission = _data["latestSubmission"] ? LatestSubmissionDto.fromJS(_data["latestSubmission"]) : <any>undefined;
+            if (Array.isArray(_data["submissionHistory"])) {
+                this.submissionHistory = [] as any;
+                for (let item of _data["submissionHistory"])
+                    this.submissionHistory!.push(SubmissionHistoryItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CourseReviewStatusDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseReviewStatusDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["courseStatus"] = this.courseStatus;
+        data["latestSubmission"] = this.latestSubmission ? this.latestSubmission.toJSON() : <any>undefined;
+        if (Array.isArray(this.submissionHistory)) {
+            data["submissionHistory"] = [];
+            for (let item of this.submissionHistory)
+                data["submissionHistory"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICourseReviewStatusDto {
+    courseId?: number;
+    courseStatus?: CourseStatus;
+    latestSubmission?: LatestSubmissionDto | undefined;
+    submissionHistory?: SubmissionHistoryItemDto[] | undefined;
+}
+
+export class LatestSubmissionDto implements ILatestSubmissionDto {
+    id?: number;
+    submissionNumber?: number;
+    status?: ReviewSubmissionStatus;
+    reviewedAt?: Date | undefined;
+    adminNote?: string | undefined;
+    feedbacks?: FeedbackItemDto[] | undefined;
+
+    constructor(data?: ILatestSubmissionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.submissionNumber = _data["submissionNumber"];
+            this.status = _data["status"];
+            this.reviewedAt = _data["reviewedAt"] ? new Date(_data["reviewedAt"].toString()) : <any>undefined;
+            this.adminNote = _data["adminNote"];
+            if (Array.isArray(_data["feedbacks"])) {
+                this.feedbacks = [] as any;
+                for (let item of _data["feedbacks"])
+                    this.feedbacks!.push(FeedbackItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): LatestSubmissionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LatestSubmissionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["submissionNumber"] = this.submissionNumber;
+        data["status"] = this.status;
+        data["reviewedAt"] = this.reviewedAt ? this.reviewedAt.toISOString() : <any>undefined;
+        data["adminNote"] = this.adminNote;
+        if (Array.isArray(this.feedbacks)) {
+            data["feedbacks"] = [];
+            for (let item of this.feedbacks)
+                data["feedbacks"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ILatestSubmissionDto {
+    id?: number;
+    submissionNumber?: number;
+    status?: ReviewSubmissionStatus;
+    reviewedAt?: Date | undefined;
+    adminNote?: string | undefined;
+    feedbacks?: FeedbackItemDto[] | undefined;
+}
+
+export enum ReviewSubmissionStatus {
+    Pending = 0,
+    NeedsChanges = 1,
+    Approved = 2,
+}
+
+export class FeedbackItemDto implements IFeedbackItemDto {
+    id?: number;
+    feedbackType?: ReviewFeedbackType;
+    category?: ReviewFeedbackCategory;
+    content?: string | undefined;
+    isResolved?: boolean;
+
+    constructor(data?: IFeedbackItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.feedbackType = _data["feedbackType"];
+            this.category = _data["category"];
+            this.content = _data["content"];
+            this.isResolved = _data["isResolved"];
+        }
+    }
+
+    static fromJS(data: any): FeedbackItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new FeedbackItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["feedbackType"] = this.feedbackType;
+        data["category"] = this.category;
+        data["content"] = this.content;
+        data["isResolved"] = this.isResolved;
+        return data;
+    }
+}
+
+export interface IFeedbackItemDto {
+    id?: number;
+    feedbackType?: ReviewFeedbackType;
+    category?: ReviewFeedbackCategory;
+    content?: string | undefined;
+    isResolved?: boolean;
+}
+
+export enum ReviewFeedbackType {
+    RequiredFix = 0,
+    RecommendedImprovement = 1,
+}
+
+export enum ReviewFeedbackCategory {
+    CourseContent = 0,
+    VideoQuality = 1,
+    AudioQuality = 2,
+    CourseLandingPage = 3,
+    CourseImage = 4,
+    CourseTitleSubtitle = 5,
+    CourseDescription = 6,
+    IntendedLearners = 7,
+    InstructorProfile = 8,
+    Policy = 9,
+    Pricing = 10,
+    Other = 99,
+}
+
+export class SubmissionHistoryItemDto implements ISubmissionHistoryItemDto {
+    submissionNumber?: number;
+    status?: ReviewSubmissionStatus;
+    createdAt?: Date;
+    reviewedAt?: Date | undefined;
+    adminNote?: string | undefined;
+    feedbacks?: FeedbackItemDto[] | undefined;
+
+    constructor(data?: ISubmissionHistoryItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.submissionNumber = _data["submissionNumber"];
+            this.status = _data["status"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.reviewedAt = _data["reviewedAt"] ? new Date(_data["reviewedAt"].toString()) : <any>undefined;
+            this.adminNote = _data["adminNote"];
+            if (Array.isArray(_data["feedbacks"])) {
+                this.feedbacks = [] as any;
+                for (let item of _data["feedbacks"])
+                    this.feedbacks!.push(FeedbackItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SubmissionHistoryItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubmissionHistoryItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["submissionNumber"] = this.submissionNumber;
+        data["status"] = this.status;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["reviewedAt"] = this.reviewedAt ? this.reviewedAt.toISOString() : <any>undefined;
+        data["adminNote"] = this.adminNote;
+        if (Array.isArray(this.feedbacks)) {
+            data["feedbacks"] = [];
+            for (let item of this.feedbacks)
+                data["feedbacks"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ISubmissionHistoryItemDto {
+    submissionNumber?: number;
+    status?: ReviewSubmissionStatus;
+    createdAt?: Date;
+    reviewedAt?: Date | undefined;
+    adminNote?: string | undefined;
+    feedbacks?: FeedbackItemDto[] | undefined;
+}
+
+export class ResolveReviewFeedbackCommand implements IResolveReviewFeedbackCommand {
+    feedbackId?: number;
+    isResolved?: boolean;
+
+    constructor(data?: IResolveReviewFeedbackCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.feedbackId = _data["feedbackId"];
+            this.isResolved = _data["isResolved"];
+        }
+    }
+
+    static fromJS(data: any): ResolveReviewFeedbackCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResolveReviewFeedbackCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["feedbackId"] = this.feedbackId;
+        data["isResolved"] = this.isResolved;
+        return data;
+    }
+}
+
+export interface IResolveReviewFeedbackCommand {
+    feedbackId?: number;
+    isResolved?: boolean;
+}
+
+export class PaginatedListOfCourseReviewSubmissionDto implements IPaginatedListOfCourseReviewSubmissionDto {
+    items?: CourseReviewSubmissionDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfCourseReviewSubmissionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CourseReviewSubmissionDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfCourseReviewSubmissionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfCourseReviewSubmissionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfCourseReviewSubmissionDto {
+    items?: CourseReviewSubmissionDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class CourseReviewSubmissionDto implements ICourseReviewSubmissionDto {
+    submissionId?: number;
+    courseId?: number;
+    title?: string | undefined;
+    imageUrl?: string | undefined;
+    categoryName?: string | undefined;
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    submissionNumber?: number;
+    submittedAt?: Date;
+
+    constructor(data?: ICourseReviewSubmissionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.submissionId = _data["submissionId"];
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.imageUrl = _data["imageUrl"];
+            this.categoryName = _data["categoryName"];
+            this.instructorId = _data["instructorId"];
+            this.instructorName = _data["instructorName"];
+            this.instructorAvatar = _data["instructorAvatar"];
+            this.submissionNumber = _data["submissionNumber"];
+            this.submittedAt = _data["submittedAt"] ? new Date(_data["submittedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CourseReviewSubmissionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseReviewSubmissionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["submissionId"] = this.submissionId;
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["imageUrl"] = this.imageUrl;
+        data["categoryName"] = this.categoryName;
+        data["instructorId"] = this.instructorId;
+        data["instructorName"] = this.instructorName;
+        data["instructorAvatar"] = this.instructorAvatar;
+        data["submissionNumber"] = this.submissionNumber;
+        data["submittedAt"] = this.submittedAt ? this.submittedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICourseReviewSubmissionDto {
+    submissionId?: number;
+    courseId?: number;
+    title?: string | undefined;
+    imageUrl?: string | undefined;
+    categoryName?: string | undefined;
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    submissionNumber?: number;
+    submittedAt?: Date;
+}
+
+export class CourseReviewSubmissionsCountsDto implements ICourseReviewSubmissionsCountsDto {
+    pendingCount?: number;
+    needsChangesCount?: number;
+    approvedCount?: number;
+
+    constructor(data?: ICourseReviewSubmissionsCountsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pendingCount = _data["pendingCount"];
+            this.needsChangesCount = _data["needsChangesCount"];
+            this.approvedCount = _data["approvedCount"];
+        }
+    }
+
+    static fromJS(data: any): CourseReviewSubmissionsCountsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseReviewSubmissionsCountsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pendingCount"] = this.pendingCount;
+        data["needsChangesCount"] = this.needsChangesCount;
+        data["approvedCount"] = this.approvedCount;
+        return data;
+    }
+}
+
+export interface ICourseReviewSubmissionsCountsDto {
+    pendingCount?: number;
+    needsChangesCount?: number;
+    approvedCount?: number;
+}
+
+export class AdminCoursePreviewDto implements IAdminCoursePreviewDto {
+    course?: CourseInfoDto | undefined;
+    submissionInfo?: AdminSubmissionInfoDto | undefined;
+    currentFeedbacks?: AdminFeedbackDto[] | undefined;
+    curriculumSections?: SectionSchema[] | undefined;
+
+    constructor(data?: IAdminCoursePreviewDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.course = _data["course"] ? CourseInfoDto.fromJS(_data["course"]) : <any>undefined;
+            this.submissionInfo = _data["submissionInfo"] ? AdminSubmissionInfoDto.fromJS(_data["submissionInfo"]) : <any>undefined;
+            if (Array.isArray(_data["currentFeedbacks"])) {
+                this.currentFeedbacks = [] as any;
+                for (let item of _data["currentFeedbacks"])
+                    this.currentFeedbacks!.push(AdminFeedbackDto.fromJS(item));
+            }
+            if (Array.isArray(_data["curriculumSections"])) {
+                this.curriculumSections = [] as any;
+                for (let item of _data["curriculumSections"])
+                    this.curriculumSections!.push(SectionSchema.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AdminCoursePreviewDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminCoursePreviewDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["course"] = this.course ? this.course.toJSON() : <any>undefined;
+        data["submissionInfo"] = this.submissionInfo ? this.submissionInfo.toJSON() : <any>undefined;
+        if (Array.isArray(this.currentFeedbacks)) {
+            data["currentFeedbacks"] = [];
+            for (let item of this.currentFeedbacks)
+                data["currentFeedbacks"].push(item.toJSON());
+        }
+        if (Array.isArray(this.curriculumSections)) {
+            data["curriculumSections"] = [];
+            for (let item of this.curriculumSections)
+                data["curriculumSections"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAdminCoursePreviewDto {
+    course?: CourseInfoDto | undefined;
+    submissionInfo?: AdminSubmissionInfoDto | undefined;
+    currentFeedbacks?: AdminFeedbackDto[] | undefined;
+    curriculumSections?: SectionSchema[] | undefined;
+}
+
+export class CourseInfoDto implements ICourseInfoDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    categoryTitle?: string | undefined;
+    ratings?: number;
+    totalStudents?: number;
+    content?: string | undefined;
+    lastModified?: Date;
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    topics?: Topics[] | undefined;
+
+    constructor(data?: ICourseInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.description = _data["description"];
+            this.level = _data["level"];
+            this.status = _data["status"];
+            this.learningObjectives = _data["learningObjectives"];
+            this.requirements = _data["requirements"];
+            this.targetAudience = _data["targetAudience"];
+            this.imageUrl = _data["imageUrl"];
+            this.welcomeMessage = _data["welcomeMessage"];
+            this.congratulationsMessage = _data["congratulationsMessage"];
+            this.price = _data["price"];
+            this.categoryId = _data["categoryId"];
+            this.categoryTitle = _data["categoryTitle"];
+            this.ratings = _data["ratings"];
+            this.totalStudents = _data["totalStudents"];
+            this.content = _data["content"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.instructorId = _data["instructorId"];
+            this.instructorName = _data["instructorName"];
+            this.instructorAvatar = _data["instructorAvatar"];
+            if (Array.isArray(_data["topics"])) {
+                this.topics = [] as any;
+                for (let item of _data["topics"])
+                    this.topics!.push(Topics.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CourseInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["description"] = this.description;
+        data["level"] = this.level;
+        data["status"] = this.status;
+        data["learningObjectives"] = this.learningObjectives;
+        data["requirements"] = this.requirements;
+        data["targetAudience"] = this.targetAudience;
+        data["imageUrl"] = this.imageUrl;
+        data["welcomeMessage"] = this.welcomeMessage;
+        data["congratulationsMessage"] = this.congratulationsMessage;
+        data["price"] = this.price;
+        data["categoryId"] = this.categoryId;
+        data["categoryTitle"] = this.categoryTitle;
+        data["ratings"] = this.ratings;
+        data["totalStudents"] = this.totalStudents;
+        data["content"] = this.content;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["instructorId"] = this.instructorId;
+        data["instructorName"] = this.instructorName;
+        data["instructorAvatar"] = this.instructorAvatar;
+        if (Array.isArray(this.topics)) {
+            data["topics"] = [];
+            for (let item of this.topics)
+                data["topics"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICourseInfoDto {
+    id?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    description?: string | undefined;
+    level?: CourseLevel;
+    status?: CourseStatus;
+    learningObjectives?: string | undefined;
+    requirements?: string | undefined;
+    targetAudience?: string | undefined;
+    imageUrl?: string | undefined;
+    welcomeMessage?: string | undefined;
+    congratulationsMessage?: string | undefined;
+    price?: number;
+    categoryId?: number;
+    categoryTitle?: string | undefined;
+    ratings?: number;
+    totalStudents?: number;
+    content?: string | undefined;
+    lastModified?: Date;
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    topics?: Topics[] | undefined;
+}
+
+export class Topics implements ITopics {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: ITopics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): Topics {
+        data = typeof data === 'object' ? data : {};
+        let result = new Topics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ITopics {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class AdminSubmissionInfoDto implements IAdminSubmissionInfoDto {
+    submissionId?: number;
+    submissionNumber?: number;
+    status?: ReviewSubmissionStatus;
+    submittedAt?: Date;
+    adminNote?: string | undefined;
+
+    constructor(data?: IAdminSubmissionInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.submissionId = _data["submissionId"];
+            this.submissionNumber = _data["submissionNumber"];
+            this.status = _data["status"];
+            this.submittedAt = _data["submittedAt"] ? new Date(_data["submittedAt"].toString()) : <any>undefined;
+            this.adminNote = _data["adminNote"];
+        }
+    }
+
+    static fromJS(data: any): AdminSubmissionInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminSubmissionInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["submissionId"] = this.submissionId;
+        data["submissionNumber"] = this.submissionNumber;
+        data["status"] = this.status;
+        data["submittedAt"] = this.submittedAt ? this.submittedAt.toISOString() : <any>undefined;
+        data["adminNote"] = this.adminNote;
+        return data;
+    }
+}
+
+export interface IAdminSubmissionInfoDto {
+    submissionId?: number;
+    submissionNumber?: number;
+    status?: ReviewSubmissionStatus;
+    submittedAt?: Date;
+    adminNote?: string | undefined;
+}
+
+export class AdminFeedbackDto implements IAdminFeedbackDto {
+    id?: number;
+    feedbackType?: ReviewFeedbackType;
+    category?: ReviewFeedbackCategory;
+    content?: string | undefined;
+    isResolved?: boolean;
+
+    constructor(data?: IAdminFeedbackDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.feedbackType = _data["feedbackType"];
+            this.category = _data["category"];
+            this.content = _data["content"];
+            this.isResolved = _data["isResolved"];
+        }
+    }
+
+    static fromJS(data: any): AdminFeedbackDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminFeedbackDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["feedbackType"] = this.feedbackType;
+        data["category"] = this.category;
+        data["content"] = this.content;
+        data["isResolved"] = this.isResolved;
+        return data;
+    }
+}
+
+export interface IAdminFeedbackDto {
+    id?: number;
+    feedbackType?: ReviewFeedbackType;
+    category?: ReviewFeedbackCategory;
+    content?: string | undefined;
+    isResolved?: boolean;
+}
+
+export class SectionSchema implements ISectionSchema {
+    sectionId?: string | undefined;
+    title?: string | undefined;
+    learningObjectives?: string | undefined;
+    items?: ItemSchema[] | undefined;
+    isEditMode?: boolean;
+    published?: boolean;
+
+    constructor(data?: ISectionSchema) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sectionId = _data["sectionId"];
+            this.title = _data["title"];
+            this.learningObjectives = _data["learningObjectives"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ItemSchema.fromJS(item));
+            }
+            this.isEditMode = _data["isEditMode"];
+            this.published = _data["published"];
+        }
+    }
+
+    static fromJS(data: any): SectionSchema {
+        data = typeof data === 'object' ? data : {};
+        let result = new SectionSchema();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sectionId"] = this.sectionId;
+        data["title"] = this.title;
+        data["learningObjectives"] = this.learningObjectives;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["isEditMode"] = this.isEditMode;
+        data["published"] = this.published;
+        return data;
+    }
+}
+
+export interface ISectionSchema {
+    sectionId?: string | undefined;
+    title?: string | undefined;
+    learningObjectives?: string | undefined;
+    items?: ItemSchema[] | undefined;
+    isEditMode?: boolean;
+    published?: boolean;
+}
+
+export class ItemSchema implements IItemSchema {
+    itemId?: string | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    content?: string | undefined;
+    type?: string | undefined;
+    isPendingType?: boolean;
+    downloadable?: boolean;
+    resources?: ResourseSchema[] | undefined;
+    contentType?: string | undefined;
+    videoId?: number;
+    videoDuration?: string | undefined;
+    isFreePreview?: boolean;
+    isCompleted?: boolean;
+    lastPosition?: number;
+    thumbnailUrl?: string | undefined;
+    quizId?: number;
+    assignmentId?: number;
+
+    constructor(data?: IItemSchema) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.itemId = _data["itemId"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.content = _data["content"];
+            this.type = _data["type"];
+            this.isPendingType = _data["isPendingType"];
+            this.downloadable = _data["downloadable"];
+            if (Array.isArray(_data["resources"])) {
+                this.resources = [] as any;
+                for (let item of _data["resources"])
+                    this.resources!.push(ResourseSchema.fromJS(item));
+            }
+            this.contentType = _data["contentType"];
+            this.videoId = _data["videoId"];
+            this.videoDuration = _data["videoDuration"];
+            this.isFreePreview = _data["isFreePreview"];
+            this.isCompleted = _data["isCompleted"];
+            this.lastPosition = _data["lastPosition"];
+            this.thumbnailUrl = _data["thumbnailUrl"];
+            this.quizId = _data["quizId"];
+            this.assignmentId = _data["assignmentId"];
+        }
+    }
+
+    static fromJS(data: any): ItemSchema {
+        data = typeof data === 'object' ? data : {};
+        let result = new ItemSchema();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["itemId"] = this.itemId;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["content"] = this.content;
+        data["type"] = this.type;
+        data["isPendingType"] = this.isPendingType;
+        data["downloadable"] = this.downloadable;
+        if (Array.isArray(this.resources)) {
+            data["resources"] = [];
+            for (let item of this.resources)
+                data["resources"].push(item.toJSON());
+        }
+        data["contentType"] = this.contentType;
+        data["videoId"] = this.videoId;
+        data["videoDuration"] = this.videoDuration;
+        data["isFreePreview"] = this.isFreePreview;
+        data["isCompleted"] = this.isCompleted;
+        data["lastPosition"] = this.lastPosition;
+        data["thumbnailUrl"] = this.thumbnailUrl;
+        data["quizId"] = this.quizId;
+        data["assignmentId"] = this.assignmentId;
+        return data;
+    }
+}
+
+export interface IItemSchema {
+    itemId?: string | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    content?: string | undefined;
+    type?: string | undefined;
+    isPendingType?: boolean;
+    downloadable?: boolean;
+    resources?: ResourseSchema[] | undefined;
+    contentType?: string | undefined;
+    videoId?: number;
+    videoDuration?: string | undefined;
+    isFreePreview?: boolean;
+    isCompleted?: boolean;
+    lastPosition?: number;
+    thumbnailUrl?: string | undefined;
+    quizId?: number;
+    assignmentId?: number;
+}
+
+export class ResourseSchema implements IResourseSchema {
+    id?: number;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+
+    constructor(data?: IResourseSchema) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fileName = _data["fileName"];
+            this.fileUrl = _data["fileUrl"];
+        }
+    }
+
+    static fromJS(data: any): ResourseSchema {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResourseSchema();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fileName"] = this.fileName;
+        data["fileUrl"] = this.fileUrl;
+        return data;
+    }
+}
+
+export interface IResourseSchema {
+    id?: number;
+    fileName?: string | undefined;
+    fileUrl?: string | undefined;
+}
+
+export class SaveReviewFeedbackCommand implements ISaveReviewFeedbackCommand {
+    courseReviewSubmissionId?: number;
+    feedbackType?: ReviewFeedbackType;
+    category?: ReviewFeedbackCategory;
+    content?: string | undefined;
+
+    constructor(data?: ISaveReviewFeedbackCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseReviewSubmissionId = _data["courseReviewSubmissionId"];
+            this.feedbackType = _data["feedbackType"];
+            this.category = _data["category"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): SaveReviewFeedbackCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SaveReviewFeedbackCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseReviewSubmissionId"] = this.courseReviewSubmissionId;
+        data["feedbackType"] = this.feedbackType;
+        data["category"] = this.category;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface ISaveReviewFeedbackCommand {
+    courseReviewSubmissionId?: number;
+    feedbackType?: ReviewFeedbackType;
+    category?: ReviewFeedbackCategory;
+    content?: string | undefined;
+}
+
+export class UpdateReviewFeedbackCommand implements IUpdateReviewFeedbackCommand {
+    feedbackId?: number;
+    feedbackType?: ReviewFeedbackType;
+    category?: ReviewFeedbackCategory;
+    content?: string | undefined;
+
+    constructor(data?: IUpdateReviewFeedbackCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.feedbackId = _data["feedbackId"];
+            this.feedbackType = _data["feedbackType"];
+            this.category = _data["category"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): UpdateReviewFeedbackCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateReviewFeedbackCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["feedbackId"] = this.feedbackId;
+        data["feedbackType"] = this.feedbackType;
+        data["category"] = this.category;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface IUpdateReviewFeedbackCommand {
+    feedbackId?: number;
+    feedbackType?: ReviewFeedbackType;
+    category?: ReviewFeedbackCategory;
+    content?: string | undefined;
+}
+
+export class RequestChangesCommand implements IRequestChangesCommand {
+    submissionId?: number;
+    adminNote?: string | undefined;
+
+    constructor(data?: IRequestChangesCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.submissionId = _data["submissionId"];
+            this.adminNote = _data["adminNote"];
+        }
+    }
+
+    static fromJS(data: any): RequestChangesCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RequestChangesCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["submissionId"] = this.submissionId;
+        data["adminNote"] = this.adminNote;
+        return data;
+    }
+}
+
+export interface IRequestChangesCommand {
+    submissionId?: number;
+    adminNote?: string | undefined;
+}
+
+export class ApproveCourseCommand implements IApproveCourseCommand {
+    submissionId?: number;
+
+    constructor(data?: IApproveCourseCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.submissionId = _data["submissionId"];
+        }
+    }
+
+    static fromJS(data: any): ApproveCourseCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ApproveCourseCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["submissionId"] = this.submissionId;
+        return data;
+    }
+}
+
+export interface IApproveCourseCommand {
+    submissionId?: number;
+}
+
+export class ComparisonResultDto implements IComparisonResultDto {
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseSubtitle?: string | undefined;
+    courseImageUrl?: string | undefined;
+    hasChanges?: boolean;
+    noSnapshot?: boolean;
+    snapshotTakenAt?: Date | undefined;
+    approvedSubmissionNumber?: number | undefined;
+    totalChanges?: number;
+    changeGroups?: ChangeGroupDto[] | undefined;
+    curriculumComparison?: CurriculumSectionComparisonDto[] | undefined;
+    quizComparison?: QuizComparisonDto[] | undefined;
+    assignmentComparison?: AssignmentComparisonDto[] | undefined;
+
+    constructor(data?: IComparisonResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.courseTitle = _data["courseTitle"];
+            this.courseSubtitle = _data["courseSubtitle"];
+            this.courseImageUrl = _data["courseImageUrl"];
+            this.hasChanges = _data["hasChanges"];
+            this.noSnapshot = _data["noSnapshot"];
+            this.snapshotTakenAt = _data["snapshotTakenAt"] ? new Date(_data["snapshotTakenAt"].toString()) : <any>undefined;
+            this.approvedSubmissionNumber = _data["approvedSubmissionNumber"];
+            this.totalChanges = _data["totalChanges"];
+            if (Array.isArray(_data["changeGroups"])) {
+                this.changeGroups = [] as any;
+                for (let item of _data["changeGroups"])
+                    this.changeGroups!.push(ChangeGroupDto.fromJS(item));
+            }
+            if (Array.isArray(_data["curriculumComparison"])) {
+                this.curriculumComparison = [] as any;
+                for (let item of _data["curriculumComparison"])
+                    this.curriculumComparison!.push(CurriculumSectionComparisonDto.fromJS(item));
+            }
+            if (Array.isArray(_data["quizComparison"])) {
+                this.quizComparison = [] as any;
+                for (let item of _data["quizComparison"])
+                    this.quizComparison!.push(QuizComparisonDto.fromJS(item));
+            }
+            if (Array.isArray(_data["assignmentComparison"])) {
+                this.assignmentComparison = [] as any;
+                for (let item of _data["assignmentComparison"])
+                    this.assignmentComparison!.push(AssignmentComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ComparisonResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ComparisonResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["courseTitle"] = this.courseTitle;
+        data["courseSubtitle"] = this.courseSubtitle;
+        data["courseImageUrl"] = this.courseImageUrl;
+        data["hasChanges"] = this.hasChanges;
+        data["noSnapshot"] = this.noSnapshot;
+        data["snapshotTakenAt"] = this.snapshotTakenAt ? this.snapshotTakenAt.toISOString() : <any>undefined;
+        data["approvedSubmissionNumber"] = this.approvedSubmissionNumber;
+        data["totalChanges"] = this.totalChanges;
+        if (Array.isArray(this.changeGroups)) {
+            data["changeGroups"] = [];
+            for (let item of this.changeGroups)
+                data["changeGroups"].push(item.toJSON());
+        }
+        if (Array.isArray(this.curriculumComparison)) {
+            data["curriculumComparison"] = [];
+            for (let item of this.curriculumComparison)
+                data["curriculumComparison"].push(item.toJSON());
+        }
+        if (Array.isArray(this.quizComparison)) {
+            data["quizComparison"] = [];
+            for (let item of this.quizComparison)
+                data["quizComparison"].push(item.toJSON());
+        }
+        if (Array.isArray(this.assignmentComparison)) {
+            data["assignmentComparison"] = [];
+            for (let item of this.assignmentComparison)
+                data["assignmentComparison"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IComparisonResultDto {
+    courseId?: number;
+    courseTitle?: string | undefined;
+    courseSubtitle?: string | undefined;
+    courseImageUrl?: string | undefined;
+    hasChanges?: boolean;
+    noSnapshot?: boolean;
+    snapshotTakenAt?: Date | undefined;
+    approvedSubmissionNumber?: number | undefined;
+    totalChanges?: number;
+    changeGroups?: ChangeGroupDto[] | undefined;
+    curriculumComparison?: CurriculumSectionComparisonDto[] | undefined;
+    quizComparison?: QuizComparisonDto[] | undefined;
+    assignmentComparison?: AssignmentComparisonDto[] | undefined;
+}
+
+export class ChangeGroupDto implements IChangeGroupDto {
+    category?: string | undefined;
+    changes?: ChangedFieldDto[] | undefined;
+
+    constructor(data?: IChangeGroupDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.category = _data["category"];
+            if (Array.isArray(_data["changes"])) {
+                this.changes = [] as any;
+                for (let item of _data["changes"])
+                    this.changes!.push(ChangedFieldDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ChangeGroupDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeGroupDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["category"] = this.category;
+        if (Array.isArray(this.changes)) {
+            data["changes"] = [];
+            for (let item of this.changes)
+                data["changes"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IChangeGroupDto {
+    category?: string | undefined;
+    changes?: ChangedFieldDto[] | undefined;
+}
+
+export class ChangedFieldDto implements IChangedFieldDto {
+    field?: string | undefined;
+    changeType?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+    summary?: string | undefined;
+    details?: ChangeDetailDto[] | undefined;
+
+    constructor(data?: IChangedFieldDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.field = _data["field"];
+            this.changeType = _data["changeType"];
+            this.oldValue = _data["oldValue"];
+            this.newValue = _data["newValue"];
+            this.summary = _data["summary"];
+            if (Array.isArray(_data["details"])) {
+                this.details = [] as any;
+                for (let item of _data["details"])
+                    this.details!.push(ChangeDetailDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ChangedFieldDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangedFieldDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["field"] = this.field;
+        data["changeType"] = this.changeType;
+        data["oldValue"] = this.oldValue;
+        data["newValue"] = this.newValue;
+        data["summary"] = this.summary;
+        if (Array.isArray(this.details)) {
+            data["details"] = [];
+            for (let item of this.details)
+                data["details"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IChangedFieldDto {
+    field?: string | undefined;
+    changeType?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+    summary?: string | undefined;
+    details?: ChangeDetailDto[] | undefined;
+}
+
+export class ChangeDetailDto implements IChangeDetailDto {
+    type?: string | undefined;
+    value?: string | undefined;
+    item?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+
+    constructor(data?: IChangeDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.type = _data["type"];
+            this.value = _data["value"];
+            this.item = _data["item"];
+            this.oldValue = _data["oldValue"];
+            this.newValue = _data["newValue"];
+        }
+    }
+
+    static fromJS(data: any): ChangeDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        data["value"] = this.value;
+        data["item"] = this.item;
+        data["oldValue"] = this.oldValue;
+        data["newValue"] = this.newValue;
+        return data;
+    }
+}
+
+export interface IChangeDetailDto {
+    type?: string | undefined;
+    value?: string | undefined;
+    item?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+}
+
+export class CurriculumSectionComparisonDto implements ICurriculumSectionComparisonDto {
+    sectionId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    oldIndex?: number;
+    newIndex?: number;
+    items?: CurriculumItemComparisonDto[] | undefined;
+
+    constructor(data?: ICurriculumSectionComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sectionId = _data["sectionId"];
+            this.status = _data["status"];
+            this.oldTitle = _data["oldTitle"];
+            this.newTitle = _data["newTitle"];
+            this.oldIndex = _data["oldIndex"];
+            this.newIndex = _data["newIndex"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CurriculumItemComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CurriculumSectionComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CurriculumSectionComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sectionId"] = this.sectionId;
+        data["status"] = this.status;
+        data["oldTitle"] = this.oldTitle;
+        data["newTitle"] = this.newTitle;
+        data["oldIndex"] = this.oldIndex;
+        data["newIndex"] = this.newIndex;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICurriculumSectionComparisonDto {
+    sectionId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    oldIndex?: number;
+    newIndex?: number;
+    items?: CurriculumItemComparisonDto[] | undefined;
+}
+
+export class CurriculumItemComparisonDto implements ICurriculumItemComparisonDto {
+    itemId?: string | undefined;
+    type?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    oldIndex?: number;
+    newIndex?: number;
+    quizId?: number | undefined;
+    assignmentId?: number | undefined;
+    propertyChanges?: PropertyChangeDto[] | undefined;
+
+    constructor(data?: ICurriculumItemComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.itemId = _data["itemId"];
+            this.type = _data["type"];
+            this.status = _data["status"];
+            this.oldTitle = _data["oldTitle"];
+            this.newTitle = _data["newTitle"];
+            this.oldIndex = _data["oldIndex"];
+            this.newIndex = _data["newIndex"];
+            this.quizId = _data["quizId"];
+            this.assignmentId = _data["assignmentId"];
+            if (Array.isArray(_data["propertyChanges"])) {
+                this.propertyChanges = [] as any;
+                for (let item of _data["propertyChanges"])
+                    this.propertyChanges!.push(PropertyChangeDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CurriculumItemComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CurriculumItemComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["itemId"] = this.itemId;
+        data["type"] = this.type;
+        data["status"] = this.status;
+        data["oldTitle"] = this.oldTitle;
+        data["newTitle"] = this.newTitle;
+        data["oldIndex"] = this.oldIndex;
+        data["newIndex"] = this.newIndex;
+        data["quizId"] = this.quizId;
+        data["assignmentId"] = this.assignmentId;
+        if (Array.isArray(this.propertyChanges)) {
+            data["propertyChanges"] = [];
+            for (let item of this.propertyChanges)
+                data["propertyChanges"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICurriculumItemComparisonDto {
+    itemId?: string | undefined;
+    type?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    oldIndex?: number;
+    newIndex?: number;
+    quizId?: number | undefined;
+    assignmentId?: number | undefined;
+    propertyChanges?: PropertyChangeDto[] | undefined;
+}
+
+export class PropertyChangeDto implements IPropertyChangeDto {
+    propertyName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+
+    constructor(data?: IPropertyChangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.propertyName = _data["propertyName"];
+            this.oldValue = _data["oldValue"];
+            this.newValue = _data["newValue"];
+        }
+    }
+
+    static fromJS(data: any): PropertyChangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PropertyChangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["propertyName"] = this.propertyName;
+        data["oldValue"] = this.oldValue;
+        data["newValue"] = this.newValue;
+        return data;
+    }
+}
+
+export interface IPropertyChangeDto {
+    propertyName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+}
+
+export class QuizComparisonDto implements IQuizComparisonDto {
+    quizId?: number;
+    itemId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    settingChanges?: QuizSettingChangeDto[] | undefined;
+    questions?: QuizQuestionComparisonDto[] | undefined;
+
+    constructor(data?: IQuizComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.quizId = _data["quizId"];
+            this.itemId = _data["itemId"];
+            this.status = _data["status"];
+            this.oldTitle = _data["oldTitle"];
+            this.newTitle = _data["newTitle"];
+            if (Array.isArray(_data["settingChanges"])) {
+                this.settingChanges = [] as any;
+                for (let item of _data["settingChanges"])
+                    this.settingChanges!.push(QuizSettingChangeDto.fromJS(item));
+            }
+            if (Array.isArray(_data["questions"])) {
+                this.questions = [] as any;
+                for (let item of _data["questions"])
+                    this.questions!.push(QuizQuestionComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QuizComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["quizId"] = this.quizId;
+        data["itemId"] = this.itemId;
+        data["status"] = this.status;
+        data["oldTitle"] = this.oldTitle;
+        data["newTitle"] = this.newTitle;
+        if (Array.isArray(this.settingChanges)) {
+            data["settingChanges"] = [];
+            for (let item of this.settingChanges)
+                data["settingChanges"].push(item.toJSON());
+        }
+        if (Array.isArray(this.questions)) {
+            data["questions"] = [];
+            for (let item of this.questions)
+                data["questions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IQuizComparisonDto {
+    quizId?: number;
+    itemId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    settingChanges?: QuizSettingChangeDto[] | undefined;
+    questions?: QuizQuestionComparisonDto[] | undefined;
+}
+
+export class QuizSettingChangeDto implements IQuizSettingChangeDto {
+    settingName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+
+    constructor(data?: IQuizSettingChangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.settingName = _data["settingName"];
+            this.oldValue = _data["oldValue"];
+            this.newValue = _data["newValue"];
+        }
+    }
+
+    static fromJS(data: any): QuizSettingChangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizSettingChangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["settingName"] = this.settingName;
+        data["oldValue"] = this.oldValue;
+        data["newValue"] = this.newValue;
+        return data;
+    }
+}
+
+export interface IQuizSettingChangeDto {
+    settingName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+}
+
+export class QuizQuestionComparisonDto implements IQuizQuestionComparisonDto {
+    questionId?: number;
+    status?: string | undefined;
+    oldName?: string | undefined;
+    newName?: string | undefined;
+    oldType?: string | undefined;
+    newType?: string | undefined;
+    oldExplanation?: string | undefined;
+    newExplanation?: string | undefined;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+    choices?: QuizChoiceComparisonDto[] | undefined;
+
+    constructor(data?: IQuizQuestionComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.questionId = _data["questionId"];
+            this.status = _data["status"];
+            this.oldName = _data["oldName"];
+            this.newName = _data["newName"];
+            this.oldType = _data["oldType"];
+            this.newType = _data["newType"];
+            this.oldExplanation = _data["oldExplanation"];
+            this.newExplanation = _data["newExplanation"];
+            this.oldSortOrder = _data["oldSortOrder"];
+            this.newSortOrder = _data["newSortOrder"];
+            if (Array.isArray(_data["choices"])) {
+                this.choices = [] as any;
+                for (let item of _data["choices"])
+                    this.choices!.push(QuizChoiceComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QuizQuestionComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizQuestionComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["questionId"] = this.questionId;
+        data["status"] = this.status;
+        data["oldName"] = this.oldName;
+        data["newName"] = this.newName;
+        data["oldType"] = this.oldType;
+        data["newType"] = this.newType;
+        data["oldExplanation"] = this.oldExplanation;
+        data["newExplanation"] = this.newExplanation;
+        data["oldSortOrder"] = this.oldSortOrder;
+        data["newSortOrder"] = this.newSortOrder;
+        if (Array.isArray(this.choices)) {
+            data["choices"] = [];
+            for (let item of this.choices)
+                data["choices"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IQuizQuestionComparisonDto {
+    questionId?: number;
+    status?: string | undefined;
+    oldName?: string | undefined;
+    newName?: string | undefined;
+    oldType?: string | undefined;
+    newType?: string | undefined;
+    oldExplanation?: string | undefined;
+    newExplanation?: string | undefined;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+    choices?: QuizChoiceComparisonDto[] | undefined;
+}
+
+export class QuizChoiceComparisonDto implements IQuizChoiceComparisonDto {
+    choiceId?: number;
+    status?: string | undefined;
+    oldText?: string | undefined;
+    newText?: string | undefined;
+    oldIsCorrect?: boolean;
+    newIsCorrect?: boolean;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+
+    constructor(data?: IQuizChoiceComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.choiceId = _data["choiceId"];
+            this.status = _data["status"];
+            this.oldText = _data["oldText"];
+            this.newText = _data["newText"];
+            this.oldIsCorrect = _data["oldIsCorrect"];
+            this.newIsCorrect = _data["newIsCorrect"];
+            this.oldSortOrder = _data["oldSortOrder"];
+            this.newSortOrder = _data["newSortOrder"];
+        }
+    }
+
+    static fromJS(data: any): QuizChoiceComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QuizChoiceComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["choiceId"] = this.choiceId;
+        data["status"] = this.status;
+        data["oldText"] = this.oldText;
+        data["newText"] = this.newText;
+        data["oldIsCorrect"] = this.oldIsCorrect;
+        data["newIsCorrect"] = this.newIsCorrect;
+        data["oldSortOrder"] = this.oldSortOrder;
+        data["newSortOrder"] = this.newSortOrder;
+        return data;
+    }
+}
+
+export interface IQuizChoiceComparisonDto {
+    choiceId?: number;
+    status?: string | undefined;
+    oldText?: string | undefined;
+    newText?: string | undefined;
+    oldIsCorrect?: boolean;
+    newIsCorrect?: boolean;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+}
+
+export class AssignmentComparisonDto implements IAssignmentComparisonDto {
+    assignmentId?: number;
+    itemId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    settingChanges?: AssignmentSettingChangeDto[] | undefined;
+    questions?: AssignmentQuestionComparisonDto[] | undefined;
+
+    constructor(data?: IAssignmentComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.assignmentId = _data["assignmentId"];
+            this.itemId = _data["itemId"];
+            this.status = _data["status"];
+            this.oldTitle = _data["oldTitle"];
+            this.newTitle = _data["newTitle"];
+            if (Array.isArray(_data["settingChanges"])) {
+                this.settingChanges = [] as any;
+                for (let item of _data["settingChanges"])
+                    this.settingChanges!.push(AssignmentSettingChangeDto.fromJS(item));
+            }
+            if (Array.isArray(_data["questions"])) {
+                this.questions = [] as any;
+                for (let item of _data["questions"])
+                    this.questions!.push(AssignmentQuestionComparisonDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AssignmentComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AssignmentComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["assignmentId"] = this.assignmentId;
+        data["itemId"] = this.itemId;
+        data["status"] = this.status;
+        data["oldTitle"] = this.oldTitle;
+        data["newTitle"] = this.newTitle;
+        if (Array.isArray(this.settingChanges)) {
+            data["settingChanges"] = [];
+            for (let item of this.settingChanges)
+                data["settingChanges"].push(item.toJSON());
+        }
+        if (Array.isArray(this.questions)) {
+            data["questions"] = [];
+            for (let item of this.questions)
+                data["questions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAssignmentComparisonDto {
+    assignmentId?: number;
+    itemId?: string | undefined;
+    status?: string | undefined;
+    oldTitle?: string | undefined;
+    newTitle?: string | undefined;
+    settingChanges?: AssignmentSettingChangeDto[] | undefined;
+    questions?: AssignmentQuestionComparisonDto[] | undefined;
+}
+
+export class AssignmentSettingChangeDto implements IAssignmentSettingChangeDto {
+    settingName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+
+    constructor(data?: IAssignmentSettingChangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.settingName = _data["settingName"];
+            this.oldValue = _data["oldValue"];
+            this.newValue = _data["newValue"];
+        }
+    }
+
+    static fromJS(data: any): AssignmentSettingChangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AssignmentSettingChangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["settingName"] = this.settingName;
+        data["oldValue"] = this.oldValue;
+        data["newValue"] = this.newValue;
+        return data;
+    }
+}
+
+export interface IAssignmentSettingChangeDto {
+    settingName?: string | undefined;
+    oldValue?: string | undefined;
+    newValue?: string | undefined;
+}
+
+export class AssignmentQuestionComparisonDto implements IAssignmentQuestionComparisonDto {
+    questionId?: number;
+    status?: string | undefined;
+    oldQuestionText?: string | undefined;
+    newQuestionText?: string | undefined;
+    oldExampleAnswer?: string | undefined;
+    newExampleAnswer?: string | undefined;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+
+    constructor(data?: IAssignmentQuestionComparisonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.questionId = _data["questionId"];
+            this.status = _data["status"];
+            this.oldQuestionText = _data["oldQuestionText"];
+            this.newQuestionText = _data["newQuestionText"];
+            this.oldExampleAnswer = _data["oldExampleAnswer"];
+            this.newExampleAnswer = _data["newExampleAnswer"];
+            this.oldSortOrder = _data["oldSortOrder"];
+            this.newSortOrder = _data["newSortOrder"];
+        }
+    }
+
+    static fromJS(data: any): AssignmentQuestionComparisonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AssignmentQuestionComparisonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["questionId"] = this.questionId;
+        data["status"] = this.status;
+        data["oldQuestionText"] = this.oldQuestionText;
+        data["newQuestionText"] = this.newQuestionText;
+        data["oldExampleAnswer"] = this.oldExampleAnswer;
+        data["newExampleAnswer"] = this.newExampleAnswer;
+        data["oldSortOrder"] = this.oldSortOrder;
+        data["newSortOrder"] = this.newSortOrder;
+        return data;
+    }
+}
+
+export interface IAssignmentQuestionComparisonDto {
+    questionId?: number;
+    status?: string | undefined;
+    oldQuestionText?: string | undefined;
+    newQuestionText?: string | undefined;
+    oldExampleAnswer?: string | undefined;
+    newExampleAnswer?: string | undefined;
+    oldSortOrder?: number;
+    newSortOrder?: number;
+}
+
 export class ReturnResultOfCreatedCourseDto implements IReturnResultOfCreatedCourseDto {
     result?: CreatedCourseDto | undefined;
     message?: string | undefined;
@@ -16096,6 +18857,246 @@ export class DeleteCourseCommand implements IDeleteCourseCommand {
 
 export interface IDeleteCourseCommand {
     id?: number;
+}
+
+export class UnpublishCourseCommand implements IUnpublishCourseCommand {
+    courseId?: number;
+    reason?: string | undefined;
+
+    constructor(data?: IUnpublishCourseCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.reason = _data["reason"];
+        }
+    }
+
+    static fromJS(data: any): UnpublishCourseCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UnpublishCourseCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["reason"] = this.reason;
+        return data;
+    }
+}
+
+export interface IUnpublishCourseCommand {
+    courseId?: number;
+    reason?: string | undefined;
+}
+
+export class PaginatedListOfPublishedCourseForAdminDto implements IPaginatedListOfPublishedCourseForAdminDto {
+    items?: PublishedCourseForAdminDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfPublishedCourseForAdminDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(PublishedCourseForAdminDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfPublishedCourseForAdminDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfPublishedCourseForAdminDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfPublishedCourseForAdminDto {
+    items?: PublishedCourseForAdminDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class PublishedCourseForAdminDto implements IPublishedCourseForAdminDto {
+    courseId?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    imageUrl?: string | undefined;
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    categoryId?: number;
+    categoryName?: string | undefined;
+    price?: number;
+    totalStudents?: number;
+    ratings?: number;
+    lastModified?: Date;
+    isModifiedSinceApproval?: boolean;
+
+    constructor(data?: IPublishedCourseForAdminDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.subtitle = _data["subtitle"];
+            this.imageUrl = _data["imageUrl"];
+            this.instructorId = _data["instructorId"];
+            this.instructorName = _data["instructorName"];
+            this.instructorAvatar = _data["instructorAvatar"];
+            this.categoryId = _data["categoryId"];
+            this.categoryName = _data["categoryName"];
+            this.price = _data["price"];
+            this.totalStudents = _data["totalStudents"];
+            this.ratings = _data["ratings"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.isModifiedSinceApproval = _data["isModifiedSinceApproval"];
+        }
+    }
+
+    static fromJS(data: any): PublishedCourseForAdminDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PublishedCourseForAdminDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["subtitle"] = this.subtitle;
+        data["imageUrl"] = this.imageUrl;
+        data["instructorId"] = this.instructorId;
+        data["instructorName"] = this.instructorName;
+        data["instructorAvatar"] = this.instructorAvatar;
+        data["categoryId"] = this.categoryId;
+        data["categoryName"] = this.categoryName;
+        data["price"] = this.price;
+        data["totalStudents"] = this.totalStudents;
+        data["ratings"] = this.ratings;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["isModifiedSinceApproval"] = this.isModifiedSinceApproval;
+        return data;
+    }
+}
+
+export interface IPublishedCourseForAdminDto {
+    courseId?: number;
+    title?: string | undefined;
+    subtitle?: string | undefined;
+    imageUrl?: string | undefined;
+    instructorId?: string | undefined;
+    instructorName?: string | undefined;
+    instructorAvatar?: string | undefined;
+    categoryId?: number;
+    categoryName?: string | undefined;
+    price?: number;
+    totalStudents?: number;
+    ratings?: number;
+    lastModified?: Date;
+    isModifiedSinceApproval?: boolean;
+}
+
+export class CourseManagementStatsDto implements ICourseManagementStatsDto {
+    totalPublic?: number;
+    totalPrivate?: number;
+    totalDraft?: number;
+    totalModified?: number;
+
+    constructor(data?: ICourseManagementStatsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalPublic = _data["totalPublic"];
+            this.totalPrivate = _data["totalPrivate"];
+            this.totalDraft = _data["totalDraft"];
+            this.totalModified = _data["totalModified"];
+        }
+    }
+
+    static fromJS(data: any): CourseManagementStatsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseManagementStatsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalPublic"] = this.totalPublic;
+        data["totalPrivate"] = this.totalPrivate;
+        data["totalDraft"] = this.totalDraft;
+        data["totalModified"] = this.totalModified;
+        return data;
+    }
+}
+
+export interface ICourseManagementStatsDto {
+    totalPublic?: number;
+    totalPrivate?: number;
+    totalDraft?: number;
+    totalModified?: number;
 }
 
 export class PaginatedListOfGetCourseDto implements IPaginatedListOfGetCourseDto {

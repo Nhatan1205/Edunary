@@ -1,5 +1,6 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Enums;
+using Edunary.Domain.Constants;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -17,15 +18,18 @@ public class CheckMediaFileAccessQueryHandler : IRequestHandler<CheckMediaFileAc
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly ICourseAuthorizationService _courseAuth;
+    private readonly IIdentityService _identityService;
 
     public CheckMediaFileAccessQueryHandler(
         IApplicationDbContext context, 
         IUser user,
-        ICourseAuthorizationService courseAuth)
+        ICourseAuthorizationService courseAuth,
+        IIdentityService identityService)
     {
         _context = context;
         _user = user;
         _courseAuth = courseAuth;
+        _identityService = identityService;
     }
 
     public async Task<bool> Handle(CheckMediaFileAccessQuery request, CancellationToken cancellationToken)
@@ -37,6 +41,14 @@ public class CheckMediaFileAccessQueryHandler : IRequestHandler<CheckMediaFileAc
         if (mediaFile == null || mediaFile.HlsStatus != VideoStatus.READY || mediaFile.Status != UploadStatus.COMPLETED) return false;
 
         var userId = _user.Id;
+
+        // Bypass for admin and superadmin
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator)
+                || await _identityService.IsInRoleAsync(userId, Roles.SuperAdmin);
+            if (isAdmin) return true;
+        }
 
         // Check ownership
         if (!string.IsNullOrEmpty(userId) && mediaFile.UserId == userId) return true;

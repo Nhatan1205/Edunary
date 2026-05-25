@@ -22,7 +22,7 @@ public class CourseCreatedEventHandler : INotificationHandler<CourseCreatedEvent
         _logger.LogInformation("Edunary Domain Event: {DomainEvent}", notification.GetType().Name);
 
         // Enqueue embedding job. The job service will skip if status is not Public.
-        _embeddingJobService.EnqueueCourseEmbedding(notification.Item.Id);
+        //_embeddingJobService.EnqueueCourseEmbedding(notification.Item.Id);
 
         return Task.CompletedTask;
     }

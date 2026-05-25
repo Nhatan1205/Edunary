@@ -3737,6 +3737,475 @@
         ]
       }
     },
+    "/api/CourseReviews/submit": {
+      "post": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "SubmitCourseForReview",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitCourseForReviewCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/status/{courseId}": {
+      "get": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "GetCourseReviewStatus",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseReviewStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/feedback/{feedbackId}/resolve": {
+      "put": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "ResolveReviewFeedback",
+        "parameters": [
+          {
+            "name": "feedbackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveReviewFeedbackCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/admin/pending": {
+      "get": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "GetCourseReviewSubmissions",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ReviewSubmissionStatus"
+                }
+              ]
+            },
+            "x-position": 3
+          },
+          {
+            "name": "IsFirstSubmissionOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "SearchQuery",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 6
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfCourseReviewSubmissionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/admin/pending/counts": {
+      "get": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "GetCourseReviewSubmissionsCounts",
+        "parameters": [
+          {
+            "name": "IsFirstSubmissionOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "SearchQuery",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseReviewSubmissionsCountsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/admin/preview/{submissionId}": {
+      "get": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "GetCoursePreviewForAdmin",
+        "parameters": [
+          {
+            "name": "submissionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCoursePreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/admin/feedback": {
+      "post": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "SaveReviewFeedback",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveReviewFeedbackCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/admin/feedback/{feedbackId}": {
+      "put": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "UpdateReviewFeedback",
+        "parameters": [
+          {
+            "name": "feedbackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReviewFeedbackCommand"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "DeleteReviewFeedback",
+        "parameters": [
+          {
+            "name": "feedbackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/admin/request-changes": {
+      "post": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "RequestChanges",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestChangesCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/admin/approve": {
+      "post": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "ApproveCourse",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveCourseCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/admin/compare/{courseId}": {
+      "get": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "GetCourseChangesComparison",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Courses": {
       "post": {
         "tags": [
@@ -4032,6 +4501,144 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseStatsVM"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Courses/admin/unpublish": {
+      "post": {
+        "tags": [
+          "Courses"
+        ],
+        "operationId": "UnpublishCourse",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnpublishCourseCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Courses/admin/published": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "operationId": "GetPublishedCoursesForAdmin",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "SearchQuery",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "CategoryId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "ModifiedOnly",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            },
+            "x-position": 5
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 6
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfPublishedCourseForAdminDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Courses/admin/course-stats": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "operationId": "GetCourseManagementStats",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseManagementStatsDto"
                 }
               }
             }
@@ -11115,12 +11722,18 @@
         "type": "integer",
         "description": "",
         "x-enumNames": [
-          "Draft",
-          "Public"
+          "Unpublished",
+          "Public",
+          "Private",
+          "PendingReview",
+          "NeedsChanges"
         ],
         "enum": [
           0,
-          1
+          1,
+          2,
+          3,
+          4
         ]
       },
       "TopicItemDto": {
@@ -11821,6 +12434,1177 @@
           }
         }
       },
+      "SubmitCourseForReviewCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CourseReviewStatusDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseStatus": {
+            "$ref": "#/components/schemas/CourseStatus"
+          },
+          "latestSubmission": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LatestSubmissionDto"
+              }
+            ]
+          },
+          "submissionHistory": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/SubmissionHistoryItemDto"
+            }
+          }
+        }
+      },
+      "LatestSubmissionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submissionNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewSubmissionStatus"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "adminNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "feedbacks": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FeedbackItemDto"
+            }
+          }
+        }
+      },
+      "ReviewSubmissionStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "NeedsChanges",
+          "Approved"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "FeedbackItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "feedbackType": {
+            "$ref": "#/components/schemas/ReviewFeedbackType"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ReviewFeedbackCategory"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "isResolved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ReviewFeedbackType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "RequiredFix",
+          "RecommendedImprovement"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "ReviewFeedbackCategory": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "CourseContent",
+          "VideoQuality",
+          "AudioQuality",
+          "CourseLandingPage",
+          "CourseImage",
+          "CourseTitleSubtitle",
+          "CourseDescription",
+          "IntendedLearners",
+          "InstructorProfile",
+          "Policy",
+          "Pricing",
+          "Other"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          99
+        ]
+      },
+      "SubmissionHistoryItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewSubmissionStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "adminNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "feedbacks": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FeedbackItemDto"
+            }
+          }
+        }
+      },
+      "ResolveReviewFeedbackCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "feedbackId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isResolved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfCourseReviewSubmissionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CourseReviewSubmissionDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CourseReviewSubmissionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "categoryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "submissionNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseReviewSubmissionsCountsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pendingCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "needsChangesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "approvedCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminCoursePreviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "course": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CourseInfoDto"
+              }
+            ]
+          },
+          "submissionInfo": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AdminSubmissionInfoDto"
+              }
+            ]
+          },
+          "currentFeedbacks": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AdminFeedbackDto"
+            }
+          },
+          "curriculumSections": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/SectionSchema"
+            }
+          }
+        }
+      },
+      "CourseInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "level": {
+            "$ref": "#/components/schemas/CourseLevel"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseStatus"
+          },
+          "learningObjectives": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirements": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetAudience": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "welcomeMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "congratulationsMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "float"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categoryTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "ratings": {
+            "type": "number",
+            "format": "float"
+          },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "instructorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "topics": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/Topics"
+            }
+          }
+        }
+      },
+      "Topics": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AdminSubmissionInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submissionNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewSubmissionStatus"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "adminNote": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AdminFeedbackDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "feedbackType": {
+            "$ref": "#/components/schemas/ReviewFeedbackType"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ReviewFeedbackCategory"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "isResolved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SectionSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sectionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "learningObjectives": {
+            "type": "string",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ItemSchema"
+            }
+          },
+          "isEditMode": {
+            "type": "boolean"
+          },
+          "published": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ItemSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPendingType": {
+            "type": "boolean"
+          },
+          "downloadable": {
+            "type": "boolean"
+          },
+          "resources": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ResourseSchema"
+            }
+          },
+          "contentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "videoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "videoDuration": {
+            "type": "string",
+            "nullable": true
+          },
+          "isFreePreview": {
+            "type": "boolean"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "lastPosition": {
+            "type": "number",
+            "format": "double"
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "quizId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ResourseSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SaveReviewFeedbackCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseReviewSubmissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "feedbackType": {
+            "$ref": "#/components/schemas/ReviewFeedbackType"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ReviewFeedbackCategory"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateReviewFeedbackCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "feedbackId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "feedbackType": {
+            "$ref": "#/components/schemas/ReviewFeedbackType"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ReviewFeedbackCategory"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RequestChangesCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "adminNote": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApproveCourseCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ComparisonResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseSubtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasChanges": {
+            "type": "boolean"
+          },
+          "noSnapshot": {
+            "type": "boolean"
+          },
+          "snapshotTakenAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "approvedSubmissionNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalChanges": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "changeGroups": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ChangeGroupDto"
+            }
+          },
+          "curriculumComparison": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CurriculumSectionComparisonDto"
+            }
+          },
+          "quizComparison": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/QuizComparisonDto"
+            }
+          },
+          "assignmentComparison": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AssignmentComparisonDto"
+            }
+          }
+        }
+      },
+      "ChangeGroupDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "changes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ChangedFieldDto"
+            }
+          }
+        }
+      },
+      "ChangedFieldDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "type": "string",
+            "nullable": true
+          },
+          "changeType": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "newValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "details": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ChangeDetailDto"
+            }
+          }
+        }
+      },
+      "ChangeDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "item": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "newValue": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CurriculumSectionComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sectionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "newTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CurriculumItemComparisonDto"
+            }
+          }
+        }
+      },
+      "CurriculumItemComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "newTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "quizId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "propertyChanges": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PropertyChangeDto"
+            }
+          }
+        }
+      },
+      "PropertyChangeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "propertyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "newValue": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "QuizComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "quizId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "newTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "settingChanges": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/QuizSettingChangeDto"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/QuizQuestionComparisonDto"
+            }
+          }
+        }
+      },
+      "QuizSettingChangeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "settingName": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "newValue": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "QuizQuestionComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldName": {
+            "type": "string",
+            "nullable": true
+          },
+          "newName": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldType": {
+            "type": "string",
+            "nullable": true
+          },
+          "newType": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldExplanation": {
+            "type": "string",
+            "nullable": true
+          },
+          "newExplanation": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "choices": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/QuizChoiceComparisonDto"
+            }
+          }
+        }
+      },
+      "QuizChoiceComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "choiceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldText": {
+            "type": "string",
+            "nullable": true
+          },
+          "newText": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldIsCorrect": {
+            "type": "boolean"
+          },
+          "newIsCorrect": {
+            "type": "boolean"
+          },
+          "oldSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AssignmentComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "newTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "settingChanges": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AssignmentSettingChangeDto"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AssignmentQuestionComparisonDto"
+            }
+          }
+        }
+      },
+      "AssignmentSettingChangeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "settingName": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "newValue": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AssignmentQuestionComparisonDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldQuestionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "newQuestionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldExampleAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "newExampleAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newSortOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "ReturnResultOfCreatedCourseDto": {
         "type": "object",
         "additionalProperties": false,
@@ -12254,6 +14038,134 @@
         "additionalProperties": false,
         "properties": {
           "id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UnpublishCourseCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaginatedListOfPublishedCourseForAdminDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PublishedCourseForAdminDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublishedCourseForAdminDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "instructorAvatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categoryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "float"
+          },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ratings": {
+            "type": "number",
+            "format": "float"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isModifiedSinceApproval": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CourseManagementStatsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalPublic": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPrivate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDraft": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalModified": {
             "type": "integer",
             "format": "int32"
           }

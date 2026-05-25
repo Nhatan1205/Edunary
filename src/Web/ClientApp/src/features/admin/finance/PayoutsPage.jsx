@@ -28,6 +28,8 @@ import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import CustomDataGrid from "../../../components/datagrid/CustomDataGrid";
 import DataGridToolbar from "../../../components/datagrid/DataGridToolbar";
+import NoData from "../../../components/NoData";
+import emptyPayoutsImg from "../../../assets/images/empty-payouts.png";
 import PageTitle from "../../../components/PageTitle";
 import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs";
 import useGetEligiblePayouts from "../../../hooks/finance-hooks/useGetEligiblePayouts";
@@ -186,6 +188,17 @@ function CriteriaChip({ label }) {
         fontWeight: 600,
         "& .MuiChip-icon": { color: "brand.main", fontSize: 16 },
       }}
+    />
+  );
+}
+
+function PayoutNoRows() {
+  return (
+    <NoData
+      image={emptyPayoutsImg}
+      title="No payout candidates"
+      description="No instructors currently meet the minimum balance threshold for payout."
+      minHeight="300px"
     />
   );
 }
@@ -441,6 +454,7 @@ export default function PayoutsPage() {
           height={460}
           rowHeight={64}
           sx={financeTableGridSx}
+          slots={{ noRowsOverlay: PayoutNoRows }}
         />
 
         <TablePagination

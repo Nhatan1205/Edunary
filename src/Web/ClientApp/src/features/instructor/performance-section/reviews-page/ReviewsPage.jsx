@@ -6,6 +6,7 @@ import {
 import MainCard from "../../../../components/instructor-layout/MainCard";
 import PageTitle from "../../../../components/PageTitle";
 import NoData from "../../../../components/NoData";
+import emptyReviewsImg from "../../../../assets/images/empty-reviews.png";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
 import CustomPagination from "../../../../components/pagination/CustomPagination";
 import ReviewPanel, { ReviewPanelSkeleton } from "./ReviewPanel";
@@ -214,6 +215,7 @@ export default function ReviewsPage() {
         </Stack>
       ) : reviews.length === 0 ? (
         <NoData
+          image={emptyReviewsImg}
           title="No reviews found"
           description="Try adjusting your filters, or wait for students to leave reviews on your courses."
           minHeight="300px"

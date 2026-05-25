@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { Alert, Box, Button, Card, TablePagination } from "@mui/material"
+import NoData from "../../../components/NoData"
+import emptyCouponImg from "../../../assets/images/empty-coupons.png"
 import queryClient from "../../../configs/reactQuery.js"
 import AddIcon from "@mui/icons-material/Add"
 import { toast } from "react-toastify"
@@ -208,9 +210,14 @@ export default function CouponsPage({ isAdmin = false }) {
             />
 
             {showEmptyState ? (
-              <Alert severity="info" sx={{ m: 2 }}>
-                No coupons found.
-              </Alert>
+              <NoData
+                image={emptyCouponImg}
+                title={codeSearch || typeFilter || ownerFilter ? "No coupons match your filters" : "No coupons yet"}
+                description={codeSearch || typeFilter || ownerFilter
+                  ? "Try adjusting or clearing your filters to see all coupons."
+                  : "Create your first coupon to offer discounts on your courses."}
+                minHeight="320px"
+              />
             ) : (
               <CouponsTable
                 coupons={coupons}

@@ -80,6 +80,7 @@ import UserEmbeddingPage from "./features/admin/user-embedding/UserEmbeddingPage
 import InvitationsPage from "./features/instructor/invitations-page/InvitationsPage";
 import ReviewsPage from "./features/instructor/performance-section/reviews-page/ReviewsPage";
 import CouponsPage from "./features/instructor/coupons-page/CouponsPage";
+import InstructorReportPage from "./features/instructor/performance-section/report-page/InstructorReportPage";
 import FinancePage from "./features/admin/finance/FinancePage";
 import PayoutsPage from "./features/admin/finance/PayoutsPage";
 import TaxRegionsPage from "./features/admin/finance/TaxRegionsPage";
@@ -419,6 +420,10 @@ const router = createBrowserRouter([
           {
             path: "overview/:tab",
             element: <OverviewPage />,
+          },
+          {
+            path: "report",
+            element: <InstructorReportPage />,
           },
           {
             path: "reviews",

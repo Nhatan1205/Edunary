@@ -2,6 +2,7 @@ using System.Reflection;
 using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Finance.Payouts;
+using Edunary.Application.InstructorReports.Queries.GetInstructorReport;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
@@ -12,6 +13,7 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddScoped<PayoutEligibilityService>();
+        services.AddScoped<InstructorReportService>();
         services.AddScoped<IWithdrawalPayoutLedgerService, WithdrawalPayoutLedgerService>();
 
         services.AddMediatR(cfg =>

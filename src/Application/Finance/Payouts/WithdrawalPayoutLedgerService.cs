@@ -28,39 +28,42 @@ public class WithdrawalPayoutLedgerService : IWithdrawalPayoutLedgerService
         string instructorId,
         CancellationToken cancellationToken)
     {
+        return _ledgerService.PostAsync(BuildInitiatedPosting(withdrawalRequest, instructorId), cancellationToken);
+    }
+
+    private static LedgerPosting BuildInitiatedPosting(WithdrawalRequest withdrawalRequest, string instructorId)
+    {
         var description = $"Withdrawal {withdrawalRequest.Id} initiated";
 
-        return _ledgerService.PostAsync(
-            new LedgerPosting
+        return new LedgerPosting
+        {
+            TransactionType = LedgerTransactionType.PayoutInitiated,
+            ReferenceType = WithdrawalReferenceType,
+            ReferenceId = withdrawalRequest.Id.ToString(),
+            Currency = string.IsNullOrWhiteSpace(withdrawalRequest.Currency) ? "USD" : withdrawalRequest.Currency,
+            OccurredAt = withdrawalRequest.Created == default
+                ? DateTimeOffset.UtcNow
+                : withdrawalRequest.Created,
+            Entries = new List<LedgerEntryInput>
             {
-                TransactionType = LedgerTransactionType.PayoutInitiated,
-                ReferenceType = WithdrawalReferenceType,
-                ReferenceId = withdrawalRequest.Id.ToString(),
-                Currency = string.IsNullOrWhiteSpace(withdrawalRequest.Currency) ? "USD" : withdrawalRequest.Currency,
-                OccurredAt = withdrawalRequest.Created == default
-                    ? DateTimeOffset.UtcNow
-                    : withdrawalRequest.Created,
-                Entries = new List<LedgerEntryInput>
+                new()
                 {
-                    new()
-                    {
-                        AccountCode = LedgerAccountCode.InstructorNetBalance,
-                        Side = EntrySide.Debit,
-                        Amount = withdrawalRequest.Amount,
-                        UserId = instructorId,
-                        Description = description
-                    },
-                    new()
-                    {
-                        AccountCode = LedgerAccountCode.PayoutPending,
-                        Side = EntrySide.Credit,
-                        Amount = withdrawalRequest.Amount,
-                        UserId = instructorId,
-                        Description = description
-                    }
+                    AccountCode = LedgerAccountCode.InstructorNetBalance,
+                    Side = EntrySide.Debit,
+                    Amount = withdrawalRequest.Amount,
+                    UserId = instructorId,
+                    Description = description
+                },
+                new()
+                {
+                    AccountCode = LedgerAccountCode.PayoutPending,
+                    Side = EntrySide.Credit,
+                    Amount = withdrawalRequest.Amount,
+                    UserId = instructorId,
+                    Description = description
                 }
-            },
-            cancellationToken);
+            }
+        };
     }
 
     public Task<FinancialTransaction> PostCompletedAsync(
@@ -227,14 +230,11 @@ public class WithdrawalPayoutLedgerService : IWithdrawalPayoutLedgerService
             .ToListAsync(cancellationToken);
 
         var existingSet = existingInitiatedRequestIds.ToHashSet(StringComparer.Ordinal);
-        var backfilled = 0;
+        var pendingPostings = new List<LedgerPosting>();
 
         foreach (var withdrawalRequest in processingRequests)
         {
-            if (existingSet.Contains(withdrawalRequest.Id.ToString()))
-            {
-                continue;
-            }
+            if (existingSet.Contains(withdrawalRequest.Id.ToString())) continue;
 
             var instructorId = withdrawalRequest.InstructorWallet?.InstructorId;
             if (string.IsNullOrWhiteSpace(instructorId))
@@ -243,15 +243,14 @@ public class WithdrawalPayoutLedgerService : IWithdrawalPayoutLedgerService
                     $"Withdrawal request {withdrawalRequest.Id} is missing its instructor wallet.");
             }
 
-            await PostInitiatedAsync(withdrawalRequest, instructorId, cancellationToken);
-            backfilled++;
+            pendingPostings.Add(BuildInitiatedPosting(withdrawalRequest, instructorId));
         }
 
-        if (backfilled > 0)
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-        }
+        if (pendingPostings.Count == 0) return 0;
 
-        return backfilled;
+        await _ledgerService.PostBulkAsync(pendingPostings, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return pendingPostings.Count;
     }
 }

@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Box, Paper, Stack, Tab, Tabs } from "@mui/material";
 import MainCard from "../../../../components/instructor-layout/MainCard";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 import useGetCoursesAuthor from "../../../../hooks/course-hooks/useGetCoursesAuthor";
 import useGetInstructorReport from "../../../../hooks/instructor-report-hooks/useGetInstructorReport";
 import { extractApiError } from "../../../../utils/helpers.js";
 import EnrollmentTrendPanel from "./components/EnrollmentTrendPanel";
 import RatingTrendPanel from "./components/RatingTrendPanel";
 import ReportHeaderFilters from "./components/ReportHeaderFilters";
-import ReportLoadingState from "./components/ReportLoadingState";
-import ReportNoAccessState from "./components/ReportNoAccessState";
 import ReportSummary from "./components/ReportSummary";
 import RevenueTrendPanel from "./components/RevenueTrendPanel";
 import {
@@ -16,6 +15,8 @@ import {
   getSummaryCards,
   REVENUE_REPORT_PERMISSION,
 } from "./reportPageUtils";
+import NoData from "../../../../components/NoData";
+import emptyAnalyticsImg from "../../../../assets/images/empty-analytics.png";
 
 export default function InstructorReportPage() {
   const defaultRange = useMemo(() => getDefaultDateRange(), []);
@@ -82,9 +83,25 @@ export default function InstructorReportPage() {
           </Alert>
         )}
 
-        {isLoading && <ReportLoadingState />}
+        {isLoading && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 340,
+            }}
+          >
+            <LoadingSpinner message="Loading report data..." />
+          </Box>
+        )}
 
-        {showEmptyState && <ReportNoAccessState />}
+        {showEmptyState && <NoData
+              image={emptyAnalyticsImg}
+              title="No report access"
+              description="You do not have any course with RevenueReport permission yet. Ask the course owner to grant access, then refresh this page."
+        />
+        }
 
         {!isLoading && !error && reportData?.hasAccess && (
           <>

@@ -156,8 +156,9 @@ internal static class InstructorReportTrendBuilder
                     Date = g.Key,
                     AverageRating = g.Average(x => x.Rating),
                     Count = g.Count(),
+                    RatingSum = (long)g.Sum(x => x.Rating),
                 })
-                .Select(x => new RatingTrendGroup(x.Date, (decimal)x.AverageRating, x.Count))
+                .Select(x => new RatingTrendGroup(x.Date, (decimal)x.AverageRating, x.Count, x.RatingSum))
                 .ToListAsync(cancellationToken);
         }
         else
@@ -169,8 +170,9 @@ internal static class InstructorReportTrendBuilder
                     Date = g.Key,
                     AverageRating = g.Average(x => x.Rating),
                     Count = g.Count(),
+                    RatingSum = (long)g.Sum(x => x.Rating),
                 })
-                .Select(x => new RatingTrendGroup(x.Date, (decimal)x.AverageRating, x.Count))
+                .Select(x => new RatingTrendGroup(x.Date, (decimal)x.AverageRating, x.Count, x.RatingSum))
                 .ToListAsync(cancellationToken);
         }
 
@@ -186,7 +188,7 @@ internal static class InstructorReportTrendBuilder
             aggregation);
         var totalRatings = grouped.Sum(x => x.Count);
         var averageRating = totalRatings > 0
-            ? (float)(grouped.Sum(x => x.AverageRating * x.Count) / totalRatings)
+            ? (float)grouped.Sum(x => x.RatingSum) / totalRatings
             : 0f;
 
         return new RatingTrendResult
@@ -248,7 +250,7 @@ internal static class InstructorReportTrendBuilder
 }
 
 internal sealed record TrendGroup(DateTime Date, decimal Value);
-internal sealed record RatingTrendGroup(DateTime Date, decimal AverageRating, int Count);
+internal sealed record RatingTrendGroup(DateTime Date, decimal AverageRating, int Count, long RatingSum);
 
 internal sealed class RatingTrendResult
 {

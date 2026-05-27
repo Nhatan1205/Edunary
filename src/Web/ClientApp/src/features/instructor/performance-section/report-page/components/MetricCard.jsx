@@ -10,7 +10,7 @@ export default function MetricCard({ label, value, helper, color, Icon }) {
         border: "1px solid",
         borderColor: `${color}22`,
         borderRadius: 2,
-        bgcolor: "#FFFFFF",
+        bgcolor: "background.paper",
         boxShadow: "0 1px 4px rgba(16, 24, 40, 0.06)",
         transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
         "&:hover": {

@@ -3,8 +3,9 @@ import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalance
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import StarOutlinedIcon from "@mui/icons-material/StarOutlined";
 import { fmt } from "../../../admin/finance/FinancePageTabs/shared";
+import { CoursePermission } from "../../../../web-api-client.ts";
 
-export const REVENUE_REPORT_PERMISSION = 64;
+export const REVENUE_REPORT_PERMISSION = CoursePermission.RevenueReport;
 
 export function formatDateInputValue(date) {
   const year = date.getFullYear();

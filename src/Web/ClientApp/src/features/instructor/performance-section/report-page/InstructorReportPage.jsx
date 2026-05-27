@@ -24,7 +24,9 @@ export default function InstructorReportPage() {
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [activeTab, setActiveTab] = useState(0);
 
-  const { data: coursesData, isLoading: coursesLoading } = useGetCoursesAuthor("", 0, 1, 1000, REVENUE_REPORT_PERMISSION);
+  const MAX_COURSE_DROPDOWN_SIZE = 1000;
+
+  const { data: coursesData, isLoading: coursesLoading } = useGetCoursesAuthor("", 0, 1, MAX_COURSE_DROPDOWN_SIZE, REVENUE_REPORT_PERMISSION);
   const courseOptions = useMemo(() => {
     const items = coursesData?.items ?? [];
     return items.map((course) => ({
@@ -33,6 +35,14 @@ export default function InstructorReportPage() {
       isOwner: course.isOwner,
       isCollaborator: course.isCollaborator,
     }));
+  }, [coursesData]);
+
+  useEffect(() => {
+    if (coursesData && coursesData.totalCount > MAX_COURSE_DROPDOWN_SIZE) {
+      console.warn(
+        `Course dropdown truncated: ${coursesData.totalCount} courses exist but only ${MAX_COURSE_DROPDOWN_SIZE} are loaded.`
+      );
+    }
   }, [coursesData]);
 
   useEffect(() => {

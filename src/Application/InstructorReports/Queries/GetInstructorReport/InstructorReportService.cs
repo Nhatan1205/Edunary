@@ -7,10 +7,12 @@ namespace Edunary.Application.InstructorReports.Queries.GetInstructorReport;
 public class InstructorReportService
 {
     private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _contextFactory;
 
-    public InstructorReportService(IApplicationDbContext context)
+    public InstructorReportService(IApplicationDbContext context, IApplicationDbContextFactory contextFactory)
     {
         _context = context;
+        _contextFactory = contextFactory;
     }
 
     public async Task<InstructorReportDto> BuildAsync(
@@ -44,7 +46,12 @@ public class InstructorReportService
 
         var (fromInclusive, toExclusive, aggregation) = InstructorReportTrendBuilder.ResolveRange(from, to);
 
-        var grossRevenueQuery = _context.OrderItems
+        await using var scope1 = await _contextFactory.CreateScopedContextAsync(cancellationToken);
+        await using var scope2 = await _contextFactory.CreateScopedContextAsync(cancellationToken);
+        await using var scope3 = await _contextFactory.CreateScopedContextAsync(cancellationToken);
+        await using var scope4 = await _contextFactory.CreateScopedContextAsync(cancellationToken);
+
+        var grossRevenueQuery = scope1.Context.OrderItems
             .AsNoTracking()
             .Where(oi =>
                 accessibleCourseIds.Contains(oi.CourseId) &&
@@ -53,7 +60,7 @@ public class InstructorReportService
                 oi.Order.CompletedDate.Value >= fromInclusive &&
                 oi.Order.CompletedDate.Value < toExclusive);
 
-        var walletEarningsQuery = _context.InstructorWalletTransactions
+        var walletEarningsQuery = scope2.Context.InstructorWalletTransactions
             .AsNoTracking()
             .Where(t =>
                 t.InstructorWallet.InstructorId == userId &&
@@ -61,24 +68,31 @@ public class InstructorReportService
                 t.Created >= fromInclusive &&
                 t.Created < toExclusive);
 
-        var enrollmentQuery = _context.Enrollments
+        var enrollmentQuery = scope3.Context.Enrollments
             .AsNoTracking()
             .Where(e =>
                 accessibleCourseIds.Contains(e.CourseId) &&
                 e.Created >= fromInclusive &&
                 e.Created < toExclusive);
 
-        var ratingQuery = _context.RatingCourses
+        var ratingQuery = scope4.Context.RatingCourses
             .AsNoTracking()
             .Where(r =>
                 accessibleCourseIds.Contains(r.CourseId) &&
                 r.Created >= fromInclusive &&
                 r.Created < toExclusive);
 
-        var grossRevenueData = await InstructorReportTrendBuilder.BuildGrossRevenueTrendAsync(grossRevenueQuery, fromInclusive, toExclusive, aggregation, cancellationToken);
-        var walletEarningsData = await InstructorReportTrendBuilder.BuildWalletEarningsTrendAsync(walletEarningsQuery, fromInclusive, toExclusive, aggregation, cancellationToken);
-        var enrollmentData = await InstructorReportTrendBuilder.BuildEnrollmentTrendAsync(enrollmentQuery, fromInclusive, toExclusive, aggregation, cancellationToken);
-        var ratingTrends = await InstructorReportTrendBuilder.BuildRatingTrendsAsync(ratingQuery, fromInclusive, toExclusive, aggregation, cancellationToken);
+        var grossRevenueTask = InstructorReportTrendBuilder.BuildGrossRevenueTrendAsync(grossRevenueQuery, fromInclusive, toExclusive, aggregation, cancellationToken);
+        var walletEarningsTask = InstructorReportTrendBuilder.BuildWalletEarningsTrendAsync(walletEarningsQuery, fromInclusive, toExclusive, aggregation, cancellationToken);
+        var enrollmentTask = InstructorReportTrendBuilder.BuildEnrollmentTrendAsync(enrollmentQuery, fromInclusive, toExclusive, aggregation, cancellationToken);
+        var ratingTask = InstructorReportTrendBuilder.BuildRatingTrendsAsync(ratingQuery, fromInclusive, toExclusive, aggregation, cancellationToken);
+
+        await Task.WhenAll(grossRevenueTask, walletEarningsTask, enrollmentTask, ratingTask);
+
+        var grossRevenueData = grossRevenueTask.Result;
+        var walletEarningsData = walletEarningsTask.Result;
+        var enrollmentData = enrollmentTask.Result;
+        var ratingTrends = ratingTask.Result;
 
         var grossRevenueTotal = grossRevenueData.Sum(x => x.Value);
         var walletEarningsTotal = walletEarningsData.Sum(x => x.Value);

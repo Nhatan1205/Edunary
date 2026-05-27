@@ -41,6 +41,8 @@ function StudentsPage() {
         ...(coursesData?.items ?? []).map((c) => ({
             label: c.title,
             value: c.id,
+            isOwner: c.isOwner,
+            isCollaborator: c.isCollaborator,
         }))
     ];
 

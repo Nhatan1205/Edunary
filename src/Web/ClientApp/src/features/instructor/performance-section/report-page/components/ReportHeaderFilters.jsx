@@ -1,7 +1,9 @@
-import { Box, FormControl, MenuItem, Select, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import PageTitle from "../../../../../components/PageTitle";
+import DefaultSelect from "../../../../../components/drop-down/DefaultSelect";
 import { FinanceDateRange } from "../../../../admin/finance/FinancePageTabs/shared";
-import CourseOptionLabel from "./CourseOptionLabel";
+
+const ALL_OPTION = { value: "", label: "All courses" };
 
 export default function ReportHeaderFilters({
   selectedCourseId,
@@ -12,6 +14,9 @@ export default function ReportHeaderFilters({
   onFromChange,
   onToChange,
 }) {
+  const data = [ALL_OPTION, ...courseOptions];
+  const selectedItem = data.find((option) => option.value === selectedCourseId) ?? ALL_OPTION;
+
   return (
     <Stack
       direction={{ xs: "column", lg: "row" }}
@@ -33,42 +38,12 @@ export default function ReportHeaderFilters({
         justifyContent="flex-end"
         sx={{ flexWrap: "wrap" }}
       >
-        <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 280 } }}>
-          <Select
-            value={selectedCourseId}
-            onChange={(e) => onCourseChange(String(e.target.value))}
-            displayEmpty
-            renderValue={(value) => {
-              if (!value) {
-                return "All accessible courses";
-              }
-
-              return courseOptions.find((option) => option.value === value)?.label ?? "All accessible courses";
-            }}
-            sx={{
-              borderRadius: 2,
-              bgcolor: "background.paper",
-              "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
-              "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.light" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
-            }}
-          >
-            <MenuItem value="">
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                All accessible courses
-              </Typography>
-            </MenuItem>
-            {courseOptions.map((course) => (
-              <MenuItem key={course.value} value={course.value}>
-                <CourseOptionLabel
-                  title={course.label}
-                  isOwner={course.isOwner}
-                  isCollaborator={course.isCollaborator}
-                />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <DefaultSelect
+          data={data}
+          value={[selectedItem]}
+          onChange={([item]) => onCourseChange(item?.value ?? "")}
+          defaultLabel="All courses"
+        />
 
         <Box sx={{ display: "flex", justifyContent: { xs: "flex-start", sm: "flex-end" } }}>
           <FinanceDateRange

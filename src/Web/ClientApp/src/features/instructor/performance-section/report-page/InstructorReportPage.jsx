@@ -57,8 +57,8 @@ export default function InstructorReportPage() {
   const summaryCards = getSummaryCards(reportData, totalRatings);
 
   const selectedCourseLabel = useMemo(() => {
-    if (selectedCourseId === "") return "All accessible courses";
-    return courseOptions.find((option) => option.value === selectedCourseId)?.label ?? "All accessible courses";
+    if (selectedCourseId === "") return "All courses";
+    return courseOptions.find((option) => option.value === selectedCourseId)?.label ?? "All courses";
   }, [courseOptions, selectedCourseId]);
 
   const showEmptyState = !isLoading && !error && reportData && reportData.hasAccess === false;

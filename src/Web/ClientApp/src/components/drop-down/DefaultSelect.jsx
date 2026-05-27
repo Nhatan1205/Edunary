@@ -1,4 +1,4 @@
-import { FormControl, MenuItem, Select } from "@mui/material";
+import { Chip, FormControl, MenuItem, Select, Stack } from "@mui/material";
 
 function DefaultSelect({ data, value = [], onChange, defaultLabel = "All" }) {
   const handleChange = (event) => {
@@ -36,9 +36,15 @@ function DefaultSelect({ data, value = [], onChange, defaultLabel = "All" }) {
           <MenuItem
             key={item.value}
             value={item.value}
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}
           >
-            {item.label}
+            <span>{item.label}</span>
+            {(item.isOwner || item.isCollaborator) && (
+              <Stack direction="row" spacing={0.75} sx={{ flexShrink: 0 }}>
+                {item.isOwner && <Chip label="Owner" size="small" sx={{ height: 22, fontSize: "0.7rem" }} />}
+                {item.isCollaborator && <Chip label="Collaborator" size="small" color="secondary" sx={{ height: 22, fontSize: "0.7rem" }} />}
+              </Stack>
+            )}
           </MenuItem>
         ))}
       </Select>

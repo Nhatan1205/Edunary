@@ -103,7 +103,9 @@ function CourseOverviewPage() {
             { label: "All courses", value: null },
             ...(coursesData?.items?.map(course => ({
               label: course.title,
-              value: course.id
+              value: course.id,
+              isOwner: course.isOwner,
+              isCollaborator: course.isCollaborator,
             })) || [])
           ]}
           value={courseIdParam}

@@ -39,7 +39,7 @@ const ACCOUNT_GLOSSARY = [
     code: "INSTRUCTOR_NET_BALANCE",
     label: "Instructor Net Balance",
     color: "success",
-    description: "The instructor's wallet balance, before IRS withholding tax. Withholding is only deducted when an admin approves a withdrawal request (Dr NET_BALANCE → Cr IRS_WITHHOLDING + Cr CASH_STRIPE).",
+    description: "The instructor's wallet balance before payout reserve is applied. When a withdrawal is initiated, funds move into PAYOUT_PENDING; approval then clears the reserve and recognizes withholding plus cash settlement.",
   },
   {
     code: "PLATFORM_REVENUE",
@@ -69,7 +69,7 @@ const ACCOUNT_GLOSSARY = [
     code: "PAYOUT_PENDING",
     label: "Payout Pending",
     color: "default",
-    description: "Funds awaiting transfer to the instructor. Debited when a withdrawal is initiated; credited when completed.",
+    description: "Funds awaiting transfer to the instructor. Credited when a withdrawal is initiated; debited when the payout is completed or cancelled.",
   },
   {
     code: "PAYOUT_FEES",

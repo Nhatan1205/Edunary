@@ -1,43 +1,18 @@
 import { useState, useMemo, useCallback } from "react";
 import {
-  Box, Typography, Stack, Checkbox,
-  FormControlLabel, FormControl, Select, MenuItem,
+  Box, Typography, Stack, Checkbox, FormControlLabel,
 } from "@mui/material";
 import MainCard from "../../../../components/instructor-layout/MainCard";
 import PageTitle from "../../../../components/PageTitle";
 import NoData from "../../../../components/NoData";
 import emptyReviewsImg from "../../../../assets/images/empty-reviews.png";
-import LoadingSpinner from "../../../../components/LoadingSpinner";
 import CustomPagination from "../../../../components/pagination/CustomPagination";
+import DefaultSelect from "../../../../components/drop-down/DefaultSelect";
 import ReviewPanel, { ReviewPanelSkeleton } from "./ReviewPanel";
 import useGetInstructorReviews from "../../../../hooks/rating-hooks/useGetInstructorReviews";
 import useUpsertRatingResponse from "../../../../hooks/rating-hooks/useUpsertRatingResponse";
 import useDeleteRatingResponse from "../../../../hooks/rating-hooks/useDeleteRatingResponse";
 import useGetCoursesAuthor from "../../../../hooks/course-hooks/useGetCoursesAuthor";
-
-// ─── SelectFilter ─────────────────────────────────────────────────────────────
-function SelectFilter({ value, onChange, options, minWidth = 160 }) {
-  return (
-    <FormControl size="small" sx={{ minWidth }}>
-      <Select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        sx={{
-          borderRadius: 2, bgcolor: "background.paper",
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
-          "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.light" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
-        }}
-      >
-        {options.map((o) => (
-          <MenuItem key={o.value} value={o.value} sx={{ fontSize: "0.875rem" }}>
-            {o.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-}
 
 // ─── Filter / Sort constants ───────────────────────────────────────────────────
 const RATING_OPTIONS = [
@@ -99,7 +74,7 @@ export default function ReviewsPage() {
     const list = [{ value: "all", label: "All courses" }];
     if (coursesData && coursesData.items) {
       coursesData.items.forEach((c) => {
-        list.push({ value: c.id, label: c.title });
+        list.push({ value: c.id, label: c.title, isOwner: c.isOwner, isCollaborator: c.isCollaborator, });
       });
     }
     return list;
@@ -133,6 +108,10 @@ export default function ReviewsPage() {
   const reviews = data?.items || [];
   const isAllCourses = selectedCourseId === null;
 
+  const selectedCourseOption = courseOptions.find((o) => o.value === (selectedCourseId ?? "all")) ?? courseOptions[0];
+  const selectedRatingOption = RATING_OPTIONS.find((o) => o.value === ratingFilter) ?? RATING_OPTIONS[0];
+  const selectedSortOption = SORT_OPTIONS.find((o) => o.value === sortBy) ?? SORT_OPTIONS[0];
+
   return (
     <MainCard>
       <Box
@@ -150,11 +129,11 @@ export default function ReviewsPage() {
           />
         </Box>
 
-        <SelectFilter
-          value={selectedCourseId === null ? "all" : selectedCourseId}
-          onChange={handleCourseChange}
-          options={courseOptions}
-          minWidth={260}
+        <DefaultSelect
+          data={courseOptions}
+          value={[selectedCourseOption]}
+          onChange={([item]) => handleCourseChange(item?.value ?? "all")}
+          defaultLabel="All courses"
         />
       </Box>
 
@@ -192,17 +171,17 @@ export default function ReviewsPage() {
         />
 
         {/* Dropdowns */}
-        <SelectFilter
-          value={ratingFilter}
-          onChange={handleRatingChange}
-          options={RATING_OPTIONS}
-          minWidth={160}
+        <DefaultSelect
+          data={RATING_OPTIONS}
+          value={[selectedRatingOption]}
+          onChange={([item]) => handleRatingChange(item?.value ?? "all")}
+          defaultLabel="Rating: All"
         />
-        <SelectFilter
-          value={sortBy}
-          onChange={handleSortChange}
-          options={SORT_OPTIONS}
-          minWidth={150}
+        <DefaultSelect
+          data={SORT_OPTIONS}
+          value={[selectedSortOption]}
+          onChange={([item]) => handleSortChange(item?.value ?? "newest")}
+          defaultLabel="Newest first"
         />
       </Stack>
 

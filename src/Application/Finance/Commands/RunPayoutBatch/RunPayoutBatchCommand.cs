@@ -11,13 +11,16 @@ public class RunPayoutBatchCommandHandler : IRequestHandler<RunPayoutBatchComman
 {
     private readonly IApplicationDbContext _context;
     private readonly PayoutEligibilityService _payoutEligibilityService;
+    private readonly IWithdrawalPayoutLedgerService _withdrawalPayoutLedgerService;
 
     public RunPayoutBatchCommandHandler(
         IApplicationDbContext context,
-        PayoutEligibilityService payoutEligibilityService)
+        PayoutEligibilityService payoutEligibilityService,
+        IWithdrawalPayoutLedgerService withdrawalPayoutLedgerService)
     {
         _context = context;
         _payoutEligibilityService = payoutEligibilityService;
+        _withdrawalPayoutLedgerService = withdrawalPayoutLedgerService;
     }
 
     public async Task<Result> Handle(RunPayoutBatchCommand request, CancellationToken cancellationToken)
@@ -40,10 +43,14 @@ public class RunPayoutBatchCommandHandler : IRequestHandler<RunPayoutBatchComman
                 "No payout-ready instructors found");
         }
 
+        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+
         var created = 0;
+        var createdRequests = new List<(WithdrawalRequest Request, string InstructorId)>();
+
         foreach (var entry in readyCandidates)
         {
-            _context.WithdrawalRequests.Add(new WithdrawalRequest
+            var withdrawalRequest = new WithdrawalRequest
             {
                 InstructorWalletId = entry.InstructorWalletId.GetValueOrDefault(),
                 Amount = Math.Round(entry.NetBalance, 2),
@@ -55,13 +62,30 @@ public class RunPayoutBatchCommandHandler : IRequestHandler<RunPayoutBatchComman
                 Bank = entry.Bank,
                 BankNumber = entry.BankNumber,
                 BankAccountHolder = entry.BankAccountHolder
-            });
+            };
+
+            _context.WithdrawalRequests.Add(withdrawalRequest);
+            createdRequests.Add((withdrawalRequest, entry.InstructorId));
 
             created++;
         }
 
         if (created > 0)
+        {
             await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        foreach (var (withdrawalRequest, instructorId) in createdRequests)
+        {
+            await _withdrawalPayoutLedgerService.PostInitiatedAsync(withdrawalRequest, instructorId, cancellationToken);
+        }
+
+        if (created > 0)
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
 
         return Result.Success(
             new

@@ -49,7 +49,8 @@ public class CreateCouponCommandHandler : IRequestHandler<CreateCouponCommand, R
     public async Task<Result> Handle(CreateCouponCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
-        var isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator);
+        var isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator)
+            || await _identityService.IsInRoleAsync(userId, Roles.SuperAdmin);
 
         // Platform-scope requires Administrator
         if (request.ScopeType == CouponScopeType.Platform && !isAdmin)

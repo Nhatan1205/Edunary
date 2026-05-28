@@ -9,6 +9,7 @@ import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import MessageIcon from "@mui/icons-material/Message";
 import MonetizationOnRoundedIcon from "@mui/icons-material/MonetizationOnRounded";
 import RateReviewRoundedIcon from "@mui/icons-material/RateReviewRounded";
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import AnnouncementRoundedIcon from "@mui/icons-material/AnnouncementRounded";
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -104,6 +105,13 @@ const instructorMenuItems = {
           type: "item",
           url: "/instructor/performance/overview/revenue",
           icon: BarChartIcon,
+        },
+        {
+          id: "report",
+          title: "Report",
+          type: "item",
+          url: "/instructor/performance/report",
+          icon: AssessmentOutlinedIcon,
         },
         {
           id: "revenue",

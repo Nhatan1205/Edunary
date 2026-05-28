@@ -53,9 +53,15 @@ function Chart({ type, series, options, sx, slotProps, ...rest }) {
     <Box
       sx={{
         width: "100%",
-        flexShrink: 0,
+        maxWidth: "100%",
+        minWidth: 0,
+        flexShrink: 1,
         position: "relative",
         borderRadius: 2,
+        overflow: "hidden",
+        "& .apexcharts-canvas, & .apexcharts-svg": {
+          maxWidth: "100%",
+        },
         ...sx,
       }}
       {...rest}

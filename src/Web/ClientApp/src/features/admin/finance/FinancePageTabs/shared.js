@@ -1,7 +1,8 @@
 import { Box, Typography } from "@mui/material";
 
 export const financePageContainerSx = {
-  px: { xs: 2, sm: 3, md: "40px", lg: "120px", xl: "240px" },
+  px: { xs: 0, sm: 1, md: "40px", lg: "120px", xl: "240px" },
+  minWidth: 0,
 };
 
 export const financeTableCardSx = {
@@ -104,8 +105,9 @@ const financeDateInputSx = (value) => ({
   fontFamily: "inherit",
   cursor: "pointer",
   outline: "none",
-  minWidth: 140,
-  flex: { xs: "1 1 140px", sm: "0 0 auto" },
+  width: { xs: "100%", sm: "auto" },
+  minWidth: { xs: 0, sm: 140 },
+  flex: { xs: "1 1 100%", sm: "0 0 auto" },
   "&:focus": { borderColor: "brand.main" },
 });
 
@@ -128,9 +130,18 @@ function FinanceDateInput({ title, value, onChange }) {
 
 export function FinanceDateRange({ from, to, onFromChange, onToChange }) {
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", minWidth: 0 }}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: { xs: 0.75, sm: 1 },
+        flexWrap: "wrap",
+        width: { xs: "100%", sm: "auto" },
+        minWidth: 0,
+      }}
+    >
       <FinanceDateInput title="From date" value={from} onChange={onFromChange} />
-      <Typography variant="caption" sx={{ color: "text.secondary" }}>-</Typography>
+      <Typography variant="caption" sx={{ color: "text.secondary", display: { xs: "none", sm: "block" } }}>-</Typography>
       <FinanceDateInput title="To date" value={to} onChange={onToChange} />
     </Box>
   );

@@ -41,7 +41,8 @@ public class GetCouponsQueryHandler : IRequestHandler<GetCouponsQuery, Paginated
     public async Task<PaginatedList<CouponDto>> Handle(GetCouponsQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
-        var isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator);
+        var isAdmin = await _identityService.IsInRoleAsync(userId, Roles.Administrator)
+            || await _identityService.IsInRoleAsync(userId, Roles.SuperAdmin);
         var pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
         var pageSize = request.PageSize < 1 ? 10 : request.PageSize;
         var sortField = request.SortField?.Trim().ToLowerInvariant() ?? "created";

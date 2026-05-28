@@ -92,6 +92,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CourseReviewFeedback> CourseReviewFeedbacks => Set<CourseReviewFeedback>();
     public DbSet<CourseApprovedSnapshot> CourseApprovedSnapshots => Set<CourseApprovedSnapshot>();
 
+    public DbSet<QualityCheckReport> QualityCheckReports => Set<QualityCheckReport>();
+    public DbSet<QualityCheckIssue> QualityCheckIssues => Set<QualityCheckIssue>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

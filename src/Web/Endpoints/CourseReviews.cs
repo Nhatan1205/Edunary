@@ -6,11 +6,16 @@ using Edunary.Application.CourseReviews.Commands.ResolveReviewFeedbackCommand;
 using Edunary.Application.CourseReviews.Commands.SaveReviewFeedbackCommand;
 using Edunary.Application.CourseReviews.Commands.SubmitCourseForReviewCommand;
 using Edunary.Application.CourseReviews.Commands.UpdateReviewFeedbackCommand;
+using Edunary.Application.CourseReviews.Commands.RunQualityCheckCommand;
+using Edunary.Application.CourseReviews.Commands.AcceptQualityIssueCommand;
+using Edunary.Application.CourseReviews.Commands.DismissQualityIssueCommand;
 using Edunary.Application.CourseReviews.Queries.GetCoursePreviewForAdminQuery;
 using Edunary.Application.CourseReviews.Queries.GetCourseReviewStatusQuery;
 using Edunary.Application.CourseReviews.Queries.GetCourseReviewSubmissionsQuery;
 using Edunary.Application.CourseReviews.Queries.GetCourseReviewSubmissionsCountsQuery;
 using Edunary.Application.CourseReviews.Queries.GetCourseChangesComparisonQuery;
+using Edunary.Application.CourseReviews.Queries.GetQualityReportsQuery;
+using Edunary.Application.CourseReviews.Queries.GetQualityReportDetailQuery;
 using Edunary.Application.CourseReviews.Services;
 using Edunary.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +42,12 @@ public class CourseReviews : EndpointGroupBase
             .MapDelete(DeleteReviewFeedback, "admin/feedback/{feedbackId:int}")
             .MapPost(RequestChanges, "admin/request-changes")
             .MapPost(ApproveCourse, "admin/approve")
-            .MapGet(GetCourseChangesComparison, "admin/compare/{courseId:int}");
+            .MapGet(GetCourseChangesComparison, "admin/compare/{courseId:int}")
+            .MapPost(RunQualityCheck, "quality-check")
+            .MapGet(GetQualityReports, "{courseId:int}/quality-reports")
+            .MapGet(GetQualityReportDetail, "quality-reports/{reportId:int}")
+            .MapPut(AcceptQualityIssue, "quality-issues/{issueId:int}/accept")
+            .MapPut(DismissQualityIssue, "quality-issues/{issueId:int}/dismiss");
     }
 
 
@@ -118,6 +128,37 @@ public class CourseReviews : EndpointGroupBase
     public async Task<ComparisonResultDto> GetCourseChangesComparison(ISender sender, int courseId)
     {
         return await sender.Send(new GetCourseChangesComparisonQuery { CourseId = courseId });
+    }
+
+    public async Task<ReturnResult<RunQualityCheckResultDto>> RunQualityCheck(ISender sender, [FromBody] RunQualityCheckCommand command)
+    {
+        return await sender.Send(command);
+    }
+
+    public async Task<List<QualityReportSummaryDto>> GetQualityReports(ISender sender, int courseId)
+    {
+        return await sender.Send(new GetQualityReportsQuery { CourseId = courseId });
+    }
+
+    public async Task<QualityReportDetailDto> GetQualityReportDetail(ISender sender, int reportId)
+    {
+        return await sender.Send(new GetQualityReportDetailQuery { ReportId = reportId });
+    }
+
+    public async Task<IResult> AcceptQualityIssue(ISender sender, int issueId, [FromBody] AcceptQualityIssueCommand command)
+    {
+        if (issueId != command.IssueId)
+        {
+            return Results.BadRequest("IssueId mismatch.");
+        }
+        var result = await sender.Send(command);
+        return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
+    }
+
+    public async Task<IResult> DismissQualityIssue(ISender sender, int issueId)
+    {
+        var result = await sender.Send(new DismissQualityIssueCommand { IssueId = issueId });
+        return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
     }
 }
 

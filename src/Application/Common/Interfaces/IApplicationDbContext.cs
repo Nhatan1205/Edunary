@@ -87,5 +87,8 @@ public interface IApplicationDbContext
     public DbSet<CourseReviewFeedback> CourseReviewFeedbacks { get; }
     public DbSet<CourseApprovedSnapshot> CourseApprovedSnapshots { get; }
 
+    public DbSet<QualityCheckReport> QualityCheckReports { get; }
+    public DbSet<QualityCheckIssue> QualityCheckIssues { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

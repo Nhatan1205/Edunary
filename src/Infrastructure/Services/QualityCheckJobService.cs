@@ -1,3 +1,5 @@
+using System.Text;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -78,8 +80,205 @@ public class QualityCheckJobService : IQualityCheckJobService
             // 2. Fetch AI configuration
             var aiConfig = await _sender.Send(new GetAIConfigQuery());
 
-            // 3. Prepare curriculum structure metadata
-            var curriculum = ParseCurriculum(course.Content)
+            // 3. Parse curriculum and pre-fetch rich data for content batching
+            var parsedContent = ParseCurriculum(course.Content);
+            
+            var quizzes = await _context.Quizzes
+                .Include(q => q.Questions)
+                .ThenInclude(q => q.Choices)
+                .Where(q => q.CourseId == course.Id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var assignments = await _context.Assignments
+                .Include(a => a.Questions)
+                .Where(a => a.CourseId == course.Id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var mediaIds = parsedContent
+                .SelectMany(s => s.Items ?? new List<ItemContentJson>())
+                .Where(i => i.GetResolvedType() == "video" && i.VideoId > 0)
+                .Select(i => i.VideoId)
+                .Distinct()
+                .ToList();
+
+            var mediaCaptions = await _context.MediaFiles
+                .Include(m => m.VideoCaptions)
+                .Where(m => mediaIds.Contains(m.Id))
+                .AsNoTracking()
+                .ToListAsync();
+            
+            var mediaCaptionsMap = mediaCaptions.ToDictionary(m => m.Id);
+
+            // 4. Construct plain text for each section and group them into batches
+            var sectionTexts = new List<(string SectionTitle, string Text)>();
+
+            foreach (var section in parsedContent)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine($"# Section: {section.Title}");
+                if (!string.IsNullOrWhiteSpace(section.LearningObjectives))
+                {
+                    sb.AppendLine($"* Objectives: {section.LearningObjectives}");
+                }
+                sb.AppendLine();
+
+                if (section.Items != null)
+                {
+                    foreach (var item in section.Items)
+                    {
+                        var itemType = item.GetResolvedType();
+
+                        if (itemType == "article")
+                        {
+                            var plainText = StripHtml(item.Content ?? "");
+                            sb.AppendLine($"## Lecture: {item.Title} (Article)");
+                            sb.AppendLine(plainText);
+                            sb.AppendLine();
+                        }
+                        else if (itemType == "video" && item.VideoId > 0)
+                        {
+                            sb.AppendLine($"## Lecture: {item.Title} (Video)");
+                            
+                            if (mediaCaptionsMap.TryGetValue(item.VideoId, out var mediaFile))
+                            {
+                                var caption = mediaFile.VideoCaptions?
+                                    .FirstOrDefault(c => c.Status == CaptionStatus.COMPLETED);
+                                
+                                if (caption != null && !string.IsNullOrWhiteSpace(caption.FileUrl))
+                                {
+                                    var vttText = await DownloadAndParseVttAsync(caption.FileUrl);
+                                    if (!string.IsNullOrWhiteSpace(vttText))
+                                    {
+                                        sb.AppendLine(vttText);
+                                    }
+                                    else
+                                    {
+                                        sb.AppendLine("[Caption file was empty or failed to parse]");
+                                    }
+                                }
+                                else
+                                {
+                                    sb.AppendLine("[No completed subtitle/caption file available]");
+                                }
+                            }
+                            else
+                            {
+                                sb.AppendLine("[No video media file metadata found]");
+                            }
+                            sb.AppendLine();
+                        }
+                        else if (itemType == "quiz")
+                        {
+                            sb.AppendLine($"## Quiz: {item.Title}");
+                            var quiz = quizzes.FirstOrDefault(q => q.ItemId == item.ItemId);
+                            if (quiz != null)
+                            {
+                                sb.AppendLine($"* Title: {quiz.Title}");
+                                sb.AppendLine($"* Description: {StripHtml(quiz.Description)}");
+                                sb.AppendLine("Questions:");
+                                foreach (var q in quiz.Questions)
+                                {
+                                    sb.AppendLine($"- Question: {StripHtml(q.Name)} ({q.Type})");
+                                    sb.AppendLine("  Choices:");
+                                    foreach (var choice in q.Choices)
+                                    {
+                                        sb.AppendLine($"    * {StripHtml(choice.Text)} (Correct: {choice.IsCorrect})");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                sb.AppendLine("[Quiz data not found]");
+                            }
+                            sb.AppendLine();
+                        }
+                        else if (itemType == "assignment")
+                        {
+                            sb.AppendLine($"## Assignment: {item.Title}");
+                            var assign = assignments.FirstOrDefault(a => a.ItemId == item.ItemId);
+                            if (assign != null)
+                            {
+                                sb.AppendLine($"* Title: {assign.Title}");
+                                sb.AppendLine($"* Description: {StripHtml(assign.Description)}");
+                                sb.AppendLine($"* Instructions: {StripHtml(assign.Instructions)}");
+                                if (assign.Questions != null && assign.Questions.Any())
+                                {
+                                    sb.AppendLine("Questions:");
+                                    foreach (var q in assign.Questions)
+                                    {
+                                        sb.AppendLine($"- {StripHtml(q.QuestionText)}");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                sb.AppendLine("[Assignment data not found]");
+                            }
+                            sb.AppendLine();
+                        }
+                    }
+                }
+                
+                sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString()));
+            }
+
+            var contentBatches = new List<object>();
+            var currentBatchSections = new List<string>();
+            var currentBatchText = new StringBuilder();
+            int currentBatchWordCount = 0;
+            int batchIndex = 1;
+
+            foreach (var sec in sectionTexts)
+            {
+                int secWordCount = EstimateWordCount(sec.Text);
+
+                if (currentBatchWordCount + secWordCount > 6000 && currentBatchSections.Any())
+                {
+                    contentBatches.Add(new
+                    {
+                        batch_index = batchIndex++,
+                        sections = currentBatchSections.ToList(),
+                        content_text = currentBatchText.ToString()
+                    });
+
+                    currentBatchSections.Clear();
+                    currentBatchText.Clear();
+                    currentBatchWordCount = 0;
+                }
+
+                currentBatchSections.Add(sec.SectionTitle);
+                currentBatchText.AppendLine(sec.Text);
+                currentBatchWordCount += secWordCount;
+
+                if (currentBatchWordCount >= 6000)
+                {
+                    contentBatches.Add(new
+                    {
+                        batch_index = batchIndex++,
+                        sections = currentBatchSections.ToList(),
+                        content_text = currentBatchText.ToString()
+                    });
+
+                    currentBatchSections.Clear();
+                    currentBatchText.Clear();
+                    currentBatchWordCount = 0;
+                }
+            }
+
+            if (currentBatchSections.Any())
+            {
+                contentBatches.Add(new
+                {
+                    batch_index = batchIndex++,
+                    sections = currentBatchSections,
+                    content_text = currentBatchText.ToString()
+                });
+            }
+
+            // 5. Build curriculum tree representation for metadata rules
+            var curriculum = parsedContent
                 .Select(s => new
                 {
                     section_title = s.Title ?? "",
@@ -87,7 +286,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                     items = s.Items?.Select(i => (object)new
                     {
                         title = i.Title ?? "",
-                        content_type = i.ContentType ?? ""
+                        content_type = i.GetResolvedType()
                     }).ToList() ?? new List<object>()
                 }).ToList();
 
@@ -96,11 +295,12 @@ public class QualityCheckJobService : IQualityCheckJobService
                 course_id = course.Id,
                 course_title = course.Title ?? "",
                 course_subtitle = course.Subtitle ?? "",
-                course_description = course.Description ?? "",
+                course_description = StripHtml(course.Description ?? ""),
                 learning_objectives = DeserializeList(course.LearningObjectives),
                 requirements = DeserializeList(course.Requirements),
                 target_audience = DeserializeList(course.TargetAudience),
                 curriculum,
+                content_batches = contentBatches,
                 llm_config = new
                 {
                     model_name = aiConfig.LLMModelName,
@@ -110,6 +310,13 @@ public class QualityCheckJobService : IQualityCheckJobService
                     max_tokens = aiConfig.LLMMaxTokens
                 }
             };
+
+            //var payloadJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            //{
+            //    WriteIndented = true
+            //});
+
+            //await System.IO.File.WriteAllTextAsync("payload_debug.json", payloadJson);
 
             var url = $"{aiConfig.AICenterBaseUrl}api/quality-check/analyze";
             var (isSuccess, body) = await _aiCenterClient.PostAsync(
@@ -329,7 +536,7 @@ public class QualityCheckJobService : IQualityCheckJobService
         // Parse curriculum structure
         var parsedContent = ParseCurriculum(course.Content);
         var sectionsCount = parsedContent?.Count ?? 0;
-        var totalLectures = parsedContent?.Sum(s => s.Items?.Count(i => i.ContentType == "article" || i.ContentType == "video") ?? 0) ?? 0;
+        var totalLectures = parsedContent?.Sum(s => s.Items?.Count(i => i.GetResolvedType() == "article" || i.GetResolvedType() == "video") ?? 0) ?? 0;
 
         if (sectionsCount < 2 || totalLectures < 5)
         {
@@ -355,7 +562,8 @@ public class QualityCheckJobService : IQualityCheckJobService
                 {
                     foreach (var item in section.Items)
                     {
-                        if (item.ContentType == "article")
+                        var itemType = item.GetResolvedType();
+                        if (itemType == "article")
                         {
                             var plainText = StripHtml(item.Content ?? "");
                             var words = string.IsNullOrWhiteSpace(plainText) ? 0 : Regex.Split(plainText.Trim(), @"\s+").Length;
@@ -374,7 +582,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                                 });
                             }
                         }
-                        else if (item.ContentType == "video" && item.VideoId > 0)
+                        else if (itemType == "video" && item.VideoId > 0)
                         {
                             var mediaFile = await _context.MediaFiles
                                 .Include(m => m.VideoCaptions)
@@ -474,59 +682,6 @@ public class QualityCheckJobService : IQualityCheckJobService
         }
 
         return issues;
-    }
-
-    private Dictionary<string, float> CalculateCategoryScores(List<QualityCheckIssue> issues)
-    {
-        var categories = new[]
-        {
-            "LearningObjectives", // IntendedLearners
-            "LandingPage",        // CourseLandingPage, CourseTitleSubtitle, CourseDescription, CourseImage
-            "CourseContent",      // CourseContent, VideoQuality, AudioQuality
-            "Policy"              // Policy
-        };
-
-        var scoreDict = new Dictionary<string, float>();
-
-        foreach (var cat in categories)
-        {
-            List<QualityCheckIssue> catIssues;
-
-            if (cat == "LearningObjectives")
-            {
-                catIssues = issues.Where(i => i.Category == ReviewFeedbackCategory.IntendedLearners).ToList();
-            }
-            else if (cat == "LandingPage")
-            {
-                catIssues = issues.Where(i => i.Category == ReviewFeedbackCategory.CourseLandingPage ||
-                                              i.Category == ReviewFeedbackCategory.CourseTitleSubtitle ||
-                                              i.Category == ReviewFeedbackCategory.CourseDescription ||
-                                              i.Category == ReviewFeedbackCategory.CourseImage).ToList();
-            }
-            else if (cat == "CourseContent")
-            {
-                catIssues = issues.Where(i => i.Category == ReviewFeedbackCategory.CourseContent ||
-                                              i.Category == ReviewFeedbackCategory.VideoQuality ||
-                                              i.Category == ReviewFeedbackCategory.AudioQuality).ToList();
-            }
-            else
-            {
-                catIssues = issues.Where(i => i.Category == ReviewFeedbackCategory.Policy).ToList();
-            }
-
-            var critical = catIssues.Count(i => i.Severity == QualityIssueSeverity.Critical);
-            var warning = catIssues.Count(i => i.Severity == QualityIssueSeverity.Warning);
-            var suggestion = catIssues.Count(i => i.Severity == QualityIssueSeverity.Suggestion);
-
-            var catScore = 100f - (critical * 15f + warning * 5f + suggestion * 2f);
-            if (catScore < 0)
-            {
-                catScore = 0;
-            }
-            scoreDict[cat] = catScore;
-        }
-
-        return scoreDict;
     }
 
     private List<string> DeserializeList(string json)
@@ -650,6 +805,46 @@ public class QualityCheckJobService : IQualityCheckJobService
         return QualityIssueSeverity.Suggestion;
     }
 
+    private async Task<string> DownloadAndParseVttAsync(string fileUrl)
+    {
+        using var client = new HttpClient();
+        try
+        {
+            var vttContent = await client.GetStringAsync(fileUrl);
+            return ParseVtt(vttContent);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Failed to download VTT from {Url}: {Error}", fileUrl, ex.Message);
+            return string.Empty;
+        }
+    }
+
+    private static string ParseVtt(string vtt)
+    {
+        var lines = vtt.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var textLines = new List<string>();
+        foreach (var line in lines)
+        {
+            var trimmed = line.Trim();
+            if (trimmed == "WEBVTT" || trimmed.Contains("-->") || string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("NOTE"))
+                continue;
+            
+            var cleanLine = Regex.Replace(trimmed, @"<[^>]+>", "");
+            if (!string.IsNullOrWhiteSpace(cleanLine))
+            {
+                textLines.Add(cleanLine);
+            }
+        }
+        return string.Join(" ", textLines);
+    }
+
+    private static int EstimateWordCount(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return 0;
+        return text.Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Length;
+    }
+
     private Task SendProgress(string userId, int percent, string message, int reportId)
     {
         return _hub.SendAsync($"QualityCheck.Report:{userId}", new
@@ -679,8 +874,14 @@ public class QualityCheckJobService : IQualityCheckJobService
         public string ItemId { get; set; }
         public string Title { get; set; }
         public string ContentType { get; set; }
+        public string Type { get; set; }
         public string Content { get; set; }
         public int VideoId { get; set; }
+
+        public string GetResolvedType()
+        {
+            return (!string.IsNullOrWhiteSpace(ContentType) ? ContentType : Type)?.ToLowerInvariant() ?? "";
+        }
     }
 
     private class AiCheckIssueDto

@@ -89,6 +89,7 @@ import CourseApprovalDetailPage from "./features/admin/course-section/course-app
 import AdminCoursePreviewPage from "./features/admin/course-section/course-approvals/admin-course-preview-page/AdminCoursePreviewPage";
 import CourseManagementPage from "./features/admin/course-section/course-management/CourseManagementPage";
 import CourseChangesPage from "./features/admin/course-section/course-changes/CourseChangesPage";
+import VerifyCertificatePage from "./features/guest/verify-certificate/VerifyCertificatePage";
 
 const router = createBrowserRouter([
   {
@@ -330,6 +331,10 @@ const router = createBrowserRouter([
       {
         path: "/policy",
         element: <PolicyPage />,
+      },
+      {
+        path: "/certificate/verify/:certificateNumber?",
+        element: <VerifyCertificatePage />,
       },
       {
         path: "/faq",

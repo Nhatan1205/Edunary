@@ -260,6 +260,93 @@ export class AdminFinanceClient {
         return Promise.resolve<TaxReportDto>(null as any);
     }
 
+    getRevenueTrend(range: string | null | undefined): Promise<RevenueTrendDto> {
+        let url_ = this.baseUrl + "/api/AdminFinance/revenue-trend?";
+        if (range !== undefined && range !== null)
+            url_ += "Range=" + encodeURIComponent("" + range) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRevenueTrend(_response);
+        });
+    }
+
+    protected processGetRevenueTrend(response: Response): Promise<RevenueTrendDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RevenueTrendDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RevenueTrendDto>(null as any);
+    }
+
+    getTopCourses(from: Date | null | undefined, to: Date | null | undefined, topN: number): Promise<TopCourseRevenueDto[]> {
+        let url_ = this.baseUrl + "/api/AdminFinance/top-courses?";
+        if (from !== undefined && from !== null)
+            url_ += "From=" + encodeURIComponent(from ? "" + from.toISOString() : "") + "&";
+        if (to !== undefined && to !== null)
+            url_ += "To=" + encodeURIComponent(to ? "" + to.toISOString() : "") + "&";
+        if (topN === undefined || topN === null)
+            throw new Error("The parameter 'topN' must be defined and cannot be null.");
+        else
+            url_ += "TopN=" + encodeURIComponent("" + topN) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTopCourses(_response);
+        });
+    }
+
+    protected processGetTopCourses(response: Response): Promise<TopCourseRevenueDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TopCourseRevenueDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TopCourseRevenueDto[]>(null as any);
+    }
+
     getPayoutSettings(): Promise<PayoutSettingsDto> {
         let url_ = this.baseUrl + "/api/AdminFinance/payouts/settings";
         url_ = url_.replace(/[?&]$/, "");
@@ -2167,6 +2254,218 @@ export class CategoriesClient {
             });
         }
         return Promise.resolve<Result>(null as any);
+    }
+}
+
+export class CertificatesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    issueCertificate(command: IssueCertificateCommand | undefined): Promise<ReturnResultOfCertificateDto> {
+        let url_ = this.baseUrl + "/api/Certificates";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processIssueCertificate(_response);
+        });
+    }
+
+    protected processIssueCertificate(response: Response): Promise<ReturnResultOfCertificateDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCertificateDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCertificateDto>(null as any);
+    }
+
+    getCertificate(courseId: number): Promise<CertificateDto> {
+        let url_ = this.baseUrl + "/api/Certificates?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined and cannot be null.");
+        else
+            url_ += "courseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCertificate(_response);
+        });
+    }
+
+    protected processGetCertificate(response: Response): Promise<CertificateDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CertificateDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CertificateDto>(null as any);
+    }
+
+    getMyCertificates(pageNumber: number | undefined, pageSize: number | undefined): Promise<PaginatedListOfMyCertificateDto> {
+        let url_ = this.baseUrl + "/api/Certificates/my?";
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyCertificates(_response);
+        });
+    }
+
+    protected processGetMyCertificates(response: Response): Promise<PaginatedListOfMyCertificateDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfMyCertificateDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfMyCertificateDto>(null as any);
+    }
+
+    verifyCertificate(certificateNumber: string | null): Promise<VerifyCertificateDto> {
+        let url_ = this.baseUrl + "/api/Certificates/verify/{certificateNumber}";
+        if (certificateNumber === undefined || certificateNumber === null)
+            throw new Error("The parameter 'certificateNumber' must be defined.");
+        url_ = url_.replace("{certificateNumber}", encodeURIComponent("" + certificateNumber));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processVerifyCertificate(_response);
+        });
+    }
+
+    protected processVerifyCertificate(response: Response): Promise<VerifyCertificateDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = VerifyCertificateDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<VerifyCertificateDto>(null as any);
+    }
+
+    downloadCertificate(certificateNumber: string | null): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Certificates/download/{certificateNumber}";
+        if (certificateNumber === undefined || certificateNumber === null)
+            throw new Error("The parameter 'certificateNumber' must be defined.");
+        url_ = url_.replace("{certificateNumber}", encodeURIComponent("" + certificateNumber));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDownloadCertificate(_response);
+        });
+    }
+
+    protected processDownloadCertificate(response: Response): Promise<FileResponse> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
     }
 }
 
@@ -5130,6 +5429,58 @@ export class EnrollmentClient {
             });
         }
         return Promise.resolve<InstructorStudentDetailDto>(null as any);
+    }
+}
+
+export class InstructorReportsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getInstructorReport(from: Date | null | undefined, to: Date | null | undefined, courseId: number | null | undefined): Promise<InstructorReportDto> {
+        let url_ = this.baseUrl + "/api/InstructorReports/report?";
+        if (from !== undefined && from !== null)
+            url_ += "From=" + encodeURIComponent(from ? "" + from.toISOString() : "") + "&";
+        if (to !== undefined && to !== null)
+            url_ += "To=" + encodeURIComponent(to ? "" + to.toISOString() : "") + "&";
+        if (courseId !== undefined && courseId !== null)
+            url_ += "CourseId=" + encodeURIComponent("" + courseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetInstructorReport(_response);
+        });
+    }
+
+    protected processGetInstructorReport(response: Response): Promise<InstructorReportDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InstructorReportDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<InstructorReportDto>(null as any);
     }
 }
 
@@ -10477,6 +10828,138 @@ export interface IVatByRegionDto {
     orderCount?: number;
 }
 
+export class RevenueTrendDto implements IRevenueTrendDto {
+    period?: string | undefined;
+    labels?: string[] | undefined;
+    grossSales?: number[] | undefined;
+    platformRevenue?: number[] | undefined;
+    orderCount?: number[] | undefined;
+
+    constructor(data?: IRevenueTrendDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.period = _data["period"];
+            if (Array.isArray(_data["labels"])) {
+                this.labels = [] as any;
+                for (let item of _data["labels"])
+                    this.labels!.push(item);
+            }
+            if (Array.isArray(_data["grossSales"])) {
+                this.grossSales = [] as any;
+                for (let item of _data["grossSales"])
+                    this.grossSales!.push(item);
+            }
+            if (Array.isArray(_data["platformRevenue"])) {
+                this.platformRevenue = [] as any;
+                for (let item of _data["platformRevenue"])
+                    this.platformRevenue!.push(item);
+            }
+            if (Array.isArray(_data["orderCount"])) {
+                this.orderCount = [] as any;
+                for (let item of _data["orderCount"])
+                    this.orderCount!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): RevenueTrendDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RevenueTrendDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["period"] = this.period;
+        if (Array.isArray(this.labels)) {
+            data["labels"] = [];
+            for (let item of this.labels)
+                data["labels"].push(item);
+        }
+        if (Array.isArray(this.grossSales)) {
+            data["grossSales"] = [];
+            for (let item of this.grossSales)
+                data["grossSales"].push(item);
+        }
+        if (Array.isArray(this.platformRevenue)) {
+            data["platformRevenue"] = [];
+            for (let item of this.platformRevenue)
+                data["platformRevenue"].push(item);
+        }
+        if (Array.isArray(this.orderCount)) {
+            data["orderCount"] = [];
+            for (let item of this.orderCount)
+                data["orderCount"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IRevenueTrendDto {
+    period?: string | undefined;
+    labels?: string[] | undefined;
+    grossSales?: number[] | undefined;
+    platformRevenue?: number[] | undefined;
+    orderCount?: number[] | undefined;
+}
+
+export class TopCourseRevenueDto implements ITopCourseRevenueDto {
+    courseId?: number;
+    courseName?: string | undefined;
+    totalRevenue?: number;
+    orderCount?: number;
+
+    constructor(data?: ITopCourseRevenueDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.courseName = _data["courseName"];
+            this.totalRevenue = _data["totalRevenue"];
+            this.orderCount = _data["orderCount"];
+        }
+    }
+
+    static fromJS(data: any): TopCourseRevenueDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TopCourseRevenueDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["courseName"] = this.courseName;
+        data["totalRevenue"] = this.totalRevenue;
+        data["orderCount"] = this.orderCount;
+        return data;
+    }
+}
+
+export interface ITopCourseRevenueDto {
+    courseId?: number;
+    courseName?: string | undefined;
+    totalRevenue?: number;
+    orderCount?: number;
+}
+
 export class PayoutSettingsDto implements IPayoutSettingsDto {
     minimumThresholdUsd?: number;
 
@@ -13356,6 +13839,310 @@ export class DeleteCategoryCommand implements IDeleteCategoryCommand {
 
 export interface IDeleteCategoryCommand {
     id?: number;
+}
+
+export class ReturnResultOfCertificateDto implements IReturnResultOfCertificateDto {
+    result?: CertificateDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCertificateDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CertificateDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCertificateDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCertificateDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCertificateDto {
+    result?: CertificateDto | undefined;
+    message?: string | undefined;
+}
+
+export class CertificateDto implements ICertificateDto {
+    id?: number;
+    courseId?: number;
+    certificateNumber?: string | undefined;
+    completedDate?: Date;
+    courseTitleSnapshot?: string | undefined;
+    instructorNameSnapshot?: string | undefined;
+    studentNameSnapshot?: string | undefined;
+
+    constructor(data?: ICertificateDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.certificateNumber = _data["certificateNumber"];
+            this.completedDate = _data["completedDate"] ? new Date(_data["completedDate"].toString()) : <any>undefined;
+            this.courseTitleSnapshot = _data["courseTitleSnapshot"];
+            this.instructorNameSnapshot = _data["instructorNameSnapshot"];
+            this.studentNameSnapshot = _data["studentNameSnapshot"];
+        }
+    }
+
+    static fromJS(data: any): CertificateDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CertificateDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["certificateNumber"] = this.certificateNumber;
+        data["completedDate"] = this.completedDate ? this.completedDate.toISOString() : <any>undefined;
+        data["courseTitleSnapshot"] = this.courseTitleSnapshot;
+        data["instructorNameSnapshot"] = this.instructorNameSnapshot;
+        data["studentNameSnapshot"] = this.studentNameSnapshot;
+        return data;
+    }
+}
+
+export interface ICertificateDto {
+    id?: number;
+    courseId?: number;
+    certificateNumber?: string | undefined;
+    completedDate?: Date;
+    courseTitleSnapshot?: string | undefined;
+    instructorNameSnapshot?: string | undefined;
+    studentNameSnapshot?: string | undefined;
+}
+
+export class IssueCertificateCommand implements IIssueCertificateCommand {
+    courseId?: number;
+
+    constructor(data?: IIssueCertificateCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): IssueCertificateCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new IssueCertificateCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IIssueCertificateCommand {
+    courseId?: number;
+}
+
+export class PaginatedListOfMyCertificateDto implements IPaginatedListOfMyCertificateDto {
+    items?: MyCertificateDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfMyCertificateDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(MyCertificateDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfMyCertificateDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfMyCertificateDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfMyCertificateDto {
+    items?: MyCertificateDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class MyCertificateDto implements IMyCertificateDto {
+    certificateNumber?: string | undefined;
+    courseTitleSnapshot?: string | undefined;
+    courseImageUrl?: string | undefined;
+    completedDate?: Date;
+    courseId?: number;
+
+    constructor(data?: IMyCertificateDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.certificateNumber = _data["certificateNumber"];
+            this.courseTitleSnapshot = _data["courseTitleSnapshot"];
+            this.courseImageUrl = _data["courseImageUrl"];
+            this.completedDate = _data["completedDate"] ? new Date(_data["completedDate"].toString()) : <any>undefined;
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): MyCertificateDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MyCertificateDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["certificateNumber"] = this.certificateNumber;
+        data["courseTitleSnapshot"] = this.courseTitleSnapshot;
+        data["courseImageUrl"] = this.courseImageUrl;
+        data["completedDate"] = this.completedDate ? this.completedDate.toISOString() : <any>undefined;
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IMyCertificateDto {
+    certificateNumber?: string | undefined;
+    courseTitleSnapshot?: string | undefined;
+    courseImageUrl?: string | undefined;
+    completedDate?: Date;
+    courseId?: number;
+}
+
+export class VerifyCertificateDto implements IVerifyCertificateDto {
+    courseTitleSnapshot?: string | undefined;
+    studentNameSnapshot?: string | undefined;
+    instructorNameSnapshot?: string | undefined;
+    completedDate?: Date;
+    certificateNumber?: string | undefined;
+
+    constructor(data?: IVerifyCertificateDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseTitleSnapshot = _data["courseTitleSnapshot"];
+            this.studentNameSnapshot = _data["studentNameSnapshot"];
+            this.instructorNameSnapshot = _data["instructorNameSnapshot"];
+            this.completedDate = _data["completedDate"] ? new Date(_data["completedDate"].toString()) : <any>undefined;
+            this.certificateNumber = _data["certificateNumber"];
+        }
+    }
+
+    static fromJS(data: any): VerifyCertificateDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new VerifyCertificateDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseTitleSnapshot"] = this.courseTitleSnapshot;
+        data["studentNameSnapshot"] = this.studentNameSnapshot;
+        data["instructorNameSnapshot"] = this.instructorNameSnapshot;
+        data["completedDate"] = this.completedDate ? this.completedDate.toISOString() : <any>undefined;
+        data["certificateNumber"] = this.certificateNumber;
+        return data;
+    }
+}
+
+export interface IVerifyCertificateDto {
+    courseTitleSnapshot?: string | undefined;
+    studentNameSnapshot?: string | undefined;
+    instructorNameSnapshot?: string | undefined;
+    completedDate?: Date;
+    certificateNumber?: string | undefined;
 }
 
 export class PaginatedListOfCouponDto implements IPaginatedListOfCouponDto {
@@ -20260,6 +21047,298 @@ export interface IInstructorStudentCourseDetailDto {
     enrolledDate?: Date;
     completedItems?: number;
     totalItems?: number;
+}
+
+export class InstructorReportDto implements IInstructorReportDto {
+    hasAccess?: boolean;
+    summary?: InstructorReportSummaryDto | undefined;
+    revenue?: InstructorRevenueTrendDto | undefined;
+    enrollment?: InstructorTrendDto | undefined;
+    rating?: InstructorTrendDto | undefined;
+    ratingCount?: InstructorTrendDto | undefined;
+
+    constructor(data?: IInstructorReportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.hasAccess = _data["hasAccess"];
+            this.summary = _data["summary"] ? InstructorReportSummaryDto.fromJS(_data["summary"]) : <any>undefined;
+            this.revenue = _data["revenue"] ? InstructorRevenueTrendDto.fromJS(_data["revenue"]) : <any>undefined;
+            this.enrollment = _data["enrollment"] ? InstructorTrendDto.fromJS(_data["enrollment"]) : <any>undefined;
+            this.rating = _data["rating"] ? InstructorTrendDto.fromJS(_data["rating"]) : <any>undefined;
+            this.ratingCount = _data["ratingCount"] ? InstructorTrendDto.fromJS(_data["ratingCount"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): InstructorReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["hasAccess"] = this.hasAccess;
+        data["summary"] = this.summary ? this.summary.toJSON() : <any>undefined;
+        data["revenue"] = this.revenue ? this.revenue.toJSON() : <any>undefined;
+        data["enrollment"] = this.enrollment ? this.enrollment.toJSON() : <any>undefined;
+        data["rating"] = this.rating ? this.rating.toJSON() : <any>undefined;
+        data["ratingCount"] = this.ratingCount ? this.ratingCount.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IInstructorReportDto {
+    hasAccess?: boolean;
+    summary?: InstructorReportSummaryDto | undefined;
+    revenue?: InstructorRevenueTrendDto | undefined;
+    enrollment?: InstructorTrendDto | undefined;
+    rating?: InstructorTrendDto | undefined;
+    ratingCount?: InstructorTrendDto | undefined;
+}
+
+export class InstructorReportSummaryDto implements IInstructorReportSummaryDto {
+    grossRevenue?: number;
+    walletEarnings?: number;
+    totalEnrollments?: number;
+    averageRating?: number;
+    totalRatings?: number;
+
+    constructor(data?: IInstructorReportSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.grossRevenue = _data["grossRevenue"];
+            this.walletEarnings = _data["walletEarnings"];
+            this.totalEnrollments = _data["totalEnrollments"];
+            this.averageRating = _data["averageRating"];
+            this.totalRatings = _data["totalRatings"];
+        }
+    }
+
+    static fromJS(data: any): InstructorReportSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorReportSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["grossRevenue"] = this.grossRevenue;
+        data["walletEarnings"] = this.walletEarnings;
+        data["totalEnrollments"] = this.totalEnrollments;
+        data["averageRating"] = this.averageRating;
+        data["totalRatings"] = this.totalRatings;
+        return data;
+    }
+}
+
+export interface IInstructorReportSummaryDto {
+    grossRevenue?: number;
+    walletEarnings?: number;
+    totalEnrollments?: number;
+    averageRating?: number;
+    totalRatings?: number;
+}
+
+export class InstructorRevenueTrendDto implements IInstructorRevenueTrendDto {
+    aggregationLevel?: string | undefined;
+    data?: InstructorRevenuePointDto[] | undefined;
+
+    constructor(data?: IInstructorRevenueTrendDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.aggregationLevel = _data["aggregationLevel"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(InstructorRevenuePointDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): InstructorRevenueTrendDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorRevenueTrendDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["aggregationLevel"] = this.aggregationLevel;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IInstructorRevenueTrendDto {
+    aggregationLevel?: string | undefined;
+    data?: InstructorRevenuePointDto[] | undefined;
+}
+
+export class InstructorRevenuePointDto implements IInstructorRevenuePointDto {
+    date?: Date;
+    grossRevenue?: number;
+    walletEarnings?: number;
+
+    constructor(data?: IInstructorRevenuePointDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.grossRevenue = _data["grossRevenue"];
+            this.walletEarnings = _data["walletEarnings"];
+        }
+    }
+
+    static fromJS(data: any): InstructorRevenuePointDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorRevenuePointDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["grossRevenue"] = this.grossRevenue;
+        data["walletEarnings"] = this.walletEarnings;
+        return data;
+    }
+}
+
+export interface IInstructorRevenuePointDto {
+    date?: Date;
+    grossRevenue?: number;
+    walletEarnings?: number;
+}
+
+export class InstructorTrendDto implements IInstructorTrendDto {
+    aggregationLevel?: string | undefined;
+    data?: ReportDataPointDto[] | undefined;
+    total?: number;
+
+    constructor(data?: IInstructorTrendDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.aggregationLevel = _data["aggregationLevel"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(ReportDataPointDto.fromJS(item));
+            }
+            this.total = _data["total"];
+        }
+    }
+
+    static fromJS(data: any): InstructorTrendDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorTrendDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["aggregationLevel"] = this.aggregationLevel;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        data["total"] = this.total;
+        return data;
+    }
+}
+
+export interface IInstructorTrendDto {
+    aggregationLevel?: string | undefined;
+    data?: ReportDataPointDto[] | undefined;
+    total?: number;
+}
+
+export class ReportDataPointDto implements IReportDataPointDto {
+    date?: Date;
+    value?: number;
+
+    constructor(data?: IReportDataPointDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): ReportDataPointDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReportDataPointDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IReportDataPointDto {
+    date?: Date;
+    value?: number;
 }
 
 export class TaxProfileDto implements ITaxProfileDto {
@@ -28874,6 +29953,13 @@ export interface IWeatherForecast {
 export interface FileParameter {
     data: any;
     fileName: string;
+}
+
+export interface FileResponse {
+    data: Blob;
+    status: number;
+    fileName?: string;
+    headers?: { [name: string]: any };
 }
 
 export class SwaggerException extends Error {

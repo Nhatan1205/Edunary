@@ -15,6 +15,10 @@ const MENU_DATA = {
   ],
   resources: [
     {
+      title: "Verify Certificate",
+      path: "/certificate/verify",
+    },
+    {
       title: "About us",
       path: "/about",
     },

@@ -76,6 +76,15 @@ public class InviteCollaboratorCommandHandler : IRequestHandler<InviteCollaborat
         if (existing is not null)
             return Result.Failure("This user already has a pending or active collaboration on this course.");
 
+        // Tổng % của các collaborator chưa bị từ chối (Pending + Accepted) cộng phần mới không được vượt 100%
+        var existingTotal = await _context.CourseCollaborators
+            .Where(c => c.CourseId == request.CourseId
+                     && c.InviteStatus != CollaboratorInviteStatus.Declined)
+            .SumAsync(c => c.RevenueSharePercent, cancellationToken);
+
+        if (existingTotal + request.RevenueSharePercent > 100)
+            return Result.Failure("Total revenue share for collaborators cannot exceed 100%.");
+
         var collaborator = new CourseCollaborator
         {
             CourseId = request.CourseId,

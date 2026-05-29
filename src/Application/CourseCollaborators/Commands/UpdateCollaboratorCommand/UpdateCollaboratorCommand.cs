@@ -46,6 +46,16 @@ public class UpdateCollaboratorCommandHandler : IRequestHandler<UpdateCollaborat
         if (collab is null)
             return Result.Failure("Collaborator not found.");
 
+        // Tổng % của các collaborator khác chưa bị từ chối cộng phần mới không được vượt 100%
+        var otherTotal = await _context.CourseCollaborators
+            .Where(c => c.CourseId == request.CourseId
+                     && c.Id != request.CollaboratorId
+                     && c.InviteStatus != CollaboratorInviteStatus.Declined)
+            .SumAsync(c => c.RevenueSharePercent, cancellationToken);
+
+        if (otherTotal + request.RevenueSharePercent > 100)
+            return Result.Failure("Total revenue share for collaborators cannot exceed 100%.");
+
         collab.Permissions = request.Permissions;
         collab.IsVisible = request.IsVisible;
         collab.RevenueSharePercent = request.RevenueSharePercent;

@@ -56,6 +56,13 @@ function permissionLabels(flags) {
   return PERMISSIONS.filter((p) => (flags & p.flag) !== 0).map((p) => p.label);
 }
 
+// Tổng % collaborator chưa bị từ chối (Pending+Accepted), bỏ owner và (tuỳ chọn) loại trừ 1 id đang sửa
+function sumCollaboratorShare(collaborators, excludeId = null) {
+  return (collaborators ?? [])
+    .filter((c) => !c.isOwner && c.inviteStatus !== 2 && c.id !== excludeId)
+    .reduce((sum, c) => sum + (c.revenueSharePercent ?? 0), 0);
+}
+
 function CollaboratorSkeleton() {
   return (
     <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 1.5 }}>
@@ -69,7 +76,7 @@ function CollaboratorSkeleton() {
   );
 }
 
-function InviteDialog({ open, onClose, courseId }) {
+function InviteDialog({ open, onClose, courseId, collaborators }) {
   const { control, handleSubmit, reset, formState: { errors } } = useForm({
     defaultValues: { email: "", permissions: 3, isVisible: true, revenueSharePercent: 0 },
   });
@@ -183,13 +190,23 @@ function InviteDialog({ open, onClose, courseId }) {
             <Controller
               name="revenueSharePercent"
               control={control}
+              // Chặn vượt 100%: phần đã chia (Pending+Accepted, trừ owner) + giá trị mới
+              rules={{
+                min: { value: 0, message: "Must be ≥ 0" },
+                validate: (v) => {
+                  const remaining = 100 - sumCollaboratorShare(collaborators);
+                  return Number(v) <= remaining || `Exceeds limit — only ${remaining}% left to share`;
+                },
+              }}
               render={({ field }) => (
                 <TextField
                   {...field}
                   label="Revenue share %"
                   type="number"
                   size="small"
-                  sx={{ width: 140 }}
+                  sx={{ width: 180 }}
+                  error={!!errors.revenueSharePercent}
+                  helperText={errors.revenueSharePercent?.message}
                   inputProps={{ min: 0, max: 100, step: 1 }}
                 />
               )}
@@ -215,11 +232,15 @@ function InviteDialog({ open, onClose, courseId }) {
   );
 }
 
-function EditCollaboratorDialog({ open, onClose, collaborator, courseId }) {
+function EditCollaboratorDialog({ open, onClose, collaborator, courseId, collaborators }) {
   const [selectedFlags, setSelectedFlags] = useState((collaborator?.permissions ?? 0) | 1); // ensure View(1) always on
   const [isVisible, setIsVisible] = useState(collaborator?.isVisible ?? true);
   const [revenueShare, setRevenueShare] = useState(collaborator?.revenueSharePercent ?? 0);
   const update = useUpdateCollaborator(courseId);
+
+  // % còn lại được phép chia (loại trừ chính collaborator đang sửa)
+  const remainingShare = 100 - sumCollaboratorShare(collaborators, collaborator?.id);
+  const shareError = revenueShare > remainingShare;
 
   // View Access (flag=1) is always required and cannot be removed
   const toggleFlag = (flag) => {
@@ -228,6 +249,8 @@ function EditCollaboratorDialog({ open, onClose, collaborator, courseId }) {
   };
 
   const handleSave = () => {
+    // Không submit khi tổng % vượt 100
+    if (shareError) return;
     update.mutate(
       { collaboratorId: collaborator.id, permissions: selectedFlags, isVisible, revenueSharePercent: revenueShare },
       { onSuccess: onClose }
@@ -289,7 +312,9 @@ function EditCollaboratorDialog({ open, onClose, collaborator, courseId }) {
               size="small"
               value={revenueShare}
               onChange={(e) => setRevenueShare(Number(e.target.value))}
-              sx={{ width: 140 }}
+              error={shareError}
+              helperText={shareError ? `Exceeds limit — only ${remainingShare}% left to share` : ""}
+              sx={{ width: 180 }}
               inputProps={{ min: 0, max: 100, step: 1 }}
             />
           </Stack>
@@ -299,7 +324,7 @@ function EditCollaboratorDialog({ open, onClose, collaborator, courseId }) {
       <DialogActions sx={{ px: 3, py: 2 }}>
         <Button onClick={onClose} size="small" sx={{ color: "text.secondary" }}>Cancel</Button>
         <Button onClick={handleSave} variant="contained" size="small"
-          disabled={update.isPending}
+          disabled={update.isPending || shareError}
           startIcon={update.isPending ? <CircularProgress size={14} /> : <Edit />}
           sx={{ bgcolor: "brand.main", "&:hover": { bgcolor: "brand.dark" }, textTransform: "none" }}>
           Save Changes
@@ -309,7 +334,7 @@ function EditCollaboratorDialog({ open, onClose, collaborator, courseId }) {
   );
 }
 
-function CollaboratorRow({ collab, courseId, isOwner }) {
+function CollaboratorRow({ collab, courseId, isOwner, collaborators }) {
   const [editOpen, setEditOpen] = useState(false);
   const [removeId, setRemoveId] = useState(null);
   const remove = useRemoveCollaborator(courseId);
@@ -376,6 +401,7 @@ function CollaboratorRow({ collab, courseId, isOwner }) {
           onClose={() => setEditOpen(false)}
           collaborator={collab}
           courseId={courseId}
+          collaborators={collaborators}
         />
       )}
 
@@ -457,7 +483,7 @@ function CourseAccessiblity() {
             : collaborators?.length
               ? collaborators.map((c, i) => (
                   <Box key={c.id ?? c.userId}>
-                    <CollaboratorRow collab={c} courseId={id} isOwner={currentUserIsOwner} />
+                    <CollaboratorRow collab={c} courseId={id} isOwner={currentUserIsOwner} collaborators={collaborators} />
                     {i < collaborators.length - 1 && <Divider />}
                   </Box>
                 ))
@@ -470,7 +496,7 @@ function CourseAccessiblity() {
         </Box>
       </Paper>
 
-      <InviteDialog open={inviteOpen} onClose={() => setInviteOpen(false)} courseId={id} />
+      <InviteDialog open={inviteOpen} onClose={() => setInviteOpen(false)} courseId={id} collaborators={collaborators} />
       </Container>
     </>
   );

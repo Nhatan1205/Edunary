@@ -6,6 +6,7 @@ import {
   Button,
   Skeleton,
   Popover,
+  CircularProgress,
 } from "@mui/material";
 import {
   Star,
@@ -14,6 +15,9 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 import { Lightbulb, EmojiEvents, KeyboardArrowDown } from "@mui/icons-material";
 import RatingPopup from "../../../../components/RatingPopup";
 import useGetLearningHeader from "../../../../hooks/course-progress-hooks/useGetLearningHeader";
+import useGetCertificate from "../../../../hooks/certificate-hooks/useGetCertificate";
+import useIssueCertificate from "../../../../hooks/certificate-hooks/useIssueCertificate";
+import CertificateModal from "../../../../components/CertificateModal";
 import { useEffect, useState } from "react";
 
 function CourseLearnHeader() {
@@ -24,6 +28,11 @@ function CourseLearnHeader() {
   const [courseTitle, setCourseTitle] = useState("");
   const [progressData, setProgressData] = useState({ total: 0, completed: 0 });
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
+
+  const { data: certificate, isLoading: isLoadingCert } = useGetCertificate(courseId);
+  const issueCertificateMutation = useIssueCertificate();
+
   useEffect(() => {
     if (learningHeaderData) {
       setCourseTitle(learningHeaderData.title || "The Ultimate React Course 2025: React, Next.js, Redux & More");
@@ -328,15 +337,56 @@ function CourseLearnHeader() {
                   variant="body2"
                   sx={{
                     color: "text.secondary",
-                    fontSize: "0.9rem"
+                    fontSize: "0.9rem",
+                    mb: 2
                   }}
                 >
-                  {progressData.completed === progressData.total
+                  {progressData.completed === progressData.total && progressData.total > 0
                     ? "Click to get your certificate"
                     : "Finish course to get your certificate"}
                 </Typography>
+
+                {(progressData.completed === progressData.total && progressData.total > 0) && (
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    disabled={issueCertificateMutation.isPending || isLoadingCert}
+                    onClick={() => {
+                      handleCloseProgress();
+                      if (certificate) {
+                        setIsCertModalOpen(true);
+                      } else {
+                        issueCertificateMutation.mutate(courseId, {
+                          onSuccess: (res) => {
+                            if (res && res.result) setIsCertModalOpen(true);
+                          }
+                        });
+                      }
+                    }}
+                    sx={{
+                      bgcolor: "brand.main",
+                      color: "text.inverse",
+                      borderRadius: 2,
+                      "&:hover": { bgcolor: "brand.dark" }
+                    }}
+                  >
+                    {issueCertificateMutation.isPending ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : certificate ? (
+                      "View Certificate"
+                    ) : (
+                      "Get Certificate"
+                    )}
+                  </Button>
+                )}
               </Box>
             </Popover>
+
+            <CertificateModal
+              open={isCertModalOpen}
+              onClose={() => setIsCertModalOpen(false)}
+              certificate={certificate || (issueCertificateMutation.data?.result)}
+            />
           </>
         )}
       </Box>

@@ -80,13 +80,15 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             .Where(id => id > 0)
             .ToHashSet();
 
-        await CreditInstructorWalletsAsync(order, payment, parsedCourseIds, cancellationToken);
+        var payoutItems = await BuildOrderItemPayoutsAsync(order, parsedCourseIds, cancellationToken);
+
+        await CreditInstructorWalletsAsync(order, payment, payoutItems, cancellationToken);
 
         await RemoveFromCartAsync(order, cancellationToken);
 
         await _couponService.ConsumeAsync(order.Id, cancellationToken);
 
-        await PostOrderToLedgerAsync(order, parsedCourseIds, cancellationToken);
+        await PostOrderToLedgerAsync(order, payoutItems, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -211,11 +213,13 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         return enrollmentsCreated;
     }
 
-    private async Task CreditInstructorWalletsAsync(Domain.Entities.Order order, Domain.Entities.Payment payment,
-        HashSet<int> courseIds, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<OrderItemPayout>> BuildOrderItemPayoutsAsync(
+        Domain.Entities.Order order,
+        HashSet<int> courseIds,
+        CancellationToken cancellationToken)
     {
         if (courseIds.Count == 0)
-            return;
+            return Array.Empty<OrderItemPayout>();
 
         var courses = await _context.Courses
             .Where(c => courseIds.Contains(c.Id))
@@ -226,15 +230,14 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             .Where(c => !string.IsNullOrWhiteSpace(c.CreatedBy))
             .ToDictionary(c => c.Id, c => c.CreatedBy, EqualityComparer<int>.Default);
 
-        // Collaborators được chia tiền, gom theo course
+        // Accepted collaborators are paid; pending collaborators only reserve share capacity.
         var collabsByCourseId = await LoadAcceptedCollaboratorsAsync(courseIds, cancellationToken);
-
-        // Cache ví theo userId: tránh query lại ví vừa Add nhưng chưa SaveChanges (cùng user ở nhiều order item)
-        var walletCache = new Dictionary<string, InstructorWallet>();
 
         var occurredAt = order.CompletedDate.HasValue
             ? new DateTimeOffset(order.CompletedDate.Value, TimeSpan.Zero)
             : DateTimeOffset.UtcNow;
+
+        var payoutItems = new List<OrderItemPayout>();
 
         foreach (var orderItem in order.OrderItems)
         {
@@ -245,23 +248,56 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
             if (!instructorByCourseId.TryGetValue(courseId, out var instructorId) || string.IsNullOrWhiteSpace(instructorId))
                 continue;
 
-            var baseAmount = Math.Round((decimal)orderItem.Price, 2);
+            var baseAmount = Math.Round((decimal)orderItem.Price, 2, MidpointRounding.ToEven);
 
             if (baseAmount <= 0)
                 continue;
 
             var split = await _revenueSplitService.SplitAsync(baseAmount, orderItem.SalesChannel, occurredAt, cancellationToken);
-            var instructorCredit = split.InstructorShare;
+            var instructorPayout = Math.Min(baseAmount,
+                Math.Round(Math.Max(0m, split.InstructorShare), 2, MidpointRounding.ToEven));
+            var platformShare = Math.Round(baseAmount - instructorPayout, 2, MidpointRounding.ToEven);
 
-            if (instructorCredit <= 0)
-                continue;
-
-            // Chia phần instructor thành owner + collaborators của khóa này
-            var alloc = AllocateInstructorShare(instructorCredit, instructorId,
+            var allocation = InstructorShareAllocator.Allocate(
+                instructorPayout,
+                instructorId,
                 collabsByCourseId.GetValueOrDefault(courseId, new List<CourseCollaborator>()));
 
-            // Credit owner trước rồi tới từng collaborator, find-or-create ví qua cache
-            foreach (var (userId, amount) in EnumerateRecipients(alloc))
+            if (allocation.WasNormalized)
+            {
+                _logger.LogWarning(
+                    "Course {CourseId} has accepted collaborator revenue share total {TotalSharePercent}% for Order {OrderId}; normalized payout to prevent over-allocation.",
+                    courseId,
+                    allocation.TotalCollaboratorSharePercent,
+                    order.Id);
+            }
+
+            payoutItems.Add(new OrderItemPayout(
+                courseId,
+                baseAmount,
+                Math.Round((decimal)orderItem.VatAmount, 4, MidpointRounding.ToEven),
+                instructorPayout,
+                platformShare,
+                allocation));
+        }
+
+        return payoutItems;
+    }
+
+    private async Task CreditInstructorWalletsAsync(
+        Domain.Entities.Order order,
+        Domain.Entities.Payment payment,
+        IReadOnlyList<OrderItemPayout> payoutItems,
+        CancellationToken cancellationToken)
+    {
+        if (payoutItems.Count == 0)
+            return;
+
+        var walletCache = new Dictionary<string, InstructorWallet>();
+
+        foreach (var payoutItem in payoutItems)
+        {
+            foreach (var (userId, amount) in payoutItem.Allocation.Recipients())
             {
                 if (amount <= 0)
                     continue;
@@ -273,7 +309,7 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
                 {
                     InstructorWallet = wallet,
                     OrderId = order.Id,
-                    CourseId = courseId,
+                    CourseId = payoutItem.CourseId,
                     Amount = amount,
                     Currency = payment.Currency
                 });
@@ -295,76 +331,47 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         }
     }
 
-    private async Task PostOrderToLedgerAsync(Domain.Entities.Order order, HashSet<int> courseIds, CancellationToken cancellationToken)
+    private async Task PostOrderToLedgerAsync(
+        Domain.Entities.Order order,
+        IReadOnlyList<OrderItemPayout> payoutItems,
+        CancellationToken cancellationToken)
     {
-        if (courseIds.Count == 0)
+        if (payoutItems.Count == 0)
             return;
-
-        var courses = await _context.Courses
-            .Where(c => courseIds.Contains(c.Id))
-            .Select(c => new { c.Id, c.CreatedBy })
-            .ToListAsync(cancellationToken);
-
-        var instructorByCourseId = courses
-            .Where(c => !string.IsNullOrWhiteSpace(c.CreatedBy))
-            .ToDictionary(c => c.Id, c => c.CreatedBy, EqualityComparer<int>.Default);
-
-        // Collaborators được chia tiền, gom theo course
-        var collabsByCourseId = await LoadAcceptedCollaboratorsAsync(courseIds, cancellationToken);
 
         var occurredAt = order.CompletedDate.HasValue
             ? new DateTimeOffset(order.CompletedDate.Value, TimeSpan.Zero)
             : DateTimeOffset.UtcNow;
 
-        foreach (var orderItem in order.OrderItems)
+        foreach (var payoutItem in payoutItems)
         {
-            var courseId = orderItem.CourseId;
-            if (courseId <= 0)
-                continue;
+            var desc = $"Order {order.Id} / Course {payoutItem.CourseId}";
 
-            if (!instructorByCourseId.TryGetValue(courseId, out var instructorId) || string.IsNullOrWhiteSpace(instructorId))
-                continue;
-
-            var baseAmount = Math.Round((decimal)orderItem.Price, 2);
-
-            if (baseAmount <= 0)
-                continue;
-
-            var split = await _revenueSplitService.SplitAsync(baseAmount, orderItem.SalesChannel, occurredAt, cancellationToken);
-            var instructorShare = split.InstructorShare;
-            var platformShare = split.PlatformShare;
-
-            // Chia phần instructor thành owner + collaborators của khóa này
-            var alloc = AllocateInstructorShare(instructorShare, instructorId,
-                collabsByCourseId.GetValueOrDefault(courseId, new List<CourseCollaborator>()));
-
-            var vatAmount = Math.Round((decimal)orderItem.VatAmount, 4);
-            var desc = $"Order {order.Id} / Course {courseId}";
-
-            // Transaction 1: payment received — Dr CASH_STRIPE, Cr VAT_LIABILITY + INSTRUCTOR_GROSS (mỗi người) + PLATFORM_REVENUE
+            // Transaction 1: payment received - Dr CASH_STRIPE, Cr VAT + instructor recipients + platform.
             var paymentEntries = new List<LedgerEntryInput>
             {
                 new LedgerEntryInput
                 {
                     AccountCode = LedgerAccountCode.CashStripe,
                     Side = EntrySide.Debit,
-                    Amount = baseAmount + vatAmount,
+                    Amount = payoutItem.BaseAmount + payoutItem.VatAmount,
                     Description = desc
                 }
             };
-            if (vatAmount > 0)
+            if (payoutItem.VatAmount > 0)
                 paymentEntries.Add(new LedgerEntryInput
                 {
                     AccountCode = LedgerAccountCode.VatLiability,
                     Side = EntrySide.Credit,
-                    Amount = vatAmount,
+                    Amount = payoutItem.VatAmount,
                     Description = desc
                 });
-            // Credit gross earnings cho owner + từng collaborator theo phần được chia
-            foreach (var (userId, amount) in EnumerateRecipients(alloc))
+
+            foreach (var (userId, amount) in payoutItem.Allocation.Recipients())
             {
                 if (amount <= 0)
                     continue;
+
                 paymentEntries.Add(new LedgerEntryInput
                 {
                     AccountCode = LedgerAccountCode.InstructorGrossEarnings,
@@ -374,12 +381,13 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
                     Description = desc
                 });
             }
-            if (platformShare > 0)
+
+            if (payoutItem.PlatformShare > 0)
                 paymentEntries.Add(new LedgerEntryInput
                 {
                     AccountCode = LedgerAccountCode.PlatformRevenue,
                     Side = EntrySide.Credit,
-                    Amount = platformShare,
+                    Amount = payoutItem.PlatformShare,
                     Description = desc
                 });
 
@@ -393,15 +401,16 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
                 Entries = paymentEntries
             }, cancellationToken);
 
-            if (instructorShare <= 0)
+            if (payoutItem.InstructorPayout <= 0)
                 continue;
 
-            // Transaction 2: chuyển gross → net cho từng người nhận (withholding xử lý lúc rút tiền)
+            // Transaction 2: move gross into each recipient's net balance; withholding happens at withdrawal.
             var allocationEntries = new List<LedgerEntryInput>();
-            foreach (var (userId, amount) in EnumerateRecipients(alloc))
+            foreach (var (userId, amount) in payoutItem.Allocation.Recipients())
             {
                 if (amount <= 0)
                     continue;
+
                 allocationEntries.Add(new LedgerEntryInput
                 {
                     AccountCode = LedgerAccountCode.InstructorGrossEarnings,
@@ -432,10 +441,15 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         }
     }
 
-    private record CollaboratorShare(string UserId, decimal Amount);
-    private record InstructorAllocation(string OwnerId, decimal OwnerAmount, IReadOnlyList<CollaboratorShare> Collaborators);
+    private record OrderItemPayout(
+        int CourseId,
+        decimal BaseAmount,
+        decimal VatAmount,
+        decimal InstructorPayout,
+        decimal PlatformShare,
+        InstructorShareAllocation Allocation);
 
-    // Chỉ collaborator đã chấp nhận lời mời và có % > 0 mới được chia tiền; gom theo course để tra nhanh
+    // Only accepted collaborators with positive share are eligible for payout.
     private async Task<Dictionary<int, List<CourseCollaborator>>> LoadAcceptedCollaboratorsAsync(
         HashSet<int> courseIds, CancellationToken ct)
     {
@@ -447,35 +461,7 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
         return collabs.GroupBy(c => c.CourseId).ToDictionary(g => g.Key, g => g.ToList());
     }
 
-    // Pure: chia instructorShare cho owner + collaborators; owner nhận phần dư nên không mất xu nào
-    private static InstructorAllocation AllocateInstructorShare(
-        decimal instructorShare, string ownerId, IReadOnlyList<CourseCollaborator> collabs)
-    {
-        // Phần mỗi collaborator = % của họ trên phần instructor; bỏ qua khoản làm tròn về 0
-        var shares = new List<CollaboratorShare>();
-        var total = 0m;
-        foreach (var c in collabs)
-        {
-            var amt = Math.Round(instructorShare * (c.RevenueSharePercent / 100m), 4, MidpointRounding.ToEven);
-            if (amt <= 0)
-                continue;
-            shares.Add(new CollaboratorShare(c.UserId, amt));
-            total += amt;
-        }
-        // Owner nhận phần còn lại; kẹp về 0 phòng khi tổng % chạm 100
-        var ownerAmount = Math.Max(0m, instructorShare - total);
-        return new InstructorAllocation(ownerId, ownerAmount, shares);
-    }
-
-    // Liệt kê người nhận theo thứ tự: owner trước, rồi tới các collaborator
-    private static IEnumerable<(string UserId, decimal Amount)> EnumerateRecipients(InstructorAllocation alloc)
-    {
-        yield return (alloc.OwnerId, alloc.OwnerAmount);
-        foreach (var c in alloc.Collaborators)
-            yield return (c.UserId, c.Amount);
-    }
-
-    // Find-or-create ví: ưu tiên cache, rồi DB, cuối cùng tạo mới
+    // Find or create wallet, preferring cache for wallets added before SaveChanges.
     private async Task<InstructorWallet> GetOrCreateWalletAsync(
         Dictionary<string, InstructorWallet> cache, string userId, CancellationToken ct)
     {

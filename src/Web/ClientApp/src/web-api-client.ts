@@ -4509,11 +4509,8 @@ export class CourseReviewsClient {
         return Promise.resolve<QualityReportDetailDto>(null as any);
     }
 
-    acceptQualityIssue(issueId: number, command: AcceptQualityIssueCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/CourseReviews/quality-issues/{issueId}/accept";
-        if (issueId === undefined || issueId === null)
-            throw new Error("The parameter 'issueId' must be defined.");
-        url_ = url_.replace("{issueId}", encodeURIComponent("" + issueId));
+    acceptQualityIssue(command: AcceptQualityIssueCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/quality-issues/accept";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -4547,16 +4544,17 @@ export class CourseReviewsClient {
         return Promise.resolve<void>(null as any);
     }
 
-    dismissQualityIssue(issueId: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/CourseReviews/quality-issues/{issueId}/dismiss";
-        if (issueId === undefined || issueId === null)
-            throw new Error("The parameter 'issueId' must be defined.");
-        url_ = url_.replace("{issueId}", encodeURIComponent("" + issueId));
+    dismissQualityIssue(command: DismissQualityIssueCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/quality-issues/dismiss";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(command);
+
         let options_: RequestInit = {
+            body: content_,
             method: "PUT",
             headers: {
+                "Content-Type": "application/json",
             }
         };
 
@@ -18648,7 +18646,6 @@ export enum QualityIssueStatus {
 
 export class AcceptQualityIssueCommand implements IAcceptQualityIssueCommand {
     issueId?: number;
-    editedContent?: string | undefined;
 
     constructor(data?: IAcceptQualityIssueCommand) {
         if (data) {
@@ -18662,7 +18659,6 @@ export class AcceptQualityIssueCommand implements IAcceptQualityIssueCommand {
     init(_data?: any) {
         if (_data) {
             this.issueId = _data["issueId"];
-            this.editedContent = _data["editedContent"];
         }
     }
 
@@ -18676,14 +18672,48 @@ export class AcceptQualityIssueCommand implements IAcceptQualityIssueCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["issueId"] = this.issueId;
-        data["editedContent"] = this.editedContent;
         return data;
     }
 }
 
 export interface IAcceptQualityIssueCommand {
     issueId?: number;
-    editedContent?: string | undefined;
+}
+
+export class DismissQualityIssueCommand implements IDismissQualityIssueCommand {
+    issueId?: number;
+
+    constructor(data?: IDismissQualityIssueCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.issueId = _data["issueId"];
+        }
+    }
+
+    static fromJS(data: any): DismissQualityIssueCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DismissQualityIssueCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["issueId"] = this.issueId;
+        return data;
+    }
+}
+
+export interface IDismissQualityIssueCommand {
+    issueId?: number;
 }
 
 export class ReturnResultOfCreatedCourseDto implements IReturnResultOfCreatedCourseDto {

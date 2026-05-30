@@ -88,6 +88,7 @@ import CourseApprovalDetailPage from "./features/admin/course-section/course-app
 import AdminCoursePreviewPage from "./features/admin/course-section/course-approvals/admin-course-preview-page/AdminCoursePreviewPage";
 import CourseManagementPage from "./features/admin/course-section/course-management/CourseManagementPage";
 import CourseChangesPage from "./features/admin/course-section/course-changes/CourseChangesPage";
+import QualityReportPage from "./features/admin/course-section/course-approvals/quality-report-page/QualityReportPage";
 
 const router = createBrowserRouter([
   {
@@ -206,6 +207,10 @@ const router = createBrowserRouter([
       {
         path: "course/approvals/:submissionId",
         element: <CourseApprovalDetailPage />,
+      },
+      {
+        path: "course/approvals/:submissionId/report/:reportId?",
+        element: <QualityReportPage />,
       },
     ],
   },

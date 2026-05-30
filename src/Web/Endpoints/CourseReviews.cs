@@ -46,8 +46,8 @@ public class CourseReviews : EndpointGroupBase
             .MapPost(RunQualityCheck, "quality-check")
             .MapGet(GetQualityReports, "{courseId:int}/quality-reports")
             .MapGet(GetQualityReportDetail, "quality-reports/{reportId:int}")
-            .MapPut(AcceptQualityIssue, "quality-issues/{issueId:int}/accept")
-            .MapPut(DismissQualityIssue, "quality-issues/{issueId:int}/dismiss");
+            .MapPut(AcceptQualityIssue, "quality-issues/accept")
+            .MapPut(DismissQualityIssue, "quality-issues/dismiss");
     }
 
 
@@ -145,19 +145,15 @@ public class CourseReviews : EndpointGroupBase
         return await sender.Send(new GetQualityReportDetailQuery { ReportId = reportId });
     }
 
-    public async Task<IResult> AcceptQualityIssue(ISender sender, int issueId, [FromBody] AcceptQualityIssueCommand command)
+    public async Task<IResult> AcceptQualityIssue(ISender sender, [FromBody] AcceptQualityIssueCommand command)
     {
-        if (issueId != command.IssueId)
-        {
-            return Results.BadRequest("IssueId mismatch.");
-        }
         var result = await sender.Send(command);
         return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
     }
 
-    public async Task<IResult> DismissQualityIssue(ISender sender, int issueId)
+    public async Task<IResult> DismissQualityIssue(ISender sender, [FromBody] DismissQualityIssueCommand command)
     {
-        var result = await sender.Send(new DismissQualityIssueCommand { IssueId = issueId });
+        var result = await sender.Send(command);
         return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
     }
 }

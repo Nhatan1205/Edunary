@@ -47,7 +47,8 @@ public class QualityCheckJobService : IQualityCheckJobService
     {
         try
         {
-            await SendProgress(userId, 10, "Starting quality check...", reportId);
+            await SendProgress(userId, 10, "Initializing course review...", reportId);
+            await Task.Delay(1000);
 
             var report = await _context.QualityCheckReports
                 .FirstOrDefaultAsync(r => r.Id == reportId);
@@ -59,6 +60,8 @@ public class QualityCheckJobService : IQualityCheckJobService
             }
 
             var course = await _context.Courses
+                .Include(c => c.Category)
+                .Include(c => c.Topics)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == courseId);
 
@@ -66,16 +69,18 @@ public class QualityCheckJobService : IQualityCheckJobService
             {
                 report.Status = QualityCheckStatus.Failed;
                 await _context.SaveChangesAsync(default);
-                await SendProgress(userId, -1, "Course not found.", reportId);
+                await SendProgress(userId, -1, "The requested course could not be found. Please try again.", reportId);
                 return;
             }
 
-            await SendProgress(userId, 25, "Running pre-flight checks...", reportId);
+            await SendProgress(userId, 25, "Checking course structure and requirements...", reportId);
+            await Task.Delay(1000);
 
             // 1. Run pre-flight checks
             var preFlightIssues = await RunPreFlightChecksAsync(course);
 
-            await SendProgress(userId, 50, "Calling AI Quality Analyzer...", reportId);
+            await SendProgress(userId, 50, "Analyzing course content and objectives...", reportId);
+            await Task.Delay(1000);
 
             // 2. Fetch AI configuration
             var aiConfig = await _sender.Send(new GetAIConfigQuery());
@@ -296,6 +301,8 @@ public class QualityCheckJobService : IQualityCheckJobService
                 course_title = course.Title ?? "",
                 course_subtitle = course.Subtitle ?? "",
                 course_description = StripHtml(course.Description ?? ""),
+                course_category = course.Category?.Title ?? "None",
+                course_topics = course.Topics?.Select(t => t.Name).ToList() ?? new List<string>(),
                 learning_objectives = DeserializeList(course.LearningObjectives),
                 requirements = DeserializeList(course.Requirements),
                 target_audience = DeserializeList(course.TargetAudience),
@@ -341,7 +348,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                                 aiIssues.Add(new QualityCheckIssue
                                 {
                                     ReportId = reportId,
-                                    Category = MapCategory(pi.Category),
+                                    Category = MapCategory(pi.RuleId, pi.Category),
                                     Severity = MapSeverity(pi.Severity),
                                     AdminAction = QualityIssueStatus.Pending,
                                     RuleId = pi.RuleId ?? "AI-GEN",
@@ -366,11 +373,12 @@ public class QualityCheckJobService : IQualityCheckJobService
             }
             else
             {
-                _logger.LogWarning("AI Center request failed: {Body}. Pre-flight results only.", body);
-                analysisSummary = $"AI analysis failed: {body}. Showing pre-flight checks only.";
+                _logger.LogWarning("AI Center request failed. Pre-flight results only. Body: {Body}", body);
+                analysisSummary = "The AI quality analysis service is temporarily unavailable. The results below reflect the automated pre-flight checks only. Please re-run the analysis once the service is restored.";
             }
 
-            await SendProgress(userId, 80, "Calculating scores and finalizing...", reportId);
+            await SendProgress(userId, 80, "Compiling review results and generating report...", reportId);
+            await Task.Delay(1000);
 
             // 4. Merge issues
             var allIssues = new List<QualityCheckIssue>();
@@ -405,7 +413,7 @@ public class QualityCheckJobService : IQualityCheckJobService
 
             await _context.SaveChangesAsync(default);
 
-            await SendProgress(userId, 100, "Quality check completed successfully!", reportId);
+            await SendProgress(userId, 100, "Course review completed successfully!", reportId);
         }
         catch (Exception ex)
         {
@@ -423,7 +431,7 @@ public class QualityCheckJobService : IQualityCheckJobService
             {
                 _logger.LogError(dbEx, "Failed to save failed status to report.");
             }
-            await SendProgress(userId, -1, $"Quality check failed: {ex.Message}", reportId);
+            await SendProgress(userId, -1, "An unexpected error occurred during the quality check. Please try again. If the issue persists, contact support.", reportId);
         }
     }
 
@@ -431,42 +439,7 @@ public class QualityCheckJobService : IQualityCheckJobService
     {
         var issues = new List<QualityCheckIssue>();
 
-        // Title length
-        var titleLen = course.Title?.Length ?? 0;
-        if (titleLen < 5 || titleLen > 80)
-        {
-            issues.Add(new QualityCheckIssue
-            {
-                Category = ReviewFeedbackCategory.CourseTitleSubtitle,
-                Severity = QualityIssueSeverity.Warning,
-                AdminAction = QualityIssueStatus.Pending,
-                RuleId = "PF-TITLE-LEN",
-                Location = "Course Title",
-                Description = $"Course title must be between 5 and 80 characters. Current length: {titleLen}.",
-                Evidence = course.Title ?? "",
-                Suggestion = "Adjust the title length to be within 5-80 characters.",
-            });
-        }
-
-        // Description word count
-        var desc = course.Description ?? "";
-        var descWords = string.IsNullOrWhiteSpace(desc) ? 0 : Regex.Split(desc.Trim(), @"\s+").Length;
-        if (descWords < 200)
-        {
-            issues.Add(new QualityCheckIssue
-            {
-                Category = ReviewFeedbackCategory.CourseDescription,
-                Severity = QualityIssueSeverity.Warning,
-                AdminAction = QualityIssueStatus.Pending,
-                RuleId = "PF-DESC-LEN",
-                Location = "Course Description",
-                Description = $"Course description is too short ({descWords} words). Recommended minimum is 200 words.",
-                Evidence = desc.Length > 200 ? desc.Substring(0, 200) + "..." : desc,
-                Suggestion = "Add more detailed information about what students will learn and achieve.",
-            });
-        }
-
-        // Missing cover image
+        // LP-08 — Missing cover image
         if (string.IsNullOrWhiteSpace(course.ImageUrl))
         {
             issues.Add(new QualityCheckIssue
@@ -474,32 +447,15 @@ public class QualityCheckJobService : IQualityCheckJobService
                 Category = ReviewFeedbackCategory.CourseImage,
                 Severity = QualityIssueSeverity.Warning,
                 AdminAction = QualityIssueStatus.Pending,
-                RuleId = "PF-IMAGE-MISSING",
+                RuleId = "LP-08",
                 Location = "Course Cover Image",
                 Description = "Course cover image is missing.",
                 Evidence = "",
-                Suggestion = "Upload a cover image to make the course appealing on the marketplace."
+                Suggestion = "Upload a high-quality cover image to make the course visually appealing on the marketplace."
             });
         }
 
-        // Intended learners: Learning objectives count
-        var loList = DeserializeList(course.LearningObjectives);
-        if (loList.Count < 3 || loList.Count > 10)
-        {
-            issues.Add(new QualityCheckIssue
-            {
-                Category = ReviewFeedbackCategory.IntendedLearners,
-                Severity = QualityIssueSeverity.Warning,
-                AdminAction = QualityIssueStatus.Pending,
-                RuleId = "PF-LO-COUNT",
-                Location = "Learning Objectives",
-                Description = $"Course should have between 3 and 10 learning objectives. Current count: {loList.Count}.",
-                Evidence = $"Count: {loList.Count}",
-                Suggestion = "Ensure you specify at least 3 and at most 10 distinct learning outcomes.",
-            });
-        }
-
-        // Requirements missing
+        // LP-06 — Requirements missing
         var reqList = DeserializeList(course.Requirements);
         if (reqList.Count == 0)
         {
@@ -508,15 +464,15 @@ public class QualityCheckJobService : IQualityCheckJobService
                 Category = ReviewFeedbackCategory.IntendedLearners,
                 Severity = QualityIssueSeverity.Warning,
                 AdminAction = QualityIssueStatus.Pending,
-                RuleId = "PF-REQ-MISSING",
+                RuleId = "LP-06",
                 Location = "Course Requirements",
-                Description = "Requirements list is empty.",
+                Description = "Course requirements list is empty. Students need to know what prerequisites are expected.",
                 Evidence = "",
-                Suggestion = "List any requirements or prerequisites for students before starting this course.",
+                Suggestion = "List all prerequisites or requirements students should meet before enrolling in this course.",
             });
         }
 
-        // Target audience missing
+        // LP-09 — Target audience missing
         var audList = DeserializeList(course.TargetAudience);
         if (audList.Count == 0)
         {
@@ -525,11 +481,11 @@ public class QualityCheckJobService : IQualityCheckJobService
                 Category = ReviewFeedbackCategory.IntendedLearners,
                 Severity = QualityIssueSeverity.Warning,
                 AdminAction = QualityIssueStatus.Pending,
-                RuleId = "PF-AUDIENCE-MISSING",
+                RuleId = "LP-09",
                 Location = "Target Audience",
-                Description = "Target audience list is empty.",
+                Description = "Target audience list is empty. Students cannot determine whether this course suits them.",
                 Evidence = "",
-                Suggestion = "Define the target audience so students know if the course is right for them.",
+                Suggestion = "Describe who this course is designed for so students can make an informed enrollment decision.",
             });
         }
 
@@ -545,11 +501,11 @@ public class QualityCheckJobService : IQualityCheckJobService
                 Category = ReviewFeedbackCategory.CourseContent,
                 Severity = QualityIssueSeverity.Warning,
                 AdminAction = QualityIssueStatus.Pending,
-                RuleId = "PF-CURRICULUM-MIN",
+                RuleId = "CU-01",
                 Location = "Curriculum Structure",
-                Description = $"Course structure is too small. Got {sectionsCount} sections and {totalLectures} lectures. Minimum required: 2 sections and 5 lectures.",
+                Description = $"Course curriculum is too thin: {sectionsCount} section(s) and {totalLectures} lecture(s). Minimum required is 2 sections and 5 lectures.",
                 Evidence = $"Sections: {sectionsCount}, Lectures: {totalLectures}",
-                Suggestion = "Add more structured sections and instructional lectures.",
+                Suggestion = "Expand the curriculum with additional sections and instructional lectures.",
             });
         }
 
@@ -574,11 +530,11 @@ public class QualityCheckJobService : IQualityCheckJobService
                                     Category = ReviewFeedbackCategory.CourseContent,
                                     Severity = QualityIssueSeverity.Warning,
                                     AdminAction = QualityIssueStatus.Pending,
-                                    RuleId = "PF-ARTICLE-LEN",
+                                    RuleId = "CU-02",
                                     Location = $"Section: '{section.Title}' > Lecture: '{item.Title}'",
-                                    Description = $"Article lecture is too short. Contains only {words} words. Recommended minimum is 200 words.",
+                                    Description = $"Article lecture is too short ({words} words). Minimum recommended length is 200 words.",
                                     Evidence = $"Lecture: '{item.Title}'",
-                                    Suggestion = "Provide more detailed study material and context for this lecture.",
+                                    Suggestion = "Provide more comprehensive study material and context for this lecture.",
                                 });
                             }
                         }
@@ -599,11 +555,11 @@ public class QualityCheckJobService : IQualityCheckJobService
                                     Category = ReviewFeedbackCategory.VideoQuality,
                                     Severity = QualityIssueSeverity.Warning,
                                     AdminAction = QualityIssueStatus.Pending,
-                                    RuleId = "PF-VIDEO-NO-CAPTION",
+                                    RuleId = "CU-03",
                                     Location = $"Section: '{section.Title}' > Lecture: '{item.Title}'",
-                                    Description = "Video lecture has no completed subtitle/caption file.",
+                                    Description = "Video lecture is missing a completed subtitle or caption file, reducing accessibility.",
                                     Evidence = $"Video ID: {item.VideoId}",
-                                    Suggestion = "Generate subtitles using AI or upload captions for accessibility.",
+                                    Suggestion = "Generate captions using the AI subtitling feature or manually upload a caption file.",
                                 });
                             }
                         }
@@ -629,11 +585,11 @@ public class QualityCheckJobService : IQualityCheckJobService
                     Category = ReviewFeedbackCategory.CourseContent,
                     Severity = QualityIssueSeverity.Warning,
                     AdminAction = QualityIssueStatus.Pending,
-                    RuleId = "PF-QUIZ-MIN-QUESTIONS",
+                    RuleId = "CU-04",
                     Location = $"Quiz: '{quiz.Title}'",
-                    Description = $"Quiz has only {quiz.Questions.Count} questions. Recommended minimum is 3 questions.",
-                    Evidence = $"Quiz Title: {quiz.Title}",
-                    Suggestion = "Add more assessment questions to test student knowledge.",
+                    Description = $"Quiz contains only {quiz.Questions.Count} question(s). A minimum of 3 questions is required for effective assessment.",
+                    Evidence = $"Quiz: '{quiz.Title}'",
+                    Suggestion = "Add more questions to provide a thorough assessment of student knowledge.",
                 });
             }
 
@@ -647,11 +603,11 @@ public class QualityCheckJobService : IQualityCheckJobService
                         Category = ReviewFeedbackCategory.CourseContent,
                         Severity = QualityIssueSeverity.Critical,
                         AdminAction = QualityIssueStatus.Pending,
-                        RuleId = "PF-QUIZ-NO-CORRECT-ANSWER",
+                        RuleId = "CU-05",
                         Location = $"Quiz: '{quiz.Title}' > Question: '{question.Name}'",
-                        Description = "Quiz question does not have a designated correct answer.",
-                        Evidence = $"Question: {question.Name}",
-                        Suggestion = "Select at least one correct choice for this question.",
+                        Description = "This quiz question has no correct answer marked. Students cannot be assessed accurately.",
+                        Evidence = $"Question: '{question.Name}'",
+                        Suggestion = "Mark at least one choice as the correct answer for this question.",
                     });
                 }
             }
@@ -672,11 +628,11 @@ public class QualityCheckJobService : IQualityCheckJobService
                     Category = ReviewFeedbackCategory.CourseContent,
                     Severity = QualityIssueSeverity.Warning,
                     AdminAction = QualityIssueStatus.Pending,
-                    RuleId = "PF-ASSIGNMENT-NO-INSTRUCTIONS",
+                    RuleId = "CU-06",
                     Location = $"Assignment: '{assign.Title}'",
-                    Description = "Assignment is missing student guidelines/instructions.",
-                    Evidence = $"Assignment: {assign.Title}",
-                    Suggestion = "Fill in detailed instructions explaining how students should perform the task.",
+                    Description = "Assignment is missing student instructions. Learners will not know how to complete the task.",
+                    Evidence = $"Assignment: '{assign.Title}'",
+                    Suggestion = "Add clear, detailed instructions that explain exactly what students are expected to do.",
                 });
             }
         }
@@ -733,7 +689,67 @@ public class QualityCheckJobService : IQualityCheckJobService
             .Replace("&#39;", "'");
     }
 
-    private ReviewFeedbackCategory MapCategory(string categoryStr)
+    private ReviewFeedbackCategory MapCategory(string ruleId, string categoryStr)
+    {
+        if (string.IsNullOrWhiteSpace(ruleId))
+        {
+            return MapCategoryLegacy(categoryStr);
+        }
+
+        var normalizedRule = ruleId.ToUpperInvariant().Trim();
+
+        // Map deterministically based on official Policy IDs
+        // LP-xx — Landing Page / Course Metadata rules
+        if (normalizedRule == "LP-01" || normalizedRule == "LP-02" || normalizedRule == "LP-03")
+        {
+            return ReviewFeedbackCategory.CourseTitleSubtitle;
+        }
+        if (normalizedRule == "LP-04" || normalizedRule == "LP-05")
+        {
+            return ReviewFeedbackCategory.CourseDescription;
+        }
+        if (normalizedRule == "LP-06" || normalizedRule == "LP-09")
+        {
+            return ReviewFeedbackCategory.IntendedLearners;
+        }
+        if (normalizedRule == "LP-07" || normalizedRule == "LP-10")
+        {
+            return ReviewFeedbackCategory.CourseLandingPage;
+        }
+        if (normalizedRule == "LP-08")
+        {
+            return ReviewFeedbackCategory.CourseImage;
+        }
+
+        // LO-xx — Learning Objectives rules
+        if (normalizedRule.StartsWith("LO-"))
+        {
+            // LO-01 through LO-04 and LO-06 (count check) → Intended Learners
+            if (normalizedRule == "LO-01" || normalizedRule == "LO-02" ||
+                normalizedRule == "LO-03" || normalizedRule == "LO-04" ||
+                normalizedRule == "LO-06")
+            {
+                return ReviewFeedbackCategory.IntendedLearners;
+            }
+            // LO-05 (constructive alignment) → Course Content
+            return ReviewFeedbackCategory.CourseContent;
+        }
+
+        // CU-xx — Curriculum / Content rules (all map to CourseContent except CU-03 which is VideoQuality)
+        if (normalizedRule.StartsWith("CU-"))
+        {
+            if (normalizedRule == "CU-03")
+            {
+                return ReviewFeedbackCategory.VideoQuality;
+            }
+            return ReviewFeedbackCategory.CourseContent;
+        }
+
+        // Fallback to legacy string-based parsing
+        return MapCategoryLegacy(categoryStr);
+    }
+
+    private ReviewFeedbackCategory MapCategoryLegacy(string categoryStr)
     {
         if (string.IsNullOrWhiteSpace(categoryStr))
         {

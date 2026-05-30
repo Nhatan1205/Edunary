@@ -4319,24 +4319,12 @@
         ]
       }
     },
-    "/api/CourseReviews/quality-issues/{issueId}/accept": {
+    "/api/CourseReviews/quality-issues/accept": {
       "put": {
         "tags": [
           "CourseReviews"
         ],
         "operationId": "AcceptQualityIssue",
-        "parameters": [
-          {
-            "name": "issueId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -4346,7 +4334,7 @@
               }
             }
           },
-          "x-position": 2
+          "x-position": 1
         },
         "responses": {
           "200": {
@@ -4360,24 +4348,23 @@
         ]
       }
     },
-    "/api/CourseReviews/quality-issues/{issueId}/dismiss": {
+    "/api/CourseReviews/quality-issues/dismiss": {
       "put": {
         "tags": [
           "CourseReviews"
         ],
         "operationId": "DismissQualityIssue",
-        "parameters": [
-          {
-            "name": "issueId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DismissQualityIssueCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -14034,10 +14021,16 @@
           "issueId": {
             "type": "integer",
             "format": "int32"
-          },
-          "editedContent": {
-            "type": "string",
-            "nullable": true
+          }
+        }
+      },
+      "DismissQualityIssueCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "issueId": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

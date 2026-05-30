@@ -1,9 +1,15 @@
-using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Application.CourseReviews.Services;
+using Edunary.Application.CourseReviews.Queries.GetCourseChangesComparisonQuery;
 using Edunary.Application.SystemSettings.Queries.GetAIConfigQuery;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
@@ -101,20 +107,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 .AsNoTracking()
                 .ToListAsync();
 
-            var mediaIds = parsedContent
-                .SelectMany(s => s.Items ?? new List<ItemContentJson>())
-                .Where(i => i.GetResolvedType() == "video" && i.VideoId > 0)
-                .Select(i => i.VideoId)
-                .Distinct()
-                .ToList();
-
-            var mediaCaptions = await _context.MediaFiles
-                .Include(m => m.VideoCaptions)
-                .Where(m => mediaIds.Contains(m.Id))
-                .AsNoTracking()
-                .ToListAsync();
-            
-            var mediaCaptionsMap = mediaCaptions.ToDictionary(m => m.Id);
+            var mediaCaptionsMap = await FetchMediaCaptionsMapAsync(parsedContent);
 
             // 4. Construct plain text for each section and group them into batches
             var sectionTexts = new List<(string SectionTitle, string Text)>();
@@ -158,19 +151,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                                     {
                                         sb.AppendLine(vttText);
                                     }
-                                    else
-                                    {
-                                        sb.AppendLine("[Caption file was empty or failed to parse]");
-                                    }
                                 }
-                                else
-                                {
-                                    sb.AppendLine("[No completed subtitle/caption file available]");
-                                }
-                            }
-                            else
-                            {
-                                sb.AppendLine("[No video media file metadata found]");
                             }
                             sb.AppendLine();
                         }
@@ -181,21 +162,11 @@ public class QualityCheckJobService : IQualityCheckJobService
                             if (quiz != null)
                             {
                                 sb.AppendLine($"* Title: {quiz.Title}");
-                                sb.AppendLine($"* Description: {StripHtml(quiz.Description)}");
                                 sb.AppendLine("Questions:");
                                 foreach (var q in quiz.Questions)
                                 {
                                     sb.AppendLine($"- Question: {StripHtml(q.Name)} ({q.Type})");
-                                    sb.AppendLine("  Choices:");
-                                    foreach (var choice in q.Choices)
-                                    {
-                                        sb.AppendLine($"    * {StripHtml(choice.Text)} (Correct: {choice.IsCorrect})");
-                                    }
                                 }
-                            }
-                            else
-                            {
-                                sb.AppendLine("[Quiz data not found]");
                             }
                             sb.AppendLine();
                         }
@@ -206,20 +177,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                             if (assign != null)
                             {
                                 sb.AppendLine($"* Title: {assign.Title}");
-                                sb.AppendLine($"* Description: {StripHtml(assign.Description)}");
                                 sb.AppendLine($"* Instructions: {StripHtml(assign.Instructions)}");
-                                if (assign.Questions != null && assign.Questions.Any())
-                                {
-                                    sb.AppendLine("Questions:");
-                                    foreach (var q in assign.Questions)
-                                    {
-                                        sb.AppendLine($"- {StripHtml(q.QuestionText)}");
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                sb.AppendLine("[Assignment data not found]");
                             }
                             sb.AppendLine();
                         }
@@ -256,8 +214,357 @@ public class QualityCheckJobService : IQualityCheckJobService
                 currentBatchSections.Add(sec.SectionTitle);
                 currentBatchText.AppendLine(sec.Text);
                 currentBatchWordCount += secWordCount;
+            }
 
-                if (currentBatchWordCount >= 6000)
+            if (currentBatchSections.Any())
+            {
+                contentBatches.Add(new
+                {
+                    batch_index = batchIndex++,
+                    sections = currentBatchSections,
+                    content_text = currentBatchText.ToString()
+                });
+            }
+
+            var curriculum = parsedContent
+                .Select(s => new
+                {
+                    section_title = s.Title ?? "",
+                    learning_objectives = s.LearningObjectives ?? "",
+                    items = s.Items?.Select(i => (object)new
+                    {
+                        title = i.Title ?? "",
+                        content_type = i.GetResolvedType()
+                    }).ToList() ?? new List<object>()
+                }).ToList();
+
+            var payload = new
+            {
+                course_id = course.Id,
+                course_title = course.Title ?? "",
+                course_subtitle = course.Subtitle ?? "",
+                course_description = StripHtml(course.Description ?? ""),
+                course_category = course.Category?.Title ?? "None",
+                course_topics = course.Topics?.Select(t => t.Name).ToList() ?? new List<string>(),
+                learning_objectives = DeserializeList(course.LearningObjectives),
+                requirements = DeserializeList(course.Requirements),
+                target_audience = DeserializeList(course.TargetAudience),
+                curriculum,
+                content_batches = contentBatches,
+                llm_config = new
+                {
+                    model_name = aiConfig.LLMModelName,
+                    api_key = aiConfig.LLMApiKey,
+                    api_base = aiConfig.LLMBaseUrl,
+                    temperature = 0.2,
+                    max_tokens = aiConfig.LLMMaxTokens
+                }
+            };
+
+            var url = $"{aiConfig.AICenterBaseUrl}api/quality-check/analyze";
+            var (isSuccess, body) = await _aiCenterClient.PostAsync(
+                url, aiConfig.AICenterApiKey, JsonSerializer.Serialize(payload));
+
+            var aiIssues = new List<QualityCheckIssue>();
+            string analysisSummary = "Quality check finished.";
+
+            if (isSuccess)
+            {
+                aiIssues = ParseAiIssues(body, reportId);
+                try
+                {
+                    var aiResponse = JsonSerializer.Deserialize<JsonElement>(body);
+                    if (aiResponse.TryGetProperty("analysis_summary", out var summaryEl))
+                    {
+                        analysisSummary = summaryEl.GetString() ?? analysisSummary;
+                    }
+                }
+                catch {}
+            }
+            else
+            {
+                _logger.LogWarning("AI Center request failed. Pre-flight results only. Body: {Body}", body);
+                analysisSummary = "The AI quality analysis service is temporarily unavailable. Full check contains pre-flight checks only.";
+            }
+
+            await SendProgress(userId, 80, "Compiling review results and generating report...", reportId);
+            await Task.Delay(1000);
+
+            var allIssues = new List<QualityCheckIssue>();
+            foreach (var issue in preFlightIssues)
+            {
+                issue.ReportId = reportId;
+                allIssues.Add(issue);
+            }
+            allIssues.AddRange(aiIssues);
+
+            foreach (var issue in allIssues)
+            {
+                _context.QualityCheckIssues.Add(issue);
+            }
+
+            var overallScore = CalculateOverallScore(allIssues);
+
+            report.Status = QualityCheckStatus.Completed;
+            report.OverallScore = overallScore;
+            report.AnalysisSummary = analysisSummary;
+
+            await _context.SaveChangesAsync(default);
+
+            await SendProgress(userId, 100, "Course review completed successfully!", reportId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "QualityCheckJobService failed.");
+            try
+            {
+                var report = await _context.QualityCheckReports.FirstOrDefaultAsync(r => r.Id == reportId);
+                if (report != null)
+                {
+                    report.Status = QualityCheckStatus.Failed;
+                    await _context.SaveChangesAsync(default);
+                }
+            }
+            catch {}
+            await SendProgress(userId, -1, "An unexpected error occurred during the quality check.", reportId);
+        }
+    }
+
+    public void EnqueueQualityCheckDiff(string userId, int courseId, int reportId)
+    {
+        BackgroundJob.Enqueue<IQualityCheckJobService>(svc =>
+            svc.ProcessQualityCheckDiffAsync(userId, courseId, reportId));
+    }
+
+    public async Task ProcessQualityCheckDiffAsync(string userId, int courseId, int reportId)
+    {
+        try
+        {
+            await SendProgress(userId, 10, "Initializing diff-based course review...", reportId);
+            await Task.Delay(1000);
+
+            var report = await _context.QualityCheckReports
+                .FirstOrDefaultAsync(r => r.Id == reportId);
+
+            if (report == null)
+            {
+                _logger.LogError("Report with id {ReportId} not found.", reportId);
+                return;
+            }
+
+            var course = await _context.Courses
+                .Include(c => c.Category)
+                .Include(c => c.Topics)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == courseId);
+
+            if (course == null)
+            {
+                report.Status = QualityCheckStatus.Failed;
+                await _context.SaveChangesAsync(default);
+                await SendProgress(userId, -1, "The requested course could not be found. Please try again.", reportId);
+                return;
+            }
+
+            await SendProgress(userId, 25, "Running snapshot comparison...", reportId);
+            await Task.Delay(1000);
+
+            // 1. Send MediatR query to fetch snapshot comparison diff!
+            var diff = await _sender.Send(new GetCourseChangesComparisonQuery { CourseId = courseId });
+
+            // FALLBACK: If no snapshot baseline exists, fallback to a full check
+            if (diff.NoSnapshot)
+            {
+                _logger.LogWarning("No snapshot found for course {CourseId}. Falling back to full quality check.", courseId);
+                await SendProgress(userId, 15, "No snapshot baseline found. Falling back to full quality check...", reportId);
+                
+                // Set IsDiff flag to false in database since it is running full check
+                report.IsDiff = false;
+                await _context.SaveChangesAsync(default);
+
+                await ProcessQualityCheckAsync(userId, courseId, reportId);
+                return;
+            }
+
+            var changedFields = new List<string>();
+            var changedSectionIds = new HashSet<string>();
+            var changedItemIds = new HashSet<string>();
+
+            if (diff.HasChanges)
+            {
+                // Gather modified field names from groups
+                foreach (var group in diff.ChangeGroups)
+                {
+                    changedFields.AddRange(group.Changes.Select(c => c.Field));
+                }
+
+                // Gather curriculum section and item changes
+                foreach (var secComp in diff.CurriculumComparison)
+                {
+                    if (secComp.Status == "added" || secComp.Status == "modified")
+                    {
+                        changedSectionIds.Add(secComp.SectionId);
+                        foreach (var itemComp in secComp.Items)
+                        {
+                            if (itemComp.Status == "added" || itemComp.Status == "modified")
+                            {
+                                changedItemIds.Add(itemComp.ItemId);
+                            }
+                        }
+                    }
+                }
+
+                // Gather quiz changes
+                foreach (var qComp in diff.QuizComparison)
+                {
+                    if ((qComp.Status == "added" || qComp.Status == "modified") && !string.IsNullOrEmpty(qComp.ItemId))
+                    {
+                        changedItemIds.Add(qComp.ItemId);
+                    }
+                }
+
+                // Gather assignment changes
+                foreach (var aComp in diff.AssignmentComparison)
+                {
+                    if ((aComp.Status == "added" || aComp.Status == "modified") && !string.IsNullOrEmpty(aComp.ItemId))
+                    {
+                        changedItemIds.Add(aComp.ItemId);
+                    }
+                }
+            }
+
+            await SendProgress(userId, 40, "Checking structure and pre-flight rules...", reportId);
+            
+            // 2. Freshly run pre-flight checks on the whole course
+            var preFlightIssues = await RunPreFlightChecksAsync(course);
+
+            await SendProgress(userId, 55, "Extracting updated content batches...", reportId);
+
+            var aiConfig = await _sender.Send(new GetAIConfigQuery());
+            var parsedContent = ParseCurriculum(course.Content);
+            var mediaCaptionsMap = await FetchMediaCaptionsMapAsync(parsedContent);
+
+            // Fetch current quizzes and assignments to construct their batch texts
+            var quizzes = await _context.Quizzes
+                .Include(q => q.Questions)
+                .ThenInclude(q => q.Choices)
+                .Where(q => q.CourseId == course.Id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var assignments = await _context.Assignments
+                .Include(a => a.Questions)
+                .Where(a => a.CourseId == course.Id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // 3. Construct batch texts ONLY for changed sections & items
+            var sectionTexts = new List<(string SectionTitle, string Text)>();
+
+            foreach (var section in parsedContent)
+            {
+                bool hasSectionChanges = changedSectionIds.Contains(section.SectionId);
+                
+                if (hasSectionChanges)
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"# Section: {section.Title}");
+                    if (!string.IsNullOrWhiteSpace(section.LearningObjectives))
+                    {
+                        sb.AppendLine($"* Objectives: {section.LearningObjectives}");
+                    }
+                    sb.AppendLine();
+
+                    bool hasAddedOrModifiedItems = false;
+
+                    if (section.Items != null)
+                    {
+                        foreach (var item in section.Items)
+                        {
+                            // Only include items that are added or modified
+                            if (!changedItemIds.Contains(item.ItemId))
+                            {
+                                continue;
+                            }
+
+                            hasAddedOrModifiedItems = true;
+                            var itemType = item.GetResolvedType();
+
+                            if (itemType == "article")
+                            {
+                                var plainText = StripHtml(item.Content ?? "");
+                                sb.AppendLine($"## Lecture: {item.Title} (Article)");
+                                sb.AppendLine(plainText);
+                                sb.AppendLine();
+                            }
+                            else if (itemType == "video" && item.VideoId > 0)
+                            {
+                                sb.AppendLine($"## Lecture: {item.Title} (Video)");
+                                
+                                if (mediaCaptionsMap.TryGetValue(item.VideoId, out var mediaFile))
+                                {
+                                    var caption = mediaFile.VideoCaptions?
+                                        .FirstOrDefault(c => c.Status == CaptionStatus.COMPLETED);
+                                    
+                                    if (caption != null && !string.IsNullOrWhiteSpace(caption.FileUrl))
+                                    {
+                                        var vttText = await DownloadAndParseVttAsync(caption.FileUrl);
+                                        if (!string.IsNullOrWhiteSpace(vttText))
+                                        {
+                                            sb.AppendLine(vttText);
+                                        }
+                                    }
+                                }
+                                sb.AppendLine();
+                            }
+                            else if (itemType == "quiz")
+                            {
+                                sb.AppendLine($"## Quiz: {item.Title}");
+                                var quiz = quizzes.FirstOrDefault(q => q.ItemId == item.ItemId);
+                                if (quiz != null)
+                                {
+                                    sb.AppendLine($"* Title: {quiz.Title}");
+                                    sb.AppendLine("Questions:");
+                                    foreach (var q in quiz.Questions)
+                                    {
+                                        sb.AppendLine($"- Question: {StripHtml(q.Name)} ({q.Type})");
+                                    }
+                                }
+                                sb.AppendLine();
+                            }
+                            else if (itemType == "assignment")
+                            {
+                                sb.AppendLine($"## Assignment: {item.Title}");
+                                var assign = assignments.FirstOrDefault(a => a.ItemId == item.ItemId);
+                                if (assign != null)
+                                {
+                                    sb.AppendLine($"* Title: {assign.Title}");
+                                    sb.AppendLine($"* Instructions: {StripHtml(assign.Instructions)}");
+                                }
+                                sb.AppendLine();
+                            }
+                        }
+                    }
+
+                    // Only send this section text to AI if there was a structural section change or actual items within it changed
+                    if (hasAddedOrModifiedItems || secCompStatusIsAdded(diff, section.SectionId))
+                    {
+                        sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString()));
+                    }
+                }
+            }
+
+            var contentBatches = new List<object>();
+            var currentBatchSections = new List<string>();
+            var currentBatchText = new StringBuilder();
+            int currentBatchWordCount = 0;
+            int batchIndex = 1;
+
+            foreach (var sec in sectionTexts)
+            {
+                int secWordCount = EstimateWordCount(sec.Text);
+
+                if (currentBatchWordCount + secWordCount > 6000 && currentBatchSections.Any())
                 {
                     contentBatches.Add(new
                     {
@@ -270,6 +577,10 @@ public class QualityCheckJobService : IQualityCheckJobService
                     currentBatchText.Clear();
                     currentBatchWordCount = 0;
                 }
+
+                currentBatchSections.Add(sec.SectionTitle);
+                currentBatchText.AppendLine(sec.Text);
+                currentBatchWordCount += secWordCount;
             }
 
             if (currentBatchSections.Any())
@@ -308,6 +619,8 @@ public class QualityCheckJobService : IQualityCheckJobService
                 target_audience = DeserializeList(course.TargetAudience),
                 curriculum,
                 content_batches = contentBatches,
+                check_mode = "changes_only",
+                changed_fields = changedFields,
                 llm_config = new
                 {
                     model_name = aiConfig.LLMModelName,
@@ -318,69 +631,37 @@ public class QualityCheckJobService : IQualityCheckJobService
                 }
             };
 
-            //var payloadJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-            //{
-            //    WriteIndented = true
-            //});
+            await SendProgress(userId, 75, "Requesting AI Quality analysis on changes...", reportId);
 
-            //await System.IO.File.WriteAllTextAsync("payload_debug.json", payloadJson);
-
-            var url = $"{aiConfig.AICenterBaseUrl}api/quality-check/analyze";
+            var url = $"{aiConfig.AICenterBaseUrl}api/quality-check/analyze-diff";
             var (isSuccess, body) = await _aiCenterClient.PostAsync(
                 url, aiConfig.AICenterApiKey, JsonSerializer.Serialize(payload));
 
-            List<QualityCheckIssue> aiIssues = new List<QualityCheckIssue>();
-            string analysisSummary = "Quality check finished.";
+            var aiIssues = new List<QualityCheckIssue>();
+            string analysisSummary = "Quality check diff analysis completed.";
 
             if (isSuccess)
             {
+                aiIssues = ParseAiIssues(body, reportId);
                 try
                 {
                     var aiResponse = JsonSerializer.Deserialize<JsonElement>(body);
-                    if (aiResponse.TryGetProperty("issues", out var issuesEl))
-                    {
-                        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                        var parsedIssues = JsonSerializer.Deserialize<List<AiCheckIssueDto>>(issuesEl.GetRawText(), options);
-                        if (parsedIssues != null)
-                        {
-                            foreach (var pi in parsedIssues)
-                            {
-                                aiIssues.Add(new QualityCheckIssue
-                                {
-                                    ReportId = reportId,
-                                    Category = MapCategory(pi.RuleId, pi.Category),
-                                    Severity = MapSeverity(pi.Severity),
-                                    AdminAction = QualityIssueStatus.Pending,
-                                    RuleId = pi.RuleId ?? "AI-GEN",
-                                    Location = pi.Location ?? "",
-                                    Description = pi.Description ?? "",
-                                    Evidence = pi.Evidence ?? "",
-                                    Suggestion = pi.Suggestion ?? ""
-                                });
-                            }
-                        }
-                    }
-
                     if (aiResponse.TryGetProperty("analysis_summary", out var summaryEl))
                     {
                         analysisSummary = summaryEl.GetString() ?? analysisSummary;
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to parse AI Center quality check response.");
-                }
+                catch {}
             }
             else
             {
                 _logger.LogWarning("AI Center request failed. Pre-flight results only. Body: {Body}", body);
-                analysisSummary = "The AI quality analysis service is temporarily unavailable. The results below reflect the automated pre-flight checks only. Please re-run the analysis once the service is restored.";
+                analysisSummary = "The AI quality analysis service is temporarily unavailable. Diff check contains pre-flight checks only.";
             }
 
-            await SendProgress(userId, 80, "Compiling review results and generating report...", reportId);
-            await Task.Delay(1000);
+            await SendProgress(userId, 90, "Compiling results...", reportId);
 
-            // 4. Merge issues
+            // Combine new pre-flight issues and new AI issues. No historical merge!
             var allIssues = new List<QualityCheckIssue>();
             foreach (var issue in preFlightIssues)
             {
@@ -389,35 +670,27 @@ public class QualityCheckJobService : IQualityCheckJobService
             }
             allIssues.AddRange(aiIssues);
 
-            // 5. Save all issues to database
+            // 7. Save all issues to database
             foreach (var issue in allIssues)
             {
                 _context.QualityCheckIssues.Add(issue);
             }
 
-            // 6. Calculate deterministic score
-            var criticalCount = allIssues.Count(i => i.Severity == QualityIssueSeverity.Critical);
-            var warningCount = allIssues.Count(i => i.Severity == QualityIssueSeverity.Warning);
-            var suggestionCount = allIssues.Count(i => i.Severity == QualityIssueSeverity.Suggestion);
+            // 8. Calculate deterministic overall score
+            var overallScore = CalculateOverallScore(allIssues);
 
-            var overallScore = 100f - (criticalCount * 15f + warningCount * 5f + suggestionCount * 2f);
-            if (overallScore < 0)
-            {
-                overallScore = 0;
-            }
-
-            // 7. Update current report status
+            // 9. Finalize new report status
             report.Status = QualityCheckStatus.Completed;
             report.OverallScore = overallScore;
             report.AnalysisSummary = analysisSummary;
 
             await _context.SaveChangesAsync(default);
 
-            await SendProgress(userId, 100, "Course review completed successfully!", reportId);
+            await SendProgress(userId, 100, "Course diff quality review completed successfully!", reportId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "QualityCheckJobService failed.");
+            _logger.LogError(ex, "QualityCheckJobService diff failed.");
             try
             {
                 var report = await _context.QualityCheckReports.FirstOrDefaultAsync(r => r.Id == reportId);
@@ -427,12 +700,16 @@ public class QualityCheckJobService : IQualityCheckJobService
                     await _context.SaveChangesAsync(default);
                 }
             }
-            catch (Exception dbEx)
-            {
-                _logger.LogError(dbEx, "Failed to save failed status to report.");
-            }
-            await SendProgress(userId, -1, "An unexpected error occurred during the quality check. Please try again. If the issue persists, contact support.", reportId);
+            catch {}
+            await SendProgress(userId, -1, "An unexpected error occurred during the diff-based quality check. Please try again.", reportId);
         }
+    }
+
+
+    private bool secCompStatusIsAdded(ComparisonResultDto diff, string sectionId)
+    {
+        var match = diff.CurriculumComparison.FirstOrDefault(s => s.SectionId == sectionId);
+        return match != null && match.Status == "added";
     }
 
     private async Task<List<QualityCheckIssue>> RunPreFlightChecksAsync(Course course)
@@ -698,8 +975,6 @@ public class QualityCheckJobService : IQualityCheckJobService
 
         var normalizedRule = ruleId.ToUpperInvariant().Trim();
 
-        // Map deterministically based on official Policy IDs
-        // LP-xx — Landing Page / Course Metadata rules
         if (normalizedRule == "LP-01" || normalizedRule == "LP-02" || normalizedRule == "LP-03")
         {
             return ReviewFeedbackCategory.CourseTitleSubtitle;
@@ -721,21 +996,17 @@ public class QualityCheckJobService : IQualityCheckJobService
             return ReviewFeedbackCategory.CourseImage;
         }
 
-        // LO-xx — Learning Objectives rules
         if (normalizedRule.StartsWith("LO-"))
         {
-            // LO-01 through LO-04 and LO-06 (count check) → Intended Learners
             if (normalizedRule == "LO-01" || normalizedRule == "LO-02" ||
                 normalizedRule == "LO-03" || normalizedRule == "LO-04" ||
                 normalizedRule == "LO-06")
             {
                 return ReviewFeedbackCategory.IntendedLearners;
             }
-            // LO-05 (constructive alignment) → Course Content
             return ReviewFeedbackCategory.CourseContent;
         }
 
-        // CU-xx — Curriculum / Content rules (all map to CourseContent except CU-03 which is VideoQuality)
         if (normalizedRule.StartsWith("CU-"))
         {
             if (normalizedRule == "CU-03")
@@ -745,7 +1016,6 @@ public class QualityCheckJobService : IQualityCheckJobService
             return ReviewFeedbackCategory.CourseContent;
         }
 
-        // Fallback to legacy string-based parsing
         return MapCategoryLegacy(categoryStr);
     }
 
@@ -871,6 +1141,71 @@ public class QualityCheckJobService : IQualityCheckJobService
         });
     }
 
+    private async Task<Dictionary<int, MediaFile>> FetchMediaCaptionsMapAsync(List<SectionContentJson> parsedContent)
+    {
+        var mediaIds = parsedContent
+            .SelectMany(s => s.Items ?? new List<ItemContentJson>())
+            .Where(i => i.GetResolvedType() == "video" && i.VideoId > 0)
+            .Select(i => i.VideoId)
+            .Distinct()
+            .ToList();
+
+        var mediaCaptions = await _context.MediaFiles
+            .Include(m => m.VideoCaptions)
+            .Where(m => mediaIds.Contains(m.Id))
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mediaCaptions.ToDictionary(m => m.Id);
+    }
+
+    private List<QualityCheckIssue> ParseAiIssues(string responseBody, int reportId)
+    {
+        var aiIssues = new List<QualityCheckIssue>();
+        try
+        {
+            var aiResponse = JsonSerializer.Deserialize<JsonElement>(responseBody);
+            if (aiResponse.TryGetProperty("issues", out var issuesEl))
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var parsedIssues = JsonSerializer.Deserialize<List<AiCheckIssueDto>>(issuesEl.GetRawText(), options);
+                if (parsedIssues != null)
+                {
+                    foreach (var pi in parsedIssues)
+                    {
+                        aiIssues.Add(new QualityCheckIssue
+                        {
+                            ReportId = reportId,
+                            Category = MapCategory(pi.RuleId, pi.Category),
+                            Severity = MapSeverity(pi.Severity),
+                            AdminAction = QualityIssueStatus.Pending,
+                            RuleId = pi.RuleId ?? "AI-GEN",
+                            Location = pi.Location ?? "",
+                            Description = pi.Description ?? "",
+                            Evidence = pi.Evidence ?? "",
+                            Suggestion = pi.Suggestion ?? ""
+                        });
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to parse AI Center quality check response.");
+        }
+        return aiIssues;
+    }
+
+    private float CalculateOverallScore(List<QualityCheckIssue> issues)
+    {
+        var criticalCount = issues.Count(i => i.Severity == QualityIssueSeverity.Critical);
+        var warningCount = issues.Count(i => i.Severity == QualityIssueSeverity.Warning);
+        var suggestionCount = issues.Count(i => i.Severity == QualityIssueSeverity.Suggestion);
+
+        var overallScore = 100f - (criticalCount * 15f + warningCount * 5f + suggestionCount * 2f);
+        return Math.Max(0f, overallScore);
+    }
+
     //Internal JSON Mapping Classes
 
     private class CourseContentJson
@@ -880,6 +1215,7 @@ public class QualityCheckJobService : IQualityCheckJobService
 
     private class SectionContentJson
     {
+        public string SectionId { get; set; }
         public string Title { get; set; }
         public string LearningObjectives { get; set; }
         public List<ItemContentJson> Items { get; set; }

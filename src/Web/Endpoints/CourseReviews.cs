@@ -7,6 +7,7 @@ using Edunary.Application.CourseReviews.Commands.SaveReviewFeedbackCommand;
 using Edunary.Application.CourseReviews.Commands.SubmitCourseForReviewCommand;
 using Edunary.Application.CourseReviews.Commands.UpdateReviewFeedbackCommand;
 using Edunary.Application.CourseReviews.Commands.RunQualityCheckCommand;
+using Edunary.Application.CourseReviews.Commands.RunQualityCheckDiffCommand;
 using Edunary.Application.CourseReviews.Commands.AcceptQualityIssueCommand;
 using Edunary.Application.CourseReviews.Commands.DismissQualityIssueCommand;
 using Edunary.Application.CourseReviews.Queries.GetCoursePreviewForAdminQuery;
@@ -44,6 +45,7 @@ public class CourseReviews : EndpointGroupBase
             .MapPost(ApproveCourse, "admin/approve")
             .MapGet(GetCourseChangesComparison, "admin/compare/{courseId:int}")
             .MapPost(RunQualityCheck, "quality-check")
+            .MapPost(RunQualityCheckDiff, "quality-check-diff")
             .MapGet(GetQualityReports, "{courseId:int}/quality-reports")
             .MapGet(GetQualityReportDetail, "quality-reports/{reportId:int}")
             .MapPut(AcceptQualityIssue, "quality-issues/accept")
@@ -131,6 +133,11 @@ public class CourseReviews : EndpointGroupBase
     }
 
     public async Task<ReturnResult<RunQualityCheckResultDto>> RunQualityCheck(ISender sender, [FromBody] RunQualityCheckCommand command)
+    {
+        return await sender.Send(command);
+    }
+
+    public async Task<ReturnResult<RunQualityCheckResultDto>> RunQualityCheckDiff(ISender sender, [FromBody] RunQualityCheckDiffCommand command)
     {
         return await sender.Send(command);
     }

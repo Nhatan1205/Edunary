@@ -4242,6 +4242,42 @@
         ]
       }
     },
+    "/api/CourseReviews/quality-check-diff": {
+      "post": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "RunQualityCheckDiff",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunQualityCheckDiffCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfRunQualityCheckResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/CourseReviews/{courseId}/quality-reports": {
       "get": {
         "tags": [
@@ -13805,6 +13841,16 @@
         }
       },
       "RunQualityCheckCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RunQualityCheckDiffCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

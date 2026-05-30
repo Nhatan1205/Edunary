@@ -12,6 +12,8 @@ public class QualityCheckReport : BaseAuditableEntity
 
     public string AnalysisSummary { get; set; }
 
+    public bool IsDiff { get; set; }
+
     // Navigation properties
     public Course Course { get; set; } = null!;
 

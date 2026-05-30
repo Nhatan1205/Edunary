@@ -4426,6 +4426,45 @@ export class CourseReviewsClient {
         return Promise.resolve<ReturnResultOfRunQualityCheckResultDto>(null as any);
     }
 
+    runQualityCheckDiff(command: RunQualityCheckDiffCommand | undefined): Promise<ReturnResultOfRunQualityCheckResultDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/quality-check-diff";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRunQualityCheckDiff(_response);
+        });
+    }
+
+    protected processRunQualityCheckDiff(response: Response): Promise<ReturnResultOfRunQualityCheckResultDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfRunQualityCheckResultDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfRunQualityCheckResultDto>(null as any);
+    }
+
     getQualityReports(courseId: number): Promise<QualityReportSummaryDto[]> {
         let url_ = this.baseUrl + "/api/CourseReviews/{courseId}/quality-reports";
         if (courseId === undefined || courseId === null)
@@ -18367,6 +18406,42 @@ export class RunQualityCheckCommand implements IRunQualityCheckCommand {
 }
 
 export interface IRunQualityCheckCommand {
+    courseId?: number;
+}
+
+export class RunQualityCheckDiffCommand implements IRunQualityCheckDiffCommand {
+    courseId?: number;
+
+    constructor(data?: IRunQualityCheckDiffCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): RunQualityCheckDiffCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RunQualityCheckDiffCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IRunQualityCheckDiffCommand {
     courseId?: number;
 }
 

@@ -40,28 +40,44 @@ public class UpdateCollaboratorCommandHandler : IRequestHandler<UpdateCollaborat
             return Result.Failure("Only the course owner can update collaborators.");
         }
 
-        var collab = await _context.CourseCollaborators
-            .FirstOrDefaultAsync(c => c.Id == request.CollaboratorId && c.CourseId == request.CourseId, cancellationToken);
+        await using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
+        {
+            var lockedRows = await LockCourseShareCapacityAsync(request.CourseId, cancellationToken);
+            if (lockedRows == 0)
+                return Result.Failure("Course not found.");
 
-        if (collab is null)
-            return Result.Failure("Collaborator not found.");
+            var collab = await _context.CourseCollaborators
+                .FirstOrDefaultAsync(c => c.Id == request.CollaboratorId && c.CourseId == request.CourseId, cancellationToken);
 
-        // Tổng % của các collaborator khác chưa bị từ chối cộng phần mới không được vượt 100%
-        var otherTotal = await _context.CourseCollaborators
-            .Where(c => c.CourseId == request.CourseId
-                     && c.Id != request.CollaboratorId
-                     && c.InviteStatus != CollaboratorInviteStatus.Declined)
-            .SumAsync(c => c.RevenueSharePercent, cancellationToken);
+            if (collab is null)
+                return Result.Failure("Collaborator not found.");
 
-        if (otherTotal + request.RevenueSharePercent > 100)
-            return Result.Failure("Total revenue share for collaborators cannot exceed 100%.");
+            // Pending and accepted collaborators reserve revenue share capacity; declined rows do not.
+            var otherTotal = await _context.CourseCollaborators
+                .Where(c => c.CourseId == request.CourseId
+                         && c.Id != request.CollaboratorId
+                         && c.InviteStatus != CollaboratorInviteStatus.Declined)
+                .SumAsync(c => c.RevenueSharePercent, cancellationToken);
 
-        collab.Permissions = request.Permissions;
-        collab.IsVisible = request.IsVisible;
-        collab.RevenueSharePercent = request.RevenueSharePercent;
+            if (otherTotal + request.RevenueSharePercent > 100)
+                return Result.Failure("Total revenue share for collaborators cannot exceed 100%.");
 
-        await _context.SaveChangesAsync(cancellationToken);
+            collab.Permissions = request.Permissions;
+            collab.IsVisible = request.IsVisible;
+            collab.RevenueSharePercent = request.RevenueSharePercent;
+
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         return Result.Success("Collaborator updated.");
+    }
+
+    // No-op UPDATE to lock the Course row, serializing concurrent share-capacity checks so totals can't exceed 100%.
+    private Task<int> LockCourseShareCapacityAsync(int courseId, CancellationToken cancellationToken)
+    {
+        return _context.Courses
+            .Where(c => c.Id == courseId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.LastModified, c => c.LastModified), cancellationToken);
     }
 }

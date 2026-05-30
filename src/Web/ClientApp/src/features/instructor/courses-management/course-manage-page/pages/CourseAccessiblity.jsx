@@ -39,6 +39,7 @@ import useInviteCollaborator from "../../../../../hooks/course-collaborator-hook
 import useUpdateCollaborator from "../../../../../hooks/course-collaborator-hooks/useUpdateCollaborator";
 import useRemoveCollaborator from "../../../../../hooks/course-collaborator-hooks/useRemoveCollaborator";
 import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
+import { CollaboratorInviteStatus } from "../../../../../web-api-client.ts";
 
 // Permission flags matching backend enum
 const PERMISSIONS = [
@@ -56,10 +57,10 @@ function permissionLabels(flags) {
   return PERMISSIONS.filter((p) => (flags & p.flag) !== 0).map((p) => p.label);
 }
 
-// Tổng % collaborator chưa bị từ chối (Pending+Accepted), bỏ owner và (tuỳ chọn) loại trừ 1 id đang sửa
+// Pending and accepted collaborators reserve share capacity; declined rows do not.
 function sumCollaboratorShare(collaborators, excludeId = null) {
   return (collaborators ?? [])
-    .filter((c) => !c.isOwner && c.inviteStatus !== 2 && c.id !== excludeId)
+    .filter((c) => !c.isOwner && c.inviteStatus !== CollaboratorInviteStatus.Declined && c.id !== excludeId)
     .reduce((sum, c) => sum + (c.revenueSharePercent ?? 0), 0);
 }
 
@@ -240,7 +241,12 @@ function EditCollaboratorDialog({ open, onClose, collaborator, courseId, collabo
 
   // % còn lại được phép chia (loại trừ chính collaborator đang sửa)
   const remainingShare = 100 - sumCollaboratorShare(collaborators, collaborator?.id);
-  const shareError = revenueShare > remainingShare;
+  const shareError = revenueShare < 0 || revenueShare > remainingShare;
+  const shareHelperText = revenueShare < 0
+    ? "Must be >= 0"
+    : shareError
+      ? `Exceeds limit - only ${remainingShare}% left to share`
+      : "";
 
   // View Access (flag=1) is always required and cannot be removed
   const toggleFlag = (flag) => {
@@ -313,7 +319,7 @@ function EditCollaboratorDialog({ open, onClose, collaborator, courseId, collabo
               value={revenueShare}
               onChange={(e) => setRevenueShare(Number(e.target.value))}
               error={shareError}
-              helperText={shareError ? `Exceeds limit — only ${remainingShare}% left to share` : ""}
+              helperText={shareHelperText}
               sx={{ width: 180 }}
               inputProps={{ min: 0, max: 100, step: 1 }}
             />
@@ -340,9 +346,9 @@ function CollaboratorRow({ collab, courseId, isOwner, collaborators }) {
   const remove = useRemoveCollaborator(courseId);
 
   const statusColor = {
-    0: { bg: "warning.lighter", text: "warning.darker", label: "Pending" },
-    1: { bg: "success.lighter", text: "success.darker", label: "Accepted" },
-    2: { bg: "error.lighter", text: "error.main", label: "Declined" },
+    [CollaboratorInviteStatus.Pending]: { bg: "warning.lighter", text: "warning.darker", label: "Pending" },
+    [CollaboratorInviteStatus.Accepted]: { bg: "success.lighter", text: "success.darker", label: "Accepted" },
+    [CollaboratorInviteStatus.Declined]: { bg: "error.lighter", text: "error.main", label: "Declined" },
   }[collab.inviteStatus] ?? { bg: "grey.100", text: "text.secondary", label: "Unknown" };
 
   return (

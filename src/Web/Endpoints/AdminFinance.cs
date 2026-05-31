@@ -3,8 +3,10 @@ using Edunary.Application.Finance.Commands.RunPayoutBatch;
 using Edunary.Application.Finance.Queries.GetEligiblePayouts;
 using Edunary.Application.Finance.Queries.GetFinanceLedger;
 using Edunary.Application.Finance.Queries.GetFinanceSummary;
+using Edunary.Application.Finance.Queries.GetRevenueTrend;
 using Edunary.Application.Finance.Queries.GetTaxReport;
 using Edunary.Application.Finance.Queries.GetTaxSettings;
+using Edunary.Application.Finance.Queries.GetTopCoursesByRevenue;
 using Edunary.Application.Finance.Payouts;
 using Edunary.Application.Finance.TaxRegions.Commands;
 using Edunary.Application.Finance.TaxRegions.Queries;
@@ -24,6 +26,8 @@ public class AdminFinance : EndpointGroupBase
             .MapGet(GetSummary, "summary")
             .MapGet(GetLedger, "ledger")
             .MapGet(GetTaxReport, "tax-report")
+            .MapGet(GetRevenueTrend, "revenue-trend")
+            .MapGet(GetTopCourses, "top-courses")
             .MapGet(GetPayoutSettings, "payouts/settings")
             .MapPut(UpdatePayoutSettings, "payouts/settings")
             .MapGet(GetEligiblePayouts, "payouts/eligible")
@@ -43,6 +47,16 @@ public class AdminFinance : EndpointGroupBase
     public async Task<PaginatedList<FinanceLedgerEntryDto>> GetLedger(
         ISender sender,
         [AsParameters] GetFinanceLedgerQuery query)
+        => await sender.Send(query);
+
+    public async Task<RevenueTrendDto> GetRevenueTrend(
+        ISender sender,
+        [AsParameters] GetRevenueTrendQuery query)
+        => await sender.Send(query);
+
+    public async Task<List<TopCourseRevenueDto>> GetTopCourses(
+        ISender sender,
+        [AsParameters] GetTopCoursesByRevenueQuery query)
         => await sender.Send(query);
 
     public async Task<TaxReportDto> GetTaxReport(

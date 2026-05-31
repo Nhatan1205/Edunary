@@ -9,9 +9,10 @@ import CustomBreadcrumbs from "../../../components/breadcrumb/CustomBreadcrumbs"
 import SummaryTab from "./FinancePageTabs/SummaryTab";
 import LedgerTab from "./FinancePageTabs/LedgerTab";
 import TaxReportTab from "./FinancePageTabs/TaxReportTab";
+import RevenueTab from "./FinancePageTabs/RevenueTab";
 import { financePageContainerSx } from "./FinancePageTabs/shared";
 
-const TABS = ["Summary", "Ledger", "Tax Report"];
+const TABS = ["Summary", "Ledger", "Tax Report", "Revenue"];
 
 export default function FinancePage() {
   const [activeTab, setActiveTab] = useState(0);
@@ -38,6 +39,7 @@ export default function FinancePage() {
       {activeTab === 0 && <SummaryTab />}
       {activeTab === 1 && <LedgerTab />}
       {activeTab === 2 && <TaxReportTab />}
+      {activeTab === 3 && <RevenueTab />}
     </Box>
   );
 }

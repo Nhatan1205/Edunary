@@ -1,14 +1,12 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.Common.Security;
-using Edunary.Application.Finance.Models;
 using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Edunary.Application.InstructorWallets.Commands.ApproveWithdrawalRequest;
 
-[Authorize(Roles = Roles.Administrator)]
 public class ApproveWithdrawalRequestCommand : IRequest<Result>
 {
     public int RequestId { get; init; }
@@ -17,12 +15,14 @@ public class ApproveWithdrawalRequestCommand : IRequest<Result>
 public class ApproveWithdrawalRequestCommandHandler : IRequestHandler<ApproveWithdrawalRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ILedgerService _ledgerService;
+    private readonly IWithdrawalPayoutLedgerService _withdrawalPayoutLedgerService;
 
-    public ApproveWithdrawalRequestCommandHandler(IApplicationDbContext context, ILedgerService ledgerService)
+    public ApproveWithdrawalRequestCommandHandler(
+        IApplicationDbContext context,
+        IWithdrawalPayoutLedgerService withdrawalPayoutLedgerService)
     {
         _context = context;
-        _ledgerService = ledgerService;
+        _withdrawalPayoutLedgerService = withdrawalPayoutLedgerService;
     }
 
     public async Task<Result> Handle(ApproveWithdrawalRequestCommand request, CancellationToken cancellationToken)
@@ -59,6 +59,13 @@ public class ApproveWithdrawalRequestCommandHandler : IRequestHandler<ApproveWit
             return Result.Failure("Withdrawal request is not in processing state");
         }
 
+        var initiatedTransactionId = await _withdrawalPayoutLedgerService
+            .GetInitiatedTransactionIdAsync(request.RequestId, cancellationToken);
+        if (!initiatedTransactionId.HasValue)
+        {
+            return Result.Failure("Withdrawal initiation ledger not found");
+        }
+
         // Re-read the wallet after lock acquisition to ensure balance checks use current persisted values.
         var wallet = await _context.InstructorWallets
             .SingleAsync(w => w.Id == withdrawalRequest.InstructorWalletId, cancellationToken);
@@ -70,11 +77,6 @@ public class ApproveWithdrawalRequestCommandHandler : IRequestHandler<ApproveWit
             return Result.Failure("Insufficient wallet balance");
         }
 
-        var withholdingAmount = Math.Max(0m, withdrawalRequest.WithholdingAmount);
-        var netAmount = withdrawalRequest.NetAmount > 0m
-            ? withdrawalRequest.NetAmount
-            : Math.Max(0m, withdrawalRequest.Amount - withholdingAmount);
-
         wallet.Balance -= withdrawalRequest.Amount;
         wallet.TotalWithdrawn += withdrawalRequest.Amount;
         withdrawalRequest.Status = InstructorWalletTransactionStatus.Succeeded;
@@ -82,50 +84,10 @@ public class ApproveWithdrawalRequestCommandHandler : IRequestHandler<ApproveWit
         var instructorId = wallet.InstructorId;
         if (!string.IsNullOrWhiteSpace(instructorId))
         {
-            var desc = $"Withdrawal {withdrawalRequest.Id} (Instructor {instructorId})";
-            var entries = new List<LedgerEntryInput>
-            {
-                new LedgerEntryInput
-                {
-                    AccountCode = LedgerAccountCode.InstructorNetBalance,
-                    Side = EntrySide.Debit,
-                    Amount = withdrawalRequest.Amount,
-                    UserId = instructorId,
-                    Description = desc
-                }
-            };
-
-            if (withholdingAmount > 0)
-            {
-                entries.Add(new LedgerEntryInput
-                {
-                    AccountCode = LedgerAccountCode.IrsWithholdingLiability,
-                    Side = EntrySide.Credit,
-                    Amount = withholdingAmount,
-                    Description = desc
-                });
-            }
-
-            if (netAmount > 0)
-            {
-                entries.Add(new LedgerEntryInput
-                {
-                    AccountCode = LedgerAccountCode.CashStripe,
-                    Side = EntrySide.Credit,
-                    Amount = netAmount,
-                    Description = desc
-                });
-            }
-
-            await _ledgerService.PostAsync(new LedgerPosting
-            {
-                TransactionType = LedgerTransactionType.PayoutCompleted,
-                ReferenceType = "WithdrawalRequest",
-                ReferenceId = withdrawalRequest.Id.ToString(),
-                Currency = withdrawalRequest.Currency,
-                OccurredAt = DateTimeOffset.UtcNow,
-                Entries = entries
-            }, cancellationToken);
+            await _withdrawalPayoutLedgerService.PostCompletedAsync(
+                withdrawalRequest,
+                instructorId,
+                cancellationToken);
         }
 
         await _context.SaveChangesAsync(cancellationToken);

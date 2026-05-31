@@ -6,6 +6,7 @@ const breadcrumbConfig = {
   // Instructors
   "/instructor": "Home",
   "/instructor/courses": "Courses",
+  "/instructor/performance/report": "Report",
   // Communication
   "/instructor/communication": "Communication",
   "/instructor/communication/announcements": "Announcements",

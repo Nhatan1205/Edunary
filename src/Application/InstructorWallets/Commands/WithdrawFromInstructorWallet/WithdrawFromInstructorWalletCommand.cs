@@ -18,17 +18,20 @@ public class WithdrawFromInstructorWalletCommandHandler : IRequestHandler<Withdr
     private readonly ICurrentUserService _currentUserService;
     private readonly IIdentityService _identityService;
     private readonly ITaxCalculatorService _taxCalculatorService;
+    private readonly IWithdrawalPayoutLedgerService _withdrawalPayoutLedgerService;
 
     public WithdrawFromInstructorWalletCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
         IIdentityService identityService,
-        ITaxCalculatorService taxCalculatorService)
+        ITaxCalculatorService taxCalculatorService,
+        IWithdrawalPayoutLedgerService withdrawalPayoutLedgerService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _identityService = identityService;
         _taxCalculatorService = taxCalculatorService;
+        _withdrawalPayoutLedgerService = withdrawalPayoutLedgerService;
     }
 
     public async Task<Result> Handle(WithdrawFromInstructorWalletCommand request, CancellationToken cancellationToken)
@@ -125,6 +128,10 @@ public class WithdrawFromInstructorWalletCommandHandler : IRequestHandler<Withdr
         };
 
         _context.WithdrawalRequests.Add(withdrawalRequest);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        await _withdrawalPayoutLedgerService.PostInitiatedAsync(withdrawalRequest, instructorId, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -1,11 +1,10 @@
 import { useState, useMemo } from "react";
 import {
-  Box, Typography, Stack, Select, MenuItem, FormControl,
+  Box, Typography, Stack, MenuItem,
   Avatar, IconButton, Tooltip, Button, Checkbox, Divider,
   FormControlLabel, CircularProgress, Collapse, Menu,
 } from "@mui/material";
 import AssignmentSharpIcon from "@mui/icons-material/AssignmentSharp";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import CircleIcon from "@mui/icons-material/Circle";
 import SendIcon from "@mui/icons-material/Send";
@@ -24,31 +23,8 @@ import useToggleSubmissionRead from "../../../../hooks/assignment-submission-hoo
 import useCreateAssignmentFeedback from "../../../../hooks/assignment-submission-hooks/useCreateAssignmentFeedback";
 import useUpdateAssignmentFeedback from "../../../../hooks/assignment-submission-hooks/useUpdateAssignmentFeedback";
 import useDeleteAssignmentFeedback from "../../../../hooks/assignment-submission-hooks/useDeleteAssignmentFeedback";
+import DefaultSelect from "../../../../components/drop-down/DefaultSelect";
 import { formatTimeAgo, stripHtml } from "../../../../utils/helpers";
-
-// ─── SelectFilter ─────────────────────────────────────────────────────────────
-function SelectFilter({ value, onChange, options, minWidth = 160 }) {
-  return (
-    <FormControl size="small" sx={{ minWidth }}>
-      <Select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        sx={{
-          borderRadius: 2, bgcolor: "background.paper",
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
-          "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "brand.light" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "brand.main" },
-        }}
-      >
-        {options.map((o) => (
-          <MenuItem key={o.value} value={o.value} sx={{ fontSize: "0.875rem" }}>
-            {o.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-}
 
 // ─── ReadToggleButton ──────────────────────────────────────────────────────────
 function ReadToggleButton({ isRead, submissionId, onToggle }) {
@@ -402,9 +378,12 @@ export default function AssignmentDashboardPage() {
   const [page, setPage] = useState(1);
 
   const { data: coursesData } = useGetCoursesAuthor("", 0, 1, 100, 16); // 16
-  const courses = useMemo(() => {
+  const courseOptions = useMemo(() => {
     const items = coursesData?.items ?? [];
-    return [{ id: null, title: "All Courses" }, ...items.map((c) => ({ id: c.id, title: c.title }))];
+    return [
+      { value: "all", label: "All Courses" },
+      ...items.map((c) => ({ value: c.id, label: c.title, isOwner: c.isOwner, isCollaborator: c.isCollaborator, })),
+    ];
   }, [coursesData]);
 
   const { data, isLoading } = useGetInstructorSubmissions({
@@ -420,6 +399,10 @@ export default function AssignmentDashboardPage() {
   const totalCount = data?.totalCount ?? 0;
   const unreadCount = submissions.filter((s) => !s.isRead).length;
 
+  const selectedCourseOption = courseOptions.find((o) => o.value === (selectedCourseId ?? "all")) ?? courseOptions[0];
+  const selectedFeedbackOption = FEEDBACK_FILTER_OPTIONS.find((o) => o.value === feedbackFilter) ?? FEEDBACK_FILTER_OPTIONS[0];
+  const selectedSortOption = SORT_OPTIONS.find((o) => o.value === sortBy) ?? SORT_OPTIONS[0];
+
   return (
     <MainCard>
       {/* Header */}
@@ -432,23 +415,27 @@ export default function AssignmentDashboardPage() {
 
       {/* Toolbar */}
       <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3 }} flexWrap="wrap" gap={1}>
-        <SelectFilter
-          value={selectedCourseId ?? "all"}
-          onChange={(val) => { setSelectedCourseId(val === "all" ? null : val); setPage(1); }}
-          options={courses.map((c) => ({ value: c.id ?? "all", label: c.title }))}
-          minWidth={220}
+        <DefaultSelect
+          data={courseOptions}
+          value={[selectedCourseOption]}
+          onChange={([item]) => {
+            const val = item?.value ?? "all";
+            setSelectedCourseId(val === "all" ? null : val);
+            setPage(1);
+          }}
+          defaultLabel="All Courses"
         />
-        <SelectFilter
-          value={feedbackFilter}
-          onChange={(val) => { setFeedbackFilter(val); setPage(1); }}
-          options={FEEDBACK_FILTER_OPTIONS}
-          minWidth={180}
+        <DefaultSelect
+          data={FEEDBACK_FILTER_OPTIONS}
+          value={[selectedFeedbackOption]}
+          onChange={([item]) => { setFeedbackFilter(item?.value ?? "all"); setPage(1); }}
+          defaultLabel="All Submissions"
         />
-        <SelectFilter
-          value={sortBy}
-          onChange={(val) => { setSortBy(val); setPage(1); }}
-          options={SORT_OPTIONS}
-          minWidth={160}
+        <DefaultSelect
+          data={SORT_OPTIONS}
+          value={[selectedSortOption]}
+          onChange={([item]) => { setSortBy(item?.value ?? "newestFirst"); setPage(1); }}
+          defaultLabel="Newest first"
         />
         {/* Unread checkbox — right side */}
         <FormControlLabel

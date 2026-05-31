@@ -716,4 +716,78 @@ public static class EmailTemplates
         </body>
         </html>";
     }
+
+    public static string BuildCertificateIssuedTemplate(string studentName, string courseTitle, string certificateNumber, string certificateUrl, string logoUrl = "https://res.cloudinary.com/dyuebf69z/image/upload/v1778492480/logo_brand_o2fonq_o1hqzz.png")
+    {
+        var encodedStudent = System.Net.WebUtility.HtmlEncode(studentName);
+        var encodedCourse = System.Net.WebUtility.HtmlEncode(courseTitle);
+        var encodedCertNum = System.Net.WebUtility.HtmlEncode(certificateNumber);
+        
+        return $@"<!doctype html>
+        <html lang=""en"">
+        <head>
+          <meta charset=""utf-8"" />
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+        </head>
+        <body style=""margin:0;padding:0;background:#ffffff;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1d1f;"">
+          <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#ffffff;"">
+            <tr>
+              <td align=""center"" style=""padding:32px 20px 0;"">
+                <table role=""presentation"" width=""560"" cellpadding=""0"" cellspacing=""0"">
+
+                  <!-- Logo -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <img src=""{logoUrl}"" alt=""Edunary"" width=""32"" height=""32""
+                        style=""display:inline-block;vertical-align:middle;margin-right:6px;border:0;"" />
+                      <span style=""font-size:20px;font-weight:700;vertical-align:middle;color:#00A76F;"">Edunary</span>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:1px solid #e8e8e8;padding-bottom:24px;""></td></tr>
+
+                  <!-- Body -->
+                  <tr>
+                    <td style=""padding-bottom:24px;"">
+                      <h2 style=""margin:0 0 16px;font-size:20px;font-weight:700;color:#1c1d1f;"">Congratulations, {encodedStudent}!</h2>
+                      <p style=""margin:0 0 12px;font-size:15px;line-height:1.6;color:#1c1d1f;"">
+                        You have successfully completed the course <strong>&ldquo;{encodedCourse}&rdquo;</strong>.
+                      </p>
+                      <p style=""margin:0 0 20px;font-size:14px;color:#6a6f73;"">
+                        Your official certificate of completion is now ready. (Certificate No: {encodedCertNum})
+                      </p>
+                      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"">
+                        <tr>
+                          <td style=""border-radius:4px;background:#00A76F;"">
+                            <a href=""{certificateUrl}""
+                               style=""display:inline-block;padding:12px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:4px;"">
+                              View Certificate
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr><td style=""border-top:3px solid #e8e8e8;padding-top:20px;""></td></tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style=""padding-bottom:32px;"">
+                      <p style=""margin:0;font-size:12px;color:#6a6f73;"">
+                        You are receiving this email because you completed a course on Edunary.<br/>
+                        &copy; {DateTime.UtcNow.Year} Edunary Inc.
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>";
+    }
 }

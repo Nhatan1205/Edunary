@@ -46,6 +46,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
     public DbSet<VideoCaption> VideoCaptions => Set<VideoCaption>();
     public DbSet<CourseNote> CourseNotes => Set<CourseNote>();
+    public DbSet<CourseCertificate> CourseCertificates => Set<CourseCertificate>();
 
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
     public DbSet<InstructorWallet> InstructorWallets => Set<InstructorWallet>();

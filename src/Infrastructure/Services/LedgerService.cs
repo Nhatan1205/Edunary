@@ -58,6 +58,49 @@ public class LedgerService : ILedgerService
         return transaction;
     }
 
+    public async Task PostBulkAsync(IReadOnlyList<LedgerPosting> postings, CancellationToken ct)
+    {
+        if (postings.Count == 0) return;
+
+        foreach (var posting in postings)
+        {
+            ValidatePosting(posting);
+
+            var debitTotal = posting.Entries
+                .Where(e => e.Side == EntrySide.Debit)
+                .Sum(e => e.Amount);
+
+            var transaction = new FinancialTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionType = posting.TransactionType,
+                ReferenceType = posting.ReferenceType,
+                ReferenceId = posting.ReferenceId,
+                OccurredAt = posting.OccurredAt,
+                PostedAt = DateTimeOffset.UtcNow,
+                Currency = posting.Currency,
+                TotalAmount = debitTotal,
+                Status = LedgerTransactionStatus.Posted,
+                PostedBy = _currentUserService.UserId
+            };
+
+            transaction.Entries = posting.Entries.Select((e, index) => new FinancialEntry
+            {
+                TransactionId = transaction.Id,
+                AccountCode = e.AccountCode,
+                Side = e.Side,
+                Amount = e.Amount,
+                UserId = e.UserId,
+                Description = e.Description,
+                EntryOrder = index
+            }).ToList();
+
+            _context.FinancialTransactions.Add(transaction);
+        }
+
+        await UpsertBalancesBulkAsync(postings, ct);
+    }
+
     public async Task<FinancialTransaction> ReverseAsync(Guid transactionId, string reason, CancellationToken ct)
     {
         var original = await _context.FinancialTransactions
@@ -164,6 +207,60 @@ public class LedgerService : ILedgerService
         foreach (var entry in userEntries)
         {
             var key = (entry.UserId!, entry.AccountCode);
+
+            if (!balanceDict.TryGetValue(key, out var balance))
+            {
+                balance = new UserAccountBalance
+                {
+                    UserId = entry.UserId!,
+                    AccountCode = entry.AccountCode,
+                    Currency = posting.Currency,
+                    Balance = 0m
+                };
+                balanceDict[key] = balance;
+                _context.UserAccountBalances.Add(balance);
+            }
+
+            balance!.Balance += entry.Side == EntrySide.Credit ? entry.Amount : -entry.Amount;
+            balance.LastUpdatedAt = DateTimeOffset.UtcNow;
+        }
+    }
+
+    private async Task UpsertBalancesBulkAsync(IReadOnlyList<LedgerPosting> postings, CancellationToken ct)
+    {
+        var allUserEntries = postings
+            .SelectMany(p => p.Entries
+                .Where(e => !string.IsNullOrEmpty(e.UserId))
+                .Select(e => (Posting: p, Entry: e)))
+            .ToList();
+
+        if (allUserEntries.Count == 0) return;
+
+        var allUserIds = allUserEntries.Select(x => x.Entry.UserId!).Distinct().ToList();
+        var allAccountCodes = allUserEntries.Select(x => x.Entry.AccountCode).Distinct().ToList();
+        var allCurrencies = postings.Select(p => p.Currency).Distinct().ToList();
+
+        var existing = await _context.UserAccountBalances
+            .Where(b => allUserIds.Contains(b.UserId)
+                     && allAccountCodes.Contains(b.AccountCode)
+                     && allCurrencies.Contains(b.Currency))
+            .ToListAsync(ct);
+
+        var balanceDict = existing.ToDictionary(b => (b.UserId, b.AccountCode, b.Currency));
+
+        foreach (var local in _context.UserAccountBalances.Local)
+        {
+            if (allUserIds.Contains(local.UserId)
+                && allAccountCodes.Contains(local.AccountCode)
+                && allCurrencies.Contains(local.Currency))
+            {
+                balanceDict.TryAdd((local.UserId, local.AccountCode, local.Currency), local);
+            }
+        }
+
+        foreach (var (posting, entry) in allUserEntries)
+        {
+            var key = (entry.UserId!, entry.AccountCode, posting.Currency);
 
             if (!balanceDict.TryGetValue(key, out var balance))
             {

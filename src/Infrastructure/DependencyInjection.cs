@@ -40,6 +40,13 @@ public static class DependencyInjection
 
         });
 
+        services.AddDbContextFactory<ApplicationDbContext>((_, options) =>
+        {
+            options.UseSqlServer(connectionString);
+        }, ServiceLifetime.Scoped);
+
+        services.AddScoped<IApplicationDbContextFactory, RuntimeDbContextFactory>();
+
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 

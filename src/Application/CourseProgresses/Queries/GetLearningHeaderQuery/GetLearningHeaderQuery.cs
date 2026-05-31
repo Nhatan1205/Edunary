@@ -52,7 +52,7 @@ public class GetLearningHeaderQueryHandler : IRequestHandler<GetLearningHeaderQu
         {
             foreach (var item in section.Items)
             {
-                if (item.Type == "lecture")
+                if (item.Type == "lecture" || item.Type == "quiz")
                 {
                     totalLectures++;
                     if (item.IsCompleted)

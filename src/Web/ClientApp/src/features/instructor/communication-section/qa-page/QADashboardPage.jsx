@@ -7,9 +7,9 @@ import {
   MenuItem,
   FormControl,
   TextField,
-  InputAdornment,
   IconButton,
   useMediaQuery,
+  Chip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
@@ -49,7 +49,7 @@ export default function QADashboardPage() {
   const { data: coursesData } = useGetCoursesAuthor("", 0, 1, 100, 8); // 8 = QA permission
   const courses = useMemo(() => {
     const items = coursesData?.items ?? [];
-    return [{ id: null, title: "All courses" }, ...items.map((c) => ({ id: c.id, title: c.title }))];
+    return [{ id: null, title: "All courses" }, ...items.map((c) => ({ id: c.id, title: c.title, isOwner: c.isOwner, isCollaborator: c.isCollaborator, }))];
   }, [coursesData]);
 
   // Fetch questions from API
@@ -130,8 +130,15 @@ export default function QADashboardPage() {
             }}
           >
             {courses.map((c) => (
-              <MenuItem key={c.id ?? "all"} value={c.id ?? "all"} sx={{ fontSize: "0.875rem" }}>
-                {c.title}
+              <MenuItem key={c.id ?? "all"} value={c.id ?? "all"} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+                {c.title}{
+                  (c.isOwner || c.isCollaborator) && (
+                    <Stack direction="row" spacing={0.75} sx={{ flexShrink: 0 }}>
+                      {c.isOwner && <Chip label="Owner" size="small" sx={{ height: 22, fontSize: "0.7rem" }} />}
+                      {c.isCollaborator && <Chip label="Collaborator" size="small" color="secondary" sx={{ height: 22, fontSize: "0.7rem" }} />}
+                    </Stack>
+                  )
+                }
               </MenuItem>
             ))}
           </Select>

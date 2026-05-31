@@ -28,6 +28,7 @@ import CourseCurriculum from "./features/instructor/courses-management/course-ma
 import CourseCaptions from "./features/instructor/courses-management/course-manage-page/pages/CourseCaptions";
 import CourseAccessiblity from "./features/instructor/courses-management/course-manage-page/pages/CourseAccessiblity";
 import CourseFeedbackPage from "./features/instructor/courses-management/course-manage-page/pages/course-feedback-page/CourseFeedbackPage";
+import InstructorQualityReportPage from "./features/instructor/courses-management/course-manage-page/pages/InstructorQualityReportPage";
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
 import MyLearning from "./features/user/my-learning/MyLearning";
@@ -564,6 +565,10 @@ const router = createBrowserRouter([
       {
         path: "feedback",
         element: <CourseFeedbackPage />,
+      },
+      {
+        path: "quality-check",
+        element: <InstructorQualityReportPage />,
       },
     ],
   },

@@ -24,6 +24,7 @@ public class GetQualityReportDetailQueryHandler : IRequestHandler<GetQualityRepo
     {
         var report = await _context.QualityCheckReports
             .Include(r => r.Issues)
+            .Where(r => r.RequestedByRole == "Admin")
             .ProjectTo<QualityReportDetailDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(r => r.Id == request.ReportId, cancellationToken);
 
@@ -31,7 +32,7 @@ public class GetQualityReportDetailQueryHandler : IRequestHandler<GetQualityRepo
 
         // Check if this is the latest report for the course
         var isLatest = !await _context.QualityCheckReports
-            .AnyAsync(r => r.CourseId == report.CourseId && r.Created > report.Created, cancellationToken);
+            .AnyAsync(r => r.CourseId == report.CourseId && r.RequestedByRole == "Admin" && r.Created > report.Created, cancellationToken);
 
         report.IsLatest = isLatest;
 

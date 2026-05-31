@@ -14,6 +14,8 @@ public class QualityCheckReport : BaseAuditableEntity
 
     public bool IsDiff { get; set; }
 
+    public string RequestedByRole { get; set; } = "Admin";
+
     // Navigation properties
     public Course Course { get; set; } = null!;
 

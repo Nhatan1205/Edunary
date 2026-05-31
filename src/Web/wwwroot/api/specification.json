@@ -3844,6 +3844,119 @@
         ]
       }
     },
+    "/api/CourseReviews/instructor/quality-check": {
+      "post": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "RunInstructorQualityCheck",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunInstructorQualityCheckCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnResultOfRunQualityCheckResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/instructor/{courseId}/quality-reports": {
+      "get": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "GetInstructorQualityReports",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstructorQualityReportSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CourseReviews/instructor/quality-reports/{reportId}": {
+      "get": {
+        "tags": [
+          "CourseReviews"
+        ],
+        "operationId": "GetInstructorQualityReportDetail",
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstructorQualityReportDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/CourseReviews/admin/pending": {
       "get": {
         "tags": [
@@ -12839,6 +12952,181 @@
           }
         }
       },
+      "ReturnResultOfRunQualityCheckResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RunQualityCheckResultDto"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RunQualityCheckResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reportId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RunInstructorQualityCheckCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "InstructorQualityReportSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/QualityCheckStatus"
+          },
+          "totalIssues": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "isLatest": {
+            "type": "boolean"
+          },
+          "nextRunAvailableAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "QualityCheckStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Processing",
+          "Completed",
+          "Failed"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "InstructorQualityReportDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/QualityCheckStatus"
+          },
+          "analysisSummary": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalIssues": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLatest": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "issues": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/InstructorQualityIssueDto"
+            }
+          }
+        }
+      },
+      "InstructorQualityIssueDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reportId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/QualityIssueSeverity"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "suggestion": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "QualityIssueSeverity": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Critical",
+          "Warning",
+          "Suggestion"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
       "PaginatedListOfCourseReviewSubmissionDto": {
         "type": "object",
         "additionalProperties": false,
@@ -13812,34 +14100,6 @@
           }
         }
       },
-      "ReturnResultOfRunQualityCheckResultDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "result": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/RunQualityCheckResultDto"
-              }
-            ]
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "RunQualityCheckResultDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "reportId": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
       "RunQualityCheckCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -13907,20 +14167,6 @@
             "type": "boolean"
           }
         }
-      },
-      "QualityCheckStatus": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Processing",
-          "Completed",
-          "Failed"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
       },
       "QualityReportDetailDto": {
         "type": "object",
@@ -14037,20 +14283,6 @@
             "nullable": true
           }
         }
-      },
-      "QualityIssueSeverity": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Critical",
-          "Warning",
-          "Suggestion"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
       },
       "QualityIssueStatus": {
         "type": "integer",

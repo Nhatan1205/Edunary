@@ -18,6 +18,9 @@ using Edunary.Application.CourseReviews.Queries.GetCourseChangesComparisonQuery;
 using Edunary.Application.CourseReviews.Queries.GetQualityReportsQuery;
 using Edunary.Application.CourseReviews.Queries.GetQualityReportDetailQuery;
 using Edunary.Application.CourseReviews.Services;
+using Edunary.Application.CourseReviews.Commands.RunInstructorQualityCheckCommand;
+using Edunary.Application.CourseReviews.Queries.GetInstructorQualityReports;
+using Edunary.Application.CourseReviews.Queries.GetInstructorQualityReportDetail;
 using Edunary.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +34,10 @@ public class CourseReviews : EndpointGroupBase
             .RequireAuthorization()
             .MapPost(SubmitCourseForReview, "submit")
             .MapGet(GetCourseReviewStatus, "status/{courseId:int}")
-            .MapPut(ResolveReviewFeedback, "feedback/{feedbackId:int}/resolve");
+            .MapPut(ResolveReviewFeedback, "feedback/{feedbackId:int}/resolve")
+            .MapPost(RunInstructorQualityCheck, "instructor/quality-check")
+            .MapGet(GetInstructorQualityReports, "instructor/{courseId:int}/quality-reports")
+            .MapGet(GetInstructorQualityReportDetail, "instructor/quality-reports/{reportId:int}");
 
         app.MapGroup(this)
             .RequireAuthorization(Policies.Admin)
@@ -162,6 +168,21 @@ public class CourseReviews : EndpointGroupBase
     {
         var result = await sender.Send(command);
         return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
+    }
+
+    public async Task<ReturnResult<RunQualityCheckResultDto>> RunInstructorQualityCheck(ISender sender, [FromBody] RunInstructorQualityCheckCommand command)
+    {
+        return await sender.Send(command);
+    }
+
+    public async Task<List<InstructorQualityReportSummaryDto>> GetInstructorQualityReports(ISender sender, int courseId)
+    {
+        return await sender.Send(new GetInstructorQualityReportsQuery { CourseId = courseId });
+    }
+
+    public async Task<InstructorQualityReportDetailDto> GetInstructorQualityReportDetail(ISender sender, int reportId)
+    {
+        return await sender.Send(new GetInstructorQualityReportDetailQuery { ReportId = reportId });
     }
 }
 

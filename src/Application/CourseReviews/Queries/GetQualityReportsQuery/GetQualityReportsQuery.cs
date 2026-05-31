@@ -23,7 +23,7 @@ public class GetQualityReportsQueryHandler : IRequestHandler<GetQualityReportsQu
     public async Task<List<QualityReportSummaryDto>> Handle(GetQualityReportsQuery request, CancellationToken cancellationToken)
     {
         var reports = await _context.QualityCheckReports
-            .Where(r => r.CourseId == request.CourseId)
+            .Where(r => r.CourseId == request.CourseId && r.RequestedByRole == "Admin")
             .OrderByDescending(r => r.Created)
             .Select(r => new QualityReportSummaryDto
             {

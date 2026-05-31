@@ -183,10 +183,10 @@ export default function QualityReportPage() {
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(`/admin/course/${courseId}/changes`)}
+          onClick={() => navigate(-1)}
           sx={{ textTransform: "none", color: "text.secondary", mb: 3 }}
         >
-          Back to Course Changes
+          Go Back
         </Button>
         <Alert severity="error" sx={{ borderRadius: "12px" }}>
           {error?.message || "Failed to load quality report. Please check if the report exists and is compiled."}
@@ -202,7 +202,7 @@ export default function QualityReportPage() {
         <Box>
           <Button
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(`/admin/course/${courseId}/changes`)}
+            onClick={() => navigate(-1)}
             size="small"
             sx={{
               textTransform: "none",
@@ -213,7 +213,7 @@ export default function QualityReportPage() {
               "&:hover": { bgcolor: "transparent", color: "text.primary" }
             }}
           >
-            Back to Course Changes
+            Go Back
           </Button>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -259,10 +259,10 @@ export default function QualityReportPage() {
                     borderColor: "divider",
                     color: "text.primary",
                     py: 1,
-                    "&:hover": { borderColor: "brand.main", color: "brand.main", bgcolor: "brand.lighter" }
+                    "&:hover": { borderColor: "brand.main", color: "brand.main", }
                   }}
                 >
-                  {runDiffMutation.isPending ? "Starting..." : "Run AI check on changes"}
+                  Run AI check
                 </Button>
               ) : (
                 <Button
@@ -277,10 +277,10 @@ export default function QualityReportPage() {
                     borderColor: "divider",
                     color: "text.primary",
                     py: 1,
-                    "&:hover": { borderColor: "brand.main", color: "brand.main", bgcolor: "brand.lighter" }
+                    "&:hover": { borderColor: "brand.main", color: "brand.main", }
                   }}
                 >
-                  {runMutation.isPending ? "Starting..." : "Run AI Full Check"}
+                  Run AI Check
                 </Button>
               )}
             </>
@@ -388,10 +388,10 @@ export default function QualityReportPage() {
                     px: 4,
                     py: 1.25,
                     boxShadow: "none",
-                    "&:hover": { bgcolor: "brand.dark", boxShadow: "none" }
+                    "&:hover": { boxShadow: "none" }
                   }}
                 >
-                  {runMutation.isPending ? "Starting Audit..." : "Run AI Full Check"}
+                  Run AI Check
                 </Button>
               )}
             </Box>

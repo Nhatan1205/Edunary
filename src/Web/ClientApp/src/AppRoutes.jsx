@@ -130,6 +130,10 @@ const router = createBrowserRouter([
             path: ":courseId/changes",
             element: <CourseChangesPage />,
           },
+          {
+            path: ":id/report/:reportId?",
+            element: <QualityReportPage />,
+          },
         ]
       },
       {
@@ -207,10 +211,6 @@ const router = createBrowserRouter([
       {
         path: "course/approvals/:submissionId",
         element: <CourseApprovalDetailPage />,
-      },
-      {
-        path: "course/approvals/:submissionId/report/:reportId?",
-        element: <QualityReportPage />,
       },
     ],
   },

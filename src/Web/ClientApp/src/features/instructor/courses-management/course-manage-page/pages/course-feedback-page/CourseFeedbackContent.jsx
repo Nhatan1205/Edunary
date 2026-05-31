@@ -25,6 +25,7 @@ const CATEGORY_LABELS = {
   9: "Policy",
   10: "Pricing",
   11: "Other",
+  99: "Other",
 };
 
 // ── FeedbackCard ─────────────────────────────────────────────────────────────

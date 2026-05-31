@@ -13972,6 +13972,12 @@
           "isLatest": {
             "type": "boolean"
           },
+          "isDiff": {
+            "type": "boolean"
+          },
+          "isCoursePublic": {
+            "type": "boolean"
+          },
           "created": {
             "type": "string",
             "format": "date-time"

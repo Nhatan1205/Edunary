@@ -17,6 +17,8 @@ public class QualityReportDetailDto
     public int WarningCount { get; set; }
     public int SuggestionCount { get; set; }
     public bool IsLatest { get; set; }
+    public bool IsDiff { get; set; }
+    public bool IsCoursePublic { get; set; }
     public DateTimeOffset Created { get; set; }
     public string CreatedBy { get; set; }
     public List<QualityIssueDto> Issues { get; set; }
@@ -26,6 +28,7 @@ public class QualityReportDetailDto
         public Mapping()
         {
             CreateMap<QualityCheckReport, QualityReportDetailDto>()
+                .ForMember(d => d.IsCoursePublic, opt => opt.MapFrom(s => s.Course.Status == CourseStatus.Public || s.Course.Status == CourseStatus.Private))
                 .ForMember(d => d.CategoryScores, opt => opt.MapFrom(s => CalculateScores(s.Issues)))
                 .ForMember(d => d.TotalIssues, opt => opt.MapFrom(s => s.Issues.Count))
                 .ForMember(d => d.CriticalCount, opt => opt.MapFrom(s => s.Issues.Count(i => i.Severity == QualityIssueSeverity.Critical)))

@@ -17,17 +17,18 @@ export default function IssueFilters({
 
   const categories = [
     { value: "all", label: "All Categories" },
-    { value: "0", label: "Course Title & Subtitle" },
-    { value: "1", label: "Course Description" },
-    { value: "2", label: "Course Image" },
-    { value: "3", label: "Video Quality" },
-    { value: "4", label: "Audio Quality" },
-    { value: "5", label: "Course Content" },
-    { value: "6", label: "Intended Learners" },
-    { value: "7", label: "Pricing" },
+    { value: "0", label: "Course Content" },
+    { value: "1", label: "Video Quality" },
+    { value: "2", label: "Audio Quality" },
+    { value: "3", label: "Course Landing Page" },
+    { value: "4", label: "Course Image" },
+    { value: "5", label: "Course Title / Subtitle" },
+    { value: "6", label: "Course Description" },
+    { value: "7", label: "Intended Learners" },
     { value: "8", label: "Instructor Profile" },
     { value: "9", label: "Policy" },
-    { value: "10", label: "Other" }
+    { value: "10", label: "Pricing" },
+    { value: "99", label: "Other" }
   ];
 
   const severities = [

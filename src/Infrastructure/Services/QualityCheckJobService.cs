@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.IO;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.CourseReviews.Services;
 using Edunary.Application.CourseReviews.Queries.GetCourseChangesComparisonQuery;
@@ -261,6 +262,8 @@ public class QualityCheckJobService : IQualityCheckJobService
                 }
             };
 
+            //File.WriteAllText("payload_full.json", JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
+
             var url = $"{aiConfig.AICenterBaseUrl}api/quality-check/analyze";
             var (isSuccess, body) = await _aiCenterClient.PostAsync(
                 url, aiConfig.AICenterApiKey, JsonSerializer.Serialize(payload));
@@ -435,8 +438,8 @@ public class QualityCheckJobService : IQualityCheckJobService
 
             await SendProgress(userId, 40, "Checking structure and pre-flight rules...", reportId);
             
-            // 2. Freshly run pre-flight checks on the whole course
-            var preFlightIssues = await RunPreFlightChecksAsync(course);
+            // 2. Run pre-flight checks only on changed fields and items
+            var preFlightIssues = await RunPreFlightChecksDiffAsync(course, changedFields, changedItemIds);
 
             await SendProgress(userId, 55, "Extracting updated content batches...", reportId);
 
@@ -631,6 +634,8 @@ public class QualityCheckJobService : IQualityCheckJobService
                 }
             };
 
+            //File.WriteAllText("payload_diff.json", JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
+
             await SendProgress(userId, 75, "Requesting AI Quality analysis on changes...", reportId);
 
             var url = $"{aiConfig.AICenterBaseUrl}api/quality-check/analyze-diff";
@@ -710,6 +715,239 @@ public class QualityCheckJobService : IQualityCheckJobService
     {
         var match = diff.CurriculumComparison.FirstOrDefault(s => s.SectionId == sectionId);
         return match != null && match.Status == "added";
+    }
+
+    private async Task<List<QualityCheckIssue>> RunPreFlightChecksDiffAsync(Course course, List<string> changedFields, HashSet<string> changedItemIds)
+    {
+        var issues = new List<QualityCheckIssue>();
+
+        var changedSet = new HashSet<string>(changedFields.Select(f => f.ToLowerInvariant()));
+
+        // LP-08 — Missing cover image
+        if ((changedSet.Contains("imageurl") || changedSet.Contains("course image") || changedSet.Contains("image")) && string.IsNullOrWhiteSpace(course.ImageUrl))
+        {
+            issues.Add(new QualityCheckIssue
+            {
+                Category = ReviewFeedbackCategory.CourseImage,
+                Severity = QualityIssueSeverity.Warning,
+                AdminAction = QualityIssueStatus.Pending,
+                RuleId = "LP-08",
+                Location = "Course Cover Image",
+                Description = "Course cover image is missing.",
+                Evidence = "",
+                Suggestion = "Upload a high-quality cover image to make the course visually appealing on the marketplace."
+            });
+        }
+
+        // LP-06 — Requirements missing
+        if (changedSet.Contains("requirements"))
+        {
+            var reqList = DeserializeList(course.Requirements);
+            if (reqList.Count == 0)
+            {
+                issues.Add(new QualityCheckIssue
+                {
+                    Category = ReviewFeedbackCategory.IntendedLearners,
+                    Severity = QualityIssueSeverity.Warning,
+                    AdminAction = QualityIssueStatus.Pending,
+                    RuleId = "LP-06",
+                    Location = "Course Requirements",
+                    Description = "Course requirements list is empty. Students need to know what prerequisites are expected.",
+                    Evidence = "",
+                    Suggestion = "List all prerequisites or requirements students should meet before enrolling in this course.",
+                });
+            }
+        }
+
+        // LP-09 — Target audience missing
+        if (changedSet.Contains("targetaudience") || changedSet.Contains("target_audience") || changedSet.Contains("target audience"))
+        {
+            var audList = DeserializeList(course.TargetAudience);
+            if (audList.Count == 0)
+            {
+                issues.Add(new QualityCheckIssue
+                {
+                    Category = ReviewFeedbackCategory.IntendedLearners,
+                    Severity = QualityIssueSeverity.Warning,
+                    AdminAction = QualityIssueStatus.Pending,
+                    RuleId = "LP-09",
+                    Location = "Target Audience",
+                    Description = "Target audience list is empty. Students cannot determine whether this course suits them.",
+                    Evidence = "",
+                    Suggestion = "Describe who this course is designed for so students can make an informed enrollment decision.",
+                });
+            }
+        }
+
+        // Parse curriculum structure
+        var parsedContent = ParseCurriculum(course.Content);
+        
+        // CU-01 - Curriculum Structure thin check
+        if (changedSet.Contains("content") || changedSet.Contains("curriculum"))
+        {
+            var sectionsCount = parsedContent?.Count ?? 0;
+            var totalLectures = parsedContent?.Sum(s => s.Items?.Count(i => i.GetResolvedType() == "article" || i.GetResolvedType() == "video") ?? 0) ?? 0;
+
+            if (sectionsCount < 2 || totalLectures < 5)
+            {
+                issues.Add(new QualityCheckIssue
+                {
+                    Category = ReviewFeedbackCategory.CourseContent,
+                    Severity = QualityIssueSeverity.Warning,
+                    AdminAction = QualityIssueStatus.Pending,
+                    RuleId = "CU-01",
+                    Location = "Curriculum Structure",
+                    Description = $"Course curriculum is too thin: {sectionsCount} section(s) and {totalLectures} lecture(s). Minimum required is 2 sections and 5 lectures.",
+                    Evidence = $"Sections: {sectionsCount}, Lectures: {totalLectures}",
+                    Suggestion = "Expand the curriculum with additional sections and instructional lectures.",
+                });
+            }
+        }
+
+        // Lecture content size and captions
+        if (parsedContent != null)
+        {
+            foreach (var section in parsedContent)
+            {
+                if (section.Items != null)
+                {
+                    foreach (var item in section.Items)
+                    {
+                        if (!changedItemIds.Contains(item.ItemId))
+                        {
+                            continue;
+                        }
+
+                        var itemType = item.GetResolvedType();
+                        if (itemType == "article")
+                        {
+                            var plainText = StripHtml(item.Content ?? "");
+                            var words = string.IsNullOrWhiteSpace(plainText) ? 0 : Regex.Split(plainText.Trim(), @"\s+").Length;
+                            if (words < 200)
+                            {
+                                issues.Add(new QualityCheckIssue
+                                {
+                                    Category = ReviewFeedbackCategory.CourseContent,
+                                    Severity = QualityIssueSeverity.Warning,
+                                    AdminAction = QualityIssueStatus.Pending,
+                                    RuleId = "CU-02",
+                                    Location = $"Section: '{section.Title}' > Lecture: '{item.Title}'",
+                                    Description = $"Article lecture is too short ({words} words). Minimum recommended length is 200 words.",
+                                    Evidence = $"Lecture: '{item.Title}'",
+                                    Suggestion = "Provide more comprehensive study material and context for this lecture.",
+                                });
+                            }
+                        }
+                        else if (itemType == "video" && item.VideoId > 0)
+                        {
+                            var mediaFile = await _context.MediaFiles
+                                .Include(m => m.VideoCaptions)
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(m => m.Id == item.VideoId);
+
+                            var hasCaption = mediaFile?.VideoCaptions != null &&
+                                             mediaFile.VideoCaptions.Any(c => c.Status == CaptionStatus.COMPLETED);
+
+                            if (!hasCaption)
+                            {
+                                issues.Add(new QualityCheckIssue
+                                {
+                                    Category = ReviewFeedbackCategory.VideoQuality,
+                                    Severity = QualityIssueSeverity.Warning,
+                                    AdminAction = QualityIssueStatus.Pending,
+                                    RuleId = "CU-03",
+                                    Location = $"Section: '{section.Title}' > Lecture: '{item.Title}'",
+                                    Description = "Video lecture is missing a completed subtitle or caption file, reducing accessibility.",
+                                    Evidence = $"Video ID: {item.VideoId}",
+                                    Suggestion = "Generate captions using the AI subtitling feature or manually upload a caption file.",
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Quizzes
+        var quizzes = await _context.Quizzes
+            .Include(q => q.Questions)
+            .ThenInclude(q => q.Choices)
+            .Where(q => q.CourseId == course.Id)
+            .AsNoTracking()
+            .ToListAsync();
+
+        foreach (var quiz in quizzes)
+        {
+            if (string.IsNullOrEmpty(quiz.ItemId) || !changedItemIds.Contains(quiz.ItemId))
+            {
+                continue;
+            }
+
+            if (quiz.Questions.Count < 3)
+            {
+                issues.Add(new QualityCheckIssue
+                {
+                    Category = ReviewFeedbackCategory.CourseContent,
+                    Severity = QualityIssueSeverity.Warning,
+                    AdminAction = QualityIssueStatus.Pending,
+                    RuleId = "CU-04",
+                    Location = $"Quiz: '{quiz.Title}'",
+                    Description = $"Quiz contains only {quiz.Questions.Count} question(s). A minimum of 3 questions is required for effective assessment.",
+                    Evidence = $"Quiz: '{quiz.Title}'",
+                    Suggestion = "Add more questions to provide a thorough assessment of student knowledge.",
+                });
+            }
+
+            foreach (var question in quiz.Questions)
+            {
+                var hasCorrectChoice = question.Choices.Any(c => c.IsCorrect);
+                if (!hasCorrectChoice)
+                {
+                    issues.Add(new QualityCheckIssue
+                    {
+                        Category = ReviewFeedbackCategory.CourseContent,
+                        Severity = QualityIssueSeverity.Critical,
+                        AdminAction = QualityIssueStatus.Pending,
+                        RuleId = "CU-05",
+                        Location = $"Quiz: '{quiz.Title}' > Question: '{question.Name}'",
+                        Description = "This quiz question has no correct answer marked. Students cannot be assessed accurately.",
+                        Evidence = $"Question: '{question.Name}'",
+                        Suggestion = "Mark at least one choice as the correct answer for this question.",
+                    });
+                }
+            }
+        }
+
+        // Assignments
+        var assignments = await _context.Assignments
+            .Where(a => a.CourseId == course.Id)
+            .AsNoTracking()
+            .ToListAsync();
+
+        foreach (var assign in assignments)
+        {
+            if (string.IsNullOrEmpty(assign.ItemId) || !changedItemIds.Contains(assign.ItemId))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(assign.Instructions))
+            {
+                issues.Add(new QualityCheckIssue
+                {
+                    Category = ReviewFeedbackCategory.CourseContent,
+                    Severity = QualityIssueSeverity.Warning,
+                    AdminAction = QualityIssueStatus.Pending,
+                    RuleId = "CU-06",
+                    Location = $"Assignment: '{assign.Title}'",
+                    Description = "Assignment is missing student instructions. Learners will not know how to complete the task.",
+                    Evidence = $"Assignment: '{assign.Title}'",
+                    Suggestion = "Add clear, detailed instructions that explain exactly what students are expected to do.",
+                });
+            }
+        }
+
+        return issues;
     }
 
     private async Task<List<QualityCheckIssue>> RunPreFlightChecksAsync(Course course)

@@ -6,17 +6,18 @@ import WarningIcon from "@mui/icons-material/Warning";
 import ErrorIcon from "@mui/icons-material/Error";
 
 export const CATEGORY_LABELS = {
-  0: "Course Title & Subtitle",
-  1: "Course Description",
-  2: "Course Cover Image",
-  3: "Video Quality",
-  4: "Audio Quality",
-  5: "Course Content",
-  6: "Intended Learners",
-  7: "Pricing",
+  0: "Course Content",
+  1: "Video Quality",
+  2: "Audio Quality",
+  3: "Course Landing Page",
+  4: "Course Image",
+  5: "Course Title / Subtitle",
+  6: "Course Description",
+  7: "Intended Learners",
   8: "Instructor Profile",
   9: "Policy",
-  10: "Other"
+  10: "Pricing",
+  99: "Other"
 };
 
 export default function IssueCard({

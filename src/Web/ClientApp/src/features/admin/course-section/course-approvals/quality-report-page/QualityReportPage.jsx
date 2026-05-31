@@ -1,62 +1,47 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Box, Typography, Button, Container, Card, CircularProgress, Alert, LinearProgress } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import FeedbackOutlinedIcon from "@mui/icons-material/FeedbackOutlined";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 
 // Hooks for Quality report
 import useGetQualityReportDetail from "../../../../../hooks/course-review-hooks/useGetQualityReportDetail";
 import useGetQualityReports from "../../../../../hooks/course-review-hooks/useGetQualityReports";
 import useRunQualityCheck from "../../../../../hooks/course-review-hooks/useRunQualityCheck";
+import useRunQualityCheckDiff from "../../../../../hooks/course-review-hooks/useRunQualityCheckDiff";
 import useAcceptQualityIssue from "../../../../../hooks/course-review-hooks/useAcceptQualityIssue";
 import useDismissQualityIssue from "../../../../../hooks/course-review-hooks/useDismissQualityIssue";
 import useQualityCheckProgress from "../../../../../hooks/course-review-hooks/useQualityCheckProgress";
-
-// Hooks for Course Review (copied from CourseApprovalDetailPage)
-import useGetCoursePreviewForAdmin from "../../../../../hooks/course-review-hooks/useGetCoursePreviewForAdmin";
-import useGetCourseReviewStatus from "../../../../../hooks/course-review-hooks/useGetCourseReviewStatus";
-import useSaveReviewFeedback from "../../../../../hooks/course-review-hooks/useSaveReviewFeedback";
-import useDeleteReviewFeedback from "../../../../../hooks/course-review-hooks/useDeleteReviewFeedback";
-import useUpdateReviewFeedback from "../../../../../hooks/course-review-hooks/useUpdateReviewFeedback";
-import useRequestChanges from "../../../../../hooks/course-review-hooks/useRequestChanges";
-import useApproveCourse from "../../../../../hooks/course-review-hooks/useApproveCourse";
 
 // Components
 import ScoreOverview from "./components/ScoreOverview";
 import IssueFilters from "./components/IssueFilters";
 import IssueCard from "./components/IssueCard";
 import ReportHistory from "./components/ReportHistory";
-import FeedbackDrawer from "../course-approval-detail-page/components/FeedbackDrawer";
-import ConfirmDialog from "../../../../../components/ConfirmDialogPopup/ConfirmDialog";
 import NoData from "../../../../../components/NoData";
 
 // Assets
 import emptyAuditImg from "../../../../../assets/images/empty-audit.png";
 
 export default function QualityReportPage() {
-  const { submissionId, reportId } = useParams();
+  const { id, reportId } = useParams();
+  const courseId = parseInt(id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const isNoneReport = reportId === "none" || !reportId;
 
-  const { data: previewData, isLoading: isPreviewLoading } = useGetCoursePreviewForAdmin(submissionId);
-  const feedbacks = previewData?.currentFeedbacks ?? [];
-  const submissionInfo = previewData?.submissionInfo;
-  const course = previewData?.course ?? {};
-  const courseId = course?.id;
-
-  const { data: reviewStatusData } = useGetCourseReviewStatus(courseId);
-  const submissionHistory = reviewStatusData?.submissionHistory ?? [];
   const { data: report, isLoading: isReportLoading, isError, error } = useGetQualityReportDetail(
     isNoneReport ? null : reportId
   );
   const { data: reportsHistory, refetch: refetchReports } = useGetQualityReports(courseId);
   const runMutation = useRunQualityCheck();
+  const runDiffMutation = useRunQualityCheckDiff();
   const acceptMutation = useAcceptQualityIssue(reportId);
   const dismissMutation = useDismissQualityIssue(reportId);
+
+  const isApproved = report?.isCoursePublic ?? false;
 
   // Checking & SignalR State
   const [isChecking, setIsChecking] = useState(false);
@@ -67,10 +52,10 @@ export default function QualityReportPage() {
     if (isNoneReport && reportsHistory && reportsHistory.length > 0) {
       const sorted = [...reportsHistory].sort((a, b) => b.id - a.id);
       if (sorted.length > 0) {
-        navigate(`/admin/course/approvals/${submissionId}/report/${sorted[0].id}`, { replace: true });
+        navigate(`/admin/course/${courseId}/report/${sorted[0].id}`, { replace: true });
       }
     }
-  }, [isNoneReport, reportsHistory, submissionId, navigate]);
+  }, [isNoneReport, reportsHistory, courseId, navigate]);
 
   // Monitor SignalR updates
   useEffect(() => {
@@ -80,25 +65,14 @@ export default function QualityReportPage() {
         refetchReports().then(({ data }) => {
           const sorted = data ? [...data].sort((a, b) => b.id - a.id) : [];
           const nextId = progress.reportId || (sorted.length > 0 ? sorted[0].id : "none");
-          navigate(`/admin/course/approvals/${submissionId}/report/${nextId}`);
+          navigate(`/admin/course/${courseId}/report/${nextId}`);
         });
       }, 1500);
       return () => clearTimeout(timer);
     } else if (progress.percent === -1) {
       setIsChecking(false);
     }
-  }, [progress.percent, progress.reportId, submissionId, refetchReports, navigate]);
-
-  // Mutations for course review feedback
-  const saveFeedbackMutation = useSaveReviewFeedback(submissionId);
-  const deleteFeedbackMutation = useDeleteReviewFeedback(submissionId);
-  const updateFeedbackMutation = useUpdateReviewFeedback(submissionId);
-  const requestChangesMutation = useRequestChanges(submissionId);
-  const approveMutation = useApproveCourse(submissionId);
-
-  // Drawer / Dialog states
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+  }, [progress.percent, progress.reportId, courseId, refetchReports, navigate]);
 
   // Filter State
   const [filters, setFilters] = useState({
@@ -107,9 +81,6 @@ export default function QualityReportPage() {
     severity: "all",
     status: "all"
   });
-
-  // Calculate unresolved required fixes
-  const requiredUnresolved = feedbacks.filter((f) => f.feedbackType === 0).length;
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -157,8 +128,7 @@ export default function QualityReportPage() {
   const handleAccept = (issueId) => {
     acceptMutation.mutate({ issueId }, {
       onSuccess: () => {
-        queryClient.invalidateQueries(["admin-course-preview", submissionId]);
-        setDrawerOpen(true);
+        queryClient.invalidateQueries(["quality-report-detail", reportId]);
       }
     });
   };
@@ -168,7 +138,7 @@ export default function QualityReportPage() {
   };
 
   const handleSelectReport = (selectedId) => {
-    navigate(`/admin/course/approvals/${submissionId}/report/${selectedId}`);
+    navigate(`/admin/course/${courseId}/report/${selectedId}`);
   };
 
   const handleRunCheck = () => {
@@ -184,17 +154,20 @@ export default function QualityReportPage() {
     });
   };
 
-  const handleApprove = useCallback(() => {
-    if (!submissionInfo?.submissionId) return;
-    approveMutation.mutate(submissionInfo.submissionId, {
+  const handleRunDiffCheck = () => {
+    if (!courseId) return;
+    setIsChecking(true);
+    runDiffMutation.mutate(courseId, {
       onSuccess: () => {
-        setApproveDialogOpen(false);
-        navigate("/admin/course/approvals");
+        refetchReports();
       },
+      onError: () => {
+        setIsChecking(false);
+      }
     });
-  }, [approveMutation, submissionInfo, navigate]);
+  };
 
-  if ((isReportLoading && !isNoneReport) || isPreviewLoading) {
+  if (isReportLoading && !isNoneReport) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: 400, gap: 2 }}>
         <CircularProgress size={50} sx={{ color: "brand.main" }} />
@@ -210,10 +183,10 @@ export default function QualityReportPage() {
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(submissionId ? `/admin/course/approvals/${submissionId}` : "/admin/course/approvals")}
+          onClick={() => navigate(`/admin/course/${courseId}/changes`)}
           sx={{ textTransform: "none", color: "text.secondary", mb: 3 }}
         >
-          Back to Submission details
+          Back to Course Changes
         </Button>
         <Alert severity="error" sx={{ borderRadius: "12px" }}>
           {error?.message || "Failed to load quality report. Please check if the report exists and is compiled."}
@@ -229,7 +202,7 @@ export default function QualityReportPage() {
         <Box>
           <Button
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(submissionId ? `/admin/course/approvals/${submissionId}` : "/admin/course/approvals")}
+            onClick={() => navigate(`/admin/course/${courseId}/changes`)}
             size="small"
             sx={{
               textTransform: "none",
@@ -240,12 +213,30 @@ export default function QualityReportPage() {
               "&:hover": { bgcolor: "transparent", color: "text.primary" }
             }}
           >
-            Back to Review Submission
+            Back to Course Changes
           </Button>
 
-          <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary" }}>
-            AI Quality Report
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary" }}>
+              AI Quality Report
+            </Typography>
+            {report?.isDiff && (
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: "20px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  bgcolor: "rgba(33, 150, 243, 0.1)",
+                  color: "#2196f3",
+                  border: "1px solid #2196f3"
+                }}
+              >
+                Changes Only
+              </Box>
+            )}
+          </Box>
           <Typography variant="body2" sx={{ color: "text.tertiary", mt: 0.5, fontWeight: 500 }}>
             Detailed AI content audit report of course submissions for review and improvement feedback.
           </Typography>
@@ -254,52 +245,45 @@ export default function QualityReportPage() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
           {/* Re-run button shown only when a report is already loaded */}
           {!isNoneReport && !isChecking && (
-            <Button
-              variant="outlined"
-              onClick={handleRunCheck}
-              disabled={runMutation.isPending}
-              startIcon={<AssessmentOutlinedIcon />}
-              sx={{
-                textTransform: "none",
-                fontWeight: 700,
-                borderRadius: "10px",
-                borderColor: "divider",
-                color: "text.primary",
-                py: 1,
-                "&:hover": { borderColor: "brand.main", color: "brand.main", bgcolor: "brand.lighter" }
-              }}
-            >
-              {runMutation.isPending ? "Starting..." : "Run AI quality"}
-            </Button>
-          )}
-
-          {/* Feedback & Actions Drawer Trigger */}
-          {submissionId && (
-            <Button variant="contained" id="open-feedback-drawer-btn"
-              startIcon={<FeedbackOutlinedIcon />}
-              onClick={() => setDrawerOpen(true)}
-              sx={{
-                textTransform: "none", fontWeight: 700, borderRadius: "10px", bgcolor: "brand.main",
-                boxShadow: "none", "&:hover": { bgcolor: "brand.dark", boxShadow: "none" },
-                display: "flex", alignItems: "center", gap: 1
-              }}>
-              Feedback &amp; Actions
-              {feedbacks.length > 0 && (
-                <Box
+            <>
+              {isApproved ? (
+                <Button
+                  variant="outlined"
+                  onClick={handleRunDiffCheck}
+                  disabled={runDiffMutation.isPending}
+                  startIcon={<AssessmentOutlinedIcon />}
                   sx={{
-                    px: 0.85,
-                    borderRadius: "6px",
-                    fontSize: "0.75rem",
+                    textTransform: "none",
                     fontWeight: 700,
-                    lineHeight: "18px",
-                    bgcolor: "error.main",
-                    color: "#fff",
+                    borderRadius: "10px",
+                    borderColor: "divider",
+                    color: "text.primary",
+                    py: 1,
+                    "&:hover": { borderColor: "brand.main", color: "brand.main", bgcolor: "brand.lighter" }
                   }}
                 >
-                  {feedbacks.length}
-                </Box>
+                  {runDiffMutation.isPending ? "Starting..." : "Run AI check on changes"}
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  onClick={handleRunCheck}
+                  disabled={runMutation.isPending}
+                  startIcon={<AssessmentOutlinedIcon />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    borderRadius: "10px",
+                    borderColor: "divider",
+                    color: "text.primary",
+                    py: 1,
+                    "&:hover": { borderColor: "brand.main", color: "brand.main", bgcolor: "brand.lighter" }
+                  }}
+                >
+                  {runMutation.isPending ? "Starting..." : "Run AI Full Check"}
+                </Button>
               )}
-            </Button>
+            </>
           )}
         </Box>
       </Box>
@@ -366,30 +350,51 @@ export default function QualityReportPage() {
             <NoData
               image={emptyAuditImg}
               title="No Quality Check Performed yet"
-              description="Run an AI quality audit for this course. Review the results to check course quality.
-"
+              description="Run an AI quality audit for this course. Review the results to check course quality."
               imageWidth={220}
               minHeight="280px"
             />
-            <Button
-              variant="contained"
-              onClick={handleRunCheck}
-              disabled={runMutation.isPending}
-              startIcon={<AssessmentOutlinedIcon />}
-              sx={{
-                mt: 2,
-                borderRadius: "10px",
-                textTransform: "none",
-                fontWeight: 700,
-                bgcolor: "brand.main",
-                px: 4,
-                py: 1.25,
-                boxShadow: "none",
-                "&:hover": { bgcolor: "brand.dark", boxShadow: "none" }
-              }}
-            >
-              {runMutation.isPending ? "Starting Audit..." : "Run AI quality"}
-            </Button>
+            <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
+              {isApproved ? (
+                <Button
+                  variant="outlined"
+                  onClick={handleRunDiffCheck}
+                  disabled={runDiffMutation.isPending}
+                  startIcon={<AssessmentOutlinedIcon />}
+                  sx={{
+                    borderRadius: "10px",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    borderColor: "brand.main",
+                    color: "brand.main",
+                    px: 4,
+                    py: 1.25,
+                    "&:hover": { bgcolor: "brand.lighter", borderColor: "brand.main" }
+                  }}
+                >
+                  {runDiffMutation.isPending ? "Starting Audit..." : "Run AI check on changes"}
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  onClick={handleRunCheck}
+                  disabled={runMutation.isPending}
+                  startIcon={<AssessmentOutlinedIcon />}
+                  sx={{
+                    borderRadius: "10px",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    bgcolor: "brand.main",
+                    px: 4,
+                    py: 1.25,
+                    boxShadow: "none",
+                    "&:hover": { bgcolor: "brand.dark", boxShadow: "none" }
+                  }}
+                >
+                  {runMutation.isPending ? "Starting Audit..." : "Run AI Full Check"}
+                </Button>
+              )}
+            </Box>
           </Box>
         </Card>
       ) : (
@@ -454,33 +459,6 @@ export default function QualityReportPage() {
           onSelectReport={handleSelectReport}
         />
       )}
-
-      {/* ── Feedback Drawer ── */}
-      {submissionId && (
-        <FeedbackDrawer
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          feedbacks={feedbacks}
-          submissionInfo={submissionInfo}
-          courseId={courseId}
-          submissionHistory={submissionHistory}
-          saveMutation={saveFeedbackMutation}
-          deleteMutation={deleteFeedbackMutation}
-          updateMutation={updateFeedbackMutation}
-          requestChangesMutation={requestChangesMutation}
-          approveMutation={approveMutation}
-          onApproveClick={() => setApproveDialogOpen(true)}
-        />
-      )}
-
-      {/* ── Approve confirm dialog ── */}
-      <ConfirmDialog
-        open={approveDialogOpen}
-        title="Approve & Publish"
-        message="Are you sure you want to approve this course and publish it to the marketplace? This action will notify the instructor."
-        onClose={() => setApproveDialogOpen(false)}
-        onConfirm={handleApprove}
-      />
     </Box>
   );
 }

@@ -35,7 +35,7 @@ export default function CourseInfoCard({
 
   const handleViewReport = () => {
     const reportId = latestReport ? latestReport.id : "none";
-    navigate(`/admin/course/approvals/${submissionId}/report/${reportId}`);
+    navigate(`/admin/course/${courseId}/report/${reportId}`);
   };
 
   const requiredUnresolved = useMemo(() => {

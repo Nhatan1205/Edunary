@@ -18539,6 +18539,8 @@ export class QualityReportDetailDto implements IQualityReportDetailDto {
     warningCount?: number;
     suggestionCount?: number;
     isLatest?: boolean;
+    isDiff?: boolean;
+    isCoursePublic?: boolean;
     created?: Date;
     createdBy?: string | undefined;
     issues?: QualityIssueDto[] | undefined;
@@ -18571,6 +18573,8 @@ export class QualityReportDetailDto implements IQualityReportDetailDto {
             this.warningCount = _data["warningCount"];
             this.suggestionCount = _data["suggestionCount"];
             this.isLatest = _data["isLatest"];
+            this.isDiff = _data["isDiff"];
+            this.isCoursePublic = _data["isCoursePublic"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
             if (Array.isArray(_data["issues"])) {
@@ -18607,6 +18611,8 @@ export class QualityReportDetailDto implements IQualityReportDetailDto {
         data["warningCount"] = this.warningCount;
         data["suggestionCount"] = this.suggestionCount;
         data["isLatest"] = this.isLatest;
+        data["isDiff"] = this.isDiff;
+        data["isCoursePublic"] = this.isCoursePublic;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
         if (Array.isArray(this.issues)) {
@@ -18630,6 +18636,8 @@ export interface IQualityReportDetailDto {
     warningCount?: number;
     suggestionCount?: number;
     isLatest?: boolean;
+    isDiff?: boolean;
+    isCoursePublic?: boolean;
     created?: Date;
     createdBy?: string | undefined;
     issues?: QualityIssueDto[] | undefined;

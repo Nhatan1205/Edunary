@@ -92,6 +92,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CourseReviewSubmission> CourseReviewSubmissions => Set<CourseReviewSubmission>();
     public DbSet<CourseReviewFeedback> CourseReviewFeedbacks => Set<CourseReviewFeedback>();
     public DbSet<CourseApprovedSnapshot> CourseApprovedSnapshots => Set<CourseApprovedSnapshot>();
+    public DbSet<Conversation> Conversations => Set<Conversation>();
+    public DbSet<Message> Messages => Set<Message>();
+    public DbSet<ConversationUserSetting> ConversationUserSettings => Set<ConversationUserSetting>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -5261,6 +5261,372 @@ export class CoursesClient {
     }
 }
 
+export class DirectMessagesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    createConversation(command: CreateConversationCommand | undefined): Promise<ReturnResultOfInteger> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateConversation(_response);
+        });
+    }
+
+    protected processCreateConversation(response: Response): Promise<ReturnResultOfInteger> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfInteger.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfInteger>(null as any);
+    }
+
+    getConversations(pageNumber: number, pageSize: number, filter: string | null | undefined, sortBy: string | null | undefined, searchText: string | null | undefined): Promise<PaginatedListOfConversationDto> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (filter !== undefined && filter !== null)
+            url_ += "Filter=" + encodeURIComponent("" + filter) + "&";
+        if (sortBy !== undefined && sortBy !== null)
+            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetConversations(_response);
+        });
+    }
+
+    protected processGetConversations(response: Response): Promise<PaginatedListOfConversationDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfConversationDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfConversationDto>(null as any);
+    }
+
+    sendMessage(conversationId: number, command: SendMessageCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/messages";
+        if (conversationId === undefined || conversationId === null)
+            throw new Error("The parameter 'conversationId' must be defined.");
+        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSendMessage(_response);
+        });
+    }
+
+    protected processSendMessage(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getConversationMessages(conversationIdPath: number, cursor: number | null | undefined, pageSize: number): Promise<CursorPaginatedListOfMessageDto> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/messages?";
+        if (conversationIdPath === undefined || conversationIdPath === null)
+            throw new Error("The parameter 'conversationIdPath' must be defined.");
+        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationIdPath));
+        if (cursor !== undefined && cursor !== null)
+            url_ += "Cursor=" + encodeURIComponent("" + cursor) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetConversationMessages(_response);
+        });
+    }
+
+    protected processGetConversationMessages(response: Response): Promise<CursorPaginatedListOfMessageDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CursorPaginatedListOfMessageDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CursorPaginatedListOfMessageDto>(null as any);
+    }
+
+    searchUsers(searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfUserIdentityDto> {
+        let url_ = this.baseUrl + "/api/DirectMessages/search-users?";
+        if (searchText !== undefined && searchText !== null)
+            url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSearchUsers(_response);
+        });
+    }
+
+    protected processSearchUsers(response: Response): Promise<PaginatedListOfUserIdentityDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfUserIdentityDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfUserIdentityDto>(null as any);
+    }
+
+    markConversationRead(conversationId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/read";
+        if (conversationId === undefined || conversationId === null)
+            throw new Error("The parameter 'conversationId' must be defined.");
+        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processMarkConversationRead(_response);
+        });
+    }
+
+    protected processMarkConversationRead(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    toggleConversationSetting(conversationId: number, command: ToggleConversationSettingCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/settings";
+        if (conversationId === undefined || conversationId === null)
+            throw new Error("The parameter 'conversationId' must be defined.");
+        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processToggleConversationSetting(_response);
+        });
+    }
+
+    protected processToggleConversationSetting(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    blockConversation(conversationId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/block";
+        if (conversationId === undefined || conversationId === null)
+            throw new Error("The parameter 'conversationId' must be defined.");
+        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processBlockConversation(_response);
+        });
+    }
+
+    protected processBlockConversation(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    unblockConversation(conversationId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/unblock";
+        if (conversationId === undefined || conversationId === null)
+            throw new Error("The parameter 'conversationId' must be defined.");
+        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUnblockConversation(_response);
+        });
+    }
+
+    protected processUnblockConversation(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class EnrollmentClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -20651,6 +21017,549 @@ export interface IPublicCoursesByUserIdDto {
     ratings?: number;
     totalStudents?: number;
     createdBy?: string | undefined;
+}
+
+export class CreateConversationCommand implements ICreateConversationCommand {
+    targetUserId?: string | undefined;
+
+    constructor(data?: ICreateConversationCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.targetUserId = _data["targetUserId"];
+        }
+    }
+
+    static fromJS(data: any): CreateConversationCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateConversationCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["targetUserId"] = this.targetUserId;
+        return data;
+    }
+}
+
+export interface ICreateConversationCommand {
+    targetUserId?: string | undefined;
+}
+
+export class SendMessageCommand implements ISendMessageCommand {
+    conversationId?: number;
+    content?: string | undefined;
+
+    constructor(data?: ISendMessageCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.conversationId = _data["conversationId"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): SendMessageCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SendMessageCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["conversationId"] = this.conversationId;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface ISendMessageCommand {
+    conversationId?: number;
+    content?: string | undefined;
+}
+
+export class PaginatedListOfConversationDto implements IPaginatedListOfConversationDto {
+    items?: ConversationDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfConversationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ConversationDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfConversationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfConversationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfConversationDto {
+    items?: ConversationDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class ConversationDto implements IConversationDto {
+    id?: number;
+    participantOneId?: string | undefined;
+    participantTwoId?: string | undefined;
+    lastMessageAt?: Date;
+    lastMessageId?: number | undefined;
+    isBlocked?: boolean;
+    isImportant?: boolean;
+    isMarkedUnread?: boolean;
+    created?: Date;
+    createdBy?: string | undefined;
+    lastMessage?: MessageDto | undefined;
+    recipient?: UserIdentityDto | undefined;
+    unreadCount?: number;
+
+    constructor(data?: IConversationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.participantOneId = _data["participantOneId"];
+            this.participantTwoId = _data["participantTwoId"];
+            this.lastMessageAt = _data["lastMessageAt"] ? new Date(_data["lastMessageAt"].toString()) : <any>undefined;
+            this.lastMessageId = _data["lastMessageId"];
+            this.isBlocked = _data["isBlocked"];
+            this.isImportant = _data["isImportant"];
+            this.isMarkedUnread = _data["isMarkedUnread"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.lastMessage = _data["lastMessage"] ? MessageDto.fromJS(_data["lastMessage"]) : <any>undefined;
+            this.recipient = _data["recipient"] ? UserIdentityDto.fromJS(_data["recipient"]) : <any>undefined;
+            this.unreadCount = _data["unreadCount"];
+        }
+    }
+
+    static fromJS(data: any): ConversationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ConversationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["participantOneId"] = this.participantOneId;
+        data["participantTwoId"] = this.participantTwoId;
+        data["lastMessageAt"] = this.lastMessageAt ? this.lastMessageAt.toISOString() : <any>undefined;
+        data["lastMessageId"] = this.lastMessageId;
+        data["isBlocked"] = this.isBlocked;
+        data["isImportant"] = this.isImportant;
+        data["isMarkedUnread"] = this.isMarkedUnread;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["lastMessage"] = this.lastMessage ? this.lastMessage.toJSON() : <any>undefined;
+        data["recipient"] = this.recipient ? this.recipient.toJSON() : <any>undefined;
+        data["unreadCount"] = this.unreadCount;
+        return data;
+    }
+}
+
+export interface IConversationDto {
+    id?: number;
+    participantOneId?: string | undefined;
+    participantTwoId?: string | undefined;
+    lastMessageAt?: Date;
+    lastMessageId?: number | undefined;
+    isBlocked?: boolean;
+    isImportant?: boolean;
+    isMarkedUnread?: boolean;
+    created?: Date;
+    createdBy?: string | undefined;
+    lastMessage?: MessageDto | undefined;
+    recipient?: UserIdentityDto | undefined;
+    unreadCount?: number;
+}
+
+export class MessageDto implements IMessageDto {
+    id?: number;
+    conversationId?: number;
+    senderId?: string | undefined;
+    senderName?: string | undefined;
+    senderAvatar?: string | undefined;
+    content?: string | undefined;
+    isRead?: boolean;
+    created?: Date;
+
+    constructor(data?: IMessageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.conversationId = _data["conversationId"];
+            this.senderId = _data["senderId"];
+            this.senderName = _data["senderName"];
+            this.senderAvatar = _data["senderAvatar"];
+            this.content = _data["content"];
+            this.isRead = _data["isRead"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): MessageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["conversationId"] = this.conversationId;
+        data["senderId"] = this.senderId;
+        data["senderName"] = this.senderName;
+        data["senderAvatar"] = this.senderAvatar;
+        data["content"] = this.content;
+        data["isRead"] = this.isRead;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IMessageDto {
+    id?: number;
+    conversationId?: number;
+    senderId?: string | undefined;
+    senderName?: string | undefined;
+    senderAvatar?: string | undefined;
+    content?: string | undefined;
+    isRead?: boolean;
+    created?: Date;
+}
+
+export class UserIdentityDto implements IUserIdentityDto {
+    id?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: string | undefined;
+    phoneNumber?: string | undefined;
+    roles?: string[] | undefined;
+    status?: UserStatus;
+    lockoutEnd?: Date | undefined;
+    lastLoginTime?: Date | undefined;
+    createdAt?: Date;
+
+    constructor(data?: IUserIdentityDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.avatar = _data["avatar"];
+            this.headline = _data["headline"];
+            this.description = _data["description"];
+            this.links = _data["links"];
+            this.phoneNumber = _data["phoneNumber"];
+            if (Array.isArray(_data["roles"])) {
+                this.roles = [] as any;
+                for (let item of _data["roles"])
+                    this.roles!.push(item);
+            }
+            this.status = _data["status"];
+            this.lockoutEnd = _data["lockoutEnd"] ? new Date(_data["lockoutEnd"].toString()) : <any>undefined;
+            this.lastLoginTime = _data["lastLoginTime"] ? new Date(_data["lastLoginTime"].toString()) : <any>undefined;
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UserIdentityDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserIdentityDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["avatar"] = this.avatar;
+        data["headline"] = this.headline;
+        data["description"] = this.description;
+        data["links"] = this.links;
+        data["phoneNumber"] = this.phoneNumber;
+        if (Array.isArray(this.roles)) {
+            data["roles"] = [];
+            for (let item of this.roles)
+                data["roles"].push(item);
+        }
+        data["status"] = this.status;
+        data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
+        data["lastLoginTime"] = this.lastLoginTime ? this.lastLoginTime.toISOString() : <any>undefined;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUserIdentityDto {
+    id?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
+    links?: string | undefined;
+    phoneNumber?: string | undefined;
+    roles?: string[] | undefined;
+    status?: UserStatus;
+    lockoutEnd?: Date | undefined;
+    lastLoginTime?: Date | undefined;
+    createdAt?: Date;
+}
+
+export enum UserStatus {
+    Active = 0,
+    Inactive = 1,
+    Suspended = 2,
+    Banned = 3,
+}
+
+export class CursorPaginatedListOfMessageDto implements ICursorPaginatedListOfMessageDto {
+    items?: MessageDto[] | undefined;
+    hasMore?: boolean;
+
+    constructor(data?: ICursorPaginatedListOfMessageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(MessageDto.fromJS(item));
+            }
+            this.hasMore = _data["hasMore"];
+        }
+    }
+
+    static fromJS(data: any): CursorPaginatedListOfMessageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CursorPaginatedListOfMessageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["hasMore"] = this.hasMore;
+        return data;
+    }
+}
+
+export interface ICursorPaginatedListOfMessageDto {
+    items?: MessageDto[] | undefined;
+    hasMore?: boolean;
+}
+
+export class PaginatedListOfUserIdentityDto implements IPaginatedListOfUserIdentityDto {
+    items?: UserIdentityDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfUserIdentityDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(UserIdentityDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfUserIdentityDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfUserIdentityDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfUserIdentityDto {
+    items?: UserIdentityDto[] | undefined;
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class ToggleConversationSettingCommand implements IToggleConversationSettingCommand {
+    conversationId?: number;
+    setting?: string | undefined;
+    value?: boolean;
+
+    constructor(data?: IToggleConversationSettingCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.conversationId = _data["conversationId"];
+            this.setting = _data["setting"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): ToggleConversationSettingCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ToggleConversationSettingCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["conversationId"] = this.conversationId;
+        data["setting"] = this.setting;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IToggleConversationSettingCommand {
+    conversationId?: number;
+    setting?: string | undefined;
+    value?: boolean;
 }
 
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {

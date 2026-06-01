@@ -1,15 +1,50 @@
 import { Box, Typography, Avatar, Chip, Divider, Card, Button } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import { useMemo } from "react";
+import { useNavigate } from "react-router";
+
 import { LEVEL_COLORS, LEVEL_LABELS } from "./courseDetailConstants";
 import { formatShortDate } from "../../../../../../utils/helpers";
 
-export default function CourseInfoCard({ course, submissionInfo, submissionId, courseId }) {
+// Hooks
+import useGetQualityReports from "../../../../../../hooks/course-review-hooks/useGetQualityReports";
+
+export default function CourseInfoCard({
+  course, submissionInfo, submissionId, courseId,
+  feedbacks = [], approvePending, onApproveClick
+}) {
+  const navigate = useNavigate();
+
   const handlePreview = () => {
     window.open(
       `/admin/course/approvals/${submissionId}/preview/${courseId}`,
       `admin_preview_${courseId}`,
     );
   };
+
+  // Queries - only fetch reports to get latest report ID
+  const { data: reports } = useGetQualityReports(courseId);
+
+  // Find latest report
+  const latestReport = useMemo(() => {
+    if (!reports || reports.length === 0) return null;
+    return [...reports].sort((a, b) => b.id - a.id)[0];
+  }, [reports]);
+
+  const handleViewReport = () => {
+    const reportId = latestReport ? latestReport.id : "none";
+    navigate(`/admin/course/${courseId}/report/${reportId}`);
+  };
+
+  const requiredUnresolved = useMemo(() => {
+    return feedbacks.filter((f) => f.feedbackType === 0).length;
+  }, [feedbacks]);
+
+  const canApprove = useMemo(() => {
+    return feedbacks.length === 0 || requiredUnresolved === 0;
+  }, [feedbacks, requiredUnresolved]);
 
   return (
     <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: "14px", overflow: "hidden" }}>
@@ -79,10 +114,54 @@ export default function CourseInfoCard({ course, submissionInfo, submissionId, c
           onClick={handlePreview}
           sx={{
             borderRadius: "10px", textTransform: "none", fontWeight: 700, borderColor: "divider",
-            color: "text.primary", py: 1, "&:hover": { borderColor: "brand.main", color: "brand.main", bgcolor: "brand.lighter" },
+            color: "text.primary", py: 1, mb: 1.5, "&:hover": { borderColor: "brand.main", color: "brand.main", bgcolor: "brand.lighter" },
           }}>
           Preview Content
         </Button>
+
+        {/* View AI Report Button (Static redirect) */}
+        <Button
+          fullWidth
+          variant="contained"
+          id="view-quality-report-btn"
+          startIcon={<AssessmentOutlinedIcon />}
+          onClick={handleViewReport}
+          sx={{
+            borderRadius: "10px",
+            textTransform: "none",
+            fontWeight: 700,
+            bgcolor: "brand.main",
+            color: "#fff",
+            py: 1,
+            "&:hover": { bgcolor: "brand.dark" }
+          }}
+        >
+          View AI Report
+        </Button>
+
+        {/* Approve & Publish Button */}
+        {submissionInfo?.status === 0 && (
+          <Button
+            fullWidth
+            variant="contained"
+            color="success"
+            id="approve-publish-card-btn"
+            startIcon={<CheckCircleOutlinedIcon />}
+            disabled={!canApprove || approvePending}
+            onClick={onApproveClick}
+            sx={{
+              borderRadius: "10px",
+              textTransform: "none",
+              fontWeight: 700,
+              mt: 1.5,
+              py: 1,
+              boxShadow: "none",
+              "&:hover": { bgcolor: "success.dark", boxShadow: "none" }
+            }}
+          >
+            Approve &amp; Publish
+          </Button>
+        )}
       </Box>
     </Card>
   );

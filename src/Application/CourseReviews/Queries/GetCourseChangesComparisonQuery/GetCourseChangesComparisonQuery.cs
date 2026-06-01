@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.CourseReviews.Services;
+using Edunary.Domain.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -59,11 +62,49 @@ public class GetCourseChangesComparisonQueryHandler : IRequestHandler<GetCourseC
             .OrderByDescending(s => s.Created)
             .FirstOrDefaultAsync(cancellationToken);
 
-        var categories = await _context.Categories.ToListAsync(cancellationToken);
-        var topics = await _context.Topics.ToListAsync(cancellationToken);
+        var categories = new List<Category>();
+        var topicsToPass = course.Topics.ToList();
+
+        if (snapshot != null)
+        {
+            if (snapshot.CategoryId != course.CategoryId)
+            {
+                var categoryIds = new List<int> { snapshot.CategoryId, course.CategoryId }
+                    .Distinct()
+                    .ToList();
+
+                categories = await _context.Categories
+                    .Where(c => categoryIds.Contains(c.Id))
+                    .ToListAsync(cancellationToken);
+            }
+
+            var oldTopicIds = new List<int>();
+            if (!string.IsNullOrEmpty(snapshot.TopicIds))
+            {
+                try
+                {
+                    oldTopicIds = JsonSerializer.Deserialize<List<int>>(snapshot.TopicIds) ?? new List<int>();
+                }
+                catch
+                {
+                }
+            }
+
+            var newTopicIds = course.Topics.Select(t => t.Id).ToList();
+            var removedTopicIds = oldTopicIds.Except(newTopicIds).ToList();
+
+            if (removedTopicIds.Any())
+            {
+                var removedTopics = await _context.Topics
+                    .Where(t => removedTopicIds.Contains(t.Id))
+                    .ToListAsync(cancellationToken);
+
+                topicsToPass = topicsToPass.Concat(removedTopics).ToList();
+            }
+        }
 
         var comparer = new CourseChangeComparer();
-        var result = comparer.Compare(snapshot, course, course.MediaFiles.ToList(), quizzes, assignments, course.Topics.ToList(), categories, topics);
+        var result = comparer.Compare(snapshot, course, course.MediaFiles.ToList(), quizzes, assignments, course.Topics.ToList(), categories, topicsToPass);
         result.CourseTitle = course.Title;
         result.CourseSubtitle = course.Subtitle;
         result.CourseImageUrl = course.ImageUrl;

@@ -28,6 +28,7 @@ import CourseCurriculum from "./features/instructor/courses-management/course-ma
 import CourseCaptions from "./features/instructor/courses-management/course-manage-page/pages/CourseCaptions";
 import CourseAccessiblity from "./features/instructor/courses-management/course-manage-page/pages/CourseAccessiblity";
 import CourseFeedbackPage from "./features/instructor/courses-management/course-manage-page/pages/course-feedback-page/CourseFeedbackPage";
+import InstructorQualityReportPage from "./features/instructor/courses-management/course-manage-page/pages/InstructorQualityReportPage";
 import CoursesListPage from "./features/instructor/courses-management/courses-list-page/CoursesListPage";
 import SearchPage from "./features/guest/search-page/SearchPage";
 import MyLearning from "./features/user/my-learning/MyLearning";
@@ -89,6 +90,7 @@ import CourseApprovalDetailPage from "./features/admin/course-section/course-app
 import AdminCoursePreviewPage from "./features/admin/course-section/course-approvals/admin-course-preview-page/AdminCoursePreviewPage";
 import CourseManagementPage from "./features/admin/course-section/course-management/CourseManagementPage";
 import CourseChangesPage from "./features/admin/course-section/course-changes/CourseChangesPage";
+import QualityReportPage from "./features/admin/course-section/course-approvals/quality-report-page/QualityReportPage";
 import VerifyCertificatePage from "./features/guest/verify-certificate/VerifyCertificatePage";
 
 const router = createBrowserRouter([
@@ -130,6 +132,10 @@ const router = createBrowserRouter([
           {
             path: ":courseId/changes",
             element: <CourseChangesPage />,
+          },
+          {
+            path: ":id/report/:reportId?",
+            element: <QualityReportPage />,
           },
         ]
       },
@@ -569,6 +575,10 @@ const router = createBrowserRouter([
       {
         path: "feedback",
         element: <CourseFeedbackPage />,
+      },
+      {
+        path: "quality-check",
+        element: <InstructorQualityReportPage />,
       },
     ],
   },

@@ -279,7 +279,7 @@ export default function CourseApprovalDetailPage() {
                 fontSize: "0.75rem",
                 fontWeight: 700,
                 lineHeight: "18px",
-                bgcolor: requiredUnresolved > 0 ? "error.main" : "success.main",
+                bgcolor: "error.main",
                 color: "#fff",
               }}
             >
@@ -298,6 +298,9 @@ export default function CourseApprovalDetailPage() {
             submissionInfo={submissionInfo}
             submissionId={submissionId}
             courseId={course?.id}
+            feedbacks={feedbacks}
+            approvePending={approveMutation.isPending}
+            onApproveClick={() => setApproveDialogOpen(true)}
           />
         </Box>
 

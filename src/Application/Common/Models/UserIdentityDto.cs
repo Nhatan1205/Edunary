@@ -18,4 +18,5 @@ public class UserIdentityDto
 
     public DateTime? LastLoginTime { get; set; }
     public DateTime CreatedAt { get; set; }
+    public bool Online { get; set; }
 }

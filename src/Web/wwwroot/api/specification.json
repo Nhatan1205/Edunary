@@ -5215,16 +5215,6 @@
             "x-position": 1
           },
           {
-            "name": "conversationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
             "name": "Cursor",
             "in": "query",
             "schema": {
@@ -5232,7 +5222,7 @@
               "format": "int32",
               "nullable": true
             },
-            "x-position": 3
+            "x-position": 2
           },
           {
             "name": "PageSize",
@@ -5242,7 +5232,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 4
+            "x-position": 3
           }
         ],
         "responses": {
@@ -5303,64 +5293,22 @@
         ]
       }
     },
-    "/api/DirectMessages/conversations/{conversationId}/read": {
+    "/api/DirectMessages/conversations/read": {
       "put": {
         "tags": [
           "DirectMessages"
         ],
-        "operationId": "MarkConversationRead",
-        "parameters": [
-          {
-            "name": "conversationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/DirectMessages/conversations/{conversationId}/settings": {
-      "put": {
-        "tags": [
-          "DirectMessages"
-        ],
-        "operationId": "ToggleConversationSetting",
-        "parameters": [
-          {
-            "name": "conversationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "ToggleConversationRead",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ToggleConversationSettingCommand"
+                "$ref": "#/components/schemas/ToggleConversationReadCommand"
               }
             }
           },
-          "x-position": 2
+          "x-position": 1
         },
         "responses": {
           "200": {
@@ -5374,24 +5322,23 @@
         ]
       }
     },
-    "/api/DirectMessages/conversations/{conversationId}/block": {
+    "/api/DirectMessages/conversations/important": {
       "put": {
         "tags": [
           "DirectMessages"
         ],
-        "operationId": "BlockConversation",
-        "parameters": [
-          {
-            "name": "conversationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "ToggleConversationImportant",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleConversationImportantCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -5404,24 +5351,23 @@
         ]
       }
     },
-    "/api/DirectMessages/conversations/{conversationId}/unblock": {
+    "/api/DirectMessages/conversations/block": {
       "put": {
         "tags": [
           "DirectMessages"
         ],
-        "operationId": "UnblockConversation",
-        "parameters": [
-          {
-            "name": "conversationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "ToggleConversationBlock",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleConversationBlockCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -15636,6 +15582,10 @@
             "type": "string",
             "nullable": true
           },
+          "lastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
           "lastMessage": {
             "nullable": true,
             "oneOf": [
@@ -15754,6 +15704,9 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "online": {
+            "type": "boolean"
           }
         }
       },
@@ -15789,7 +15742,7 @@
           }
         }
       },
-      "ToggleConversationSettingCommand": {
+      "ToggleConversationReadCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -15797,11 +15750,33 @@
             "type": "integer",
             "format": "int32"
           },
-          "setting": {
-            "type": "string",
-            "nullable": true
+          "isRead": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ToggleConversationImportantCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conversationId": {
+            "type": "integer",
+            "format": "int32"
           },
-          "value": {
+          "isImportant": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ToggleConversationBlockCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conversationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isBlocked": {
             "type": "boolean"
           }
         }

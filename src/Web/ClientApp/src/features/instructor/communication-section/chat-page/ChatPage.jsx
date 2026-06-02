@@ -1,15 +1,17 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { 
-  Box, 
-  Typography, 
-  Stack, 
-  IconButton, 
-  Avatar, 
+import {
+  Box,
+  Typography,
+  Stack,
+  IconButton,
+  Avatar,
   useMediaQuery,
   Button,
   CircularProgress,
-  Skeleton
+  Skeleton,
+  Menu,
+  MenuItem
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -25,6 +27,7 @@ import MessageList from "../../../../components/chat/MessageList";
 import MessageInput from "../../../../components/chat/MessageInput";
 import ContactInfoSidebar from "../../../../components/chat/ContactInfoSidebar";
 import DirectMessagesToolbar from "./components/DirectMessagesToolbar";
+import AlertBox from "../../../../components/AlertBox";
 
 import useConversationRealtime from "../../../../hooks/dm-hooks/useConversationRealtime";
 import useGetConversations from "../../../../hooks/dm-hooks/useGetConversations";
@@ -33,6 +36,9 @@ import useSendMessage from "../../../../hooks/dm-hooks/useSendMessage";
 import useCreateConversation from "../../../../hooks/dm-hooks/useCreateConversation";
 import useSearchUsers from "../../../../hooks/dm-hooks/useSearchUsers";
 import useGetBasicUserInfo from "../../../../hooks/auth-hooks/useGetBasicUserInfor";
+import useToggleConversationRead from "../../../../hooks/dm-hooks/useToggleConversationRead";
+import useToggleConversationImportant from "../../../../hooks/dm-hooks/useToggleConversationImportant";
+import useToggleConversationBlock from "../../../../hooks/dm-hooks/useToggleConversationBlock";
 import queryClient from "../../../../configs/reactQuery.js";
 
 import chatEmptyImg from "../../../../assets/images/chat_empty.png";
@@ -121,9 +127,72 @@ function ChatPageContent() {
     return conversations.find(c => String(c.id) === String(activeId));
   }, [conversations, activeId]);
 
+  const toggleReadMutation = useToggleConversationRead();
+  const [menuAnchor, setMenuAnchor] = useState(null);
+
+  const handleMenuOpen = (event) => {
+    setMenuAnchor(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
+  const handleToggleRead = () => {
+    handleMenuClose();
+    if (activeConversation) {
+      const isCurrentlyUnread = activeConversation.unreadCount > 0 || activeConversation.isMarkedUnread;
+      toggleReadMutation.mutate({
+        conversationId: activeConversation.id,
+        isRead: isCurrentlyUnread
+      });
+    }
+  };
+
+  const toggleImportantMutation = useToggleConversationImportant();
+  const toggleBlockMutation = useToggleConversationBlock();
+
+  const handleToggleImportant = () => {
+    handleMenuClose();
+    if (activeConversation) {
+      toggleImportantMutation.mutate({
+        conversationId: activeConversation.id,
+        isImportant: !activeConversation.isImportant
+      });
+    }
+  };
+
+  const handleToggleBlock = () => {
+    handleMenuClose();
+    if (activeConversation) {
+      toggleBlockMutation.mutate({
+        conversationId: activeConversation.id,
+        isBlocked: !activeConversation.isBlocked
+      });
+    }
+  };
+
+  const hasMarkedReadRef = React.useRef(false);
+
+  // Automatically mark active conversation as read once on initial load
+  useEffect(() => {
+    if (activeId && conversations.length > 0 && !hasMarkedReadRef.current) {
+      const conv = conversations.find(c => String(c.id) === String(activeId));
+      if (conv) {
+        if (conv.unreadCount > 0 || conv.isMarkedUnread) {
+          toggleReadMutation.mutate({ conversationId: Number(activeId), isRead: true });
+        }
+        hasMarkedReadRef.current = true;
+      }
+    }
+  }, [conversations, activeId]);
+
   // Handle active conversation selection
   const handleSelectConversation = (id) => {
     setSearchParams({ id });
+    const conv = conversations.find(c => String(c.id) === String(id));
+    if (conv && (conv.unreadCount > 0 || conv.isMarkedUnread)) {
+      toggleReadMutation.mutate({ conversationId: Number(id), isRead: true });
+    }
   };
 
   const handleNewChat = () => {
@@ -181,7 +250,7 @@ function ChatPageContent() {
         }}
       >
         {/* Left Conversation List Panel */}
-         <Box
+        <Box
           sx={{
             width: isSmall ? "100%" : "300px",
             flexShrink: 0,
@@ -229,9 +298,9 @@ function ChatPageContent() {
               >
                 <Stack direction="row" spacing={2} alignItems="center">
                   {isSmall && (
-                    <Button 
-                      variant="text" 
-                      onClick={() => setSearchParams({})} 
+                    <Button
+                      variant="text"
+                      onClick={() => setSearchParams({})}
                       sx={{ minWidth: 0, px: 1, color: "brand.main", fontWeight: 700 }}
                     >
                       Back
@@ -248,9 +317,9 @@ function ChatPageContent() {
                   ) : activeConversation ? (
                     <>
                       <Box sx={{ position: "relative" }}>
-                        <Avatar 
-                          src={activeConversation.recipient?.avatar || defaultAvatar} 
-                          alt={activeConversation.recipient?.fullName} 
+                        <Avatar
+                          src={activeConversation.recipient?.avatar || defaultAvatar}
+                          alt={activeConversation.recipient?.fullName}
                           onError={(e) => {
                             e.target.src = defaultAvatar;
                           }}
@@ -284,13 +353,48 @@ function ChatPageContent() {
                 </Stack>
 
                 <Stack direction="row" spacing={0.5}>
-                  <IconButton 
+                  <IconButton
                     onClick={() => setSidebarOpen(!sidebarOpen)}
                     sx={{ color: sidebarOpen ? "brand.main" : "text.secondary" }}
                   >
                     {sidebarOpen ? <ChevronRightIcon sx={{ fontSize: 20 }} /> : <ChevronLeftIcon sx={{ fontSize: 20 }} />}
                   </IconButton>
-                  <IconButton sx={{ color: "text.secondary" }}><MoreVertIcon sx={{ fontSize: 20 }} /></IconButton>
+                  <IconButton
+                    onClick={handleMenuOpen}
+                    sx={{ color: "text.secondary" }}
+                  >
+                    <MoreVertIcon sx={{ fontSize: 20 }} />
+                  </IconButton>
+                  <Menu
+                    anchorEl={menuAnchor}
+                    open={Boolean(menuAnchor)}
+                    onClose={handleMenuClose}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                  >
+                    <MenuItem onClick={handleToggleRead}>
+                      {activeConversation?.unreadCount > 0 || activeConversation?.isMarkedUnread
+                        ? "Mark as read"
+                        : "Mark as unread"}
+                    </MenuItem>
+                    <MenuItem onClick={handleToggleImportant}>
+                      {activeConversation?.isImportant ? "Mark as unimportant" : "Mark as important"}
+                    </MenuItem>
+                    <MenuItem
+                      onClick={handleToggleBlock}
+                      disabled={activeConversation?.isBlocked && activeConversation?.lastModifiedBy !== currentUserId}
+                    >
+                      {activeConversation?.isBlocked
+                        ? (activeConversation?.lastModifiedBy === currentUserId ? "Unblock" : "Block")
+                        : "Block"}
+                    </MenuItem>
+                  </Menu>
                 </Stack>
               </Box>
 
@@ -303,152 +407,168 @@ function ChatPageContent() {
                 ) : activeConversation ? (
                   <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, height: "100%" }}>
                     {/* Message List */}
-                    <MessageList 
-                      messages={activeMessages} 
-                      recipient={activeConversation.recipient} 
+                    <MessageList
+                      messages={activeMessages}
+                      recipient={activeConversation.recipient}
                       currentUserId={currentUserId}
                       fetchNextPage={fetchNextPage}
                       hasNextPage={hasNextPage}
                       isFetchingNextPage={isFetchingNextPage}
                     />
 
-                    {/* Message Input */}
-                    <MessageInput 
-                      onSendMessage={handleSendMessage}
-                      disabled={activeConversation.isBlocked}
-                    />
+                    {/* Message Input or Block Alert */}
+                    {activeConversation.isBlocked ? (
+                      <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
+                        <AlertBox
+                          severity="error"
+                          title={
+                            activeConversation.lastModifiedBy === currentUserId
+                              ? "You have blocked this conversation. Unblock to resume messaging."
+                              : "You cannot reply to this conversation."
+                          }
+                          sx={{
+                            my: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            "& .MuiAlertTitle-root": { mb: 0 }
+                          }}
+                        />
+                      </Box>
+                    ) : (
+                      <MessageInput onSendMessage={handleSendMessage} />
+                    )}
                   </Box>
                 ) : null}
 
                 {/* Sidebar with info details */}
                 {sidebarOpen && !isSmall && activeConversation?.recipient && (
-                  <ContactInfoSidebar 
-                    recipient={activeConversation.recipient} 
+                  <ContactInfoSidebar
+                    recipient={activeConversation.recipient}
                   />
                 )}
               </Box>
             </Box>
           ) : (
-          /* Empty Chat / New Chat state with "To:" header (Image 1 Mockup) */
-          <Box sx={{ display: "flex", flexDirection: "column", height: "100%", width: "100%" }}>
-            {/* "To: + Recipients" Header Panel */}
-            <Box 
-              sx={{ 
-                px: 3, 
-                py: 2, 
-                borderBottom: "1px solid", 
-                borderColor: "divider",
-                display: "flex",
-                alignItems: "center",
-                gap: 2
-              }}
-            >
-              <Typography variant="body2" fontWeight={700} color="text.primary">
-                To:
-              </Typography>
+            /* Empty Chat / New Chat state with "To:" header (Image 1 Mockup) */
+            <Box sx={{ display: "flex", flexDirection: "column", height: "100%", width: "100%" }}>
+              {/* "To: + Recipients" Header Panel */}
               <Box
-                sx={{ position: "relative", width: "100%", maxWidth: 240 }}
+                sx={{
+                  px: 3,
+                  py: 2,
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2
+                }}
               >
-                <Box 
-                  component="input" 
-                  placeholder="+ Recipients"
-                  value={recipientSearchText}
-                  onChange={(e) => setRecipientSearchText(e.target.value)}
-                  sx={{ 
-                    outline: "none",
-                    border: "1px solid", 
-                    borderColor: "rgba(145, 158, 171, 0.24)", 
-                    borderRadius: 1,
-                    px: 1.5,
-                    py: 0.75,
-                    fontSize: "13px",
-                    color: "text.primary",
-                    width: "100%",
-                    bgcolor: "transparent",
-                    fontFamily: "inherit",
-                    "&:focus": {
-                      borderColor: "brand.main"
-                    }
-                  }}
-                />
-                 {recipientSearchText && searchResults && (
+                <Typography variant="body2" fontWeight={700} color="text.primary">
+                  To:
+                </Typography>
+                <Box
+                  sx={{ position: "relative", width: "100%", maxWidth: 240 }}
+                >
                   <Box
+                    component="input"
+                    placeholder="+ Recipients"
+                    value={recipientSearchText}
+                    onChange={(e) => setRecipientSearchText(e.target.value)}
                     sx={{
-                      position: "absolute",
-                      top: "100%",
-                      left: 0,
-                      right: 0,
-                      zIndex: 10,
-                      bgcolor: "background.paper",
+                      outline: "none",
                       border: "1px solid",
-                      borderColor: "divider",
+                      borderColor: "rgba(145, 158, 171, 0.24)",
                       borderRadius: 1,
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      maxHeight: 200,
-                      overflowY: "auto",
-                      mt: 0.5
+                      px: 1.5,
+                      py: 0.75,
+                      fontSize: "13px",
+                      color: "text.primary",
+                      width: "100%",
+                      bgcolor: "transparent",
+                      fontFamily: "inherit",
+                      "&:focus": {
+                        borderColor: "brand.main"
+                      }
                     }}
-                  >
-                    {searchResults.map((u) => (
-                      <Box
-                        key={u.id}
-                        onClick={async () => {
-                          setRecipientSearchText("");
-                          const res = await createConversationMutation.mutateAsync(u.id);
-                          if (res && res.result > 0) {
-                            setSearchParams({ id: res.result });
-                          }
-                        }}
-                        sx={{
-                          px: 2,
-                          py: 1,
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                          "&:hover": {
-                            bgcolor: "action.hover"
-                          }
-                        }}
-                      >
-                        <Avatar 
-                          src={u.avatar || defaultAvatar} 
-                          onError={(e) => {
-                            e.target.src = defaultAvatar;
+                  />
+                  {recipientSearchText && searchResults && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        zIndex: 10,
+                        bgcolor: "background.paper",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 1,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        maxHeight: 200,
+                        overflowY: "auto",
+                        mt: 0.5
+                      }}
+                    >
+                      {searchResults.map((u) => (
+                        <Box
+                          key={u.id}
+                          onClick={async () => {
+                            setRecipientSearchText("");
+                            const res = await createConversationMutation.mutateAsync(u.id);
+                            if (res && res.result > 0) {
+                              setSearchParams({ id: res.result });
+                            }
                           }}
-                          sx={{ width: 24, height: 24 }} 
-                        />
-                        <Typography variant="body2" fontWeight={600}>
-                          {u.fullName}
-                        </Typography>
-                      </Box>
-                    ))}
-                    {searchResults.length === 0 && (
-                      <Box sx={{ px: 2, py: 1.5 }}>
-                        <Typography variant="caption" color="text.secondary">
-                          No contacts found
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
-                )}
+                          sx={{
+                            px: 2,
+                            py: 1,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.5,
+                            "&:hover": {
+                              bgcolor: "action.hover"
+                            }
+                          }}
+                        >
+                          <Avatar
+                            src={u.avatar || defaultAvatar}
+                            onError={(e) => {
+                              e.target.src = defaultAvatar;
+                            }}
+                            sx={{ width: 24, height: 24 }}
+                          />
+                          <Typography variant="body2" fontWeight={600}>
+                            {u.fullName}
+                          </Typography>
+                        </Box>
+                      ))}
+                      {searchResults.length === 0 && (
+                        <Box sx={{ px: 2, py: 1.5 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            No contacts found
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+
+              {/* NoData Empty State illustration */}
+              <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "background.alt" }}>
+                <NoData
+                  image={chatEmptyImg}
+                  title="Good morning!"
+                  description="Write something awesome... Select a conversation from the list to start messaging."
+                  imageWidth={160}
+                  minHeight="300px"
+                />
               </Box>
             </Box>
-
-            {/* NoData Empty State illustration */}
-            <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "background.alt" }}>
-              <NoData
-                image={chatEmptyImg}
-                title="Good morning!"
-                description="Write something awesome... Select a conversation from the list to start messaging."
-                imageWidth={160}
-                minHeight="300px"
-              />
-            </Box>
-          </Box>
-        )}
+          )}
+        </Box>
       </Box>
-    </Box>
-  </MainCard>
+    </MainCard>
   );
 }

@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
-using Edunary.Application.DirectMessages.Queries;
+using Edunary.Application.DirectMessages.Queries.GetConversationMessagesQuery;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -25,8 +26,6 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
     private readonly IUser _currentUser;
     private readonly IIdentityService _identityService;
     private readonly IAppHubService _appHubService;
-    private readonly IConnectionManagerService _connectionManager;
-    private readonly INotifyService _notifyService;
     private readonly IMapper _mapper;
     private readonly ILogger<SendMessageCommandHandler> _logger;
 
@@ -35,8 +34,6 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
         IUser currentUser,
         IIdentityService identityService,
         IAppHubService appHubService,
-        IConnectionManagerService connectionManager,
-        INotifyService notifyService,
         IMapper mapper,
         ILogger<SendMessageCommandHandler> logger)
     {
@@ -44,8 +41,6 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
         _currentUser = currentUser;
         _identityService = identityService;
         _appHubService = appHubService;
-        _connectionManager = connectionManager;
-        _notifyService = notifyService;
         _mapper = mapper;
         _logger = logger;
     }
@@ -78,20 +73,9 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
                 ? conversation.ParticipantTwoId
                 : conversation.ParticipantOneId;
 
-            // Check if current user is the instructor of the other participant
-            var currentIsInstructor = await IsInstructorForParticipantAsync(currentUserId, otherParticipantId, cancellationToken);
-
             if (conversation.IsBlocked)
             {
-                if (currentIsInstructor)
-                {
-                    // Auto-unblock if instructor sends a message
-                    conversation.IsBlocked = false;
-                }
-                else
-                {
-                    return Result.Failure("You cannot send messages because the conversation is blocked.");
-                }
+                return Result.Failure("You cannot send messages because the conversation is blocked.");
             }
 
             // Create new Message
@@ -102,6 +86,8 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
                 Content = request.Content,
                 IsRead = false
             };
+
+            message.AddDomainEvent(new MessageCreatedEvent(message));
 
             _context.Messages.Add(message);
 
@@ -125,7 +111,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
 
     private async Task BroadcastNewMessageAsync(
         Message message,
-        Domain.Entities.Conversation conversation,
+        Conversation conversation,
         string recipientId,
         CancellationToken cancellationToken)
     {
@@ -146,21 +132,6 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
                 $"conversation:{conversation.Id}",
                 "ReceiveMessage",
                 messageDto);
-
-            // Send in-app notification only if the recipient is offline
-            var recipientOnline = await _connectionManager.IsConnectedAsync(recipientId);
-            if (!recipientOnline)
-            {
-                await _notifyService.NotifyUserAsync(
-                    recipientId,
-                    "New Message",
-                    $"{senderName} sent you a message.",
-                    "direct_message",
-                    new { conversationId = conversation.Id },
-                    cancellationToken,
-                    url: "/messages",
-                    imageUrl: senderAvatar ?? "");
-            }
         }
         catch (Exception ex)
         {
@@ -168,34 +139,5 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
                 "Failed to broadcast message {MessageId} for conversation {ConversationId}.",
                 message.Id, conversation.Id);
         }
-    }
-
-    private async Task<bool> IsInstructorForParticipantAsync(string instructorId, string studentId, CancellationToken cancellationToken)
-    {
-        var studentEnrollments = await _context.Enrollments
-            .Where(e => e.StudentId == studentId)
-            .Select(e => e.CourseId)
-            .ToListAsync(cancellationToken);
-
-        if (!studentEnrollments.Any())
-        {
-            return false;
-        }
-
-        var isOwner = await _context.Courses
-            .AnyAsync(c => c.CreatedBy == instructorId && studentEnrollments.Contains(c.Id), cancellationToken);
-
-        if (isOwner)
-        {
-            return true;
-        }
-
-        var isCollaborator = await _context.CourseCollaborators
-            .AnyAsync(cc => cc.UserId == instructorId
-                && cc.IsVisible
-                && cc.InviteStatus == Domain.Enums.CollaboratorInviteStatus.Accepted
-                && studentEnrollments.Contains(cc.CourseId), cancellationToken);
-
-        return isCollaborator;
     }
 }

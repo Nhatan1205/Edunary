@@ -1,9 +1,10 @@
 import { Box, Avatar, Typography, Badge, Stack } from "@mui/material";
 import { formatTimeAgo } from "../../utils/helpers";
 import defaultAvatar from "../../assets/images/avatar.jpg";
+import PushPinIcon from "@mui/icons-material/PushPin";
 
 export default function ConversationItem({ conversation, active, onClick, currentUserId }) {
-  const { recipient, lastMessage, unreadCount, lastMessageAt } = conversation;
+  const { recipient, lastMessage, unreadCount, lastMessageAt, isImportant } = conversation;
 
   // Format message preview
   const getPreviewText = () => {
@@ -99,7 +100,7 @@ export default function ConversationItem({ conversation, active, onClick, curren
           >
             {getPreviewText()}
           </Typography>
-          {unreadCount > 0 && (
+          {unreadCount > 0 ? (
             <Box
               sx={{
                 ml: 1,
@@ -119,7 +120,17 @@ export default function ConversationItem({ conversation, active, onClick, curren
             >
               {unreadCount}
             </Box>
-          )}
+          ) : isImportant ? (
+            <PushPinIcon
+              sx={{
+                ml: 1,
+                fontSize: 16,
+                color: "grey.600",
+                transform: "rotate(45deg)",
+                flexShrink: 0
+              }}
+            />
+          ) : null}
         </Stack>
       </Box>
     </Box>

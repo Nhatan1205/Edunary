@@ -1,8 +1,6 @@
-using System;
-using AutoMapper;
 using Edunary.Domain.Entities;
 
-namespace Edunary.Application.DirectMessages.Queries;
+namespace Edunary.Application.DirectMessages.Queries.GetConversationMessagesQuery;
 
 public class MessageDto
 {

@@ -1,16 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
-using Edunary.Application.DirectMessages.Queries;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace Edunary.Application.DirectMessages.Queries.GetConversationsQuery;
 
@@ -29,17 +23,20 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
     private readonly IUser _currentUser;
     private readonly IIdentityService _identityService;
     private readonly IMapper _mapper;
+    private readonly IConnectionManagerService _connectionManager;
 
     public GetConversationsQueryHandler(
         IApplicationDbContext context,
         IUser currentUser,
         IIdentityService identityService,
-        IMapper mapper)
+        IMapper mapper,
+        IConnectionManagerService connectionManager)
     {
         _context = context;
         _currentUser = currentUser;
         _identityService = identityService;
         _mapper = mapper;
+        _connectionManager = connectionManager;
     }
 
     public async Task<PaginatedList<ConversationDto>> Handle(GetConversationsQuery request, CancellationToken cancellationToken)
@@ -90,14 +87,16 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             }
         }
 
-        // Apply sorting
+        // Apply sorting (prioritize important conversations first)
+        var sortedQuery = query.OrderByDescending(c => c.UserSettings.Any(s => s.UserId == currentUserId && s.IsImportant));
+
         if (!string.IsNullOrEmpty(request.SortBy) && request.SortBy.Equals("oldest", StringComparison.OrdinalIgnoreCase))
         {
-            query = query.OrderBy(c => c.LastMessageAt);
+            query = sortedQuery.ThenBy(c => c.LastMessageAt);
         }
         else
         {
-            query = query.OrderByDescending(c => c.LastMessageAt);
+            query = sortedQuery.ThenByDescending(c => c.LastMessageAt);
         }
 
         // Paginate conversations
@@ -117,6 +116,14 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             .ToList();
 
         var recipientProfiles = await _identityService.GetUserIdentitiesByIdsAsync(recipientIds, cancellationToken);
+        
+        bool[] onlineResults = await Task.WhenAll(
+            recipientIds.Select(id => _connectionManager.IsConnectedAsync(id)));
+
+        var onlineMap = recipientIds
+            .Zip(onlineResults, (id, isOnline) => (id, isOnline))
+            .ToDictionary(x => x.id, x => x.isOnline);
+
         var profileDict = recipientProfiles.ToDictionary(p => p.Id);
 
         // Batch fetch unread counts in a single group-by query
@@ -138,6 +145,7 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             var recipientId = item.ParticipantOneId == currentUserId ? item.ParticipantTwoId : item.ParticipantOneId;
             if (profileDict.TryGetValue(recipientId, out var profile))
             {
+                profile.Online = onlineMap.GetValueOrDefault(recipientId, false);
                 item.Recipient = profile;
             }
 
@@ -155,6 +163,10 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             {
                 item.IsImportant = userSetting.IsImportant;
                 item.IsMarkedUnread = userSetting.IsMarkedUnread;
+                if (userSetting.IsMarkedUnread && item.UnreadCount == 0)
+                {
+                    item.UnreadCount = 1;
+                }
             }
             else
             {

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, InputBase, IconButton } from "@mui/material";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 
-export default function MessageInput({ onSendMessage, disabled }) {
+export default function MessageInput({ onSendMessage }) {
   const [text, setText] = useState("");
 
   const handleSend = () => {
@@ -33,8 +33,7 @@ export default function MessageInput({ onSendMessage, disabled }) {
       {/* Input Field */}
       <InputBase
         fullWidth
-        disabled={disabled}
-        placeholder={disabled ? "Conversation is blocked" : "Type a message..."}
+        placeholder="Type a message..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -51,12 +50,12 @@ export default function MessageInput({ onSendMessage, disabled }) {
       {/* Send Button */}
       <IconButton
         onClick={handleSend}
-        disabled={disabled || !text.trim()}
+        disabled={!text.trim()}
         sx={{
-          bgcolor: text.trim() && !disabled ? "brand.main" : "transparent",
-          color: text.trim() && !disabled ? "white" : "text.disabled",
+          bgcolor: text.trim() ? "brand.main" : "transparent",
+          color: text.trim() ? "white" : "text.disabled",
           "&:hover": {
-            bgcolor: text.trim() && !disabled ? "brand.dark" : "transparent"
+            bgcolor: text.trim() ? "brand.dark" : "transparent"
           },
           transition: "all 0.2s"
         }}

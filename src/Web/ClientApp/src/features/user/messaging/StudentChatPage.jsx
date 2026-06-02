@@ -11,7 +11,9 @@ import {
   Container,
   Paper,
   CircularProgress,
-  Skeleton
+  Skeleton,
+  Menu,
+  MenuItem
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -24,6 +26,7 @@ import ConversationListPanel from "../../../components/chat/ConversationListPane
 import MessageList from "../../../components/chat/MessageList";
 import MessageInput from "../../../components/chat/MessageInput";
 import ContactInfoSidebar from "../../../components/chat/ContactInfoSidebar";
+import AlertBox from "../../../components/AlertBox";
 
 import useConversationRealtime from "../../../hooks/dm-hooks/useConversationRealtime";
 import useGetConversations from "../../../hooks/dm-hooks/useGetConversations";
@@ -32,6 +35,9 @@ import useSendMessage from "../../../hooks/dm-hooks/useSendMessage";
 import useCreateConversation from "../../../hooks/dm-hooks/useCreateConversation";
 import useSearchUsers from "../../../hooks/dm-hooks/useSearchUsers";
 import useGetBasicUserInfo from "../../../hooks/auth-hooks/useGetBasicUserInfor";
+import useToggleConversationRead from "../../../hooks/dm-hooks/useToggleConversationRead";
+import useToggleConversationImportant from "../../../hooks/dm-hooks/useToggleConversationImportant";
+import useToggleConversationBlock from "../../../hooks/dm-hooks/useToggleConversationBlock";
 import queryClient from "../../../configs/reactQuery.js";
 
 import chatEmptyImg from "../../../assets/images/chat_empty.png";
@@ -102,9 +108,72 @@ function StudentChatPageContent() {
     return conversations.find(c => String(c.id) === String(activeId));
   }, [conversations, activeId]);
 
+  const toggleReadMutation = useToggleConversationRead();
+  const [menuAnchor, setMenuAnchor] = useState(null);
+
+  const handleMenuOpen = (event) => {
+    setMenuAnchor(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
+  const handleToggleRead = () => {
+    handleMenuClose();
+    if (activeConversation) {
+      const isCurrentlyUnread = activeConversation.unreadCount > 0 || activeConversation.isMarkedUnread;
+      toggleReadMutation.mutate({
+        conversationId: activeConversation.id,
+        isRead: isCurrentlyUnread
+      });
+    }
+  };
+
+  const toggleImportantMutation = useToggleConversationImportant();
+  const toggleBlockMutation = useToggleConversationBlock();
+
+  const handleToggleImportant = () => {
+    handleMenuClose();
+    if (activeConversation) {
+      toggleImportantMutation.mutate({
+        conversationId: activeConversation.id,
+        isImportant: !activeConversation.isImportant
+      });
+    }
+  };
+
+  const handleToggleBlock = () => {
+    handleMenuClose();
+    if (activeConversation) {
+      toggleBlockMutation.mutate({
+        conversationId: activeConversation.id,
+        isBlocked: !activeConversation.isBlocked
+      });
+    }
+  };
+
+  const hasMarkedReadRef = React.useRef(false);
+
+  // Automatically mark active conversation as read once on initial load
+  useEffect(() => {
+    if (activeId && conversations.length > 0 && !hasMarkedReadRef.current) {
+      const conv = conversations.find(c => String(c.id) === String(activeId));
+      if (conv) {
+        if (conv.unreadCount > 0 || conv.isMarkedUnread) {
+          toggleReadMutation.mutate({ conversationId: Number(activeId), isRead: true });
+        }
+        hasMarkedReadRef.current = true;
+      }
+    }
+  }, [conversations, activeId]);
+
   // Handle active conversation selection
   const handleSelectConversation = (id) => {
     setSearchParams({ id });
+    const conv = conversations.find(c => String(c.id) === String(id));
+    if (conv && (conv.unreadCount > 0 || conv.isMarkedUnread)) {
+      toggleReadMutation.mutate({ conversationId: Number(id), isRead: true });
+    }
   };
 
   const handleNewChat = () => {
@@ -262,7 +331,42 @@ function StudentChatPageContent() {
                   >
                     {sidebarOpen ? <ChevronRightIcon sx={{ fontSize: 20 }} /> : <ChevronLeftIcon sx={{ fontSize: 20 }} />}
                   </IconButton>
-                  <IconButton sx={{ color: "text.secondary" }}><MoreVertIcon sx={{ fontSize: 20 }} /></IconButton>
+                  <IconButton
+                    onClick={handleMenuOpen}
+                    sx={{ color: "text.secondary" }}
+                  >
+                    <MoreVertIcon sx={{ fontSize: 20 }} />
+                  </IconButton>
+                  <Menu
+                    anchorEl={menuAnchor}
+                    open={Boolean(menuAnchor)}
+                    onClose={handleMenuClose}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                  >
+                    <MenuItem onClick={handleToggleRead}>
+                      {activeConversation?.unreadCount > 0 || activeConversation?.isMarkedUnread
+                        ? "Mark as read"
+                        : "Mark as unread"}
+                    </MenuItem>
+                    <MenuItem onClick={handleToggleImportant}>
+                      {activeConversation?.isImportant ? "Mark as unimportant" : "Mark as important"}
+                    </MenuItem>
+                    <MenuItem
+                      onClick={handleToggleBlock}
+                      disabled={activeConversation?.isBlocked && activeConversation?.lastModifiedBy !== currentUserId}
+                    >
+                      {activeConversation?.isBlocked
+                        ? (activeConversation?.lastModifiedBy === currentUserId ? "Unblock" : "Block")
+                        : "Block"}
+                    </MenuItem>
+                  </Menu>
                 </Stack>
               </Box>
 
@@ -284,11 +388,27 @@ function StudentChatPageContent() {
                       isFetchingNextPage={isFetchingNextPage}
                     />
 
-                    {/* Message Input */}
-                    <MessageInput
-                      onSendMessage={handleSendMessage}
-                      disabled={activeConversation.isBlocked}
-                    />
+                    {/* Message Input or Block Alert */}
+                    {activeConversation.isBlocked ? (
+                      <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
+                        <AlertBox
+                          severity="error"
+                          title={
+                            activeConversation.lastModifiedBy === currentUserId
+                              ? "You have blocked this conversation. Unblock to resume messaging."
+                              : "You cannot reply to this conversation."
+                          }
+                          sx={{
+                            my: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            "& .MuiAlertTitle-root": { mb: 0 }
+                          }}
+                        />
+                      </Box>
+                    ) : (
+                      <MessageInput onSendMessage={handleSendMessage} />
+                    )}
                   </Box>
                 ) : null}
 

@@ -11,6 +11,8 @@ import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import defaultAvatar from "../../../../../assets/images/avatar.jpg";
 import { formatShortDate, formatTimeAgo } from "../../../../../utils/helpers";
 import useGetInstructorStudentDetail from "../../../../../hooks/enrollment-hooks/useGetInstructorStudentDetail";
+import { useNavigate } from "react-router";
+import useCreateConversation from "../../../../../hooks/dm-hooks/useCreateConversation";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -106,6 +108,22 @@ function CourseProgressCard({ course }) {
 // ── Drawer ────────────────────────────────────────────────────────────────────
 function StudentDetailDrawer({ open, onClose, studentId }) {
     const { data: detail, isLoading } = useGetInstructorStudentDetail(studentId);
+    const createConversation = useCreateConversation();
+    const navigate = useNavigate();
+
+    const handleMessageClick = async () => {
+        if (!detail?.studentId) return;
+        try {
+            const res = await createConversation.mutateAsync(detail.studentId);
+            if (res && res.result > 0) {
+                onClose();
+                navigate(`/instructor/communication/messages?id=${res.result}`);
+            }
+        } catch (err) {
+            // Handled by mutation toast
+        }
+    };
+
     return (
         <Drawer
             anchor="right"
@@ -211,7 +229,8 @@ function StudentDetailDrawer({ open, onClose, studentId }) {
                                     size="small"
                                     variant="contained"
                                     startIcon={<MailOutlineIcon sx={{ fontSize: 15 }} />}
-                                    onClick={() => window.open(`/messages?user=${detail.studentId}`, "_blank")}
+                                    onClick={handleMessageClick}
+                                    disabled={createConversation.isPending}
                                     sx={{
                                         borderRadius: "8px",
                                         bgcolor: "brand.main",
@@ -224,7 +243,7 @@ function StudentDetailDrawer({ open, onClose, studentId }) {
                                         "&:hover": { bgcolor: "brand.dark", boxShadow: "none" },
                                     }}
                                 >
-                                    Message
+                                    {createConversation.isPending ? "Connecting..." : "Message"}
                                 </Button>
                             </Box>
                         </Box>

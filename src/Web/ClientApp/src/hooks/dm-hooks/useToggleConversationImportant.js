@@ -1,18 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { DirectMessagesClient, SendMessageCommand } from "../../web-api-client.ts";
+import { DirectMessagesClient, ToggleConversationImportantCommand } from "../../web-api-client.ts";
 import { extractApiError } from "../../utils/helpers.js";
 import queryClient from "../../configs/reactQuery.js";
 
-const useSendMessage = () => {
+const useToggleConversationImportant = () => {
   return useMutation({
-    mutationFn: async ({ conversationId, content }) => {
+    mutationFn: async ({ conversationId, isImportant }) => {
       const client = new DirectMessagesClient();
-      const command = new SendMessageCommand({ conversationId, content });
-      return await client.sendMessage(conversationId, command);
+      const command = new ToggleConversationImportantCommand({ conversationId, isImportant });
+      return await client.toggleConversationImportant(command);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries(["messages", variables.conversationId]);
+    onSuccess: () => {
       queryClient.invalidateQueries(["conversations"]);
     },
     onError: (error) => {
@@ -22,4 +21,4 @@ const useSendMessage = () => {
   });
 };
 
-export default useSendMessage;
+export default useToggleConversationImportant;

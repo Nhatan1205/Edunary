@@ -1,10 +1,8 @@
-using System;
-using AutoMapper;
-using Edunary.Application.Common.Models;
+﻿using Edunary.Application.Common.Models;
+using Edunary.Application.DirectMessages.Queries.GetConversationMessagesQuery;
 using Edunary.Domain.Entities;
 
-namespace Edunary.Application.DirectMessages.Queries;
-
+namespace Edunary.Application.DirectMessages.Queries.GetConversationsQuery;
 public class ConversationDto
 {
     public int Id { get; set; }
@@ -17,6 +15,7 @@ public class ConversationDto
     public bool IsMarkedUnread { get; set; }
     public DateTimeOffset Created { get; set; }
     public string CreatedBy { get; set; }
+    public string LastModifiedBy { get; set; }
 
     public MessageDto LastMessage { get; set; }
     public UserIdentityDto Recipient { get; set; }

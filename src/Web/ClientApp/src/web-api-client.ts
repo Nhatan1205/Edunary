@@ -5397,11 +5397,11 @@ export class DirectMessagesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    getConversationMessages(conversationIdPath: number, cursor: number | null | undefined, pageSize: number): Promise<CursorPaginatedListOfMessageDto> {
+    getConversationMessages(conversationId: number, cursor: number | null | undefined, pageSize: number): Promise<CursorPaginatedListOfMessageDto> {
         let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/messages?";
-        if (conversationIdPath === undefined || conversationIdPath === null)
-            throw new Error("The parameter 'conversationIdPath' must be defined.");
-        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationIdPath));
+        if (conversationId === undefined || conversationId === null)
+            throw new Error("The parameter 'conversationId' must be defined.");
+        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
         if (cursor !== undefined && cursor !== null)
             url_ += "Cursor=" + encodeURIComponent("" + cursor) + "&";
         if (pageSize === undefined || pageSize === null)
@@ -5485,45 +5485,8 @@ export class DirectMessagesClient {
         return Promise.resolve<UserIdentityDto[]>(null as any);
     }
 
-    markConversationRead(conversationId: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/read";
-        if (conversationId === undefined || conversationId === null)
-            throw new Error("The parameter 'conversationId' must be defined.");
-        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "PUT",
-            headers: {
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processMarkConversationRead(_response);
-        });
-    }
-
-    protected processMarkConversationRead(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    toggleConversationSetting(conversationId: number, command: ToggleConversationSettingCommand | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/settings";
-        if (conversationId === undefined || conversationId === null)
-            throw new Error("The parameter 'conversationId' must be defined.");
-        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+    toggleConversationRead(command: ToggleConversationReadCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/read";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -5537,11 +5500,11 @@ export class DirectMessagesClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processToggleConversationSetting(_response);
+            return this.processToggleConversationRead(_response);
         });
     }
 
-    protected processToggleConversationSetting(response: Response): Promise<void> {
+    protected processToggleConversationRead(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -5557,25 +5520,26 @@ export class DirectMessagesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    blockConversation(conversationId: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/block";
-        if (conversationId === undefined || conversationId === null)
-            throw new Error("The parameter 'conversationId' must be defined.");
-        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+    toggleConversationImportant(command: ToggleConversationImportantCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/important";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(command);
+
         let options_: RequestInit = {
+            body: content_,
             method: "PUT",
             headers: {
+                "Content-Type": "application/json",
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processBlockConversation(_response);
+            return this.processToggleConversationImportant(_response);
         });
     }
 
-    protected processBlockConversation(response: Response): Promise<void> {
+    protected processToggleConversationImportant(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -5591,25 +5555,26 @@ export class DirectMessagesClient {
         return Promise.resolve<void>(null as any);
     }
 
-    unblockConversation(conversationId: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/DirectMessages/conversations/{conversationId}/unblock";
-        if (conversationId === undefined || conversationId === null)
-            throw new Error("The parameter 'conversationId' must be defined.");
-        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+    toggleConversationBlock(command: ToggleConversationBlockCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/DirectMessages/conversations/block";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(command);
+
         let options_: RequestInit = {
+            body: content_,
             method: "PUT",
             headers: {
+                "Content-Type": "application/json",
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUnblockConversation(_response);
+            return this.processToggleConversationBlock(_response);
         });
     }
 
-    protected processUnblockConversation(response: Response): Promise<void> {
+    protected processToggleConversationBlock(response: Response): Promise<void> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -21169,6 +21134,7 @@ export class ConversationDto implements IConversationDto {
     isMarkedUnread?: boolean;
     created?: Date;
     createdBy?: string | undefined;
+    lastModifiedBy?: string | undefined;
     lastMessage?: MessageDto | undefined;
     recipient?: UserIdentityDto | undefined;
     unreadCount?: number;
@@ -21194,6 +21160,7 @@ export class ConversationDto implements IConversationDto {
             this.isMarkedUnread = _data["isMarkedUnread"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
+            this.lastModifiedBy = _data["lastModifiedBy"];
             this.lastMessage = _data["lastMessage"] ? MessageDto.fromJS(_data["lastMessage"]) : <any>undefined;
             this.recipient = _data["recipient"] ? UserIdentityDto.fromJS(_data["recipient"]) : <any>undefined;
             this.unreadCount = _data["unreadCount"];
@@ -21219,6 +21186,7 @@ export class ConversationDto implements IConversationDto {
         data["isMarkedUnread"] = this.isMarkedUnread;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
+        data["lastModifiedBy"] = this.lastModifiedBy;
         data["lastMessage"] = this.lastMessage ? this.lastMessage.toJSON() : <any>undefined;
         data["recipient"] = this.recipient ? this.recipient.toJSON() : <any>undefined;
         data["unreadCount"] = this.unreadCount;
@@ -21237,6 +21205,7 @@ export interface IConversationDto {
     isMarkedUnread?: boolean;
     created?: Date;
     createdBy?: string | undefined;
+    lastModifiedBy?: string | undefined;
     lastMessage?: MessageDto | undefined;
     recipient?: UserIdentityDto | undefined;
     unreadCount?: number;
@@ -21320,6 +21289,7 @@ export class UserIdentityDto implements IUserIdentityDto {
     lockoutEnd?: Date | undefined;
     lastLoginTime?: Date | undefined;
     createdAt?: Date;
+    online?: boolean;
 
     constructor(data?: IUserIdentityDto) {
         if (data) {
@@ -21349,6 +21319,7 @@ export class UserIdentityDto implements IUserIdentityDto {
             this.lockoutEnd = _data["lockoutEnd"] ? new Date(_data["lockoutEnd"].toString()) : <any>undefined;
             this.lastLoginTime = _data["lastLoginTime"] ? new Date(_data["lastLoginTime"].toString()) : <any>undefined;
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.online = _data["online"];
         }
     }
 
@@ -21378,6 +21349,7 @@ export class UserIdentityDto implements IUserIdentityDto {
         data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
         data["lastLoginTime"] = this.lastLoginTime ? this.lastLoginTime.toISOString() : <any>undefined;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["online"] = this.online;
         return data;
     }
 }
@@ -21396,6 +21368,7 @@ export interface IUserIdentityDto {
     lockoutEnd?: Date | undefined;
     lastLoginTime?: Date | undefined;
     createdAt?: Date;
+    online?: boolean;
 }
 
 export enum UserStatus {
@@ -21453,12 +21426,11 @@ export interface ICursorPaginatedListOfMessageDto {
     hasMore?: boolean;
 }
 
-export class ToggleConversationSettingCommand implements IToggleConversationSettingCommand {
+export class ToggleConversationReadCommand implements IToggleConversationReadCommand {
     conversationId?: number;
-    setting?: string | undefined;
-    value?: boolean;
+    isRead?: boolean;
 
-    constructor(data?: IToggleConversationSettingCommand) {
+    constructor(data?: IToggleConversationReadCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -21470,14 +21442,13 @@ export class ToggleConversationSettingCommand implements IToggleConversationSett
     init(_data?: any) {
         if (_data) {
             this.conversationId = _data["conversationId"];
-            this.setting = _data["setting"];
-            this.value = _data["value"];
+            this.isRead = _data["isRead"];
         }
     }
 
-    static fromJS(data: any): ToggleConversationSettingCommand {
+    static fromJS(data: any): ToggleConversationReadCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new ToggleConversationSettingCommand();
+        let result = new ToggleConversationReadCommand();
         result.init(data);
         return result;
     }
@@ -21485,16 +21456,94 @@ export class ToggleConversationSettingCommand implements IToggleConversationSett
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["conversationId"] = this.conversationId;
-        data["setting"] = this.setting;
-        data["value"] = this.value;
+        data["isRead"] = this.isRead;
         return data;
     }
 }
 
-export interface IToggleConversationSettingCommand {
+export interface IToggleConversationReadCommand {
     conversationId?: number;
-    setting?: string | undefined;
-    value?: boolean;
+    isRead?: boolean;
+}
+
+export class ToggleConversationImportantCommand implements IToggleConversationImportantCommand {
+    conversationId?: number;
+    isImportant?: boolean;
+
+    constructor(data?: IToggleConversationImportantCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.conversationId = _data["conversationId"];
+            this.isImportant = _data["isImportant"];
+        }
+    }
+
+    static fromJS(data: any): ToggleConversationImportantCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ToggleConversationImportantCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["conversationId"] = this.conversationId;
+        data["isImportant"] = this.isImportant;
+        return data;
+    }
+}
+
+export interface IToggleConversationImportantCommand {
+    conversationId?: number;
+    isImportant?: boolean;
+}
+
+export class ToggleConversationBlockCommand implements IToggleConversationBlockCommand {
+    conversationId?: number;
+    isBlocked?: boolean;
+
+    constructor(data?: IToggleConversationBlockCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.conversationId = _data["conversationId"];
+            this.isBlocked = _data["isBlocked"];
+        }
+    }
+
+    static fromJS(data: any): ToggleConversationBlockCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ToggleConversationBlockCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["conversationId"] = this.conversationId;
+        data["isBlocked"] = this.isBlocked;
+        return data;
+    }
+}
+
+export interface IToggleConversationBlockCommand {
+    conversationId?: number;
+    isBlocked?: boolean;
 }
 
 export class CheckUserEnrollmentDto implements ICheckUserEnrollmentDto {

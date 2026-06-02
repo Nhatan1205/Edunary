@@ -2,11 +2,9 @@ using System.Threading.Tasks;
 using Edunary.Application.Common.Models;
 using Edunary.Application.DirectMessages.Commands.CreateConversationCommand;
 using Edunary.Application.DirectMessages.Commands.SendMessageCommand;
-using Edunary.Application.DirectMessages.Commands.MarkConversationReadCommand;
-using Edunary.Application.DirectMessages.Commands.ToggleConversationSettingCommand;
-using Edunary.Application.DirectMessages.Commands.BlockConversationCommand;
-using Edunary.Application.DirectMessages.Commands.UnblockConversationCommand;
-using Edunary.Application.DirectMessages.Queries;
+using Edunary.Application.DirectMessages.Commands.ToggleConversationReadCommand;
+using Edunary.Application.DirectMessages.Commands.ToggleConversationImportantCommand;
+using Edunary.Application.DirectMessages.Commands.ToggleConversationBlockCommand;
 using Edunary.Application.DirectMessages.Queries.GetConversationMessagesQuery;
 using Edunary.Application.DirectMessages.Queries.GetConversationsQuery;
 using Edunary.Application.DirectMessages.Queries.SearchMessageableUsersQuery;
@@ -29,10 +27,9 @@ public class DirectMessages : EndpointGroupBase
             .MapGet(GetConversations, "conversations")
             .MapGet(GetConversationMessages, "conversations/{conversationId}/messages")
             .MapGet(SearchUsers, "search-users")
-            .MapPut(MarkConversationRead, "conversations/{conversationId}/read")
-            .MapPut(ToggleConversationSetting, "conversations/{conversationId}/settings")
-            .MapPut(BlockConversation, "conversations/{conversationId}/block")
-            .MapPut(UnblockConversation, "conversations/{conversationId}/unblock");
+            .MapPut(ToggleConversationRead, "conversations/read")
+            .MapPut(ToggleConversationImportant, "conversations/important")
+            .MapPut(ToggleConversationBlock, "conversations/block");
     }
 
     public async Task<ReturnResult<int>> CreateConversation(ISender sender, CreateConversationCommand command)
@@ -55,9 +52,8 @@ public class DirectMessages : EndpointGroupBase
         return await sender.Send(query);
     }
 
-    public async Task<CursorPaginatedList<MessageDto>> GetConversationMessages(ISender sender, int conversationId, [AsParameters] GetConversationMessagesQuery query)
+    public async Task<CursorPaginatedList<MessageDto>> GetConversationMessages(ISender sender, [AsParameters] GetConversationMessagesQuery query)
     {
-        query.ConversationId = conversationId;
         return await sender.Send(query);
     }
 
@@ -66,19 +62,8 @@ public class DirectMessages : EndpointGroupBase
         return await sender.Send(query);
     }
 
-    public async Task<IResult> MarkConversationRead(ISender sender, int conversationId)
+    public async Task<IResult> ToggleConversationRead(ISender sender, [FromBody] ToggleConversationReadCommand command)
     {
-        var result = await sender.Send(new MarkConversationReadCommand { ConversationId = conversationId });
-        if (!result.Succeeded)
-        {
-            return Results.BadRequest(result);
-        }
-        return Results.Ok(result);
-    }
-
-    public async Task<IResult> ToggleConversationSetting(ISender sender, int conversationId, [FromBody] ToggleConversationSettingCommand command)
-    {
-        command.ConversationId = conversationId;
         var result = await sender.Send(command);
         if (!result.Succeeded)
         {
@@ -87,9 +72,9 @@ public class DirectMessages : EndpointGroupBase
         return Results.Ok(result);
     }
 
-    public async Task<IResult> BlockConversation(ISender sender, int conversationId)
+    public async Task<IResult> ToggleConversationImportant(ISender sender, [FromBody] ToggleConversationImportantCommand command)
     {
-        var result = await sender.Send(new BlockConversationCommand { ConversationId = conversationId });
+        var result = await sender.Send(command);
         if (!result.Succeeded)
         {
             return Results.BadRequest(result);
@@ -97,9 +82,9 @@ public class DirectMessages : EndpointGroupBase
         return Results.Ok(result);
     }
 
-    public async Task<IResult> UnblockConversation(ISender sender, int conversationId)
+    public async Task<IResult> ToggleConversationBlock(ISender sender, [FromBody] ToggleConversationBlockCommand command)
     {
-        var result = await sender.Send(new UnblockConversationCommand { ConversationId = conversationId });
+        var result = await sender.Send(command);
         if (!result.Succeeded)
         {
             return Results.BadRequest(result);

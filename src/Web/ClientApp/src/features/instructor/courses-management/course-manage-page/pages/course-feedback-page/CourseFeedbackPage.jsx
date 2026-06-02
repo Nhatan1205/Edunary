@@ -130,6 +130,7 @@ export default function CourseFeedbackPage() {
   const submission = data?.latestSubmission ?? null;
   const feedbacks = submission?.feedbacks ?? [];
   const history = data?.submissionHistory ?? [];
+  const hasFeedbackContent = feedbacks.length > 0 || Boolean(submission?.adminNote?.trim());
 
   const statusCfg = submission ? (STATUS_CONFIG[submission.status] ?? STATUS_CONFIG[0]) : null;
 
@@ -178,29 +179,24 @@ export default function CourseFeedbackPage() {
             </Typography>
           </Box>
 
-          {feedbacks.length > 0 || submission.adminNote ? (
+          {hasFeedbackContent ? (
             <CourseFeedbackContent
               submission={submission}
               feedbacks={feedbacks}
               onToggleResolved={handleToggleResolved}
             />
           ) : (
-            <Box
-              sx={{
-                p: 3,
-                bgcolor: "background.paper",
-                border: "1px dashed",
-                borderColor: "divider",
-                textAlign: "center",
-                borderRadius: 1,
-              }}
-            >
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {submission.status === 0
+            <NoData
+              image={emptyCourseFeedbackImg}
+              title="No feedback available yet"
+              description={
+                submission.status === 0
                   ? "This submission is currently awaiting review. Feedback will appear here once reviewed."
-                  : "No feedback items for this submission."}
-              </Typography>
-            </Box>
+                  : "This submission was reviewed without any feedback items."
+              }
+              imageWidth={220}
+              minHeight="300px"
+            />
           )}
 
           {history.length > 0 && (

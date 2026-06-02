@@ -9,7 +9,6 @@ using AutoMapper.QueryableExtensions;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
-using Edunary.Application.DirectMessages.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

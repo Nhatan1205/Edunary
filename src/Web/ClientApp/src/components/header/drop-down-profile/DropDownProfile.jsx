@@ -1,6 +1,7 @@
 import { Help, Language, Logout, School, Settings } from "@mui/icons-material";
 import LocalLibraryOutlinedIcon from "@mui/icons-material/LocalLibraryOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import MobileDropDownProfile from "./Mobile/MobileDropDownProfile";
 import InterestsIcon from '@mui/icons-material/Interests';
 import DesktopDropDownProfile from "./Desktop/DesktopDropDownProfile";
@@ -18,6 +19,11 @@ const MENU_ITEMS = [
     title: "Notifications",
     icon: <NotificationsNoneOutlinedIcon fontSize="small" />,
     path: "/user/notifications",
+  },
+  {
+    title: "Messages",
+    icon: <ChatOutlinedIcon fontSize="small" />,
+    path: "/messages",
   },
   {
     title: "Account Settings",

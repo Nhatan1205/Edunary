@@ -14,6 +14,10 @@ import queryClient from "../../configs/reactQuery";
  *    every group that was tracked before the disconnect.
  *
  * 3. Listen to "ReceiveMessage" and update the React Query cache in real-time.
+ *    - For the sender: replaces the optimistic (temp) message with the real one
+ *      so there are no duplicates once the server confirms.
+ *    - For the recipient: prepends the new message directly.
+ *    - Invalidates the conversations list to refresh last-message preview & unread count.
  */
 const useConversationRealtime = (conversationIds, activeConversationId) => {
   const { on, invoke, onReconnected } = useSignalR();
@@ -54,28 +58,32 @@ const useConversationRealtime = (conversationIds, activeConversationId) => {
   // Listen to incoming messages in real-time
   useEffect(() => {
     const unsubscribe = on("ReceiveMessage", (message) => {
-      // Prepend to active conversation's cache immediately
+      // Update active conversation's message cache
       if (activeConversationId && activeConversationId === message.conversationId) {
         queryClient.setQueryData(["messages", activeConversationId], (old) => {
           if (!old) return old;
 
-          const messageExists = old.pages.some((page) =>
-            page.items?.some((item) => item.id === message.id)
-          );
-          if (messageExists) return old;
-
           const newPages = [...old.pages];
           if (newPages[0]) {
+            const existingItems = newPages[0].items || [];
+
+            // Remove any optimistic placeholder(s) AND any existing entry with same real id
+            // then prepend the confirmed server message — prevents duplicates for both
+            // sender (who has an optimistic entry) and recipient (who has nothing yet).
+            const filtered = existingItems.filter(
+              (item) => !item._optimistic && item.id !== message.id
+            );
+
             newPages[0] = {
               ...newPages[0],
-              items: [message, ...(newPages[0].items || [])],
+              items: [message, ...filtered],
             };
           }
           return { ...old, pages: newPages };
         });
       }
 
-      // Refresh conversation list (last message preview, unread count)
+      // Invalidate conversation list to refresh last-message preview and unread count.
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     });
 

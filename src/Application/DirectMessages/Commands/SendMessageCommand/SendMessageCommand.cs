@@ -7,7 +7,6 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Application.DirectMessages.Queries.GetConversationMessagesQuery;
 using Edunary.Domain.Entities;
-using Edunary.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -26,6 +25,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
     private readonly IUser _currentUser;
     private readonly IIdentityService _identityService;
     private readonly IAppHubService _appHubService;
+    private readonly INotifyService _notifyService;
     private readonly IMapper _mapper;
     private readonly ILogger<SendMessageCommandHandler> _logger;
 
@@ -34,6 +34,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
         IUser currentUser,
         IIdentityService identityService,
         IAppHubService appHubService,
+        INotifyService notifyService,
         IMapper mapper,
         ILogger<SendMessageCommandHandler> logger)
     {
@@ -41,6 +42,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
         _currentUser = currentUser;
         _identityService = identityService;
         _appHubService = appHubService;
+        _notifyService = notifyService;
         _mapper = mapper;
         _logger = logger;
     }
@@ -63,20 +65,24 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
                 return Result.Failure("Conversation not found.");
             }
 
-            // Verify current user is part of the conversation
             if (conversation.ParticipantOneId != currentUserId && conversation.ParticipantTwoId != currentUserId)
             {
                 return Result.Failure("You are not a participant in this conversation.");
+            }
+
+            if (conversation.IsBlocked)
+            {
+                return Result.Failure("You cannot send messages because the conversation is blocked.");
             }
 
             var otherParticipantId = conversation.ParticipantOneId == currentUserId
                 ? conversation.ParticipantTwoId
                 : conversation.ParticipantOneId;
 
-            if (conversation.IsBlocked)
-            {
-                return Result.Failure("You cannot send messages because the conversation is blocked.");
-            }
+            // Fetch sender
+            var senderUser = await _identityService.GetUserIdentityByIdAsync(currentUserId);
+            var senderName = senderUser?.FullName ?? "Unknown";
+            var senderAvatar = senderUser?.Avatar;
 
             // Create new Message
             var message = new Message
@@ -87,19 +93,21 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
                 IsRead = false
             };
 
-            message.AddDomainEvent(new MessageCreatedEvent(message));
-
             _context.Messages.Add(message);
 
             // Update Conversation details
             conversation.LastMessage = message;
             conversation.LastMessageAt = DateTimeOffset.UtcNow;
 
-            // SaveChanges first — EF Core assigns message.Id from DB BEFORE we broadcast
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Now message.Id is the real DB value — safe to broadcast via SignalR
-            await BroadcastNewMessageAsync(message, conversation, otherParticipantId, cancellationToken);
+            await DeliverMessageAndNotifyAsync(
+                message,
+                conversation,
+                otherParticipantId,
+                senderName,
+                senderAvatar,
+                cancellationToken);
 
             return Result.Success("Message sent successfully.");
         }
@@ -109,25 +117,20 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
         }
     }
 
-    private async Task BroadcastNewMessageAsync(
+    private async Task DeliverMessageAndNotifyAsync(
         Message message,
         Conversation conversation,
         string recipientId,
+        string senderName,
+        string senderAvatar,
         CancellationToken cancellationToken)
     {
         try
         {
-            // Retrieve sender profile info
-            var senderUser = await _identityService.GetUserIdentityByIdAsync(message.SenderId);
-            var senderName = senderUser?.FullName ?? "Unknown";
-            var senderAvatar = senderUser?.Avatar;
-
-            // Map to DTO — message.Id is now the real DB-assigned ID
             var messageDto = _mapper.Map<MessageDto>(message);
             messageDto.SenderName = senderName;
             messageDto.SenderAvatar = senderAvatar;
 
-            // Broadcast to all clients in the conversation group
             await _appHubService.SendToGroupAsync(
                 $"conversation:{conversation.Id}",
                 "ReceiveMessage",
@@ -138,6 +141,43 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
             _logger.LogError(ex,
                 "Failed to broadcast message {MessageId} for conversation {ConversationId}.",
                 message.Id, conversation.Id);
+        }
+
+        try
+        {
+            // Rate limit: skip notification if a message was sent within the last hour
+            var previousMessage = await _context.Messages
+                .Where(m => m.ConversationId == message.ConversationId && m.Id != message.Id)
+                .OrderByDescending(m => m.Created)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (previousMessage != null)
+            {
+                var timeSincePrevious = DateTimeOffset.UtcNow - previousMessage.Created;
+                if (timeSincePrevious.TotalHours < 1)
+                {
+                    _logger.LogInformation(
+                        "Skipping notification for recipient {RecipientId} — last message was {Minutes:F1} min ago.",
+                        recipientId, timeSincePrevious.TotalMinutes);
+                    return;
+                }
+            }
+
+            await _notifyService.NotifyUserAsync(
+                recipientId,
+                "New Message",
+                $"{senderName} sent you a message.",
+                "direct_message",
+                new { conversationId = conversation.Id },
+                cancellationToken,
+                url: "/messages",
+                imageUrl: senderAvatar ?? "");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Failed to send notification for message {MessageId} to recipient {RecipientId}.",
+                message.Id, recipientId);
         }
     }
 }

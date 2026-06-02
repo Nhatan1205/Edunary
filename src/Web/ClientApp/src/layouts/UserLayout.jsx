@@ -6,7 +6,7 @@ import Chatbot from "../components/chatbot/Chatbot";
 function UserLayout() {
   return (
     <div>
-      <ScrollRestoration />
+      <ScrollRestoration getKey={(location) => location.pathname} />
       <Header />
       <main className="mx-auto">
         <Outlet />

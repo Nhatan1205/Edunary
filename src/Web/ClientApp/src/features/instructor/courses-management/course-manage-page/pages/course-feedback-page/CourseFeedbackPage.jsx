@@ -5,6 +5,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import CourseFeedbackContent, { FeedbackCard } from "./CourseFeedbackContent";
 import NoData from "../../../../../../components/NoData";
+import emptyCourseFeedbackImg from "../../../../../../assets/images/empty-course-feedback.png";
 import useGetCourseReviewStatus from "../../../../../../hooks/course-review-hooks/useGetCourseReviewStatus";
 import useResolveReviewFeedback from "../../../../../../hooks/course-review-hooks/useResolveReviewFeedback";
 
@@ -151,8 +152,10 @@ export default function CourseFeedbackPage() {
     <Box sx={{ maxWidth: 820, mx: "auto" }}>
       {!submission ? (
         <NoData
+          image={emptyCourseFeedbackImg}
           title="No feedback available yet"
           description="Your course hasn't been submitted for review or hasn't received feedback from the review team yet."
+          imageWidth={220}
           minHeight="320px"
         />
       ) : (

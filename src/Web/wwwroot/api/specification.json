@@ -5279,26 +5279,6 @@
               "nullable": true
             },
             "x-position": 1
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 3
           }
         ],
         "responses": {
@@ -5307,7 +5287,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfUserIdentityDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserIdentityDto"
+                  }
                 }
               }
             }
@@ -15802,37 +15785,6 @@
             }
           },
           "hasMore": {
-            "type": "boolean"
-          }
-        }
-      },
-      "PaginatedListOfUserIdentityDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "items": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/UserIdentityDto"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
             "type": "boolean"
           }
         }

@@ -5441,18 +5441,10 @@ export class DirectMessagesClient {
         return Promise.resolve<CursorPaginatedListOfMessageDto>(null as any);
     }
 
-    searchUsers(searchText: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfUserIdentityDto> {
+    searchUsers(searchText: string | null | undefined): Promise<UserIdentityDto[]> {
         let url_ = this.baseUrl + "/api/DirectMessages/search-users?";
         if (searchText !== undefined && searchText !== null)
             url_ += "SearchText=" + encodeURIComponent("" + searchText) + "&";
-        if (pageNumber === undefined || pageNumber === null)
-            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
-        else
-            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        if (pageSize === undefined || pageSize === null)
-            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
-        else
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -5467,7 +5459,7 @@ export class DirectMessagesClient {
         });
     }
 
-    protected processSearchUsers(response: Response): Promise<PaginatedListOfUserIdentityDto> {
+    protected processSearchUsers(response: Response): Promise<UserIdentityDto[]> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -5475,7 +5467,14 @@ export class DirectMessagesClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfUserIdentityDto.fromJS(resultData200);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserIdentityDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -5483,7 +5482,7 @@ export class DirectMessagesClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<PaginatedListOfUserIdentityDto>(null as any);
+        return Promise.resolve<UserIdentityDto[]>(null as any);
     }
 
     markConversationRead(conversationId: number): Promise<void> {
@@ -21452,70 +21451,6 @@ export class CursorPaginatedListOfMessageDto implements ICursorPaginatedListOfMe
 export interface ICursorPaginatedListOfMessageDto {
     items?: MessageDto[] | undefined;
     hasMore?: boolean;
-}
-
-export class PaginatedListOfUserIdentityDto implements IPaginatedListOfUserIdentityDto {
-    items?: UserIdentityDto[] | undefined;
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-
-    constructor(data?: IPaginatedListOfUserIdentityDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(UserIdentityDto.fromJS(item));
-            }
-            this.pageNumber = _data["pageNumber"];
-            this.totalPages = _data["totalPages"];
-            this.totalCount = _data["totalCount"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-        }
-    }
-
-    static fromJS(data: any): PaginatedListOfUserIdentityDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfUserIdentityDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["pageNumber"] = this.pageNumber;
-        data["totalPages"] = this.totalPages;
-        data["totalCount"] = this.totalCount;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        return data;
-    }
-}
-
-export interface IPaginatedListOfUserIdentityDto {
-    items?: UserIdentityDto[] | undefined;
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
 }
 
 export class ToggleConversationSettingCommand implements IToggleConversationSettingCommand {

@@ -86,7 +86,6 @@ public static class DependencyInjection
         services.AddScoped<IRevenueSplitService, RevenueSplitService>();
         services.AddScoped<IUploadFileService, UploadFileService>();
         services.AddSingleton<IAppHubService, AppHubService>();
-        services.AddSingleton<IMessagingHubService, MessagingHubService>();
         services.AddScoped<INotifyService, NotifyService>();
         services.AddScoped<IFilterService, FilterService>();
         services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
@@ -158,7 +157,7 @@ public static class DependencyInjection
                     var path = context.HttpContext.Request.Path;
 
                     if (!string.IsNullOrEmpty(accessToken) &&
-                        (path.StartsWithSegments("/hubs/app") || path.StartsWithSegments("/hubs/messaging")))
+                        path.StartsWithSegments("/hubs/app"))
                     {
                         context.Token = accessToken;
                     }

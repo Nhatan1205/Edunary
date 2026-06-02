@@ -23,13 +23,14 @@ async function ensureConnected() {
   if (!tokenService.getToken()) return null;
 
   const conn = getConnection();
+
+  if (conn.state === signalR.HubConnectionState.Connected) return conn;
+
   if (conn.state === signalR.HubConnectionState.Disconnected) {
     if (!connectionPromise) {
       connectionPromise = conn
         .start()
-        .then(() => {
-          connectionPromise = null;
-        })
+        .then(() => { connectionPromise = null; })
         .catch((err) => {
           connectionPromise = null;
           sharedConnection = null;
@@ -37,6 +38,18 @@ async function ensureConnected() {
         });
     }
     await connectionPromise;
+    return conn;
+  }
+
+  // Connecting or Reconnecting — poll every 100 ms until state settles
+  const maxWaitMs = 15_000;
+  const startTs = Date.now();
+  while (
+    (conn.state === signalR.HubConnectionState.Connecting ||
+      conn.state === signalR.HubConnectionState.Reconnecting) &&
+    Date.now() - startTs < maxWaitMs
+  ) {
+    await new Promise((r) => setTimeout(r, 100));
   }
   return conn;
 }
@@ -75,6 +88,40 @@ export function useSignalR() {
     return cleanup;
   }, []);
 
+  const invoke = useCallback(async (methodName, ...args) => {
+    const conn = await ensureConnected();
+    if (conn && conn.state === signalR.HubConnectionState.Connected) {
+      try {
+        return await conn.invoke(methodName, ...args);
+      } catch (err) {
+        console.error(`Error invoking hub method ${methodName}:`, err);
+        throw err;
+      }
+    } else {
+      console.warn(`AppHub not connected. Discarding invoke for: ${methodName}`);
+    }
+  }, []);
+
+  /**
+   * Register a callback that fires every time the connection successfully
+   * reconnects. Uses a `cancelled` flag to prevent stale handlers from
+   * running after the component unmounts.
+   */
+  const onReconnected = useCallback((callback) => {
+    let cancelled = false;
+
+    ensureConnected().then((conn) => {
+      if (cancelled || !conn) return;
+      conn.onreconnected(() => {
+        if (!cancelled) callback();
+      });
+    });
+
+    const cleanup = () => { cancelled = true; };
+    cleanups.current.push(cleanup);
+    return cleanup;
+  }, []);
+
   // Cleanup all listeners registered by this hook instance on unmount
   useEffect(() => {
     return () => {
@@ -83,5 +130,5 @@ export function useSignalR() {
     };
   }, []);
 
-  return { on };
+  return { on, invoke, onReconnected };
 }

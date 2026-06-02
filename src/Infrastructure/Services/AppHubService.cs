@@ -27,4 +27,16 @@ public class AppHubService : IAppHubService
             _logger.LogError(ex, "SignalR broadcast failed for event: {Event}", eventName);
         }
     }
+
+    public async Task SendToGroupAsync<T>(string groupName, string eventName, T data)
+    {
+        try
+        {
+            await _hubContext.Clients.Group(groupName).SendAsync(eventName, data);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "SignalR group send failed for group {Group}, event: {Event}", groupName, eventName);
+        }
+    }
 }

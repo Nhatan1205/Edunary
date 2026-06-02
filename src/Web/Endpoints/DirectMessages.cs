@@ -61,7 +61,7 @@ public class DirectMessages : EndpointGroupBase
         return await sender.Send(query);
     }
 
-    public async Task<PaginatedList<UserIdentityDto>> SearchUsers(ISender sender, [AsParameters] SearchMessageableUsersQuery query)
+    public async Task<List<UserIdentityDto>> SearchUsers(ISender sender, [AsParameters] SearchMessageableUsersQuery query)
     {
         return await sender.Send(query);
     }

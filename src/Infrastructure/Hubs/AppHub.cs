@@ -30,4 +30,14 @@ public class AppHub : Hub
         await _connectionManager.RemoveConnectionAsync(Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
+
+    public async Task JoinConversation(int conversationId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation:{conversationId}");
+    }
+
+    public async Task LeaveConversation(int conversationId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation:{conversationId}");
+    }
 }

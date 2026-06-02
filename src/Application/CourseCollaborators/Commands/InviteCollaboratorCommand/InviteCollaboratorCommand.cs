@@ -70,24 +70,41 @@ public class InviteCollaboratorCommandHandler : IRequestHandler<InviteCollaborat
         if (inviteeId == ownerId)
             return Result.Failure("You cannot invite yourself as a collaborator.");
 
-        var existing = await _context.CourseCollaborators
-            .FirstOrDefaultAsync(c => c.CourseId == request.CourseId && c.UserId == inviteeId, cancellationToken);
-
-        if (existing is not null)
-            return Result.Failure("This user already has a pending or active collaboration on this course.");
-
-        var collaborator = new CourseCollaborator
+        await using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
         {
-            CourseId = request.CourseId,
-            UserId = inviteeId,
-            Permissions = request.Permissions,
-            IsVisible = request.IsVisible,
-            RevenueSharePercent = request.RevenueSharePercent,
-            InviteStatus = CollaboratorInviteStatus.Pending,
-        };
+            var lockedRows = await LockCourseShareCapacityAsync(request.CourseId, cancellationToken);
+            if (lockedRows == 0)
+                return Result.Failure("Course not found.");
 
-        _context.CourseCollaborators.Add(collaborator);
-        await _context.SaveChangesAsync(cancellationToken);
+            var existing = await _context.CourseCollaborators
+                .FirstOrDefaultAsync(c => c.CourseId == request.CourseId && c.UserId == inviteeId, cancellationToken);
+
+            if (existing is not null)
+                return Result.Failure("This user already has a pending or active collaboration on this course.");
+
+            // Pending and accepted collaborators reserve revenue share capacity; declined rows do not.
+            var existingTotal = await _context.CourseCollaborators
+                .Where(c => c.CourseId == request.CourseId
+                         && c.InviteStatus != CollaboratorInviteStatus.Declined)
+                .SumAsync(c => c.RevenueSharePercent, cancellationToken);
+
+            if (existingTotal + request.RevenueSharePercent > 100)
+                return Result.Failure("Total revenue share for collaborators cannot exceed 100%.");
+
+            var collaborator = new CourseCollaborator
+            {
+                CourseId = request.CourseId,
+                UserId = inviteeId,
+                Permissions = request.Permissions,
+                IsVisible = request.IsVisible,
+                RevenueSharePercent = request.RevenueSharePercent,
+                InviteStatus = CollaboratorInviteStatus.Pending,
+            };
+
+            _context.CourseCollaborators.Add(collaborator);
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         // Send email via background job
         var ownerName = _currentUserService.FullName;
@@ -109,5 +126,13 @@ public class InviteCollaboratorCommandHandler : IRequestHandler<InviteCollaborat
             imageUrl: course.ImageUrl ?? string.Empty);
 
         return Result.Success("Invitation sent successfully.");
+    }
+
+    // No-op UPDATE to lock the Course row, serializing concurrent share-capacity checks so totals can't exceed 100%.
+    private Task<int> LockCourseShareCapacityAsync(int courseId, CancellationToken cancellationToken)
+    {
+        return _context.Courses
+            .Where(c => c.Id == courseId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.LastModified, c => c.LastModified), cancellationToken);
     }
 }

@@ -63,6 +63,8 @@ public class Course : BaseAuditableEntity
 
     public ICollection<CourseApprovedSnapshot> ApprovedSnapshots { get; set; } = new List<CourseApprovedSnapshot>();
 
+    public ICollection<QualityCheckReport> QualityReports { get; set; } = new List<QualityCheckReport>();
+
     public void UpdateTotalStudents()
     {
         TotalStudents++;

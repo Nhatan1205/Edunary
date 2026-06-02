@@ -93,6 +93,10 @@ function CourseManageLayout() {
             path: `/instructor/course/${courseId}/manage/feedback`,
             badgeCount: feedbackCount,
           },
+          {
+            label: "AI Course Review",
+            path: `/instructor/course/${courseId}/manage/quality-check`,
+          },
         ],
       },
     ],

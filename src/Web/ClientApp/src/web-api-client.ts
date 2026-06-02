@@ -4343,6 +4343,128 @@ export class CourseReviewsClient {
         return Promise.resolve<void>(null as any);
     }
 
+    runInstructorQualityCheck(command: RunInstructorQualityCheckCommand | undefined): Promise<ReturnResultOfRunQualityCheckResultDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/instructor/quality-check";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRunInstructorQualityCheck(_response);
+        });
+    }
+
+    protected processRunInstructorQualityCheck(response: Response): Promise<ReturnResultOfRunQualityCheckResultDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfRunQualityCheckResultDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfRunQualityCheckResultDto>(null as any);
+    }
+
+    getInstructorQualityReports(courseId: number): Promise<InstructorQualityReportSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/CourseReviews/instructor/{courseId}/quality-reports";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetInstructorQualityReports(_response);
+        });
+    }
+
+    protected processGetInstructorQualityReports(response: Response): Promise<InstructorQualityReportSummaryDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(InstructorQualityReportSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<InstructorQualityReportSummaryDto[]>(null as any);
+    }
+
+    getInstructorQualityReportDetail(reportId: number): Promise<InstructorQualityReportDetailDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/instructor/quality-reports/{reportId}";
+        if (reportId === undefined || reportId === null)
+            throw new Error("The parameter 'reportId' must be defined.");
+        url_ = url_.replace("{reportId}", encodeURIComponent("" + reportId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetInstructorQualityReportDetail(_response);
+        });
+    }
+
+    protected processGetInstructorQualityReportDetail(response: Response): Promise<InstructorQualityReportDetailDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InstructorQualityReportDetailDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<InstructorQualityReportDetailDto>(null as any);
+    }
+
     getCourseReviewSubmissions(pageNumber: number, pageSize: number, status: ReviewSubmissionStatus | null | undefined, isFirstSubmissionOnly: boolean | null | undefined, searchQuery: string | null | undefined, sortBy: string | null | undefined): Promise<PaginatedListOfCourseReviewSubmissionDto> {
         let url_ = this.baseUrl + "/api/CourseReviews/admin/pending?";
         if (pageNumber === undefined || pageNumber === null)
@@ -4684,6 +4806,237 @@ export class CourseReviewsClient {
             });
         }
         return Promise.resolve<ComparisonResultDto>(null as any);
+    }
+
+    runQualityCheck(command: RunQualityCheckCommand | undefined): Promise<ReturnResultOfRunQualityCheckResultDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/quality-check";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRunQualityCheck(_response);
+        });
+    }
+
+    protected processRunQualityCheck(response: Response): Promise<ReturnResultOfRunQualityCheckResultDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfRunQualityCheckResultDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfRunQualityCheckResultDto>(null as any);
+    }
+
+    runQualityCheckDiff(command: RunQualityCheckDiffCommand | undefined): Promise<ReturnResultOfRunQualityCheckResultDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/quality-check-diff";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRunQualityCheckDiff(_response);
+        });
+    }
+
+    protected processRunQualityCheckDiff(response: Response): Promise<ReturnResultOfRunQualityCheckResultDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfRunQualityCheckResultDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfRunQualityCheckResultDto>(null as any);
+    }
+
+    getQualityReports(courseId: number): Promise<QualityReportSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/CourseReviews/{courseId}/quality-reports";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetQualityReports(_response);
+        });
+    }
+
+    protected processGetQualityReports(response: Response): Promise<QualityReportSummaryDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(QualityReportSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<QualityReportSummaryDto[]>(null as any);
+    }
+
+    getQualityReportDetail(reportId: number): Promise<QualityReportDetailDto> {
+        let url_ = this.baseUrl + "/api/CourseReviews/quality-reports/{reportId}";
+        if (reportId === undefined || reportId === null)
+            throw new Error("The parameter 'reportId' must be defined.");
+        url_ = url_.replace("{reportId}", encodeURIComponent("" + reportId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetQualityReportDetail(_response);
+        });
+    }
+
+    protected processGetQualityReportDetail(response: Response): Promise<QualityReportDetailDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = QualityReportDetailDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<QualityReportDetailDto>(null as any);
+    }
+
+    acceptQualityIssue(command: AcceptQualityIssueCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/quality-issues/accept";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAcceptQualityIssue(_response);
+        });
+    }
+
+    protected processAcceptQualityIssue(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    dismissQualityIssue(command: DismissQualityIssueCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/CourseReviews/quality-issues/dismiss";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDismissQualityIssue(_response);
+        });
+    }
+
+    protected processDismissQualityIssue(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -17351,6 +17704,326 @@ export interface IResolveReviewFeedbackCommand {
     isResolved?: boolean;
 }
 
+export class ReturnResultOfRunQualityCheckResultDto implements IReturnResultOfRunQualityCheckResultDto {
+    result?: RunQualityCheckResultDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfRunQualityCheckResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? RunQualityCheckResultDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfRunQualityCheckResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfRunQualityCheckResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfRunQualityCheckResultDto {
+    result?: RunQualityCheckResultDto | undefined;
+    message?: string | undefined;
+}
+
+export class RunQualityCheckResultDto implements IRunQualityCheckResultDto {
+    reportId?: number;
+
+    constructor(data?: IRunQualityCheckResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.reportId = _data["reportId"];
+        }
+    }
+
+    static fromJS(data: any): RunQualityCheckResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RunQualityCheckResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["reportId"] = this.reportId;
+        return data;
+    }
+}
+
+export interface IRunQualityCheckResultDto {
+    reportId?: number;
+}
+
+export class RunInstructorQualityCheckCommand implements IRunInstructorQualityCheckCommand {
+    courseId?: number;
+
+    constructor(data?: IRunInstructorQualityCheckCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): RunInstructorQualityCheckCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RunInstructorQualityCheckCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IRunInstructorQualityCheckCommand {
+    courseId?: number;
+}
+
+export class InstructorQualityReportSummaryDto implements IInstructorQualityReportSummaryDto {
+    id?: number;
+    courseId?: number;
+    status?: QualityCheckStatus;
+    totalIssues?: number;
+    created?: Date;
+    createdBy?: string | undefined;
+    isLatest?: boolean;
+    nextRunAvailableAt?: Date | undefined;
+
+    constructor(data?: IInstructorQualityReportSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.status = _data["status"];
+            this.totalIssues = _data["totalIssues"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.isLatest = _data["isLatest"];
+            this.nextRunAvailableAt = _data["nextRunAvailableAt"] ? new Date(_data["nextRunAvailableAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): InstructorQualityReportSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorQualityReportSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["status"] = this.status;
+        data["totalIssues"] = this.totalIssues;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["isLatest"] = this.isLatest;
+        data["nextRunAvailableAt"] = this.nextRunAvailableAt ? this.nextRunAvailableAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IInstructorQualityReportSummaryDto {
+    id?: number;
+    courseId?: number;
+    status?: QualityCheckStatus;
+    totalIssues?: number;
+    created?: Date;
+    createdBy?: string | undefined;
+    isLatest?: boolean;
+    nextRunAvailableAt?: Date | undefined;
+}
+
+export enum QualityCheckStatus {
+    Processing = 0,
+    Completed = 1,
+    Failed = 2,
+}
+
+export class InstructorQualityReportDetailDto implements IInstructorQualityReportDetailDto {
+    id?: number;
+    courseId?: number;
+    status?: QualityCheckStatus;
+    analysisSummary?: string | undefined;
+    totalIssues?: number;
+    isLatest?: boolean;
+    created?: Date;
+    createdBy?: string | undefined;
+    issues?: InstructorQualityIssueDto[] | undefined;
+
+    constructor(data?: IInstructorQualityReportDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.status = _data["status"];
+            this.analysisSummary = _data["analysisSummary"];
+            this.totalIssues = _data["totalIssues"];
+            this.isLatest = _data["isLatest"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            if (Array.isArray(_data["issues"])) {
+                this.issues = [] as any;
+                for (let item of _data["issues"])
+                    this.issues!.push(InstructorQualityIssueDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): InstructorQualityReportDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorQualityReportDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["status"] = this.status;
+        data["analysisSummary"] = this.analysisSummary;
+        data["totalIssues"] = this.totalIssues;
+        data["isLatest"] = this.isLatest;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        if (Array.isArray(this.issues)) {
+            data["issues"] = [];
+            for (let item of this.issues)
+                data["issues"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IInstructorQualityReportDetailDto {
+    id?: number;
+    courseId?: number;
+    status?: QualityCheckStatus;
+    analysisSummary?: string | undefined;
+    totalIssues?: number;
+    isLatest?: boolean;
+    created?: Date;
+    createdBy?: string | undefined;
+    issues?: InstructorQualityIssueDto[] | undefined;
+}
+
+export class InstructorQualityIssueDto implements IInstructorQualityIssueDto {
+    id?: number;
+    reportId?: number;
+    severity?: QualityIssueSeverity;
+    location?: string | undefined;
+    description?: string | undefined;
+    suggestion?: string | undefined;
+
+    constructor(data?: IInstructorQualityIssueDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.reportId = _data["reportId"];
+            this.severity = _data["severity"];
+            this.location = _data["location"];
+            this.description = _data["description"];
+            this.suggestion = _data["suggestion"];
+        }
+    }
+
+    static fromJS(data: any): InstructorQualityIssueDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InstructorQualityIssueDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["reportId"] = this.reportId;
+        data["severity"] = this.severity;
+        data["location"] = this.location;
+        data["description"] = this.description;
+        data["suggestion"] = this.suggestion;
+        return data;
+    }
+}
+
+export interface IInstructorQualityIssueDto {
+    id?: number;
+    reportId?: number;
+    severity?: QualityIssueSeverity;
+    location?: string | undefined;
+    description?: string | undefined;
+    suggestion?: string | undefined;
+}
+
+export enum QualityIssueSeverity {
+    Critical = 0,
+    Warning = 1,
+    Suggestion = 2,
+}
+
 export class PaginatedListOfCourseReviewSubmissionDto implements IPaginatedListOfCourseReviewSubmissionDto {
     items?: CourseReviewSubmissionDto[] | undefined;
     pageNumber?: number;
@@ -19181,6 +19854,420 @@ export interface IAssignmentQuestionComparisonDto {
     newExampleAnswer?: string | undefined;
     oldSortOrder?: number;
     newSortOrder?: number;
+}
+
+export class RunQualityCheckCommand implements IRunQualityCheckCommand {
+    courseId?: number;
+
+    constructor(data?: IRunQualityCheckCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): RunQualityCheckCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RunQualityCheckCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IRunQualityCheckCommand {
+    courseId?: number;
+}
+
+export class RunQualityCheckDiffCommand implements IRunQualityCheckDiffCommand {
+    courseId?: number;
+
+    constructor(data?: IRunQualityCheckDiffCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+        }
+    }
+
+    static fromJS(data: any): RunQualityCheckDiffCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RunQualityCheckDiffCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        return data;
+    }
+}
+
+export interface IRunQualityCheckDiffCommand {
+    courseId?: number;
+}
+
+export class QualityReportSummaryDto implements IQualityReportSummaryDto {
+    id?: number;
+    courseId?: number;
+    overallScore?: number;
+    status?: QualityCheckStatus;
+    totalIssues?: number;
+    criticalCount?: number;
+    warningCount?: number;
+    suggestionCount?: number;
+    created?: Date;
+    createdBy?: string | undefined;
+    isLatest?: boolean;
+
+    constructor(data?: IQualityReportSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.overallScore = _data["overallScore"];
+            this.status = _data["status"];
+            this.totalIssues = _data["totalIssues"];
+            this.criticalCount = _data["criticalCount"];
+            this.warningCount = _data["warningCount"];
+            this.suggestionCount = _data["suggestionCount"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.isLatest = _data["isLatest"];
+        }
+    }
+
+    static fromJS(data: any): QualityReportSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QualityReportSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["overallScore"] = this.overallScore;
+        data["status"] = this.status;
+        data["totalIssues"] = this.totalIssues;
+        data["criticalCount"] = this.criticalCount;
+        data["warningCount"] = this.warningCount;
+        data["suggestionCount"] = this.suggestionCount;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["isLatest"] = this.isLatest;
+        return data;
+    }
+}
+
+export interface IQualityReportSummaryDto {
+    id?: number;
+    courseId?: number;
+    overallScore?: number;
+    status?: QualityCheckStatus;
+    totalIssues?: number;
+    criticalCount?: number;
+    warningCount?: number;
+    suggestionCount?: number;
+    created?: Date;
+    createdBy?: string | undefined;
+    isLatest?: boolean;
+}
+
+export class QualityReportDetailDto implements IQualityReportDetailDto {
+    id?: number;
+    courseId?: number;
+    overallScore?: number;
+    categoryScores?: { [key: string]: number; } | undefined;
+    status?: QualityCheckStatus;
+    analysisSummary?: string | undefined;
+    totalIssues?: number;
+    criticalCount?: number;
+    warningCount?: number;
+    suggestionCount?: number;
+    isLatest?: boolean;
+    isDiff?: boolean;
+    isCoursePublic?: boolean;
+    created?: Date;
+    createdBy?: string | undefined;
+    issues?: QualityIssueDto[] | undefined;
+
+    constructor(data?: IQualityReportDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.courseId = _data["courseId"];
+            this.overallScore = _data["overallScore"];
+            if (_data["categoryScores"]) {
+                this.categoryScores = {} as any;
+                for (let key in _data["categoryScores"]) {
+                    if (_data["categoryScores"].hasOwnProperty(key))
+                        (<any>this.categoryScores)![key] = _data["categoryScores"][key];
+                }
+            }
+            this.status = _data["status"];
+            this.analysisSummary = _data["analysisSummary"];
+            this.totalIssues = _data["totalIssues"];
+            this.criticalCount = _data["criticalCount"];
+            this.warningCount = _data["warningCount"];
+            this.suggestionCount = _data["suggestionCount"];
+            this.isLatest = _data["isLatest"];
+            this.isDiff = _data["isDiff"];
+            this.isCoursePublic = _data["isCoursePublic"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            if (Array.isArray(_data["issues"])) {
+                this.issues = [] as any;
+                for (let item of _data["issues"])
+                    this.issues!.push(QualityIssueDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): QualityReportDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QualityReportDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["courseId"] = this.courseId;
+        data["overallScore"] = this.overallScore;
+        if (this.categoryScores) {
+            data["categoryScores"] = {};
+            for (let key in this.categoryScores) {
+                if (this.categoryScores.hasOwnProperty(key))
+                    (<any>data["categoryScores"])[key] = (<any>this.categoryScores)[key];
+            }
+        }
+        data["status"] = this.status;
+        data["analysisSummary"] = this.analysisSummary;
+        data["totalIssues"] = this.totalIssues;
+        data["criticalCount"] = this.criticalCount;
+        data["warningCount"] = this.warningCount;
+        data["suggestionCount"] = this.suggestionCount;
+        data["isLatest"] = this.isLatest;
+        data["isDiff"] = this.isDiff;
+        data["isCoursePublic"] = this.isCoursePublic;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        if (Array.isArray(this.issues)) {
+            data["issues"] = [];
+            for (let item of this.issues)
+                data["issues"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IQualityReportDetailDto {
+    id?: number;
+    courseId?: number;
+    overallScore?: number;
+    categoryScores?: { [key: string]: number; } | undefined;
+    status?: QualityCheckStatus;
+    analysisSummary?: string | undefined;
+    totalIssues?: number;
+    criticalCount?: number;
+    warningCount?: number;
+    suggestionCount?: number;
+    isLatest?: boolean;
+    isDiff?: boolean;
+    isCoursePublic?: boolean;
+    created?: Date;
+    createdBy?: string | undefined;
+    issues?: QualityIssueDto[] | undefined;
+}
+
+export class QualityIssueDto implements IQualityIssueDto {
+    id?: number;
+    reportId?: number;
+    category?: ReviewFeedbackCategory;
+    severity?: QualityIssueSeverity;
+    adminAction?: QualityIssueStatus;
+    ruleId?: string | undefined;
+    location?: string | undefined;
+    description?: string | undefined;
+    evidence?: string | undefined;
+    suggestion?: string | undefined;
+
+    constructor(data?: IQualityIssueDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.reportId = _data["reportId"];
+            this.category = _data["category"];
+            this.severity = _data["severity"];
+            this.adminAction = _data["adminAction"];
+            this.ruleId = _data["ruleId"];
+            this.location = _data["location"];
+            this.description = _data["description"];
+            this.evidence = _data["evidence"];
+            this.suggestion = _data["suggestion"];
+        }
+    }
+
+    static fromJS(data: any): QualityIssueDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new QualityIssueDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["reportId"] = this.reportId;
+        data["category"] = this.category;
+        data["severity"] = this.severity;
+        data["adminAction"] = this.adminAction;
+        data["ruleId"] = this.ruleId;
+        data["location"] = this.location;
+        data["description"] = this.description;
+        data["evidence"] = this.evidence;
+        data["suggestion"] = this.suggestion;
+        return data;
+    }
+}
+
+export interface IQualityIssueDto {
+    id?: number;
+    reportId?: number;
+    category?: ReviewFeedbackCategory;
+    severity?: QualityIssueSeverity;
+    adminAction?: QualityIssueStatus;
+    ruleId?: string | undefined;
+    location?: string | undefined;
+    description?: string | undefined;
+    evidence?: string | undefined;
+    suggestion?: string | undefined;
+}
+
+export enum QualityIssueStatus {
+    Pending = 0,
+    Accepted = 1,
+    Dismissed = 2,
+}
+
+export class AcceptQualityIssueCommand implements IAcceptQualityIssueCommand {
+    issueId?: number;
+
+    constructor(data?: IAcceptQualityIssueCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.issueId = _data["issueId"];
+        }
+    }
+
+    static fromJS(data: any): AcceptQualityIssueCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new AcceptQualityIssueCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["issueId"] = this.issueId;
+        return data;
+    }
+}
+
+export interface IAcceptQualityIssueCommand {
+    issueId?: number;
+}
+
+export class DismissQualityIssueCommand implements IDismissQualityIssueCommand {
+    issueId?: number;
+
+    constructor(data?: IDismissQualityIssueCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.issueId = _data["issueId"];
+        }
+    }
+
+    static fromJS(data: any): DismissQualityIssueCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new DismissQualityIssueCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["issueId"] = this.issueId;
+        return data;
+    }
+}
+
+export interface IDismissQualityIssueCommand {
+    issueId?: number;
 }
 
 export class ReturnResultOfCreatedCourseDto implements IReturnResultOfCreatedCourseDto {

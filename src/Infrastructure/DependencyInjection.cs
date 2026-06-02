@@ -112,6 +112,7 @@ public static class DependencyInjection
         services.AddScoped<IQuizSnapshotJobService, QuizSnapshotJobService>();
         services.AddScoped<IQuizGenerationJobService, QuizGenerationJobService>();
         services.AddScoped<ICaptionGenerationJobService, CaptionGenerationJobService>();
+        services.AddScoped<IQualityCheckJobService, QualityCheckJobService>();
         services.AddScoped<ICourseAuthorizationService, CourseAuthorizationService>();
 
 

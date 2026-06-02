@@ -2083,6 +2083,114 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.ToTable("PendingRegistrations");
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.QualityCheckIssue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AdminAction")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Evidence")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RuleId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Severity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Suggestion")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportId");
+
+                    b.HasIndex("ReportId", "Category");
+
+                    b.ToTable("QualityCheckIssues");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.QualityCheckReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AnalysisSummary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDiff")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("OverallScore")
+                        .HasColumnType("real");
+
+                    b.Property<string>("RequestedByRole")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("QualityCheckReports");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.Question", b =>
                 {
                     b.Property<int>("Id")
@@ -3526,6 +3634,28 @@ namespace Edunary.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Edunary.Domain.Entities.QualityCheckIssue", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.QualityCheckReport", "Report")
+                        .WithMany("Issues")
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Report");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.QualityCheckReport", b =>
+                {
+                    b.HasOne("Edunary.Domain.Entities.Course", "Course")
+                        .WithMany("QualityReports")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
             modelBuilder.Entity("Edunary.Domain.Entities.Question", b =>
                 {
                     b.HasOne("Edunary.Domain.Entities.Quiz", "Quiz")
@@ -3794,6 +3924,8 @@ namespace Edunary.Infrastructure.Data.Migrations
 
                     b.Navigation("Progresses");
 
+                    b.Navigation("QualityReports");
+
                     b.Navigation("RatingCourses");
 
                     b.Navigation("ReviewSubmissions");
@@ -3840,6 +3972,11 @@ namespace Edunary.Infrastructure.Data.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Edunary.Domain.Entities.QualityCheckReport", b =>
+                {
+                    b.Navigation("Issues");
                 });
 
             modelBuilder.Entity("Edunary.Domain.Entities.Question", b =>

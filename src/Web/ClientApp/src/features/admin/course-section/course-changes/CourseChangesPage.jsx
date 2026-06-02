@@ -18,6 +18,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import InfoIcon from "@mui/icons-material/Info";
 import UnpublishedIcon from "@mui/icons-material/Unpublished";
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 
 import CustomBreadcrumbs from "../../../../components/breadcrumb/CustomBreadcrumbs";
 import PageTitle from "../../../../components/PageTitle";
@@ -260,6 +261,22 @@ export default function CourseChangesPage() {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2, mb: 3 }}>
         <PageTitle title="Course Changes Comparison" />
         <Box sx={{ display: "flex", gap: 1.5 }}>
+          {!noSnapshot && (
+            <Button
+              variant="contained"
+              startIcon={<AssessmentOutlinedIcon />}
+              onClick={() => navigate(`/admin/course/${courseId}/report/none`)}
+              sx={{
+                borderRadius: "10px",
+                fontWeight: 700,
+                bgcolor: "brand.main",
+                boxShadow: "none",
+                "&:hover": { bgcolor: "brand.dark", boxShadow: "none" }
+              }}
+            >
+              AI Quality Check
+            </Button>
+          )}
           <Button
             variant="outlined"
             color="error"

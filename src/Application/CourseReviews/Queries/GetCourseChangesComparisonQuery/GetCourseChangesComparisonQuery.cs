@@ -10,8 +10,12 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.CourseReviews.Queries.GetCourseChangesComparisonQuery;
 
+[ActivityLog(ActivityType.ViewCourseChanges, "View Course Changes")]
 public record GetCourseChangesComparisonQuery : IRequest<ComparisonResultDto>
 {
     public int CourseId { get; init; }

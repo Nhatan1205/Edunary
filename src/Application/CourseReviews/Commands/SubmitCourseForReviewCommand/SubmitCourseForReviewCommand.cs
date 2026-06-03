@@ -4,8 +4,11 @@ using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.CourseReviews.Commands.SubmitCourseForReviewCommand;
 
+[ActivityLog(ActivityType.SubmitCourseForReview, "Submit Course For Review")]
 public record SubmitCourseForReviewCommand : IRequest<Result>
 {
     public int CourseId { get; init; }

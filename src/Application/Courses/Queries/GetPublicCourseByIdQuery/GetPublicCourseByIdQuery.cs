@@ -5,8 +5,11 @@ using Edunary.Application.Courses.Queries.GetPublicCourseByIdQuery;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.Courses.Queries.GetPublicCourseById;
 
+[ActivityLog(ActivityType.ViewCourseOverview, "View Course Overview")]
 public class GetPublicCourseByIdQuery : IRequest<GetPublicCourseByIdDto>, ICacheableQuery
 {
     public int Id { get; init; }

@@ -7,8 +7,11 @@ using Edunary.Domain.Events.Courses;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.CourseReviews.Commands.ApproveCourseCommand;
 
+[ActivityLog(ActivityType.ApproveCourse, "Approve Course")]
 public record ApproveCourseCommand : IRequest<Result>
 {
     public int SubmissionId { get; init; }

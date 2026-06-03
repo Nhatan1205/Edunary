@@ -5,8 +5,12 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.CourseProgresses.Commands.UpdateCourseProgressCommand;
 using Edunary.Application.CourseProgresses.Queries.GetCourseProgressQuery;
 
+using Edunary.Application.Common.Behaviours;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.CourseProgresses.Queries.GetLearningSidebarQuery;
 
+[ActivityLog(ActivityType.AccessCourseLearning, "Access Course Learning")]
 public class GetLearningSidebarQuery : IRequest<CourseProgressDto>
 {
     public int CourseId { get; init; }

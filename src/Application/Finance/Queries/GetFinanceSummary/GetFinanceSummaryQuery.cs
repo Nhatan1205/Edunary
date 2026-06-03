@@ -2,9 +2,11 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Edunary.Application.Common.Behaviours;
 
 namespace Edunary.Application.Finance.Queries.GetFinanceSummary;
 
+[ActivityLog(ActivityType.AccessFinanceDashboard, "Access Finance Dashboard")]
 public record GetFinanceSummaryQuery : IRequest<FinanceSummaryDto>
 {
     public DateTimeOffset? From { get; init; }

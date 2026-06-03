@@ -1,8 +1,12 @@
 using Edunary.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.Finance.TaxRegions.Queries;
 
+[ActivityLog(ActivityType.AccessTaxRegions, "Access Tax Regions")]
 public record GetTaxRegionsQuery : IRequest<List<TaxRegionDto>>;
 
 public class TaxRegionDto

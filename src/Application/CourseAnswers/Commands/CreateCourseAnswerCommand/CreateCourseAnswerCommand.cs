@@ -5,8 +5,11 @@ using Edunary.Domain.Enums;
 using Edunary.Domain.Events.CourseAnswers;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.CourseAnswers.Commands.CreateCourseAnswerCommand;
 
+[ActivityLog(ActivityType.CreateCourseAnswer, "Create Course Answer")]
 public record CreateCourseAnswerCommand : IRequest<ReturnResult<CreatedCourseAnswerDto>>
 {
     public int QuestionId { get; init; }

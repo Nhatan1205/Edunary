@@ -3,8 +3,11 @@ using Edunary.Domain.Enums;
 
 using Edunary.Application.Common.Models;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.Quizzes.Commands.GenerateQuizQuestionsCommand;
 
+[ActivityLog(ActivityType.GenerateQuizQuestions, "Generate Quiz Questions")]
 public record GenerateQuizQuestionsCommand : IRequest<Result>
 {
     public int CourseId { get; init; }

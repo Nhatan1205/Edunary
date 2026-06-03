@@ -2,8 +2,11 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Enums;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.AssignmentSubmissions.Queries.GetInstructorSubmissionsQuery;
 
+[ActivityLog(ActivityType.AccessInstructorAssignments, "Access Instructor Assignments")]
 public record GetInstructorSubmissionsQuery : IRequest<PaginatedList<InstructorSubmissionListDto>>
 {
     public int? CourseId { get; init; }

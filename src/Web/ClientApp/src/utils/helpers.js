@@ -26,13 +26,17 @@ const CourseManagementSortBy = {
 export function formatTimeAgo(date) {
   if (!date) return "";
   const diff = Date.now() - new Date(date).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 2) return "just now";
-  if (mins < 60) return `${mins} minutes ago`;
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) return "a few seconds";
+  const mins = Math.floor(seconds / 60);
+  if (mins === 1) return "1 minute";
+  if (mins < 60) return `${mins} minutes`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hours ago`;
+  if (hrs === 1) return "an hour";
+  if (hrs < 24) return `${hrs} hours`;
   const days = Math.floor(hrs / 24);
-  return days === 1 ? "1 day ago" : `${days} days ago`;
+  if (days === 1) return "1 day";
+  return `${days} days`;
 }
 
 export function formatDate(date) {

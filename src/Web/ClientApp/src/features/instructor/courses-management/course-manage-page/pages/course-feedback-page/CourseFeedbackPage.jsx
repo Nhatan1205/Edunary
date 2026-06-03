@@ -5,6 +5,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import CourseFeedbackContent, { FeedbackCard } from "./CourseFeedbackContent";
 import NoData from "../../../../../../components/NoData";
+import emptyCourseFeedbackImg from "../../../../../../assets/images/empty-course-feedback.png";
 import useGetCourseReviewStatus from "../../../../../../hooks/course-review-hooks/useGetCourseReviewStatus";
 import useResolveReviewFeedback from "../../../../../../hooks/course-review-hooks/useResolveReviewFeedback";
 
@@ -129,6 +130,7 @@ export default function CourseFeedbackPage() {
   const submission = data?.latestSubmission ?? null;
   const feedbacks = submission?.feedbacks ?? [];
   const history = data?.submissionHistory ?? [];
+  const hasFeedbackContent = feedbacks.length > 0 || Boolean(submission?.adminNote?.trim());
 
   const statusCfg = submission ? (STATUS_CONFIG[submission.status] ?? STATUS_CONFIG[0]) : null;
 
@@ -151,8 +153,10 @@ export default function CourseFeedbackPage() {
     <Box sx={{ maxWidth: 820, mx: "auto" }}>
       {!submission ? (
         <NoData
+          image={emptyCourseFeedbackImg}
           title="No feedback available yet"
           description="Your course hasn't been submitted for review or hasn't received feedback from the review team yet."
+          imageWidth={220}
           minHeight="320px"
         />
       ) : (
@@ -175,29 +179,24 @@ export default function CourseFeedbackPage() {
             </Typography>
           </Box>
 
-          {feedbacks.length > 0 || submission.adminNote ? (
+          {hasFeedbackContent ? (
             <CourseFeedbackContent
               submission={submission}
               feedbacks={feedbacks}
               onToggleResolved={handleToggleResolved}
             />
           ) : (
-            <Box
-              sx={{
-                p: 3,
-                bgcolor: "background.paper",
-                border: "1px dashed",
-                borderColor: "divider",
-                textAlign: "center",
-                borderRadius: 1,
-              }}
-            >
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {submission.status === 0
+            <NoData
+              image={emptyCourseFeedbackImg}
+              title="No feedback available yet"
+              description={
+                submission.status === 0
                   ? "This submission is currently awaiting review. Feedback will appear here once reviewed."
-                  : "No feedback items for this submission."}
-              </Typography>
-            </Box>
+                  : "This submission was reviewed without any feedback items."
+              }
+              imageWidth={220}
+              minHeight="300px"
+            />
           )}
 
           {history.length > 0 && (

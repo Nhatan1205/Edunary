@@ -1,10 +1,19 @@
-﻿using Edunary.Application.Common.Models;
+using System.Linq.Expressions;
+using Edunary.Application.Common.Models;
 
 namespace Edunary.Application.Common.Mappings;
 public static class MappingExtensions
 {
     public static Task<PaginatedList<TDestination>> PaginatedListAsync<TDestination>(this IQueryable<TDestination> queryable, int pageNumber, int pageSize) where TDestination : class
         => PaginatedList<TDestination>.CreateAsync(queryable.AsNoTracking(), pageNumber, pageSize);
+
+    public static Task<CursorPaginatedList<TDestination>> CursorPaginatedListAsync<TDestination>(
+        this IQueryable<TDestination> queryable,
+        Expression<Func<TDestination, bool>> cursorPredicate,
+        int pageSize) where TDestination : class
+    {
+        return CursorPaginatedList<TDestination>.CreateAsync(queryable.AsNoTracking(), cursorPredicate, pageSize);
+    }
 
     public static Task<List<TDestination>> ProjectToListAsync<TDestination>(this IQueryable queryable, IConfigurationProvider configuration) where TDestination : class
         => queryable.ProjectTo<TDestination>(configuration).AsNoTracking().ToListAsync();

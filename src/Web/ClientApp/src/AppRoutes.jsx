@@ -48,6 +48,8 @@ import AnnouncementComposePage from "./features/instructor/communication-section
 import AnnouncementEditPage from "./features/instructor/communication-section/announcements-page/announcements-edit-page.jsx/AnnouncementEditPage";
 import QADashboardPage from "./features/instructor/communication-section/qa-page/QADashboardPage";
 import AssignmentDashboardPage from "./features/instructor/communication-section/assignment-dashboard/AssignmentDashboardPage";
+import InstructorChatPage from "./features/instructor/communication-section/chat-page/ChatPage";
+import StudentChatPage from "./features/user/messaging/StudentChatPage";
 import CourseInitialRedirect from "./features/user/my-learning/CourseInitialRedirect";
 import NotFound from "./components/NotFound";
 import ProfileManageLayout from "./layouts/ProfileManageLayout";
@@ -378,6 +380,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "/messages",
+        element: (
+          <ProtectedRoute>
+            <StudentChatPage />
+          </ProtectedRoute>
+        ),
+      },
 
       {
         path: "/ai/career-path",
@@ -464,6 +474,10 @@ const router = createBrowserRouter([
           {
             path: "qa",
             element: <QADashboardPage />,
+          },
+          {
+            path: "messages",
+            element: <InstructorChatPage />,
           },
           {
             path: "assignments",

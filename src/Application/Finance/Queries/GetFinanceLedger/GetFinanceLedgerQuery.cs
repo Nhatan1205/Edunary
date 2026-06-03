@@ -5,8 +5,11 @@ using Edunary.Domain.Constants;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.Finance.Queries.GetFinanceLedger;
 
+[ActivityLog(ActivityType.AccessFinanceLedger, "Access Finance Ledger")]
 public record GetFinanceLedgerQuery : IRequest<PaginatedList<FinanceLedgerEntryDto>>
 {
     public int PageNumber { get; init; } = 1;

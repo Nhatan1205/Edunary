@@ -6,7 +6,7 @@ using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Categories.Commands.CreateCategoryCommand;
 
-[ActivityLog(ActivityType.ChangePassword, "Change Password")]
+[ActivityLog(ActivityType.CreateCategory, "Create Category")]
 public record CreateCategoryCommand : IRequest<ReturnResult<CreatedCategoryDto>>
 {
     public string Title { get; init; } = string.Empty;

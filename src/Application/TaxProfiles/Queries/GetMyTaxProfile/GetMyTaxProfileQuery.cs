@@ -4,8 +4,12 @@ using Edunary.Domain.Constants;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.TaxProfiles.Queries.GetMyTaxProfile;
 
+[ActivityLog(ActivityType.AccessTaxProfile, "Access Tax Profile")]
 public record GetMyTaxProfileQuery : IRequest<TaxProfileDto>;
 
 public class GetMyTaxProfileQueryHandler : IRequestHandler<GetMyTaxProfileQuery, TaxProfileDto>

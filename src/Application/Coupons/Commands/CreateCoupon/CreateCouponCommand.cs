@@ -6,9 +6,12 @@ using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.Coupons.Commands.CreateCoupon;
 
 [Authorize]
+[ActivityLog(ActivityType.CreateCoupon, "Create Coupon")]
 public class CreateCouponCommand : IRequest<Result>
 {
     public string Code { get; init; } = string.Empty;

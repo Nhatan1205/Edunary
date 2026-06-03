@@ -1,7 +1,10 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Roadmaps.Commands.GenerateAIRoadmapCommand;
 
+[ActivityLog(ActivityType.GenerateAIRoadmap, "Generate AI Roadmap")]
 public record GenerateAIRoadmapCommand : IRequest<bool>
 {
     public string Description { get; init; } = string.Empty;

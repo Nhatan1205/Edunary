@@ -5,8 +5,11 @@ using Edunary.Domain.Events.CourseReviews;
 using Microsoft.EntityFrameworkCore;
 using Edunary.Domain.Common;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.CourseReviews.Commands.RequestChangesCommand;
 
+[ActivityLog(ActivityType.RequestCourseChanges, "Request Course Changes")]
 public record RequestChangesCommand : IRequest<Result>
 {
     public int SubmissionId { get; init; }

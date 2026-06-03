@@ -4,8 +4,12 @@ using Edunary.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Edunary.Application.Common.Behaviours;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.TaxProfiles.Commands.UpsertMyTaxProfile;
 
+[ActivityLog(ActivityType.UpdateTaxProfile, "Update Tax Profile")]
 public class UpsertMyTaxProfileCommand : IRequest<Result>
 {
     public string RealName { get; init; } = string.Empty;

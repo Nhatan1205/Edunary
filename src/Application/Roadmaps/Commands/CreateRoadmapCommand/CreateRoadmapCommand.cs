@@ -9,7 +9,7 @@ using Edunary.Domain.Enums;
 namespace Edunary.Application.Roadmaps.Commands.CreateRoadmapCommand;
 
 
-[ActivityLog(ActivityType.CreateRoadmap, "Create New Roadmap")]
+[ActivityLog(ActivityType.CreateRoadmap, "Create Roadmap")]
 public record CreateRoadmapCommand : IRequest<ReturnResult<CreatedRoadmapDto>>
 {
     public string Title { get; init; }

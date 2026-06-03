@@ -6,8 +6,12 @@ using Edunary.Application.Common.Mappings;
 using Edunary.Application.Common.Models;
 
 
+using Edunary.Application.Common.Behaviours;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.DirectMessages.Queries.GetConversationsQuery;
 
+[ActivityLog(ActivityType.AccessMessages, "Access Messages")]
 public class GetConversationsQuery : IRequest<PaginatedList<ConversationDto>>
 {
     public int PageNumber { get; set; } = 1;

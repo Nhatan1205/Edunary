@@ -1,8 +1,13 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 
+using Edunary.Application.Common.Behaviours;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.Users.Queries.GetPublicUserInfoQuery;
+
+[ActivityLog(ActivityType.ViewPublicProfile, "View Public Profile")]
 public class GetPublicUserInfoQuery : IRequest<PublicProfileDto>
 {
     public string Id { get; set; }

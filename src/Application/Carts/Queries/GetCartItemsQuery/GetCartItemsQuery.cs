@@ -1,8 +1,11 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Enums;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.Carts.Queries.GetCartItemsQuery;
 
+[ActivityLog(ActivityType.AccessCart, "Access Cart")]
 public record GetCartItemsQuery : IRequest<List<CartItemDto>>;
 
 public class GetCartItemsQueryHandler : IRequestHandler<GetCartItemsQuery, List<CartItemDto>>

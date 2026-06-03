@@ -1,7 +1,12 @@
-﻿using Edunary.Application.Common.Interfaces;
+using Edunary.Application.Common.Behaviours;
+using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.Topics.Commands.CreateTopicCommand;
+
+[ActivityLog(ActivityType.CreateTopic, "Create Topic")]
 public record CreateTopicCommand : IRequest<ReturnResult<CreatedTopicDto>>
 {
     public string Name { get; init; } = null!;

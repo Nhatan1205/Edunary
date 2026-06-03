@@ -1,9 +1,11 @@
 using Edunary.Application.Common.Interfaces;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Edunary.Application.Common.Behaviours;
 
 namespace Edunary.Application.CourseReviews.Queries.GetQualityReportDetailQuery;
 
+[ActivityLog(ActivityType.ViewQualityReport, "View Quality Report")]
 public record GetQualityReportDetailQuery : IRequest<QualityReportDetailDto>
 {
     public int ReportId { get; init; }

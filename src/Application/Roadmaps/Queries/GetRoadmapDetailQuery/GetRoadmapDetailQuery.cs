@@ -2,8 +2,12 @@ using System.Text.Json;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Roadmaps.Models;
 
+using Edunary.Application.Common.Behaviours;
+using Edunary.Domain.Enums;
+
 namespace Edunary.Application.Roadmaps.Queries.GetRoadmapDetailQuery;
 
+[ActivityLog(ActivityType.ViewMyCareerPath, "View My Career Path")]
 public class GetRoadmapDetailQuery : IRequest<RoadmapDetailDto>
 {
     public int Id { get; init; }

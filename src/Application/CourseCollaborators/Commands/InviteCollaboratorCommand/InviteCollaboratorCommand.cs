@@ -6,8 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Edunary.Domain.Common;
 using Microsoft.Extensions.Options;
 
+using Edunary.Application.Common.Behaviours;
+
 namespace Edunary.Application.CourseCollaborators.Commands.InviteCollaboratorCommand;
 
+[ActivityLog(ActivityType.InviteCollaborator, "Invite Collaborator")]
 public record InviteCollaboratorCommand : IRequest<Result>
 {
     public int CourseId { get; init; }

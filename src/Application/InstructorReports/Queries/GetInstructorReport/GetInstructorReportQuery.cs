@@ -1,7 +1,10 @@
+using Edunary.Application.Common.Behaviours;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.InstructorReports.Queries.GetInstructorReport;
 
+[ActivityLog(ActivityType.ViewInstructorReport, "View Instructor Report")]
 public record GetInstructorReportQuery : IRequest<InstructorReportDto>
 {
     public DateTimeOffset? From { get; init; }

@@ -43,13 +43,13 @@ const instructorMenuItems = {
           url: "/instructor/coupons",
           icon: LocalOfferIcon,
         },
-        {
-          id: "course-bundles",
-          title: "Course Bundles",
-          type: "item",
-          url: "/course-bundles",
-          icon: BackpackIcon,
-        },
+        // {
+        //   id: "course-bundles",
+        //   title: "Course Bundles",
+        //   type: "item",
+        //   url: "/course-bundles",
+        //   icon: BackpackIcon,
+        // },
         {
           id: "invitations",
           title: "Invitations",

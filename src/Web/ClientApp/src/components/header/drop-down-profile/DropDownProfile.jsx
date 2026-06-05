@@ -10,11 +10,11 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 const MENU_ITEMS = [
-  {
-    title: "My Classes",
-    icon: <School fontSize="small" />,
-    path: "/classes",
-  },
+  // {
+  //   title: "My Classes",
+  //   icon: <School fontSize="small" />,
+  //   path: "/classes",
+  // },
   {
     title: "Notifications",
     icon: <NotificationsNoneOutlinedIcon fontSize="small" />,
@@ -30,26 +30,26 @@ const MENU_ITEMS = [
     icon: <Settings fontSize="small" />,
     path: "/user/security",
   },
-  {
-    title: "Language: English",
-    icon: <Language fontSize="small" />,
-    path: "/language",
-  },
+  // {
+  //   title: "Language: English",
+  //   icon: <Language fontSize="small" />,
+  //   path: "/language",
+  // },
   {
     title: "Teaching On Edunary",
     icon: <LocalLibraryOutlinedIcon fontSize="small" />,
     path: "/instructor",
   },
   {
-    title: "Help",
-    icon: <Help fontSize="small" />,
-    path: "/help",
-  },
-  {
     title: "Add/Edit your interests",
     icon: <InterestsIcon fontSize="small" />,
     path: "/personalize",
   },
+  // {
+  //   title: "Help",
+  //   icon: <Help fontSize="small" />,
+  //   path: "/help",
+  // },
 ];
 
 const SIGN_OUTS = {

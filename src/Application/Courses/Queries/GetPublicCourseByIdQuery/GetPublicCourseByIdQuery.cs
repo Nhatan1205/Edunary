@@ -56,7 +56,9 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
             {
                 Id = user.Id,
                 Name = user.FullName,
-                Avatar = user.Avatar
+                Avatar = user.Avatar,
+                Headline = user.Headline,
+                Description = user.Description
             });
         }
 
@@ -72,7 +74,9 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
             {
                 Id = u.Id,
                 Name = u.FullName,
-                Avatar = u.Avatar
+                Avatar = u.Avatar,
+                Headline = u.Headline,
+                Description = u.Description
             }));
         }
 
@@ -106,6 +110,10 @@ public class GetPublicCourseByIdQueryHandler : IRequestHandler<GetPublicCourseBy
                 WriteIndented = true
             });
         }
+        // count total ratings
+        course.TotalRatings = await _context.RatingCourses
+            .CountAsync(r => r.CourseId == course.Id, cancellationToken);
+
         // set enrollment flag if user is authenticated
         var userId = _currentUserService?.UserId;
         if (!string.IsNullOrEmpty(userId))

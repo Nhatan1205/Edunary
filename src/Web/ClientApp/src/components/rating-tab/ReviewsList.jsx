@@ -6,7 +6,7 @@ function ReviewsList({ reviews = [] }) {
   if (reviews.length === 0) {
     return (
       <Box sx={{ textAlign: "center", py: 4 }}>
-        <Typography sx={{ color: "#666" }}>Không có đánh giá phù hợp.</Typography>
+        <Typography sx={{ color: "#666" }}>No suitable reviews found.</Typography>
       </Box>
     );
   }

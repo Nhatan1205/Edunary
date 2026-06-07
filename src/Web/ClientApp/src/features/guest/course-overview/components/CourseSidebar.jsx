@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -8,7 +9,8 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  Stack
+  Stack,
+  Chip,
 } from '@mui/material'
 import {
   PlayCircleOutline,
@@ -16,22 +18,37 @@ import {
   PhoneAndroid,
   ShoppingCart,
   AllInclusive,
-  ClosedCaption,
-  RecordVoiceOver,
   EmojiEvents,
   PlayArrow,
+  UpdateOutlined,
+  SchoolOutlined,
+  CategoryOutlined,
+  AccessTimeOutlined,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../../../../context/AuthContext'
 import { formatMonthYear, getLevelLabel } from '../../../../utils/helpers'
 import { useAddToCart } from '../../../../hooks/cart-hooks/useAddToCart'
-import DefaultImage from "../../../../assets/images/default.jpg";
+import DefaultImage from '../../../../assets/images/default.jpg'
 
 const CourseSidebar = ({ courseData }) => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const isEnrolled = courseData?.isEnrolled ?? false
   const { addToCart, loading: addingToCart } = useAddToCart()
+  const [isSticky, setIsSticky] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 250) {
+        setIsSticky(true)
+      } else {
+        setIsSticky(false)
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleBuyNow = () => {
     navigate('/payment/checkout', {
@@ -40,12 +57,12 @@ const CourseSidebar = ({ courseData }) => {
           id: courseData.id,
           title: courseData.title,
           subtitle: courseData.subtitle,
-          price: courseData.currentPrice,
-          imageUrl: courseData.image,
-          categoryTitle: courseData.category
+          price: courseData.price,
+          imageUrl: courseData.imageUrl,
+          categoryTitle: courseData.categoryTitle,
         }],
-        totalAmount: courseData.currentPrice
-      }
+        totalAmount: courseData.price,
+      },
     })
   }
 
@@ -53,10 +70,6 @@ const CourseSidebar = ({ courseData }) => {
     navigate(`/course/${courseData.id}/learn`)
   }
 
-  const totalArticles = courseData.content?.Sections?.reduce(
-    (sum, section) =>
-      sum + section.Items.filter(item => item.ContentType === "article").length, 0
-  ) || 0;
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
       navigate('/login')
@@ -65,26 +78,54 @@ const CourseSidebar = ({ courseData }) => {
     await addToCart(courseData.id)
   }
 
+  const totalArticles = courseData.content?.Sections?.reduce(
+    (sum, section) =>
+      sum + section.Items.filter(item => item.ContentType === 'article').length,
+    0
+  ) || 0
+
+  const totalVideos = courseData.content?.Sections?.reduce(
+    (sum, section) =>
+      sum + section.Items.filter(item => item.ContentType === 'video').length,
+    0
+  ) || 0
+
   return (
-    <Box sx={{ width: '100%', maxWidth: 380 }}>
+    <Box
+      sx={{
+        width: '100%',
+        maxWidth: 380,
+        position: 'sticky',
+        top: { xs: 0, md: isSticky ? 24 : 0 },
+        mt: 0,
+        transition: 'all 0.3s ease',
+        zIndex: isSticky ? 1200 : 1,
+      }}
+    >
       <Paper
         elevation={0}
         sx={{
-          border: '1px solid',
+          border: isSticky ? '1px solid' : 'none',
           borderColor: 'divider',
-          borderRadius: 1,
+          borderRadius: 2,
           overflow: 'hidden',
-          position: 'sticky',
-          top: 24
+          boxShadow: isSticky ? '0 8px 32px rgba(0,0,0,0.12)' : 'none',
+          bgcolor: isSticky ? 'background.paper' : 'transparent',
+          transition: 'all 0.3s ease',
         }}
       >
+        {/* Course image */}
         <Box
           sx={{
             position: 'relative',
             width: '100%',
-            paddingTop: '56.25%',
-            backgroundColor: '#f7f9fa',
-            overflow: 'hidden'
+            height: isSticky ? 0 : 'auto',
+            maxHeight: isSticky ? 0 : 250,
+            paddingTop: isSticky ? 0 : '56.25%',
+            backgroundColor: 'grey.100',
+            overflow: 'hidden',
+            opacity: isSticky ? 0 : 1,
+            transition: 'all 0.3s ease',
           }}
         >
           <Box
@@ -97,28 +138,32 @@ const CourseSidebar = ({ courseData }) => {
               left: 0,
               width: '100%',
               height: '100%',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              transition: 'transform 0.4s ease',
+              '&:hover': {
+                transform: 'scale(1.03)',
+              },
             }}
           />
         </Box>
 
-        <Box sx={{ p: 3 }}>
-          {/* Pricing */}
-          <Box sx={{ mb: 3 }}>
+        <Box sx={{ p: isSticky ? 2.5 : 3, transition: 'padding 0.3s ease' }}>
+          {/* Price */}
+          <Box sx={{ mb: 2.5 }}>
             <Typography
               variant="h4"
               sx={{
-                fontWeight: 700,
+                fontWeight: 800,
                 color: 'text.primary',
-                mb: 1
+                letterSpacing: '-0.5px',
               }}
             >
-              US${courseData.currentPrice}
+              {courseData.price === 0 ? 'Free' : `$${courseData.price?.toFixed(2)}`}
             </Typography>
           </Box>
 
           {/* Action Buttons */}
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 1.5 }}>
             {isAuthenticated && isEnrolled ? (
               <Button
                 variant="contained"
@@ -127,36 +172,32 @@ const CourseSidebar = ({ courseData }) => {
                 startIcon={<PlayArrow />}
                 sx={{
                   py: 1.5,
-                  mb: 2,
-                  fontWeight: 600,
-                  backgroundColor: 'brand.main',
-                  color: 'text.inverse',
-                  '&:hover': {
-                    backgroundColor: 'brand.dark',
-                  },
+                  fontWeight: 700,
+                  bgcolor: 'brand.main',
+                  color: 'white',
+                  '&:hover': { bgcolor: 'brand.dark' },
                   borderRadius: 1.5,
-                  textTransform: 'none'
+                  textTransform: 'none',
+                  fontSize: '1rem',
                 }}
               >
                 Go to Course
               </Button>
             ) : (
-              <>
+              <Stack spacing={1.5}>
                 <Button
                   variant="contained"
                   fullWidth
                   onClick={handleBuyNow}
                   sx={{
                     py: 1.5,
-                    mb: 2,
-                    fontWeight: 600,
-                    backgroundColor: 'brand.main',
-                    color: 'text.inverse',
-                    '&:hover': {
-                      backgroundColor: 'brand.dark',
-                    },
+                    fontWeight: 700,
+                    bgcolor: 'brand.main',
+                    color: 'white',
+                    '&:hover': { bgcolor: 'brand.dark' },
                     borderRadius: 1.5,
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    fontSize: '1rem',
                   }}
                 >
                   Buy Now
@@ -168,218 +209,194 @@ const CourseSidebar = ({ courseData }) => {
                   startIcon={<ShoppingCart />}
                   disabled={addingToCart}
                   sx={{
-                    py: 1.5,
+                    py: 1.25,
                     borderColor: 'brand.main',
                     color: 'brand.main',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     borderRadius: 1.5,
                     textTransform: 'none',
                     '&:hover': {
-                      backgroundColor: 'brand.lighter',
+                      bgcolor: 'rgba(0, 178, 137, 0.08)',
                       borderColor: 'brand.main',
-                    }
+                    },
                   }}
                 >
                   {addingToCart ? 'Adding...' : 'Add to Cart'}
                 </Button>
-              </>
+              </Stack>
             )}
           </Box>
 
-          {/* Money Back Guarantee */}
+          {/* Money back */}
           <Typography
             variant="body2"
             sx={{
               textAlign: 'center',
               color: 'text.secondary',
-              mb: 2,
-              fontSize: '0.75rem'
+              mb: 2.5,
+              fontSize: '0.78rem',
             }}
           >
             30-Day Money-Back Guarantee
           </Typography>
 
-          {/* Course Details */}
+          <Divider sx={{ mb: 2.5 }} />
+
+          {/* This course includes */}
           <Typography
-            variant="subtitle1"
+            variant="subtitle2"
             sx={{
               fontWeight: 700,
               mb: 1.5,
               color: 'text.primary',
-              fontSize: '1rem'
+              fontSize: '0.9rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
             }}
           >
-            This course includes:
+            This course includes
           </Typography>
-          <List dense sx={{ mb: 2 }}>
-            <ListItem sx={{ px: 0, py: 0.75 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <PlayCircleOutline sx={{ color: 'text.secondary', fontSize: 18 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary={`${courseData?.content?.TotalVideoDuration || '0 hours'} on-demand video`}
-                slotProps={{
-                  typography: {
-                    variant: 'body2',
-                    color: 'text.primary',
-                    fontSize: '0.875rem',
-                  },
-                }}
-              />
-            </ListItem>
 
-            {/* <ListItem sx={{ px: 0, py: 0.75 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <Schedule sx={{ color: 'text.secondary', fontSize: 18 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary={`${courseData.quizzes || '1'} practice test`}
-                slotProps={{
-                  typography: {
-                    variant: 'body2',
-                    color: 'text.primary',
-                    fontSize: '0.875rem',
-                  },
-                }}
+          <List dense disablePadding sx={{ mb: 2 }}>
+            {courseData.content?.TotalVideoDuration && (
+              <SidebarItem
+                icon={<AccessTimeOutlined sx={{ fontSize: 17, color: 'brand.main' }} />}
+                text={`${courseData.content.TotalVideoDuration} on-demand video`}
               />
-            </ListItem> */}
-
-            <ListItem sx={{ px: 0, py: 0.75 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <Description sx={{ color: 'text.secondary', fontSize: 18 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary={`${totalArticles || '0'} articles`}
-                slotProps={{
-                  typography: {
-                    variant: 'body2',
-                    color: 'text.primary',
-                    fontSize: '0.875rem',
-                  },
-                }}
+            )}
+            {courseData.content?.TotalLecturer > 0 && (
+              <SidebarItem
+                icon={<PlayCircleOutline sx={{ fontSize: 17, color: 'brand.main' }} />}
+                text={`${totalVideos} video lecture${totalVideos !== 1 ? 's' : ''}`}
               />
-            </ListItem>
-
-            <ListItem sx={{ px: 0, py: 0.75 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <PhoneAndroid sx={{ color: 'text.secondary', fontSize: 18 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="Access on mobile and TV"
-                slotProps={{
-                  typography: {
-                    variant: 'body2',
-                    color: 'text.primary',
-                    fontSize: '0.875rem',
-                  },
-                }}
+            )}
+            {totalArticles > 0 && (
+              <SidebarItem
+                icon={<Description sx={{ fontSize: 17, color: 'brand.main' }} />}
+                text={`${totalArticles} article${totalArticles !== 1 ? 's' : ''}`}
               />
-            </ListItem>
-
-            <ListItem sx={{ px: 0, py: 0.75 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <AllInclusive sx={{ color: 'text.secondary', fontSize: 18 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="Full lifetime access"
-                slotProps={{
-                  typography: {
-                    variant: 'body2',
-                    color: 'text.primary',
-                    fontSize: '0.875rem',
-                  },
-                }}
-              />
-            </ListItem>
-
-            <ListItem sx={{ px: 0, py: 0.75 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <ClosedCaption sx={{ color: 'text.secondary', fontSize: 18 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="Closed captions"
-                slotProps={{
-                  typography: {
-                    variant: 'body2',
-                    color: 'text.primary',
-                    fontSize: '0.875rem',
-                  },
-                }}
-              />
-            </ListItem>
-
-            <ListItem sx={{ px: 0, py: 0.75 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <RecordVoiceOver sx={{ color: 'text.secondary', fontSize: 18 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="Audio description in existing audio"
-                slotProps={{
-                  typography: {
-                    variant: 'body2',
-                    color: 'text.primary',
-                    fontSize: '0.875rem',
-                  },
-                }}
-              />
-            </ListItem>
-
-            <ListItem sx={{ px: 0, py: 0.75 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <EmojiEvents sx={{ color: 'text.secondary', fontSize: 18 }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="Certificate of completion"
-                slotProps={{
-                  typography: {
-                    variant: 'body2',
-                    color: 'text.primary',
-                    fontSize: '0.875rem',
-                  },
-                }}
-              />
-            </ListItem>
+            )}
+            <SidebarItem
+              icon={<PhoneAndroid sx={{ fontSize: 17, color: 'brand.main' }} />}
+              text="Access on mobile and TV"
+            />
+            <SidebarItem
+              icon={<AllInclusive sx={{ fontSize: 17, color: 'brand.main' }} />}
+              text="Full lifetime access"
+            />
+            <SidebarItem
+              icon={<EmojiEvents sx={{ fontSize: 17, color: 'brand.main' }} />}
+              text="Certificate of completion"
+            />
           </List>
 
+          <Divider sx={{ mb: 2.5 }} />
 
-          <Divider sx={{ my: 2 }} />
-
+          {/* Course info */}
           <Typography
             variant="subtitle2"
             sx={{
-              fontWeight: 600,
-              mb: 1,
-              color: 'text.primary'
+              fontWeight: 700,
+              mb: 1.5,
+              color: 'text.primary',
+              fontSize: '0.9rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
             }}
           >
-            Course Information
+            Course Info
           </Typography>
 
-          <Stack spacing={1}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.tertiary">Language:</Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {courseData.language}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.tertiary">Level:</Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {getLevelLabel(courseData.level)}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.tertiary">Last updated:</Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {formatMonthYear(courseData.lastModified)}
-              </Typography>
-            </Box>
+          <Stack spacing={1.25}>
+            {courseData.categoryTitle && (
+              <InfoRow
+                icon={<CategoryOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />}
+                label="Category"
+                value={courseData.categoryTitle}
+              />
+            )}
+            <InfoRow
+              icon={<SchoolOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />}
+              label="Level"
+              value={getLevelLabel(courseData.level)}
+            />
+            <InfoRow
+              icon={<UpdateOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />}
+              label="Last updated"
+              value={formatMonthYear(courseData.lastModified)}
+            />
           </Stack>
 
+          {/* Topics Section inside Sidebar */}
+          {courseData.topics?.length > 0 && (
+            <>
+              <Divider sx={{ my: 2.5 }} />
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 700,
+                  mb: 1.5,
+                  color: 'text.primary',
+                  fontSize: '0.9rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Topics
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {courseData.topics.map(topic => (
+                  <Chip
+                    key={topic.id}
+                    label={topic.name}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      borderColor: 'divider',
+                      color: 'text.primary',
+                      fontWeight: 500,
+                      borderRadius: 1,
+                      '&:hover': { bgcolor: 'background.alt' },
+                    }}
+                  />
+                ))}
+              </Box>
+            </>
+          )}
         </Box>
       </Paper>
     </Box>
   )
 }
+
+/** Mini list item used in "This course includes" */
+const SidebarItem = ({ icon, text }) => (
+  <ListItem sx={{ px: 0, py: 0.6 }}>
+    <ListItemIcon sx={{ minWidth: 30 }}>{icon}</ListItemIcon>
+    <ListItemText
+      primary={text}
+      slotProps={{
+        primary: {
+          variant: 'body2',
+          color: 'text.primary',
+          sx: { fontSize: '0.875rem' },
+        },
+      }}
+    />
+  </ListItem>
+)
+
+/** Key-value row used in "Course Info" */
+const InfoRow = ({ icon, label, value }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+    {icon}
+    <Typography variant="body2" color="text.secondary" sx={{ minWidth: 90 }}>
+      {label}
+    </Typography>
+    <Typography variant="body2" fontWeight={600} color="text.primary">
+      {value}
+    </Typography>
+  </Box>
+)
 
 export default CourseSidebar

@@ -1,6 +1,7 @@
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 using Edunary.Application.Courses.Queries.GetCourseById;
+using AutoMapper;
 
 namespace Edunary.Application.Courses.Queries.GetPublicCourseById;
 
@@ -9,6 +10,8 @@ public class InstructorDto
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string Avatar { get; set; } = null!;
+    public string Headline { get; set; }
+    public string Description { get; set; }
 }
 
 public class GetPublicCourseByIdDto
@@ -31,6 +34,7 @@ public class GetPublicCourseByIdDto
     public int CategoryId { get; set; }
     public string CategoryTitle { get; set; } = null!;
     public float Ratings { get; set; }
+    public int TotalRatings { get; set; }
     public int TotalStudents { get; set; }
     public bool IsEnrolled { get; set; }
     public string Content { get; set; } = null!;
@@ -41,6 +45,7 @@ public class GetPublicCourseByIdDto
     {
         public Mapping()
         {
+            CreateMap<Topic, TopicItemDto>();
             CreateMap<Course, GetPublicCourseByIdDto>()
                 .ForMember(dest => dest.CategoryTitle, opt => opt.MapFrom(src => src.Category.Title))
                 .ForMember(dest => dest.Instructors, opt => opt.Ignore());

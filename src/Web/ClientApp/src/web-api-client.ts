@@ -21787,6 +21787,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
     categoryId?: number;
     categoryTitle?: string | undefined;
     ratings?: number;
+    totalRatings?: number;
     totalStudents?: number;
     isEnrolled?: boolean;
     content?: string | undefined;
@@ -21826,6 +21827,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
             this.categoryId = _data["categoryId"];
             this.categoryTitle = _data["categoryTitle"];
             this.ratings = _data["ratings"];
+            this.totalRatings = _data["totalRatings"];
             this.totalStudents = _data["totalStudents"];
             this.isEnrolled = _data["isEnrolled"];
             this.content = _data["content"];
@@ -21869,6 +21871,7 @@ export class GetPublicCourseByIdDto implements IGetPublicCourseByIdDto {
         data["categoryId"] = this.categoryId;
         data["categoryTitle"] = this.categoryTitle;
         data["ratings"] = this.ratings;
+        data["totalRatings"] = this.totalRatings;
         data["totalStudents"] = this.totalStudents;
         data["isEnrolled"] = this.isEnrolled;
         data["content"] = this.content;
@@ -21901,6 +21904,7 @@ export interface IGetPublicCourseByIdDto {
     categoryId?: number;
     categoryTitle?: string | undefined;
     ratings?: number;
+    totalRatings?: number;
     totalStudents?: number;
     isEnrolled?: boolean;
     content?: string | undefined;
@@ -21912,6 +21916,8 @@ export class InstructorDto implements IInstructorDto {
     id?: string | undefined;
     name?: string | undefined;
     avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
 
     constructor(data?: IInstructorDto) {
         if (data) {
@@ -21927,6 +21933,8 @@ export class InstructorDto implements IInstructorDto {
             this.id = _data["id"];
             this.name = _data["name"];
             this.avatar = _data["avatar"];
+            this.headline = _data["headline"];
+            this.description = _data["description"];
         }
     }
 
@@ -21942,6 +21950,8 @@ export class InstructorDto implements IInstructorDto {
         data["id"] = this.id;
         data["name"] = this.name;
         data["avatar"] = this.avatar;
+        data["headline"] = this.headline;
+        data["description"] = this.description;
         return data;
     }
 }
@@ -21950,6 +21960,8 @@ export interface IInstructorDto {
     id?: string | undefined;
     name?: string | undefined;
     avatar?: string | undefined;
+    headline?: string | undefined;
+    description?: string | undefined;
 }
 
 export class PaginatedListOfPublicCoursesByUserIdDto implements IPaginatedListOfPublicCoursesByUserIdDto {

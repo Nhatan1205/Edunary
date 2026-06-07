@@ -1,485 +1,634 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Box,
   Tabs,
   Tab,
   Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Chip,
   Dialog,
   DialogTitle,
   DialogContent,
-  IconButton
+  IconButton,
+  Avatar,
+  Button,
+  Divider,
+  Paper,
 } from '@mui/material'
 import {
-  ExpandMore,
   PlayCircleOutline,
   Assignment,
-  Quiz,
   Check,
-  Close as CloseIcon
+  Close as CloseIcon,
+  OpenInNew,
+  ExpandMore,
+  ExpandLess,
+  Article,
+  EmojiEvents,
+  Description,
+  PlayCircle,
+  OndemandVideo,
 } from '@mui/icons-material'
-import DOMPurify from "dompurify";
-import { Container } from 'reactstrap';
-import { useParams } from "react-router-dom";
-import RatingTab from '../../../../components/rating-tab/RatingTab';
-import PreviewVideoPlayer from './PreviewVideoPlayer';
+import DOMPurify from 'dompurify'
+import { useParams } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router'
+import RatingTab from '../../../../components/rating-tab/RatingTab'
+import PreviewVideoPlayer from './PreviewVideoPlayer'
 
-const CourseTabs = ({ courseData, reviews }) => {
-  const [activeTab, setActiveTab] = useState(0)
-  const [previewVideo, setPreviewVideo] = useState(null)
-  const { id } = useParams();
-  const courseId = id;
+const LessonIcon = ({ type }) => {
+  const iconStyle = { color: 'text.secondary', fontSize: 20 }
+  if (type === 'video') return <PlayCircleOutline sx={iconStyle} />
+  if (type === 'article') return <Article sx={iconStyle} />
+  return <Assignment sx={iconStyle} />
+}
 
-  const closePreview = () => {
-    setPreviewVideo(null);
-  };
-
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue)
-  }
-
-  const renderDescription = () => (
-    <Box sx={{ py: 3 }}>
-      <Typography
-        variant="h3"
+/* ─────────────────────────────────────────────────────────
+   Tab 1 – Description
+   ───────────────────────────────────────────────────────── */
+const DescriptionTab = ({ courseData }) => (
+  <Box sx={{ py: 3 }}>
+    {/* What you'll learn */}
+    {courseData.learningObjectives?.length > 0 && (
+      <Box
         sx={{
-          fontWeight: 700,
-          mb: 3,
-          color: 'text.primary'
+          mb: 4,
         }}
       >
-        About This Course
-      </Typography>
-
-      {courseData.requirements && (
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              mb: 2,
-            }}
-          >
-            Requirements
-          </Typography>
-
-          <Box component="ul" sx={{ pl: 3 }}>
-            {courseData.requirements.map((req, index) => (
-              <Typography
-                key={index}
-                component="li"
-                variant="body1"
-                sx={{ lineHeight: 1.7, mb: 1 }}
-              >
-                {req}
-              </Typography>
-            ))}
-          </Box>
-        </Box>
-      )}
-      {courseData.description && (
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              mb: 2,
-            }}
-          >
-            Description
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              lineHeight: 1.7,
-              fontSize: "1.1rem",
-              mb: 4,
-            }}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(courseData.description),
-            }}
-          />
-        </Box>
-      )}
-
-      {courseData.targetAudience && (
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              mb: 2,
-            }}
-          >
-            Who this course is for:
-          </Typography>
-
-          <Box component="ul" sx={{ pl: 3 }}>
-            {courseData.targetAudience.map((text, index) => (
-              <Typography
-                key={index}
-                component="li"
-                variant="body1"
-                sx={{ lineHeight: 1.7, mb: 1 }}
-              >
-                {text}
-              </Typography>
-            ))}
-          </Box>
-        </Box>
-      )}
-    </Box>
-  )
-
-  const renderCourses = () => {
-    if (!courseData.content) return null;
-    let curriculum = courseData.content?.Sections?.map((section) => ({
-      title: section.Title,
-      duration: section.TotalVideoDuration || undefined,
-      lectures: section.Items?.length || 0,
-      lessons: section.Items?.map((item) => ({
-        title: item.Title,
-        duration: item.VideoDuration || undefined,
-        type: item.ContentType,
-        isFreePreview: item.IsFreePreview,
-        videoId: item.VideoId
-      })) || [],
-    })) || [];
-
-    return (
-      <Box sx={{ py: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 700,
-              color: 'text.primary'
-            }}
-          >
-            Course Content
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
-              {courseData?.content?.TotalSection} sections
-            </Typography>
-            <Typography variant="body2" color="text.secondary">•</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {courseData?.content?.TotalLecturer} lectures
-            </Typography>
-            <Typography variant="body2" color="text.secondary">•</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {courseData?.content?.TotalVideoDuration} total
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ mb: 3 }}>
-          {curriculum.map((section, sectionIndex) => (
-            <Accordion
-              key={sectionIndex}
-              sx={{
-                mb: 1,
-                '&:before': { display: 'none' },
-                boxShadow: 'none',
-                border: '1px solid',
-                borderColor: 'divider',
-                '&.Mui-expanded': {
-                  margin: '0 0 8px 0',
-                }
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMore sx={{ color: 'text.tertiary' }} />}
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}
+        >
+          What you'll learn
+        </Typography>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+            gap: 2,
+          }}
+        >
+          {courseData.learningObjectives.map((obj, i) => (
+            <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+              <Check
                 sx={{
-                  bgcolor: 'background.alt',
-                  '&.Mui-expanded': {
-                    minHeight: 48,
-                  },
-                  '& .MuiAccordionSummary-content': {
-                    margin: '12px 0',
-                    '&.Mui-expanded': {
-                      margin: '12px 0',
-                    },
-                  }
+                  fontSize: 16,
+                  color: 'brand.main',
+                  mt: '4px',
+                  flexShrink: 0,
                 }}
-              >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', mr: 2 }}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ fontWeight: 600, color: 'text.primary' }}
-                  >
-                    {section.title}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <Chip
-                      label={`${section.lectures} lectures`}
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        borderColor: 'text.disabled',
-                        color: 'text.secondary',
-                        fontSize: '0.75rem'
-                      }}
-                    />
-                    <Typography variant="body2" color="text.secondary">
-                      {section.duration}
-                    </Typography>
-                  </Box>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails sx={{ pt: 0 }}>
-                <List dense>
-                  {section.lessons.map((lesson, lessonIndex) => (
-                    <ListItem
-                      key={lessonIndex}
-                      sx={{
-                        px: 0,
-                        py: 1,
-                        borderBottom: lessonIndex < section.lessons.length - 1 ? '1px solid' : 'none',
-                        borderColor: 'divider'
-                      }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 36 }}>
-                        {lesson.type === 'video' && <PlayCircleOutline sx={{ color: 'brand.main', fontSize: 20 }} />}
-                        {lesson.type === 'article' && <Assignment sx={{ color: 'text.tertiary', fontSize: 20 }} />}
-                        {lesson.type === 'quiz' && <Quiz sx={{ color: 'text.tertiary', fontSize: 20 }} />}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={lesson.title}
-                        primaryTypographyProps={{
-                          variant: 'body2',
-                          color: 'text.secondary',
-                          fontWeight: 500
-                        }}
-                      />
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {lesson.isFreePreview && lesson.videoId && (
-                          <Chip
-                            label="Preview"
-                            size="small"
-                            color="success"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setPreviewVideo(lesson);
-                            }}
-                            icon={<PlayCircleOutline sx={{ fontSize: 16 }} />}
-                            sx={{ mr: 1, cursor: 'pointer', '&:hover': { opacity: 0.8 } }}
-                          />
-                        )}
-                        {lesson.duration && (
-                          <Typography variant="body2" color="text.secondary">
-                            {lesson.duration}
-                          </Typography>
-                        )}
-                      </Box>
-                    </ListItem>
-                  ))}
-                </List>
-              </AccordionDetails>
-            </Accordion>
+              />
+              <Typography
+                variant="body1"
+                sx={{ lineHeight: 1.6, color: 'text.primary' }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(obj) }}
+              />
+            </Box>
           ))}
         </Box>
       </Box>
-    );
+    )}
+
+    {/* Requirements */}
+    {courseData.requirements?.length > 0 && (
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
+          Requirements
+        </Typography>
+        <Box component="ul" sx={{ pl: 2, m: 0 }}>
+          {courseData.requirements.map((req, i) => (
+            <Typography
+              key={i}
+              component="li"
+              variant="body1"
+              sx={{ lineHeight: 1.7, mb: 0.75, color: 'text.primary' }}
+            >
+              {req}
+            </Typography>
+          ))}
+        </Box>
+      </Box>
+    )}
+
+    {/* Description */}
+    {courseData.description && (
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
+          Description
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ lineHeight: 1.8, color: 'text.primary' }}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(courseData.description),
+          }}
+        />
+      </Box>
+    )}
+
+    {/* Who this course is for */}
+    {courseData.targetAudience?.length > 0 && (
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
+          Who this course is for
+        </Typography>
+        <Box component="ul" sx={{ pl: 2, m: 0 }}>
+          {courseData.targetAudience.map((item, i) => (
+            <Typography
+              key={i}
+              component="li"
+              variant="body1"
+              sx={{ lineHeight: 1.7, mb: 0.75, color: 'text.primary' }}
+            >
+              {item}
+            </Typography>
+          ))}
+        </Box>
+      </Box>
+    )}
+  </Box>
+)
+
+/* ─────────────────────────────────────────────────────────
+   Tab 2 – Content
+   ───────────────────────────────────────────────────────── */
+const ContentTab = ({ courseData, onPreviewClick, isEnrolled }) => {
+  if (!courseData.content) {
+    return (
+      <Box sx={{ py: 4, textAlign: 'center' }}>
+        <Typography color="text.secondary">No content available.</Typography>
+      </Box>
+    )
   }
 
-  const renderReviews = (courseId) => (
-    <Box>
-      <RatingTab courseId={courseId} />
+  const curriculum = courseData.content?.Sections?.map(section => ({
+    title: section.Title,
+    lessons: section.Items?.map(item => ({
+      title: item.Title,
+      duration: item.VideoDuration,
+      type: item.ContentType,
+      isFreePreview: item.IsFreePreview,
+      videoId: item.VideoId,
+    })) || [],
+  })) || []
+
+  // Compute summary stats
+  const totalLectures = courseData.content?.TotalLecturer || 0
+  const totalDuration = courseData.content?.TotalVideoDuration || ''
+  const totalSections = courseData.content?.TotalSection || 0
+
+  const totalExercises = courseData.content?.Sections?.reduce(
+    (sum, section) =>
+      sum +
+      section.Items.filter(
+        item => item.ContentType === 'quiz' || item.ContentType === 'assignment'
+      ).length,
+    0
+  ) || 0
+
+  const totalArticles = courseData.content?.Sections?.reduce(
+    (sum, section) =>
+      sum + section.Items.filter(item => item.ContentType === 'article').length,
+    0
+  ) || 0
+
+  return (
+    <Box sx={{ py: 3 }}>
+      <Typography
+        variant="h6"
+        sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}
+      >
+        Course summary
+      </Typography>
+      {/* 2x2 Summary Grid */}
+      <Box
+        sx={{
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 2,
+          bgcolor: 'background.paper',
+          mb: 4,
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+          rowGap: 2.5,
+          columnGap: 4,
+          p: 3,
+        }}
+      >
+        {/* Cell 1: Lessons & Duration */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <OndemandVideo sx={{ fontSize: 24, color: 'text.secondary' }} />
+          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75 }}>
+            <Typography variant="body1" fontWeight={600} color="text.primary">
+              {totalLectures} lessons
+            </Typography>
+            {totalDuration && (
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+                ({totalDuration})
+              </Typography>
+            )}
+          </Box>
+        </Box>
+
+        {/* Cell 2: Articles */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Description sx={{ fontSize: 24, color: 'text.secondary' }} />
+          <Box>
+            <Typography variant="body1" fontWeight={600} color="text.primary">
+              {totalArticles} articles
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Cell 3: Exercises */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Assignment sx={{ fontSize: 24, color: 'text.secondary' }} />
+          <Box>
+            <Typography variant="body1" fontWeight={600} color="text.primary">
+              {totalExercises} exercises
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Cell 4: Certificate */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <EmojiEvents sx={{ fontSize: 24, color: 'text.secondary' }} />
+          <Box>
+            <Typography variant="body1" fontWeight={600} color="text.primary">
+              Certificate of completion
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Curriculum list */}
+      <Box>
+        {curriculum.map((section, sIdx) => (
+          <Box key={sIdx}>
+            {/* Section header */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                mt: sIdx > 0 ? 3 : 1,
+                mb: 2,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  color: 'text.primary',
+                  fontSize: '1.1rem',
+                }}
+              >
+                {`Section ${sIdx + 1}: ${section.title}`}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, ml: 1 }}>
+                {section.lessons.length} {section.lessons.length === 1 ? 'lesson' : 'lessons'}
+              </Typography>
+            </Box>
+
+            {/* Lessons list */}
+            <Box>
+              {section.lessons.map((lesson, lIdx) => (
+                <Box
+                  key={lIdx}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    py: 2,
+                    px: 0,
+                    borderRadius: 1,
+                    transition: 'background 0.15s',
+                    '&:hover': { bgcolor: 'rgba(0,0,0,0.02)' },
+                  }}
+                >
+                  {/* Type icon */}
+                  <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                    <LessonIcon type={lesson.type} />
+                  </Box>
+
+                  {/* Title */}
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      flexGrow: 1,
+                      color: 'text.primary',
+                      fontWeight: 500,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {lesson.title}
+                  </Typography>
+
+                  {/* Right side: preview link + duration */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
+                    {lesson.isFreePreview && lesson.videoId && (
+                      <Box
+                        onClick={() => onPreviewClick(lesson)}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                          cursor: 'pointer',
+                          color: 'brand.main',
+                          textDecoration: 'underline',
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
+                          userSelect: 'none',
+                        }}
+                      >
+                        <PlayCircle sx={{ fontSize: 18, color: 'brand.main' }} />
+                        <span>Preview</span>
+                      </Box>
+                    )}
+                    {lesson.type === 'video' && lesson.duration && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ minWidth: 40, textAlign: 'right' }}
+                      >
+                        {lesson.duration}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+
+            {/* Section Divider */}
+            {sIdx < curriculum.length - 1 && (
+              <Divider sx={{ my: 3.5, borderColor: 'divider' }} />
+            )}
+          </Box>
+        ))}
+      </Box>
     </Box>
   )
+}
+
+/** Small stat chip in content tab header */
+const SummaryChip = ({ icon, label }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+    <Box sx={{ color: 'brand.main', display: 'flex', alignItems: 'center' }}>{icon}</Box>
+    <Typography variant="body2" fontWeight={600} color="text.primary">
+      {label}
+    </Typography>
+  </Box>
+)
+
+/* ─────────────────────────────────────────────────────────
+   Tab 4 – Teachers
+───────────────────────────────────────────────────────── */
+const TeachersTab = ({ instructors }) => (
+  <Box sx={{ py: 3 }}>
+    <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: 'text.primary' }}>
+      Meet your instructors
+    </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      {instructors.map((instructor, idx) => (
+        <InstructorCard key={instructor.id || idx} instructor={instructor} isFirst={idx === 0} />
+      ))}
+    </Box>
+  </Box>
+)
+
+const InstructorCard = ({ instructor, isFirst }) => {
+  const [expanded, setExpanded] = useState(false)
+  const hasLongBio = instructor.description && instructor.description.length > 280
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2,
+        p: 3,
+        transition: 'box-shadow 0.2s',
+        '&:hover': {
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        },
+      }}
+    >
+      {/* Header: avatar + name + headline */}
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
+        <Avatar
+          src={instructor.avatar}
+          alt={instructor.name}
+          sx={{
+            width: 72,
+            height: 72,
+            border: '2px solid',
+            borderColor: 'brand.lighter',
+            flexShrink: 0,
+          }}
+        />
+        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 0.5 }}>
+            <Typography
+              component={RouterLink}
+              to={`/profile/${instructor.id}`}
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                color: 'brand.main',
+                textDecoration: 'none',
+                '&:hover': { textDecoration: 'underline' },
+              }}
+            >
+              {instructor.name}
+            </Typography>
+            {isFirst && (
+              <Chip
+                label="Course Owner"
+                size="small"
+                sx={{
+                  bgcolor: 'brand.lighter',
+                  color: 'brand.darker',
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 22,
+                }}
+              />
+            )}
+          </Box>
+          {instructor.headline && (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ lineHeight: 1.5, fontStyle: 'italic' }}
+            >
+              {instructor.headline}
+            </Typography>
+          )}
+        </Box>
+      </Box>
+
+      <Divider sx={{ mb: 2 }} />
+
+      {/* Bio */}
+      {instructor.description ? (
+        <Box>
+          <Typography
+            variant="body1"
+            color="text.primary"
+            sx={{
+              lineHeight: 1.75,
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: expanded ? 'unset' : 4,
+              WebkitBoxOrient: 'vertical',
+            }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(instructor.description),
+            }}
+          />
+          {hasLongBio && (
+            <Button
+              size="small"
+              onClick={() => setExpanded(!expanded)}
+              endIcon={expanded ? <ExpandLess /> : <ExpandMore />}
+              sx={{
+                mt: 1,
+                color: 'brand.main',
+                textTransform: 'none',
+                fontWeight: 600,
+                p: 0,
+                '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
+              }}
+            >
+              {expanded ? 'Show less' : 'Show more'}
+            </Button>
+          )}
+        </Box>
+      ) : (
+        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+          No bio provided.
+        </Typography>
+      )}
+
+      {/* View profile link */}
+      <Box sx={{ mt: 2 }}>
+        <Button
+          component={RouterLink}
+          to={`/profile/${instructor.id}`}
+          size="small"
+          variant="outlined"
+          endIcon={<OpenInNew sx={{ fontSize: 14 }} />}
+          sx={{
+            borderColor: 'brand.main',
+            color: 'brand.main',
+            textTransform: 'none',
+            fontWeight: 600,
+            borderRadius: 1.5,
+            '&:hover': { bgcolor: 'brand.lighter', borderColor: 'brand.main' },
+          }}
+        >
+          View Profile
+        </Button>
+      </Box>
+    </Paper>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────
+   Main CourseTabs component
+───────────────────────────────────────────────────────── */
+const CourseTabs = ({ courseData }) => {
+  const [activeTab, setActiveTab] = useState(0)
+  const [previewVideo, setPreviewVideo] = useState(null)
+  const { id } = useParams()
+  const courseId = id
+
+  // Teachers tab: only shown if course has collaborators (instructors.length > 1)
+  const hasTeachersTab = courseData?.instructors?.length > 1
+
+  const tabs = useMemo(() => {
+    const base = [
+      { label: 'Information' },
+      { label: 'Content' },
+      { label: 'Reviews' },
+    ]
+    if (hasTeachersTab) {
+      base.push({ label: 'Teachers' })
+    }
+    return base
+  }, [hasTeachersTab])
+
+  const handleTabChange = (_, newValue) => setActiveTab(newValue)
+
+  const closePreview = () => setPreviewVideo(null)
 
   return (
     <>
-      <Container className="py-4 px-0 bord">
-        <Box
-          sx={{
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 1,
-            padding: "32px",
-            backgroundColor: "white",
-          }}
-        >
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              marginBottom: 3,
-              fontSize: '24px',
-              color: '#1c1d1f'
-            }}
-          >
-            What you'll learn
-          </Typography>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tbody>
-              {Array.from({
-                length: Math.ceil(courseData?.learningObjectives.length / 2)
-              }).map((_, rowIndex) => {
-                const leftItem = courseData?.learningObjectives[rowIndex];
-                const rightItem = courseData?.learningObjectives[rowIndex + Math.ceil(courseData?.learningObjectives.length / 2)];
-
-                return (
-                  <tr key={rowIndex}>
-                    <td style={{
-                      width: '50%',
-                      padding: '6px 16px 6px 0',
-                      verticalAlign: 'top'
-                    }}>
-                      {leftItem && (
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                          <Check
-                            sx={{
-                              fontSize: '16px',
-                              mr: 1.5,
-                              mt: '2px',
-                              flexShrink: 0,
-                              color: '#1c1d1f'
-                            }}
-                          />
-                          <span
-                            dangerouslySetInnerHTML={{ __html: leftItem }}
-                            style={{
-                              fontSize: '14px',
-                              lineHeight: '1.4',
-                              color: '#1c1d1f'
-                            }}
-                          />
-                        </Box>
-                      )}
-                    </td>
-                    <td style={{
-                      width: '50%',
-                      padding: '6px 0 6px 16px',
-                      verticalAlign: 'top'
-                    }}>
-                      {rightItem && (
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                          <Check
-                            sx={{
-                              fontSize: '16px',
-                              mr: 1.5,
-                              mt: '2px',
-                              flexShrink: 0,
-                              color: '#1c1d1f'
-                            }}
-                          />
-                          <span
-                            dangerouslySetInnerHTML={{ __html: rightItem }}
-                            style={{
-                              fontSize: '14px',
-                              lineHeight: '1.4',
-                              color: '#1c1d1f'
-                            }}
-                          />
-                        </Box>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </Box>
-      </Container>
-
-      {courseData?.topics?.length > 0 && (
-        <Container className="py-0 px-0">
-          <Box
-            sx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 1,
-              padding: '24px 32px',
-              backgroundColor: 'background.paper',
-              mt: 0,
-              mb: 4,
-            }}
-          >
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: 700, mb: 3, color: 'text.primary' }}
-            >
-              Related topics
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {courseData.topics.map((topic) => (
-                <Chip
-                  key={topic.id}
-                  label={topic.name}
-                  variant="outlined"
-                  sx={{
-                    borderColor: 'text.secondary',
-                    color: 'text.primary',
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                    borderRadius: '10px',
-                    '&:hover': {
-                      bgcolor: 'grey.200',
-                    },
-                    cursor: 'default',
-                  }}
-                />
-              ))}
-            </Box>
-          </Box>
-        </Container>
-      )}
       <Box
         sx={{
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          border: '1px solid',
-          borderColor: 'divider',
-          overflow: 'hidden'
+          bgcolor: 'transparent',
+          borderRadius: 0,
+          border: 'none',
+          overflow: 'visible',
         }}
       >
-        <Box sx={{ px: 3, pt: 2 }}>
+        {/* Tab bar */}
+        <Box sx={{ px: 0, pt: 1.5 }}>
           <Tabs
             value={activeTab}
             onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
             sx={{
               '& .MuiTab-root': {
                 textTransform: 'none',
                 fontWeight: 500,
-                fontSize: '1rem',
-                color: 'text.tertiary',
-                px: 3,
-                py: 2,
+                fontSize: '0.975rem',
+                color: 'text.secondary',
+                px: { xs: 2, sm: 3 },
+                py: 1.75,
+                minHeight: 48,
                 '&.Mui-selected': {
                   color: 'brand.main',
-                  fontWeight: 600,
-                }
+                  fontWeight: 700,
+                },
               },
               '& .MuiTabs-indicator': {
                 backgroundColor: 'brand.main',
                 height: 3,
-                borderRadius: '3px 3px 0 0'
+                borderRadius: '3px 3px 0 0',
               },
               borderBottom: '1px solid',
-              borderColor: 'divider'
+              borderColor: 'divider',
             }}
           >
-            <Tab label="Description" />
-            <Tab label="Content" />
-            <Tab label="Reviews" />
+            {tabs.map((tab, idx) => (
+              <Tab key={idx} label={tab.label} id={`course-tab-${idx}`} />
+            ))}
           </Tabs>
         </Box>
 
-        <Box sx={{ px: 3, pb: 3 }}>
-          {activeTab === 0 && renderDescription()}
-          {activeTab === 1 && renderCourses()}
-          {activeTab === 2 && renderReviews(courseId)}
+        {/* Tab content */}
+        <Box sx={{ px: 0, pb: 3 }}>
+          {activeTab === 0 && <DescriptionTab courseData={courseData} />}
+          {activeTab === 1 && (
+            <ContentTab
+              courseData={courseData}
+              onPreviewClick={setPreviewVideo}
+              isEnrolled={courseData.isEnrolled}
+            />
+          )}
+          {activeTab === 2 && (
+            <Box sx={{ py: 2 }}>
+              <RatingTab courseId={courseId} />
+            </Box>
+          )}
+          {hasTeachersTab && activeTab === 3 && (
+            <TeachersTab instructors={courseData.instructors} />
+          )}
         </Box>
       </Box>
+
+      {/* Preview video dialog */}
       <Dialog
         open={Boolean(previewVideo)}
         onClose={closePreview}
@@ -490,8 +639,8 @@ const CourseTabs = ({ courseData, reviews }) => {
             bgcolor: 'background.paper',
             backgroundImage: 'none',
             borderRadius: 2,
-            overflow: 'hidden'
-          }
+            overflow: 'hidden',
+          },
         }}
       >
         <DialogTitle
@@ -503,33 +652,23 @@ const CourseTabs = ({ courseData, reviews }) => {
             px: 3,
             bgcolor: 'brand.main',
             color: 'white',
-            borderBottom: '1px solid',
-            borderColor: 'divider'
           }}
         >
           <Box>
             <Typography
               variant="caption"
               sx={{
-                color: 'rgba(255,255,255,0.7)',
+                color: 'rgba(255,255,255,0.75)',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: 1,
                 display: 'block',
-                mb: 0.5
+                mb: 0.5,
               }}
             >
               Course Preview
             </Typography>
-            <Typography
-              variant="h6"
-              component="div"
-              sx={{
-                fontWeight: 700,
-                color: 'white',
-                lineHeight: 1.2
-              }}
-            >
+            <Typography variant="h6" component="div" sx={{ fontWeight: 700, color: 'white', lineHeight: 1.2 }}>
               {previewVideo?.title}
             </Typography>
           </Box>
@@ -539,9 +678,7 @@ const CourseTabs = ({ courseData, reviews }) => {
             sx={{
               color: 'white',
               bgcolor: 'rgba(255,255,255,0.1)',
-              '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.2)',
-              }
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' },
             }}
           >
             <CloseIcon />
@@ -549,9 +686,7 @@ const CourseTabs = ({ courseData, reviews }) => {
         </DialogTitle>
         <DialogContent sx={{ p: 0, bgcolor: 'black', outline: 'none' }}>
           {previewVideo?.videoId && (
-            <PreviewVideoPlayer
-              contentId={previewVideo.videoId}
-            />
+            <PreviewVideoPlayer contentId={previewVideo.videoId} />
           )}
         </DialogContent>
       </Dialog>

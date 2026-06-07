@@ -16128,6 +16128,10 @@
             "type": "number",
             "format": "float"
           },
+          "totalRatings": {
+            "type": "integer",
+            "format": "int32"
+          },
           "totalStudents": {
             "type": "integer",
             "format": "int32"
@@ -16165,6 +16169,14 @@
             "nullable": true
           },
           "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
             "type": "string",
             "nullable": true
           }

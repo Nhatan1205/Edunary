@@ -80,7 +80,7 @@ export function buildCouponCommand(form) {
     name: form.name.trim(),
     description: form.description.trim(),
     type: form.type,
-    discountValue: Number(form.discountValue),
+    discountValue: Number(form.type) === 3 ? 0 : Number(form.discountValue),
     scopeType: form.scopeType,
     courseId: Number(form.courseId) || 0,
     funderType: form.funderType,

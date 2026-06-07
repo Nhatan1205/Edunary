@@ -12,7 +12,7 @@ public class GetPublicCoursesByUserIdQuery : IRequest<PaginatedList<PublicCourse
     public int PageSize { get; init; } = 10;
 
     public string CacheKey => $"courses:public:user:{UserId}:{PageNumber}:{PageSize}";
-    public TimeSpan CacheDuration => TimeSpan.FromHours(24);
+    public TimeSpan CacheDuration => TimeSpan.FromMinutes(10);
 }
 
 public class GetPublicCoursesByUserIdQueryHandler

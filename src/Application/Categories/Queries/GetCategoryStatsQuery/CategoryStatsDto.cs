@@ -15,15 +15,4 @@ public class CategoryStatsDto
 
     /// <summary>Average number of courses per category (rounded to 1 decimal).</summary>
     public double AvgCoursesPerCategory { get; set; }
-
-    /// <summary>Per-category comparison data for the bar chart (top 10 by courseCount).</summary>
-    public IList<CategoryComparisonItemDto> CategoriesComparison { get; set; } = new List<CategoryComparisonItemDto>();
-}
-
-public class CategoryComparisonItemDto
-{
-    public int CategoryId { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public int CourseCount { get; set; }
-    public int EnrollmentCount { get; set; }
 }

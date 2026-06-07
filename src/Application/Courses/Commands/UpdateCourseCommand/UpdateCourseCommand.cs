@@ -24,7 +24,6 @@ public class UpdateCourseCommand : IRequest<Result>
     public string ImageUrl { get; init; }
     public string WelcomeMessage { get; init; }
     public string CongratulationsMessage { get; init; }
-    public float Price { get; init; }
     public int CategoryId { get; init; }
     public bool? AllowPlatformCoupons { get; init; }
     public string Content { get; init; }
@@ -76,7 +75,6 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
             entity.TargetAudience = JsonSerializer.Serialize(request.TargetAudience);
             entity.WelcomeMessage = request.WelcomeMessage;
             entity.CongratulationsMessage = request.CongratulationsMessage;
-            entity.Price = request.Price;
             entity.CategoryId = request.CategoryId;
             entity.Level = (CourseLevel)request.Level;
             entity.Status = (CourseStatus)request.Status;

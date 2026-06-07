@@ -4,6 +4,7 @@ using Edunary.Application.Common.Interfaces;
 using Edunary.Application.Courses.Commands.CreateCourse;
 using Edunary.Application.Courses.Commands.DeleteCourse;
 using Edunary.Application.Courses.Commands.UpdateCourse;
+using Edunary.Application.Courses.Commands.UpdateCoursePricing;
 using Edunary.Application.Courses.Commands.UnpublishCourseCommand;
 using Edunary.Application.Courses.Queries.GetCourseById;
 using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
@@ -37,6 +38,7 @@ public class Courses : EndpointGroupBase
             .MapGet(GetCourseById, "{id}")
             .MapGet(GetCourseStats,"stats")
             .MapPut(UpdateCourse)
+            .MapPut(UpdateCoursePricing, "pricing")
             .MapDelete(DeleteCourse);
 
         // Admin endpoints
@@ -63,6 +65,16 @@ public class Courses : EndpointGroupBase
     public async Task<IResult> UpdateCourse(ISender sender, [FromBody] UpdateCourseCommand command)
     {
 
+        var result = await sender.Send(command);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
+
+    public async Task<IResult> UpdateCoursePricing(ISender sender, [FromBody] UpdateCoursePricingCommand command)
+    {
         var result = await sender.Send(command);
         if (!result.Succeeded)
         {

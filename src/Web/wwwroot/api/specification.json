@@ -5183,6 +5183,35 @@
         ]
       }
     },
+    "/api/Courses/pricing": {
+      "put": {
+        "tags": [
+          "Courses"
+        ],
+        "operationId": "UpdateCoursePricing",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCoursePricingCommand"
+              }
+            }
+          },
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Courses/admin/unpublish": {
       "post": {
         "tags": [
@@ -13222,6 +13251,11 @@
             "type": "number",
             "format": "float"
           },
+          "lastPriceChangedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
           "categoryId": {
             "type": "integer",
             "format": "int32"
@@ -15945,10 +15979,6 @@
             "type": "string",
             "nullable": true
           },
-          "price": {
-            "type": "number",
-            "format": "float"
-          },
           "categoryId": {
             "type": "integer",
             "format": "int32"
@@ -15960,6 +15990,20 @@
           "content": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "UpdateCoursePricingCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "price": {
+            "type": "number",
+            "format": "float"
           }
         }
       },

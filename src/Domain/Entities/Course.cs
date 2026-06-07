@@ -24,6 +24,7 @@ public class Course : BaseAuditableEntity
     public string CongratulationsMessage { get; set; }
 
     public float Price { get; set; }
+    public DateTimeOffset? LastPriceChangedAt { get; set; }
 
     public int CategoryId { get; set; }
 

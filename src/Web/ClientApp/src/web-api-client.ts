@@ -5450,6 +5450,41 @@ export class CoursesClient {
         return Promise.resolve<CourseStatsVM>(null as any);
     }
 
+    updateCoursePricing(command: UpdateCoursePricingCommand | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Courses/pricing";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCoursePricing(_response);
+        });
+    }
+
+    protected processUpdateCoursePricing(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     unpublishCourse(command: UnpublishCourseCommand | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/Courses/admin/unpublish";
         url_ = url_.replace(/[?&]$/, "");
@@ -16422,6 +16457,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
     price?: number;
+    lastPriceChangedAt?: Date | undefined;
     categoryId?: number;
     allowPlatformCoupons?: boolean;
     content?: string | undefined;
@@ -16456,6 +16492,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
             this.welcomeMessage = _data["welcomeMessage"];
             this.congratulationsMessage = _data["congratulationsMessage"];
             this.price = _data["price"];
+            this.lastPriceChangedAt = _data["lastPriceChangedAt"] ? new Date(_data["lastPriceChangedAt"].toString()) : <any>undefined;
             this.categoryId = _data["categoryId"];
             this.allowPlatformCoupons = _data["allowPlatformCoupons"];
             this.content = _data["content"];
@@ -16490,6 +16527,7 @@ export class GetCourseByIdDto implements IGetCourseByIdDto {
         data["welcomeMessage"] = this.welcomeMessage;
         data["congratulationsMessage"] = this.congratulationsMessage;
         data["price"] = this.price;
+        data["lastPriceChangedAt"] = this.lastPriceChangedAt ? this.lastPriceChangedAt.toISOString() : <any>undefined;
         data["categoryId"] = this.categoryId;
         data["allowPlatformCoupons"] = this.allowPlatformCoupons;
         data["content"] = this.content;
@@ -16513,6 +16551,7 @@ export interface IGetCourseByIdDto {
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
     price?: number;
+    lastPriceChangedAt?: Date | undefined;
     categoryId?: number;
     allowPlatformCoupons?: boolean;
     content?: string | undefined;
@@ -21457,7 +21496,6 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
     imageUrl?: string | undefined;
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
-    price?: number;
     categoryId?: number;
     allowPlatformCoupons?: boolean | undefined;
     content?: string | undefined;
@@ -21502,7 +21540,6 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
             this.imageUrl = _data["imageUrl"];
             this.welcomeMessage = _data["welcomeMessage"];
             this.congratulationsMessage = _data["congratulationsMessage"];
-            this.price = _data["price"];
             this.categoryId = _data["categoryId"];
             this.allowPlatformCoupons = _data["allowPlatformCoupons"];
             this.content = _data["content"];
@@ -21547,7 +21584,6 @@ export class UpdateCourseCommand implements IUpdateCourseCommand {
         data["imageUrl"] = this.imageUrl;
         data["welcomeMessage"] = this.welcomeMessage;
         data["congratulationsMessage"] = this.congratulationsMessage;
-        data["price"] = this.price;
         data["categoryId"] = this.categoryId;
         data["allowPlatformCoupons"] = this.allowPlatformCoupons;
         data["content"] = this.content;
@@ -21569,10 +21605,49 @@ export interface IUpdateCourseCommand {
     imageUrl?: string | undefined;
     welcomeMessage?: string | undefined;
     congratulationsMessage?: string | undefined;
-    price?: number;
     categoryId?: number;
     allowPlatformCoupons?: boolean | undefined;
     content?: string | undefined;
+}
+
+export class UpdateCoursePricingCommand implements IUpdateCoursePricingCommand {
+    courseId?: number;
+    price?: number;
+
+    constructor(data?: IUpdateCoursePricingCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.price = _data["price"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCoursePricingCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCoursePricingCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["price"] = this.price;
+        return data;
+    }
+}
+
+export interface IUpdateCoursePricingCommand {
+    courseId?: number;
+    price?: number;
 }
 
 export class DeleteCourseCommand implements IDeleteCourseCommand {

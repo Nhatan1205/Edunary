@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,8 +30,6 @@ public class UpdateCourseCommandValidator : AbstractValidator<UpdateCourseComman
             .MaximumLength(500).WithMessage("Congratulations message must not exceed 500 characters.");
         RuleFor(c => c.CategoryId)
            .GreaterThan(0).WithMessage("CategoryId must be greater than 0.");
-        RuleFor(c => c.Price)
-            .GreaterThanOrEqualTo(0).WithMessage("Price must be 0 or greater.");
         RuleFor(x => x.Content)
             .Must(ValidateCurriculumContent).WithMessage("All sections and curriculum items must have titles.");
     }

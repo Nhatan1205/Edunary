@@ -16,6 +16,8 @@ function CreateCourse() {
     control,
     handleSubmit,
     watch,
+    setValue,
+    clearErrors,
     formState: { errors },
     trigger,
   } = useForm();
@@ -60,7 +62,15 @@ function CreateCourse() {
   } else if (currentStep === 2) {
     stepContent = <StepCourseCategory control={control} errors={errors} />;
   } else if (currentStep === 3) {
-    stepContent = <StepCoursePrice register={register} errors={errors} />;
+    stepContent = (
+      <StepCoursePrice
+        register={register}
+        errors={errors}
+        watch={watch}
+        setValue={setValue}
+        clearErrors={clearErrors}
+      />
+    );
   }
 
   return (

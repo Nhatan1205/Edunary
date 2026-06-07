@@ -1,4 +1,4 @@
-﻿using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
+using Edunary.Application.Courses.Queries.GetCoursesAuthorWithPagination;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 
@@ -25,6 +25,7 @@ public class GetCourseByIdDto
     public string WelcomeMessage { get; set; } = null!;
     public string CongratulationsMessage { get; set; } = null!;
     public float Price { get; set; }
+    public DateTimeOffset? LastPriceChangedAt { get; set; }
     public int CategoryId { get; set; }
     public bool AllowPlatformCoupons { get; set; } = true;
     public string Content { get; set; } = null!;

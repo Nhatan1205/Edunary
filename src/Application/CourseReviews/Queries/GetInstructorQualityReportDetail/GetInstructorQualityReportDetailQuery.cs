@@ -49,7 +49,7 @@ public class GetInstructorQualityReportDetailQueryHandler : IRequestHandler<GetI
 
         if (!hasAccess)
         {
-            throw new UnauthorizedAccessException("You do not have permission to view this quality report.");
+            return null;
         }
 
         // 3. Check if latest report

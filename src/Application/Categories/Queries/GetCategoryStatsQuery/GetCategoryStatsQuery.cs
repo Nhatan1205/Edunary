@@ -25,25 +25,12 @@ public class GetCategoryStatsQueryHandler : IRequestHandler<GetCategoryStatsQuer
             ? Math.Round((double)totalCourseCount / totalCategories, 1)
             : 0;
 
-        var top10 = await _context.Categories
-            .Select(c => new CategoryComparisonItemDto
-            {
-                CategoryId = c.Id,
-                Title = c.Title,
-                CourseCount = c.Courses.Count(),
-                EnrollmentCount = c.Courses.Sum(co => co.TotalStudents),
-            })
-            .OrderByDescending(c => c.CourseCount)
-            .Take(10)
-            .ToListAsync(cancellationToken);
-
         return new CategoryStatsDto
         {
             TotalCategories = totalCategories,
             ActiveCategories = activeCategories,
             EmptyCategories = emptyCategories,
             AvgCoursesPerCategory = avgCoursesPerCategory,
-            CategoriesComparison = top10,
         };
     }
 }

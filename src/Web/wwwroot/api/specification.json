@@ -144,6 +144,92 @@
         ]
       }
     },
+    "/api/AdminDashboard/summary": {
+      "get": {
+        "tags": [
+          "AdminDashboard"
+        ],
+        "operationId": "GetDashboardSummary",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDashboardSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminDashboard/trend": {
+      "get": {
+        "tags": [
+          "AdminDashboard"
+        ],
+        "operationId": "GetDashboardTrend",
+        "parameters": [
+          {
+            "name": "Range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDashboardTrendDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/AdminDashboard/distributions": {
+      "get": {
+        "tags": [
+          "AdminDashboard"
+        ],
+        "operationId": "GetDashboardDistributions",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDashboardDistributionsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/AdminFinance/summary": {
       "get": {
         "tags": [
@@ -10527,6 +10613,255 @@
           }
         }
       },
+      "AdminDashboardSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalUsersTrend": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalCourses": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCoursesTrend": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalRevenueTrend": {
+            "type": "number",
+            "format": "double"
+          },
+          "onlineNow": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "revenueToday": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "pendingActionsTotal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingApprovals": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingWithdrawals": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingCourseChanges": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completionRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double"
+          },
+          "activeEnrollmentRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "courseStatusPublished": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseStatusPrivate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseStatusDraft": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseStatusPendingReview": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseStatusNeedsChanges": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminDashboardTrendDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "period": {
+            "type": "string",
+            "nullable": true
+          },
+          "labels": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "enrollments": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "revenue": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "number",
+              "format": "decimal"
+            }
+          }
+        }
+      },
+      "AdminDashboardDistributionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "byCategory": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/DashboardCategoryComparisonItem"
+            }
+          },
+          "byTopic": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/DashboardTopicComparisonItem"
+            }
+          },
+          "topCourses": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TopCourseItem"
+            }
+          },
+          "popularInstructors": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PopularInstructorItem"
+            }
+          }
+        }
+      },
+      "DashboardCategoryComparisonItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "categoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enrollmentCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DashboardTopicComparisonItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "topicId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enrollmentCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TopCourseItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "thumbnail": {
+            "type": "string",
+            "nullable": true
+          },
+          "enrollments": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PopularInstructorItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "instructorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "coursesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "avgRating": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "FinanceSummaryDto": {
         "type": "object",
         "additionalProperties": false,
@@ -11936,35 +12271,6 @@
           "avgCoursesPerCategory": {
             "type": "number",
             "format": "double"
-          },
-          "categoriesComparison": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/CategoryComparisonItemDto"
-            }
-          }
-        }
-      },
-      "CategoryComparisonItemDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "categoryId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "courseCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "enrollmentCount": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },

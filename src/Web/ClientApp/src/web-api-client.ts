@@ -121,6 +121,124 @@ export class ActivityLogsClient {
     }
 }
 
+export class AdminDashboardClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getDashboardSummary(): Promise<AdminDashboardSummaryDto> {
+        let url_ = this.baseUrl + "/api/AdminDashboard/summary";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDashboardSummary(_response);
+        });
+    }
+
+    protected processGetDashboardSummary(response: Response): Promise<AdminDashboardSummaryDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminDashboardSummaryDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AdminDashboardSummaryDto>(null as any);
+    }
+
+    getDashboardTrend(range: string | null | undefined): Promise<AdminDashboardTrendDto> {
+        let url_ = this.baseUrl + "/api/AdminDashboard/trend?";
+        if (range !== undefined && range !== null)
+            url_ += "Range=" + encodeURIComponent("" + range) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDashboardTrend(_response);
+        });
+    }
+
+    protected processGetDashboardTrend(response: Response): Promise<AdminDashboardTrendDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminDashboardTrendDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AdminDashboardTrendDto>(null as any);
+    }
+
+    getDashboardDistributions(): Promise<AdminDashboardDistributionsDto> {
+        let url_ = this.baseUrl + "/api/AdminDashboard/distributions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDashboardDistributions(_response);
+        });
+    }
+
+    protected processGetDashboardDistributions(response: Response): Promise<AdminDashboardDistributionsDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminDashboardDistributionsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AdminDashboardDistributionsDto>(null as any);
+    }
+}
+
 export class AdminFinanceClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -11218,6 +11336,470 @@ export interface IDeleteActivityLogsCommand {
     ids?: number[] | undefined;
 }
 
+export class AdminDashboardSummaryDto implements IAdminDashboardSummaryDto {
+    totalUsers?: number;
+    totalUsersTrend?: number;
+    totalCourses?: number;
+    totalCoursesTrend?: number;
+    totalRevenue?: number;
+    totalRevenueTrend?: number;
+    onlineNow?: number;
+    revenueToday?: number;
+    pendingActionsTotal?: number;
+    pendingApprovals?: number;
+    pendingWithdrawals?: number;
+    pendingCourseChanges?: number;
+    completionRate?: number;
+    averageRating?: number;
+    activeEnrollmentRate?: number;
+    courseStatusPublished?: number;
+    courseStatusPrivate?: number;
+    courseStatusDraft?: number;
+    courseStatusPendingReview?: number;
+    courseStatusNeedsChanges?: number;
+
+    constructor(data?: IAdminDashboardSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalUsers = _data["totalUsers"];
+            this.totalUsersTrend = _data["totalUsersTrend"];
+            this.totalCourses = _data["totalCourses"];
+            this.totalCoursesTrend = _data["totalCoursesTrend"];
+            this.totalRevenue = _data["totalRevenue"];
+            this.totalRevenueTrend = _data["totalRevenueTrend"];
+            this.onlineNow = _data["onlineNow"];
+            this.revenueToday = _data["revenueToday"];
+            this.pendingActionsTotal = _data["pendingActionsTotal"];
+            this.pendingApprovals = _data["pendingApprovals"];
+            this.pendingWithdrawals = _data["pendingWithdrawals"];
+            this.pendingCourseChanges = _data["pendingCourseChanges"];
+            this.completionRate = _data["completionRate"];
+            this.averageRating = _data["averageRating"];
+            this.activeEnrollmentRate = _data["activeEnrollmentRate"];
+            this.courseStatusPublished = _data["courseStatusPublished"];
+            this.courseStatusPrivate = _data["courseStatusPrivate"];
+            this.courseStatusDraft = _data["courseStatusDraft"];
+            this.courseStatusPendingReview = _data["courseStatusPendingReview"];
+            this.courseStatusNeedsChanges = _data["courseStatusNeedsChanges"];
+        }
+    }
+
+    static fromJS(data: any): AdminDashboardSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminDashboardSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalUsers"] = this.totalUsers;
+        data["totalUsersTrend"] = this.totalUsersTrend;
+        data["totalCourses"] = this.totalCourses;
+        data["totalCoursesTrend"] = this.totalCoursesTrend;
+        data["totalRevenue"] = this.totalRevenue;
+        data["totalRevenueTrend"] = this.totalRevenueTrend;
+        data["onlineNow"] = this.onlineNow;
+        data["revenueToday"] = this.revenueToday;
+        data["pendingActionsTotal"] = this.pendingActionsTotal;
+        data["pendingApprovals"] = this.pendingApprovals;
+        data["pendingWithdrawals"] = this.pendingWithdrawals;
+        data["pendingCourseChanges"] = this.pendingCourseChanges;
+        data["completionRate"] = this.completionRate;
+        data["averageRating"] = this.averageRating;
+        data["activeEnrollmentRate"] = this.activeEnrollmentRate;
+        data["courseStatusPublished"] = this.courseStatusPublished;
+        data["courseStatusPrivate"] = this.courseStatusPrivate;
+        data["courseStatusDraft"] = this.courseStatusDraft;
+        data["courseStatusPendingReview"] = this.courseStatusPendingReview;
+        data["courseStatusNeedsChanges"] = this.courseStatusNeedsChanges;
+        return data;
+    }
+}
+
+export interface IAdminDashboardSummaryDto {
+    totalUsers?: number;
+    totalUsersTrend?: number;
+    totalCourses?: number;
+    totalCoursesTrend?: number;
+    totalRevenue?: number;
+    totalRevenueTrend?: number;
+    onlineNow?: number;
+    revenueToday?: number;
+    pendingActionsTotal?: number;
+    pendingApprovals?: number;
+    pendingWithdrawals?: number;
+    pendingCourseChanges?: number;
+    completionRate?: number;
+    averageRating?: number;
+    activeEnrollmentRate?: number;
+    courseStatusPublished?: number;
+    courseStatusPrivate?: number;
+    courseStatusDraft?: number;
+    courseStatusPendingReview?: number;
+    courseStatusNeedsChanges?: number;
+}
+
+export class AdminDashboardTrendDto implements IAdminDashboardTrendDto {
+    period?: string | undefined;
+    labels?: string[] | undefined;
+    enrollments?: number[] | undefined;
+    revenue?: number[] | undefined;
+
+    constructor(data?: IAdminDashboardTrendDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.period = _data["period"];
+            if (Array.isArray(_data["labels"])) {
+                this.labels = [] as any;
+                for (let item of _data["labels"])
+                    this.labels!.push(item);
+            }
+            if (Array.isArray(_data["enrollments"])) {
+                this.enrollments = [] as any;
+                for (let item of _data["enrollments"])
+                    this.enrollments!.push(item);
+            }
+            if (Array.isArray(_data["revenue"])) {
+                this.revenue = [] as any;
+                for (let item of _data["revenue"])
+                    this.revenue!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): AdminDashboardTrendDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminDashboardTrendDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["period"] = this.period;
+        if (Array.isArray(this.labels)) {
+            data["labels"] = [];
+            for (let item of this.labels)
+                data["labels"].push(item);
+        }
+        if (Array.isArray(this.enrollments)) {
+            data["enrollments"] = [];
+            for (let item of this.enrollments)
+                data["enrollments"].push(item);
+        }
+        if (Array.isArray(this.revenue)) {
+            data["revenue"] = [];
+            for (let item of this.revenue)
+                data["revenue"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IAdminDashboardTrendDto {
+    period?: string | undefined;
+    labels?: string[] | undefined;
+    enrollments?: number[] | undefined;
+    revenue?: number[] | undefined;
+}
+
+export class AdminDashboardDistributionsDto implements IAdminDashboardDistributionsDto {
+    byCategory?: DashboardCategoryComparisonItem[] | undefined;
+    byTopic?: DashboardTopicComparisonItem[] | undefined;
+    topCourses?: TopCourseItem[] | undefined;
+    popularInstructors?: PopularInstructorItem[] | undefined;
+
+    constructor(data?: IAdminDashboardDistributionsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["byCategory"])) {
+                this.byCategory = [] as any;
+                for (let item of _data["byCategory"])
+                    this.byCategory!.push(DashboardCategoryComparisonItem.fromJS(item));
+            }
+            if (Array.isArray(_data["byTopic"])) {
+                this.byTopic = [] as any;
+                for (let item of _data["byTopic"])
+                    this.byTopic!.push(DashboardTopicComparisonItem.fromJS(item));
+            }
+            if (Array.isArray(_data["topCourses"])) {
+                this.topCourses = [] as any;
+                for (let item of _data["topCourses"])
+                    this.topCourses!.push(TopCourseItem.fromJS(item));
+            }
+            if (Array.isArray(_data["popularInstructors"])) {
+                this.popularInstructors = [] as any;
+                for (let item of _data["popularInstructors"])
+                    this.popularInstructors!.push(PopularInstructorItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AdminDashboardDistributionsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminDashboardDistributionsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.byCategory)) {
+            data["byCategory"] = [];
+            for (let item of this.byCategory)
+                data["byCategory"].push(item.toJSON());
+        }
+        if (Array.isArray(this.byTopic)) {
+            data["byTopic"] = [];
+            for (let item of this.byTopic)
+                data["byTopic"].push(item.toJSON());
+        }
+        if (Array.isArray(this.topCourses)) {
+            data["topCourses"] = [];
+            for (let item of this.topCourses)
+                data["topCourses"].push(item.toJSON());
+        }
+        if (Array.isArray(this.popularInstructors)) {
+            data["popularInstructors"] = [];
+            for (let item of this.popularInstructors)
+                data["popularInstructors"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAdminDashboardDistributionsDto {
+    byCategory?: DashboardCategoryComparisonItem[] | undefined;
+    byTopic?: DashboardTopicComparisonItem[] | undefined;
+    topCourses?: TopCourseItem[] | undefined;
+    popularInstructors?: PopularInstructorItem[] | undefined;
+}
+
+export class DashboardCategoryComparisonItem implements IDashboardCategoryComparisonItem {
+    categoryId?: number;
+    title?: string | undefined;
+    courseCount?: number;
+    enrollmentCount?: number;
+
+    constructor(data?: IDashboardCategoryComparisonItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.categoryId = _data["categoryId"];
+            this.title = _data["title"];
+            this.courseCount = _data["courseCount"];
+            this.enrollmentCount = _data["enrollmentCount"];
+        }
+    }
+
+    static fromJS(data: any): DashboardCategoryComparisonItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new DashboardCategoryComparisonItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["categoryId"] = this.categoryId;
+        data["title"] = this.title;
+        data["courseCount"] = this.courseCount;
+        data["enrollmentCount"] = this.enrollmentCount;
+        return data;
+    }
+}
+
+export interface IDashboardCategoryComparisonItem {
+    categoryId?: number;
+    title?: string | undefined;
+    courseCount?: number;
+    enrollmentCount?: number;
+}
+
+export class DashboardTopicComparisonItem implements IDashboardTopicComparisonItem {
+    topicId?: number;
+    title?: string | undefined;
+    courseCount?: number;
+    enrollmentCount?: number;
+
+    constructor(data?: IDashboardTopicComparisonItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.topicId = _data["topicId"];
+            this.title = _data["title"];
+            this.courseCount = _data["courseCount"];
+            this.enrollmentCount = _data["enrollmentCount"];
+        }
+    }
+
+    static fromJS(data: any): DashboardTopicComparisonItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new DashboardTopicComparisonItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["topicId"] = this.topicId;
+        data["title"] = this.title;
+        data["courseCount"] = this.courseCount;
+        data["enrollmentCount"] = this.enrollmentCount;
+        return data;
+    }
+}
+
+export interface IDashboardTopicComparisonItem {
+    topicId?: number;
+    title?: string | undefined;
+    courseCount?: number;
+    enrollmentCount?: number;
+}
+
+export class TopCourseItem implements ITopCourseItem {
+    courseId?: number;
+    title?: string | undefined;
+    thumbnail?: string | undefined;
+    enrollments?: number;
+
+    constructor(data?: ITopCourseItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.thumbnail = _data["thumbnail"];
+            this.enrollments = _data["enrollments"];
+        }
+    }
+
+    static fromJS(data: any): TopCourseItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new TopCourseItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["thumbnail"] = this.thumbnail;
+        data["enrollments"] = this.enrollments;
+        return data;
+    }
+}
+
+export interface ITopCourseItem {
+    courseId?: number;
+    title?: string | undefined;
+    thumbnail?: string | undefined;
+    enrollments?: number;
+}
+
+export class PopularInstructorItem implements IPopularInstructorItem {
+    instructorId?: string | undefined;
+    name?: string | undefined;
+    avatar?: string | undefined;
+    headline?: string | undefined;
+    coursesCount?: number;
+    avgRating?: number;
+
+    constructor(data?: IPopularInstructorItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.instructorId = _data["instructorId"];
+            this.name = _data["name"];
+            this.avatar = _data["avatar"];
+            this.headline = _data["headline"];
+            this.coursesCount = _data["coursesCount"];
+            this.avgRating = _data["avgRating"];
+        }
+    }
+
+    static fromJS(data: any): PopularInstructorItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new PopularInstructorItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["instructorId"] = this.instructorId;
+        data["name"] = this.name;
+        data["avatar"] = this.avatar;
+        data["headline"] = this.headline;
+        data["coursesCount"] = this.coursesCount;
+        data["avgRating"] = this.avgRating;
+        return data;
+    }
+}
+
+export interface IPopularInstructorItem {
+    instructorId?: string | undefined;
+    name?: string | undefined;
+    avatar?: string | undefined;
+    headline?: string | undefined;
+    coursesCount?: number;
+    avgRating?: number;
+}
+
 export class FinanceSummaryDto implements IFinanceSummaryDto {
     grossSales?: number;
     vatCollected?: number;
@@ -14139,7 +14721,6 @@ export class CategoryStatsDto implements ICategoryStatsDto {
     activeCategories?: number;
     emptyCategories?: number;
     avgCoursesPerCategory?: number;
-    categoriesComparison?: CategoryComparisonItemDto[] | undefined;
 
     constructor(data?: ICategoryStatsDto) {
         if (data) {
@@ -14156,11 +14737,6 @@ export class CategoryStatsDto implements ICategoryStatsDto {
             this.activeCategories = _data["activeCategories"];
             this.emptyCategories = _data["emptyCategories"];
             this.avgCoursesPerCategory = _data["avgCoursesPerCategory"];
-            if (Array.isArray(_data["categoriesComparison"])) {
-                this.categoriesComparison = [] as any;
-                for (let item of _data["categoriesComparison"])
-                    this.categoriesComparison!.push(CategoryComparisonItemDto.fromJS(item));
-            }
         }
     }
 
@@ -14177,11 +14753,6 @@ export class CategoryStatsDto implements ICategoryStatsDto {
         data["activeCategories"] = this.activeCategories;
         data["emptyCategories"] = this.emptyCategories;
         data["avgCoursesPerCategory"] = this.avgCoursesPerCategory;
-        if (Array.isArray(this.categoriesComparison)) {
-            data["categoriesComparison"] = [];
-            for (let item of this.categoriesComparison)
-                data["categoriesComparison"].push(item.toJSON());
-        }
         return data;
     }
 }
@@ -14191,55 +14762,6 @@ export interface ICategoryStatsDto {
     activeCategories?: number;
     emptyCategories?: number;
     avgCoursesPerCategory?: number;
-    categoriesComparison?: CategoryComparisonItemDto[] | undefined;
-}
-
-export class CategoryComparisonItemDto implements ICategoryComparisonItemDto {
-    categoryId?: number;
-    title?: string | undefined;
-    courseCount?: number;
-    enrollmentCount?: number;
-
-    constructor(data?: ICategoryComparisonItemDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.categoryId = _data["categoryId"];
-            this.title = _data["title"];
-            this.courseCount = _data["courseCount"];
-            this.enrollmentCount = _data["enrollmentCount"];
-        }
-    }
-
-    static fromJS(data: any): CategoryComparisonItemDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CategoryComparisonItemDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["categoryId"] = this.categoryId;
-        data["title"] = this.title;
-        data["courseCount"] = this.courseCount;
-        data["enrollmentCount"] = this.enrollmentCount;
-        return data;
-    }
-}
-
-export interface ICategoryComparisonItemDto {
-    categoryId?: number;
-    title?: string | undefined;
-    courseCount?: number;
-    enrollmentCount?: number;
 }
 
 export class PaginatedListOfAdminCategoryDto implements IPaginatedListOfAdminCategoryDto {

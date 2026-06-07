@@ -228,6 +228,7 @@ const CourseSidebar = ({ courseData }) => {
           </Box>
 
           {/* Money back */}
+          {/* <Typography
           <Typography
             variant="body2"
             sx={{
@@ -238,7 +239,7 @@ const CourseSidebar = ({ courseData }) => {
             }}
           >
             30-Day Money-Back Guarantee
-          </Typography>
+          </Typography> */}
 
           <Divider sx={{ mb: 2.5 }} />
 

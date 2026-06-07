@@ -7,7 +7,7 @@ import {
   Instagram as InstagramIcon,
   Language as LanguageIcon,
 } from '@mui/icons-material'
-import { useParams } from 'react-router'
+import { useParams, Navigate } from 'react-router'
 import { Link as RouterLink } from 'react-router'
 import CourseSidebar from './components/CourseSidebar'
 import CourseTabs from './components/CourseTabs'
@@ -136,7 +136,7 @@ const CourseOverview = () => {
   }
 
   if (isError || !courseData?.id) {
-    return <LoadingSpinner fullScreen message="Redirecting..." />
+    return <Navigate to="/" replace />
   }
 
   // Hook already parses: content, learningObjectives, requirements, targetAudience

@@ -13,7 +13,7 @@ public record GetHomepageCoursesQuery : IRequest<HomepageCoursesVm>, ICacheableQ
         ? "homepage:courses:guest"
         : $"homepage:courses:user:{UserId}";
 
-    public TimeSpan CacheDuration => TimeSpan.FromHours(24);
+    public TimeSpan CacheDuration => TimeSpan.FromMinutes(15);
 }
 
 public class GetHomepageCoursesQueryHandler : IRequestHandler<GetHomepageCoursesQuery, HomepageCoursesVm>

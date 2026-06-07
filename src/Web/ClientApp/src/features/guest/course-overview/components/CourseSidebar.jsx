@@ -229,6 +229,7 @@ const CourseSidebar = ({ courseData }) => {
 
           {/* Money back */}
           {/* <Typography
+          <Typography
             variant="body2"
             sx={{
               textAlign: 'center',

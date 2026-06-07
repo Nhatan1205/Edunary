@@ -41,7 +41,7 @@ public class GetInstructorQualityReportsQueryHandler : IRequestHandler<GetInstru
 
         if (!hasAccess)
         {
-            throw new UnauthorizedAccessException("You do not have permission to view quality reports for this course.");
+            return new List<InstructorQualityReportSummaryDto>();
         }
 
         // 2. Fetch reports

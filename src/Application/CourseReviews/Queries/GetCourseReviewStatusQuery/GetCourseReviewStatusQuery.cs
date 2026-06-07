@@ -37,6 +37,17 @@ public class GetCourseReviewStatusQueryHandler : IRequestHandler<GetCourseReview
     {
         var userId = _currentUserService.UserId;
 
+        var course = await _context.Courses
+            .AsNoTracking()
+            .Where(c => c.Id == request.CourseId)
+            .Select(c => new { c.Id, c.Status })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (course == null)
+        {
+            return null;
+        }
+
         // Access check — owner, collaborator, or administrator
         var hasAccess = await _courseAuth.HasCourseAccessAsync(
             request.CourseId, userId, CoursePermission.None, cancellationToken);
@@ -44,16 +55,8 @@ public class GetCourseReviewStatusQueryHandler : IRequestHandler<GetCourseReview
 
         if (!hasAccess && !isAdmin)
         {
-            throw new UnauthorizedAccessException("You do not have access to this course.");
+            return null;
         }
-
-        var course = await _context.Courses
-            .AsNoTracking()
-            .Where(c => c.Id == request.CourseId)
-            .Select(c => new { c.Id, c.Status })
-            .FirstOrDefaultAsync(cancellationToken);
-
-        Guard.Against.NotFound(request.CourseId, course);
 
         // Load all submissions with feedbacks (ordered)
         var submissions = await _context.CourseReviewSubmissions

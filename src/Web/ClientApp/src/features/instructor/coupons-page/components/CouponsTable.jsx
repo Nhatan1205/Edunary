@@ -59,6 +59,9 @@ export default function CouponsTable({
             <TableCell sortDirection={sortProps("used").sortDirection}>
               <TableSortLabel {...sortProps("used").label}>Used / Max</TableSortLabel>
             </TableCell>
+            <TableCell sortDirection={sortProps("starts").sortDirection}>
+              <TableSortLabel {...sortProps("starts").label}>Starts</TableSortLabel>
+            </TableCell>
             <TableCell sortDirection={sortProps("expires").sortDirection}>
               <TableSortLabel {...sortProps("expires").label}>Expires</TableSortLabel>
             </TableCell>
@@ -107,6 +110,11 @@ export default function CouponsTable({
               <TableCell>
                 <Typography variant="body2">
                   {coupon.redemptionCount} / {coupon.maxRedemptions}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2">
+                  {new Date(coupon.startsAt).toLocaleDateString()}
                 </Typography>
               </TableCell>
               <TableCell>

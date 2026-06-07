@@ -16,7 +16,9 @@ import CouponFiltersToolbar from "./components/CouponFiltersToolbar"
 import CouponsTable from "./components/CouponsTable"
 import CreateCouponDialog from "./components/CreateCouponDialog"
 import { createDefaultCouponForm } from "./couponConstants"
+import { validateCouponForm, buildCouponCommand } from "./couponUtils"
 import { cardSx, couponPaginationSx } from "./couponStyles"
+import { extractApiError } from "../../../utils/helpers"
 
 const adminPageContainerSx = {
   px: { xs: 2, sm: 3, md: "40px", lg: "120px", xl: "240px" },
@@ -111,8 +113,9 @@ export default function CouponsPage({ isAdmin = false }) {
   }
 
   const handleCreate = async () => {
-    if (!form.code.trim() || !form.name.trim()) {
-      setFormError("Code and name are required")
+    const errors = validateCouponForm(form)
+    if (errors.length > 0) {
+      setFormError(errors.join(". "))
       return
     }
 
@@ -120,27 +123,13 @@ export default function CouponsPage({ isAdmin = false }) {
     setFormError("")
 
     try {
-      await createCoupon({
-        code: form.code.trim().toUpperCase(),
-        name: form.name.trim(),
-        description: form.description.trim(),
-        type: form.type,
-        discountValue: Number(form.discountValue),
-        scopeType: form.scopeType,
-        courseId: Number(form.courseId) || 0,
-        funderType: form.funderType,
-        maxRedemptions: Number(form.maxRedemptions),
-        maxRedemptionsPerUser: Number(form.maxRedemptionsPerUser),
-        startsAt: new Date(form.startsAt).toISOString(),
-        expiresAt: new Date(form.expiresAt).toISOString(),
-      })
-
+      await createCoupon(buildCouponCommand(form))
       toast.success("Coupon created")
       closeDialog()
       setPage(0)
       void queryClient.invalidateQueries({ queryKey: ["coupons"] })
     } catch (err) {
-      setFormError(err?.message || "Failed to create coupon")
+      setFormError(extractApiError(err) || "Failed to create coupon")
     } finally {
       setSaving(false)
     }

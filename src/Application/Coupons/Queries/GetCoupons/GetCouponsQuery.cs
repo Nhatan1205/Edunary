@@ -189,6 +189,9 @@ public class GetCouponsQueryHandler : IRequestHandler<GetCouponsQuery, Paginated
             "used" => asc
                 ? query.OrderBy(c => c.RedemptionCount)
                 : query.OrderByDescending(c => c.RedemptionCount),
+            "starts" => asc
+                ? query.OrderBy(c => c.StartsAt)
+                : query.OrderByDescending(c => c.StartsAt),
             "expires" => asc
                 ? query.OrderBy(c => c.ExpiresAt)
                 : query.OrderByDescending(c => c.ExpiresAt),

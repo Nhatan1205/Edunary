@@ -104,6 +104,29 @@ public class EmailService : IEmailService
         }
     }
 
+    public async Task<(bool IsReachable, string Error)> CheckConnectionAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var settings = await GetEmailSettingsAsync();
+            using var smtp = new SmtpClient();
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            await smtp.ConnectAsync(
+                settings.Host, settings.Port,
+                settings.UseSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto,
+                cts.Token);
+            if (!string.IsNullOrWhiteSpace(settings.Username))
+                await smtp.AuthenticateAsync(settings.Username, settings.Password, cts.Token);
+            await smtp.DisconnectAsync(true, cts.Token);
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
+
     private static string GetOrFallback(Dictionary<string, string> dbValues, string key, string fallback)
     {
         var val = dbValues.GetValueOrDefault(key, string.Empty);

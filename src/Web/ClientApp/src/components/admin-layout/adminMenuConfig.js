@@ -14,6 +14,7 @@ import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import AutoFixHighOutlinedIcon from "@mui/icons-material/AutoFixHighOutlined";
 import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import MonitorHeartOutlinedIcon from "@mui/icons-material/MonitorHeartOutlined";
 
 const adminMenuConfig = {
   items: [
@@ -208,6 +209,13 @@ const adminMenuConfig = {
           type: "item",
           url: "/admin/system-settings",
           icon: SettingsOutlinedIcon,
+        },
+        {
+          id: "service-health",
+          title: "Service Status",
+          type: "item",
+          url: "/admin/service-health",
+          icon: MonitorHeartOutlinedIcon,
         },
       ],
     },

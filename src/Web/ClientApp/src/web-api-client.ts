@@ -9254,6 +9254,52 @@ export class RoadmapsClient {
     }
 }
 
+export class ServiceHealthClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getServiceHealth(): Promise<ServiceHealthDto> {
+        let url_ = this.baseUrl + "/api/ServiceHealth/status";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetServiceHealth(_response);
+        });
+    }
+
+    protected processGetServiceHealth(response: Response): Promise<ServiceHealthDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceHealthDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ServiceHealthDto>(null as any);
+    }
+}
+
 export class SystemSettingsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -29820,6 +29866,122 @@ export interface IRelatedRoadmapDto {
     description?: string | undefined;
     topicTitle?: string | undefined;
     courseCount?: number;
+}
+
+export class ServiceHealthDto implements IServiceHealthDto {
+    overallStatus?: string;
+    checkedAtUtc?: Date;
+    services?: ServiceHealthItemDto[];
+
+    constructor(data?: IServiceHealthDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.overallStatus = _data["overallStatus"];
+            this.checkedAtUtc = _data["checkedAtUtc"] ? new Date(_data["checkedAtUtc"].toString()) : <any>undefined;
+            if (Array.isArray(_data["services"])) {
+                this.services = [] as any;
+                for (let item of _data["services"])
+                    this.services!.push(ServiceHealthItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ServiceHealthDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServiceHealthDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["overallStatus"] = this.overallStatus;
+        data["checkedAtUtc"] = this.checkedAtUtc ? this.checkedAtUtc.toISOString() : <any>undefined;
+        if (Array.isArray(this.services)) {
+            data["services"] = [];
+            for (let item of this.services)
+                data["services"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IServiceHealthDto {
+    overallStatus?: string;
+    checkedAtUtc?: Date;
+    services?: ServiceHealthItemDto[];
+}
+
+export class ServiceHealthItemDto implements IServiceHealthItemDto {
+    name?: string;
+    status?: string;
+    durationMs?: number;
+    description?: string | undefined;
+    error?: string | undefined;
+    tags?: string[];
+
+    constructor(data?: IServiceHealthItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.status = _data["status"];
+            this.durationMs = _data["durationMs"];
+            this.description = _data["description"];
+            this.error = _data["error"];
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ServiceHealthItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServiceHealthItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["status"] = this.status;
+        data["durationMs"] = this.durationMs;
+        data["description"] = this.description;
+        data["error"] = this.error;
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IServiceHealthItemDto {
+    name?: string;
+    status?: string;
+    durationMs?: number;
+    description?: string | undefined;
+    error?: string | undefined;
+    tags?: string[];
 }
 
 export class SystemSettingDto implements ISystemSettingDto {

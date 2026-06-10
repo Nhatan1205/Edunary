@@ -3,6 +3,7 @@ using Edunary.Application.CourseProgresses.Commands.SyncCourseProgressCommand;
 using Edunary.Domain.Events.Courses;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Courses.EventHandlers;
 
@@ -33,7 +34,9 @@ public class CourseUpdatedEventHandler : INotificationHandler<CourseUpdatedEvent
             NewContentJson = entity.Item.Content ?? string.Empty
         }, cancellationToken);
 
-        // 2. Enqueue embedding update (job service handles Public vs Draft logic)
-        _embeddingJobService.EnqueueCourseEmbedding(entity.Item.Id);
+        if (entity.Item.Status == CourseStatus.Public)
+        {
+            _embeddingJobService.EnqueueCourseEmbedding(entity.Item.Id);
+        }
     }
 }

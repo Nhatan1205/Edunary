@@ -82,6 +82,7 @@ const TABS = [
       {
         header: "AI Center Configuration",
         keys: [
+          "AICenter_Chatbot",
           "AICenter_BaseUrl",
           "AICenter_ApiKey"
         ]

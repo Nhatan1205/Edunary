@@ -63,11 +63,44 @@ public class ProcessMediaFileJobService : IProcessMediaFileJobService
         await NotifyUserAsync(mediaFile.UserId, $"Video {mediaFile.FileName} is now being processed...", mediaFileId, "PROCESSING");
 
         // Prepare paths
-        string inputMp4Path = Path.Combine(_env.ContentRootPath, mediaFile.FileUrl.TrimStart('/')); // Assuming FileUrl is somewhat relative like "wwwroot/temp/uploads/..."
+        string inputMp4Path = mediaFile.FileUrl;
+        if (!File.Exists(inputMp4Path))
+        {
+            // Fallback 1: Try combining with ContentRootPath
+            string combinedPath = Path.Combine(_env.ContentRootPath, mediaFile.FileUrl.TrimStart('/', '\\'));
+            if (File.Exists(combinedPath))
+            {
+                inputMp4Path = combinedPath;
+            }
+            else
+            {
+                // Fallback 2: Try combining with WebRootPath
+                string webRootCombined = Path.Combine(_env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot"), mediaFile.FileUrl.TrimStart('/', '\\'));
+                if (File.Exists(webRootCombined))
+                {
+                    inputMp4Path = webRootCombined;
+                }
+                else
+                {
+                    // Fallback 3: If FileUrl contains absolute path prefix from another environment, extract relative part starting with "wwwroot"
+                    string relativePath = mediaFile.FileUrl;
+                    int idx = relativePath.IndexOf("wwwroot", StringComparison.OrdinalIgnoreCase);
+                    if (idx >= 0)
+                    {
+                        relativePath = relativePath.Substring(idx);
+                        string targetPath = Path.Combine(_env.ContentRootPath, relativePath);
+                        if (File.Exists(targetPath))
+                        {
+                            inputMp4Path = targetPath;
+                        }
+                    }
+                }
+            }
+        }
 
         if (!File.Exists(inputMp4Path))
         {
-            _logger.LogError("Input MP4 file not found at path: {Path}", inputMp4Path);
+            _logger.LogError("Input MP4 file not found at path: {Path} (Original FileUrl: {OriginalUrl})", inputMp4Path, mediaFile.FileUrl);
             mediaFile.HlsStatus = VideoStatus.ERROR;
             await _context.SaveChangesAsync(default);
             await NotifyUserAsync(mediaFile.UserId, $"Failed to process video {mediaFile.FileName}: File missing.", mediaFileId, "FAILED");

@@ -29,6 +29,7 @@ public static class SettingKey
     public const string Email_FromAddress = "Email_FromAddress";
 
     // AI Center 
+    public const string AICenter_Chatbot = "AICenter_Chatbot";
     public const string AICenter_BaseUrl = "AICenter_BaseUrl";
     public const string AICenter_ApiKey = "AICenter_ApiKey";
 
@@ -80,6 +81,7 @@ public static class SettingKey
     private static readonly HashSet<string> _publicKeys = new()
     {
         AICenter_BaseUrl,
+        AICenter_Chatbot,
     };
 
     public static bool IsPublicKey(string key)

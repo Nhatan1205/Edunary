@@ -8,8 +8,8 @@ function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const iframeRef = useRef(null);
 
-  const { data: settings } = useGetPublicSystemSettings(['AICenter_BaseUrl']);
-  const chatbotBaseUrl = settings?.['AICenter_BaseUrl'] || '';
+  const { data: settings } = useGetPublicSystemSettings(['AICenter_Chatbot']);
+  const chatbotBaseUrl = settings?.['AICenter_Chatbot'] || '';
 
   const { isAuthenticated } = useAuth();
 

@@ -1009,7 +1009,7 @@ public class IdentityService : IIdentityService
 
             if (provider.Equals("GOOGLE"))
             {
-                var file = Path.Combine(Directory.GetCurrentDirectory(), "keys", "sso_key.json");
+                var file = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "sso_key.json");
                 var gg = JsonConvert.DeserializeObject<GoogleInstance>(File.ReadAllText(file));
                 using (HttpClient httpClient = new HttpClient())
                 {
@@ -1095,7 +1095,7 @@ public class IdentityService : IIdentityService
     {
         try
         {
-            var file = Path.Combine(Directory.GetCurrentDirectory(), "keys", "sso_key.json");
+            var file = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "sso_key.json");
             var ms = JsonConvert.DeserializeObject<MicrosoftInstance>(File.ReadAllText(file));
             string instance = "https://login.microsoftonline.com/";
             string tennantId = ms.TennantId;

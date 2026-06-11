@@ -94,6 +94,7 @@ import CourseManagementPage from "./features/admin/course-section/course-managem
 import CourseChangesPage from "./features/admin/course-section/course-changes/CourseChangesPage";
 import QualityReportPage from "./features/admin/course-section/course-approvals/quality-report-page/QualityReportPage";
 import VerifyCertificatePage from "./features/guest/verify-certificate/VerifyCertificatePage";
+import ServiceHealthPage from "./features/admin/service-health/ServiceHealthPage";
 
 const router = createBrowserRouter([
   {
@@ -216,6 +217,10 @@ const router = createBrowserRouter([
       {
         path: "course/approvals/:submissionId",
         element: <CourseApprovalDetailPage />,
+      },
+      {
+        path: "service-health",
+        element: <ServiceHealthPage />,
       },
     ],
   },

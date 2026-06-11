@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Edunary.Application.Common.Interfaces;
 using Edunary.Infrastructure.Data;
+using Edunary.Infrastructure.HealthChecks;
 using Edunary.Infrastructure.Identity;
 using Edunary.Infrastructure.Services;
 using Edunary.Web.Services;
@@ -30,7 +31,13 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
 
         services.AddHealthChecks()
-            .AddDbContextCheck<ApplicationDbContext>();
+            .AddDbContextCheck<ApplicationDbContext>(name: "Database", tags: new[] { "basic" })
+            .AddCheck<RedisHealthCheck>("Redis", tags: new[] { "external" })
+            .AddCheck<AICenterHealthCheck>("Chatbot (AI Center)", tags: new[] { "external" })
+            .AddCheck<SpacesStorageHealthCheck>("DigitalOcean Spaces", tags: new[] { "external" })
+            .AddCheck<CloudinaryHealthCheck>("Cloudinary", tags: new[] { "external" })
+            .AddCheck<StripeHealthCheck>("Stripe", tags: new[] { "external" })
+            .AddCheck<SmtpHealthCheck>("Email (SMTP)", tags: new[] { "external" });
 
         services.AddExceptionHandler<CustomExceptionHandler>();
 

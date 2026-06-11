@@ -114,6 +114,7 @@ public static class DependencyInjection
         services.AddScoped<ICaptionGenerationJobService, CaptionGenerationJobService>();
         services.AddScoped<IQualityCheckJobService, QualityCheckJobService>();
         services.AddScoped<ICourseAuthorizationService, CourseAuthorizationService>();
+        services.AddScoped<IServiceHealthService, ServiceHealthService>();
 
 
 

@@ -253,6 +253,44 @@ public class UploadFileService : IUploadFileService
         return (uploadId, urls);
     }
 
+#nullable enable
+    public async Task<(bool IsReachable, string? Error)> CheckSpacesConnectionAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var (s3Client, settings) = await GetS3ClientAsync();
+            await s3Client.ListObjectsV2Async(
+                new ListObjectsV2Request { BucketName = settings.SpaceName, MaxKeys = 1 },
+                cts.Token);
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
+
+    public async Task<(bool IsReachable, string? Error)> CheckCloudinaryConnectionAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var cloudinary = await GetCloudinaryClientAsync();
+            var result = await cloudinary.ListResourcesAsync(new ListResourcesParams { MaxResults = 1 });
+            if (result.Error != null)
+                return (false, result.Error.Message);
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
+#nullable restore
+
     public async Task<bool> CompleteMultipartUploadAsync(string fileName, string uploadId)
     {
         var (s3Client, spacesSettings) = await GetS3ClientAsync();

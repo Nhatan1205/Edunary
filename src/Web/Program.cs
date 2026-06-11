@@ -46,7 +46,10 @@ else
 app.UseHangfireCustomDashboard(app.Environment);
 app.UseHangfireRecurringJobs();
 
-app.UseHealthChecks("/health");
+app.UseHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = c => c.Tags.Contains("basic")
+});
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

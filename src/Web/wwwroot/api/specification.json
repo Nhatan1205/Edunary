@@ -8859,6 +8859,31 @@
         }
       }
     },
+    "/api/ServiceHealth/status": {
+      "get": {
+        "tags": [
+          "ServiceHealth"
+        ],
+        "operationId": "GetServiceHealth",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceHealthDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/SystemSettings": {
       "post": {
         "tags": [
@@ -20214,6 +20239,55 @@
           "courseCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "ServiceHealthDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "overallStatus": {
+            "type": "string"
+          },
+          "checkedAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceHealthItemDto"
+            }
+          }
+        }
+      },
+      "ServiceHealthItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "durationMs": {
+            "type": "number",
+            "format": "double"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

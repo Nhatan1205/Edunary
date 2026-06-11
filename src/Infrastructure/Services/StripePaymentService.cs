@@ -102,5 +102,22 @@ public class StripePaymentService : IPaymentService
             return "unknown";
         }
     }
+
+#nullable enable
+    public async Task<(bool IsReachable, string? Error)> CheckConnectionAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            await SetStripeApiKeyAsync();
+            var balanceService = new BalanceService();
+            await balanceService.GetAsync(cancellationToken: ct);
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
+#nullable restore
 }
 

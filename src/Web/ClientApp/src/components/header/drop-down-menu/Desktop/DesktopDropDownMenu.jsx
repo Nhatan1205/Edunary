@@ -10,7 +10,6 @@ function DesktopDropDownMenu({
 }) {
   return (
     <Menu
-      disableScrollLock={true}
       anchorEl={anchorEl}
       open={open}
       onClose={onClose}

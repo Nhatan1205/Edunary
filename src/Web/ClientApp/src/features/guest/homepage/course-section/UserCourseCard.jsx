@@ -12,16 +12,23 @@ import { Link as RouterLink } from "react-router";
 
 function UserCourseCard({ course }) {
   const {
+    id,
     imageUrl,
     title,
-    level,
+    instructorName,
+    totalLectures,
+    completedLectures,
   } = course;
+
+  const completed = completedLectures || 0;
+  const total = totalLectures || 0;
+  const progress = total ? Math.round((completed / total) * 100) : 0;
 
   return (
     <Col xs={6} md={4} lg={3} className="mb-4">
       <Card
         component={RouterLink}
-        to={`/course/${course.id}/learn`}
+        to={`/course/${id}/learn`}
         sx={{
           height: "320px",
           position: "relative",
@@ -70,6 +77,7 @@ function UserCourseCard({ course }) {
                 fontSize: "0.9rem",
                 fontWeight: 600,
                 lineHeight: 1.3,
+                height: "2.6em",
                 mb: 1,
                 color: "#333",
                 wordBreak: "break-word",
@@ -84,18 +92,22 @@ function UserCourseCard({ course }) {
             </Typography>
           </Box>
           <Box sx={{ mt: "auto" }}>
-            <Typography
-              variant="body2"
-              sx={{
-                color: "#666",
-                fontSize: "0.75rem",
-                mb: 1,
-                textTransform: "uppercase",
-                fontWeight: 500,
-              }}
-            >
-              {level}
-            </Typography>
+            {instructorName && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#666",
+                  fontSize: "0.75rem",
+                  mb: 1,
+                  fontWeight: 500,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {instructorName}
+              </Typography>
+            )}
 
             <Typography
               variant="body2"
@@ -105,18 +117,18 @@ function UserCourseCard({ course }) {
                 mb: 1,
               }}
             >
-              4/32 Videos Completed
+              {completed} of {total} complete
             </Typography>
 
             <LinearProgress
               variant="determinate"
-              value={30}
+              value={progress}
               sx={{
                 height: 6,
                 borderRadius: 3,
                 backgroundColor: "#f0f0f0",
                 "& .MuiLinearProgress-bar": {
-                  backgroundColor: "#4CAF50",
+                  backgroundColor: progress > 50 ? "#4CAF50" : "#ff9800",
                   borderRadius: 3,
                 },
               }}

@@ -7,18 +7,18 @@ import {
   CardContent,
   CardMedia,
   Rating,
-  Stack,
+  Chip,
 } from "@mui/material"
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import LocalOfferIcon from "@mui/icons-material/LocalOffer"
 import LoadingSpinner from "../../../components/LoadingSpinner"
 import { useNavigate } from "react-router"
+import DefaultImage from "../../../assets/images/default.jpg"
 
 const CartItem = ({ item, onRemove, onSaveForLater, onMoveToCart, loading, isSavedForLater = false }) => {
   const handleRemove = async () => {
     await onRemove(item.id)
   }
-  const imageUrl = item.imageUrl || "https://via.placeholder.com/200x120?text=No+Image"
+  const imageUrl = item.imageUrl || DefaultImage
   const handleSaveOrMove = async () => {
     if (isSavedForLater) {
       await onMoveToCart(item.id)
@@ -32,33 +32,35 @@ const CartItem = ({ item, onRemove, onSaveForLater, onMoveToCart, loading, isSav
     navigate(`/course/${courseId}`)
   }
 
+  const hasDiscount = item.originalPrice && item.originalPrice > item.price
+
   return (
     <Card
       sx={{
-        mb: 2,
         boxShadow: "none",
         border: "none",
-        backgroundColor: "background.paper",
+        backgroundColor: "transparent",
+        borderRadius: 0,
       }}
     >
       <CardContent sx={{ p: 0 }}>
         <Box
           sx={{
             display: "flex",
-            gap: { xs: 1, sm: 2 },
+            gap: { xs: 2, sm: 3 },
             flexDirection: { xs: "column", sm: "row" },
-            pt: { xs: 3, sm: 2 },
+            py: 2,
           }}
         >
           {/* Image */}
           <CardMedia
             component="img"
             sx={{
-              width: { xs: "100%", sm: 200 },
-              height: { xs: 200, sm: 120 },
-              borderRadius: 1,
+              width: { xs: "100%", sm: 120 },
+              height: { xs: 120, sm: 68 },
+              borderRadius: 0.5,
               flexShrink: 0,
-              cursor: "pointer"
+              cursor: "pointer",
             }}
             image={imageUrl}
             alt={item.title}
@@ -70,20 +72,28 @@ const CartItem = ({ item, onRemove, onSaveForLater, onMoveToCart, loading, isSav
               flex: 1,
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
-              gap: { xs: 2, md: 0 },
-              cursor: "pointer",
+              gap: { xs: 2, md: 3 },
             }}
-            onClick={handleCardClick}
           >
-            {/* Course Info */}
-            <Box sx={{ flex: 1, pr: { md: 3 } }}>
+            {/* Course Info Column */}
+            <Box
+              sx={{
+                flex: 1,
+                cursor: "pointer",
+              }}
+              onClick={handleCardClick}
+            >
               <Typography
                 variant="h3"
                 sx={{
                   fontWeight: "bold",
-                  mb: 1,
+                  mb: 0.5,
                   color: "text.primary",
-                  fontSize: { xs: "1rem", sm: "1.25rem" },
+                  fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                  lineHeight: 1.3,
+                  "&:hover": {
+                    color: "brand.main",
+                  },
                 }}
               >
                 {item.title}
@@ -91,11 +101,16 @@ const CartItem = ({ item, onRemove, onSaveForLater, onMoveToCart, loading, isSav
 
               {item.subtitle && (
                 <Typography
-                  variant="body1"
+                  variant="body2"
                   color="text.secondary"
                   sx={{
-                    mb: 1,
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    mb: 0.5,
+                    fontSize: "0.8rem",
+                    display: { xs: "none", sm: "-webkit-box" },
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                 >
                   {item.subtitle}
@@ -103,136 +118,184 @@ const CartItem = ({ item, onRemove, onSaveForLater, onMoveToCart, loading, isSav
               )}
 
               <Typography
-                variant="body1"
+                variant="body2"
                 color="text.secondary"
                 sx={{
-                  mb: 1,
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  mb: 0.5,
+                  fontSize: "0.75rem",
                 }}
               >
                 By {item.instructorName}
               </Typography>
 
+              {/* Rating and Badges */}
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 1,
-                  mb: 1,
+                  gap: 0.5,
+                  mb: 0.5,
                   flexWrap: "wrap",
                 }}
               >
+                {item.ratings >= 4.5 && (
+                  <Chip
+                    label="Bestseller"
+                    size="small"
+                    sx={{
+                      bgcolor: "#eceb98",
+                      color: "#3d3c0a",
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      height: 18,
+                      borderRadius: 0.5,
+                      mr: 0.5,
+                      "& .MuiChip-label": { px: 0.75 },
+                    }}
+                  />
+                )}
                 {item.ratings != null && (
                   <>
                     <Typography
-                      variant="body1"
+                      variant="body2"
                       sx={{
                         fontWeight: "bold",
                         color: "#FAAF00",
-                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                        fontSize: "0.8rem",
+                        mr: 0.2,
                       }}
                     >
-                      {item.ratings}
+                      {item.ratings.toFixed(1)}
                     </Typography>
-                    <Rating value={item.ratings} readOnly size="small" precision={0.1} />
+                    <Rating
+                      value={item.ratings}
+                      readOnly
+                      size="small"
+                      precision={0.1}
+                      sx={{ fontSize: "0.875rem", color: "#faaf00" }}
+                    />
                     <Typography
-                      variant="body1"
+                      variant="body2"
                       color="text.secondary"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{ fontSize: "0.75rem" }}
                     >
-                        ({item.totalRatingStudent} ratings)
+                      ({item.totalRatingStudent?.toLocaleString() || 0} ratings)
                     </Typography>
                   </>
                 )}
               </Box>
 
               <Typography
-                variant="body1"
+                variant="body2"
                 color="text.secondary"
-                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                sx={{ fontSize: "0.75rem" }}
               >
-                {item.totalHours > 0 && `${item.totalHours} hours`}
+                {item.totalHours > 0 && `${item.totalHours} total hours`}
                 {item.totalLectures > 0 && ` • ${item.totalLectures} lectures`}
                 {item.level && ` • ${item.level}`}
               </Typography>
             </Box>
-          </Box>
 
-          {/* Actions and Price */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "row", md: "column" },
-              alignItems: { xs: "center", md: "flex-end" },
-              justifyContent: { xs: "space-between", md: "flex-start" },
-              gap: 2,
-              minWidth: { md: 200 },
-              pr: { md: 2 },
-            }}
-          >
-            {/* Action Links */}
-            <Stack
-              direction={{ xs: "column", md: "column" }}
-              spacing={1}
+            {/* Actions Column */}
+            <Box
               sx={{
-                flexWrap: "wrap",
-                justifyContent: { xs: "flex-end", md: "flex-end" },
-                alignItems: "flex-end",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: { xs: "flex-start", md: "flex-start" },
+                gap: 0.5,
+                minWidth: { md: 120 },
               }}
             >
               <Button
                 variant="text"
                 sx={{
                   color: "brand.main",
-                  textDecoration: "none",
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  minWidth: 0,
+                  textTransform: "none",
+                  fontSize: "0.85rem",
                   padding: 0,
+                  minWidth: 0,
+                  justifyContent: "flex-start",
+                  fontWeight: 500,
+                  "&:hover": {
+                    color: "brand.dark",
+                    textDecoration: "underline",
+                    backgroundColor: "transparent",
+                  },
                 }}
                 onClick={handleRemove}
                 disabled={loading}
                 disableRipple
-                endIcon={<RemoveCircleIcon fontSize="small" />}
               >
-                {loading ? <LoadingSpinner size={14} /> : 'Remove'}
+                {loading ? <LoadingSpinner size={12} /> : "Remove"}
               </Button>
 
               <Button
                 variant="text"
                 sx={{
                   color: "brand.main",
-                  textDecoration: "none",
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  minWidth: 0,
+                  textTransform: "none",
+                  fontSize: "0.85rem",
                   padding: 0,
+                  minWidth: 0,
+                  justifyContent: "flex-start",
+                  fontWeight: 500,
+                  "&:hover": {
+                    color: "brand.dark",
+                    textDecoration: "underline",
+                    backgroundColor: "transparent",
+                  },
                 }}
                 onClick={handleSaveOrMove}
                 disabled={loading}
                 disableRipple
-                endIcon={<AddShoppingCartIcon fontSize="small" />}
               >
-                {loading ? <LoadingSpinner size={14} /> : (isSavedForLater ? 'Move to Cart' : 'Save for Later')}
+                {loading ? (
+                  <LoadingSpinner size={12} />
+                ) : isSavedForLater ? (
+                  "Move to Cart"
+                ) : (
+                  "Save for Later"
+                )}
               </Button>
-            </Stack>
+            </Box>
 
-            {/* Price */}
-            <Box sx={{ textAlign: { xs: "right", md: "right" } }}>
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: "bold",
-                  color: "brand.main",
-                  fontSize: { xs: "1rem", sm: "1.25rem" },
-                }}
-              >
-                ${item.price.toFixed(2)}
-              </Typography>
+            {/* Price Column */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: { xs: "flex-start", md: "flex-end" },
+                minWidth: { md: 100 },
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "text.primary",
+                    fontSize: { xs: "1rem", sm: "1.1rem" },
+                  }}
+                >
+                  ${item.price.toFixed(2)}
+                </Typography>
+                {hasDiscount && (
+                  <LocalOfferIcon sx={{ color: "brand.main", fontSize: "0.9rem" }} />
+                )}
+              </Box>
+              {hasDiscount && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    textDecoration: "line-through",
+                    color: "text.disabled",
+                    fontSize: "0.8rem",
+                    mt: 0.5,
+                  }}
+                >
+                  ${item.originalPrice.toFixed(2)}
+                </Typography>
+              )}
             </Box>
           </Box>
         </Box>

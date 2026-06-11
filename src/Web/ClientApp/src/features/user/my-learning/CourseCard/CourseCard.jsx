@@ -16,7 +16,9 @@ import RatingPopup from '../../../../components/RatingPopup';
 
 function CourseCard({ course }) {
   const { id, title, instructorName, imageUrl, ratings,totalLectures, completedLectures } = course;
-  const progress = totalLectures ? Math.round((completedLectures / totalLectures) * 100): 0;
+  const completed = completedLectures || 0;
+  const total = totalLectures || 0;
+  const progress = total ? Math.round((completed / total) * 100) : 0;
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   return (
@@ -122,7 +124,7 @@ function CourseCard({ course }) {
                   fontWeight: 500,
                 }}
               >
-                {progress}% complete
+                {completed} of {total} complete
               </Typography>
               <LinearProgress
                 variant="determinate"

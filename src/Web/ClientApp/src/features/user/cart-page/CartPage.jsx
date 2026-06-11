@@ -46,6 +46,14 @@ const CartPage = () => {
 
   const discountedTotal = appliedCoupon ? appliedCoupon.discountedTotal : cartTotalPrice
   const couponDiscount = appliedCoupon ? appliedCoupon.totalDiscountAmount : 0
+
+  const activeItems = useMemo(() => {
+    return items.filter(item => !item.isSaved)
+  }, [items])
+
+  const savedItems = useMemo(() => {
+    return items.filter(item => item.isSaved)
+  }, [items])
   const appliedCouponItems = appliedCoupon?.items ?? []
   const appliedCouponDiscountedItems = appliedCouponItems.filter(item => (item.discountAmount ?? 0) > 0)
   const isPartialCoupon = Boolean(
@@ -230,10 +238,10 @@ const CartPage = () => {
             variant="h3"
             component="h1"
             sx={{
-              mb: 2,
+              mb: 1,
               fontWeight: "bold",
               color: "text.primary",
-              fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" },
+              fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.5rem" },
             }}
           >
             Shopping Cart
@@ -242,9 +250,10 @@ const CartPage = () => {
           <Typography
             variant="h4"
             sx={{
-              mb: 4,
+              mb: 3,
               color: "text.secondary",
-              fontSize: { xs: "0.875rem", sm: "1rem", md: "1.25rem" },
+              fontWeight: 500,
+              fontSize: { xs: "0.9rem", sm: "1rem" },
             }}
           >
             {cartItemCount} {cartItemCount === 1 ? 'Course' : 'Courses'} in Cart
@@ -254,25 +263,93 @@ const CartPage = () => {
           <Box
             sx={{
               display: "flex",
-              gap: { xs: 2, md: 4 },
+              gap: { xs: 3, lg: 5 },
               flexDirection: { xs: "column", lg: "row" },
+              alignItems: "flex-start",
             }}
           >
-            {/* Cart Items */}
-            <Box sx={{ flex: 1 }}>
-              {items.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <CartItem
-                    item={item}
-                    onRemove={removeFromCart}
-                    onSaveForLater={handleSaveForLater}
-                    onMoveToCart={handleMoveToCart}
-                    loading={savingItemId === item.id}
-                    isSavedForLater={item.isSaved}
-                  />
-                  {index < items.length - 1 && <Divider sx={{ my: 2 }} />}
-                </React.Fragment>
-              ))}
+            {/* Cart Items List */}
+            <Box sx={{ flex: 1, width: "100%" }}>
+              {activeItems.length === 0 ? (
+                <Alert severity="info" sx={{ mb: 4, borderRadius: 1 }}>
+                  Your cart is empty. Keep shopping to find courses!
+                </Alert>
+              ) : (
+                <Box
+                  sx={{
+                    borderTop: "1px solid #d1d7dc",
+                    borderBottom: "1px solid #d1d7dc",
+                    py: 1,
+                    mb: 4,
+                  }}
+                >
+                  {activeItems.map((item, index) => (
+                    <React.Fragment key={item.id}>
+                      <CartItem
+                        item={item}
+                        onRemove={removeFromCart}
+                        onSaveForLater={handleSaveForLater}
+                        onMoveToCart={handleMoveToCart}
+                        loading={savingItemId === item.id}
+                        isSavedForLater={false}
+                      />
+                      {index < activeItems.length - 1 && (
+                        <Divider sx={{ my: 1.5, borderColor: "#d1d7dc" }} />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </Box>
+              )}
+
+              {/* Saved For Later Section */}
+              {savedItems.length > 0 && (
+                <Box sx={{ mt: 5 }}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: "bold",
+                      mb: 0.5,
+                      color: "text.primary",
+                      fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                    }}
+                  >
+                    Saved for later
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mb: 2,
+                      color: "text.secondary",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {savedItems.length} {savedItems.length === 1 ? 'Course' : 'Courses'} saved for later
+                  </Typography>
+                  <Box
+                    sx={{
+                      borderTop: "1px solid #d1d7dc",
+                      borderBottom: "1px solid #d1d7dc",
+                      py: 1,
+                    }}
+                  >
+                    {savedItems.map((item, index) => (
+                      <React.Fragment key={item.id}>
+                        <CartItem
+                          item={item}
+                          onRemove={removeFromCart}
+                          onSaveForLater={handleSaveForLater}
+                          onMoveToCart={handleMoveToCart}
+                          loading={savingItemId === item.id}
+                          isSavedForLater={true}
+                        />
+                        {index < savedItems.length - 1 && (
+                          <Divider sx={{ my: 1.5, borderColor: "#d1d7dc" }} />
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </Box>
+                </Box>
+              )}
             </Box>
 
             {/* Order Summary */}
@@ -281,71 +358,22 @@ const CartPage = () => {
                 width: { xs: "100%", lg: 350 },
                 height: "fit-content",
                 p: { xs: 2, sm: 3 },
-                boxShadow: 1,
+                boxShadow: "none",
+                borderRadius: 2,
+                border: "1px solid #d1d7dc",
                 backgroundColor: "background.paper",
                 position: { lg: "sticky" },
-                top: { lg: 20 },
+                top: { lg: 100 },
               }}
             >
-              {/* Coupon Input */}
-              <Box sx={{ mb: 2 }}>
-                {appliedCoupon ? (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Chip
-                      icon={<LocalOfferIcon fontSize="small" />}
-                      label={appliedCoupon.couponCode}
-                      color="success"
-                      onDelete={handleRemoveCoupon}
-                      size="small"
-                    />
-                    <Typography variant="body2" color="success.main">
-                      -${couponDiscount.toFixed(2)}
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <TextField
-                      size="small"
-                      placeholder="Coupon code"
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                      onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <LocalOfferIcon fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{ flex: 1, "& .MuiOutlinedInput-root": { fontSize: "0.85rem" } }}
-                    />
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={handleApplyCoupon}
-                      disabled={!couponInput.trim() || couponLoading}
-                      sx={{ whiteSpace: "nowrap", textTransform: "none" }}
-                    >
-                      Apply
-                    </Button>
-                  </Box>
-                )}
-                {appliedCoupon && isPartialCoupon && (
-                  <Alert severity="info" sx={{ mt: 1 }}>
-                    This coupon applied to {appliedCouponDiscountedItems.length} of {appliedCouponItems.length} eligible courses. Courses that opted out kept their original price.
-                  </Alert>
-                )}
-              </Box>
-
-              <Divider sx={{ mb: 2 }} />
-
               <Box sx={{ mb: 3 }}>
                 <Typography
-                  variant="h4"
+                  variant="body1"
                   sx={{
-                    mb: 2,
+                    mb: 1,
                     color: "text.secondary",
-                    fontSize: { xs: "1rem", sm: "1.25rem" },
+                    fontWeight: "bold",
+                    fontSize: "1rem",
                   }}
                 >
                   Total:
@@ -364,45 +392,117 @@ const CartPage = () => {
                   variant="h4"
                   sx={{
                     fontWeight: "bold",
-                    mb: 1,
-                    color: appliedCoupon ? "success.main" : "text.primary",
-                    fontSize: { xs: "1.5rem", sm: "2rem" },
+                    mb: 1.5,
+                    color: "text.primary",
+                    fontSize: { xs: "1.75rem", sm: "2.25rem" },
                   }}
                 >
                   {formatPrice(discountedTotal)}
                 </Typography>
+
+                <Button
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  onClick={handleCheckout}
+                  disabled={cartItemCount === 0}
+                  sx={{
+                    backgroundColor: "brand.main",
+                    "&:hover": { backgroundColor: "brand.dark" },
+                    py: 1.5,
+                    textTransform: "none",
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    borderRadius: 1,
+                  }}
+                >
+                  Proceed to Checkout
+                </Button>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    mt: 1.5,
+                    textAlign: "center",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  You won't be charged yet
+                </Typography>
               </Box>
 
-              <Button
-                variant="contained"
-                fullWidth
-                size="large"
-                onClick={handleCheckout}
-                disabled={cartItemCount === 0}
-                sx={{
-                  backgroundColor: "brand.main",
-                  "&:hover": { backgroundColor: "brand.dark" },
-                  py: { xs: 1, sm: 1.5 },
-                  mb: 2,
-                  textTransform: "none",
-                  fontSize: { xs: "0.875rem", sm: "1rem" },
-                  fontWeight: "bold",
-                }}
-              >
-                Proceed to Checkout →
-              </Button>
+              <Divider sx={{ my: 2, borderColor: "#d1d7dc" }} />
 
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  mb: 3,
-                  textAlign: "center",
-                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                }}
-              >
-                You won't be charged yet
-              </Typography>
+              {/* Coupon Section */}
+              <Box>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "bold", mb: 1, color: "text.primary" }}
+                >
+                  Promotions
+                </Typography>
+                {appliedCoupon ? (
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", bgcolor: "background.muted", p: 1, borderRadius: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <LocalOfferIcon fontSize="small" sx={{ color: "brand.main" }} />
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
+                        {appliedCoupon.couponCode}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: "bold", color: "success.main" }}>
+                        -${couponDiscount.toFixed(2)}
+                      </Typography>
+                      <Button
+                        size="small"
+                        onClick={handleRemoveCoupon}
+                        sx={{ minWidth: 0, p: 0.5, color: "error.main", textTransform: "none" }}
+                      >
+                        Remove
+                      </Button>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <TextField
+                      size="small"
+                      placeholder="Enter Coupon"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocalOfferIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{ flex: 1, "& .MuiOutlinedInput-root": { fontSize: "0.85rem" } }}
+                    />
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={handleApplyCoupon}
+                      disabled={!couponInput.trim() || couponLoading}
+                      sx={{
+                        whiteSpace: "nowrap",
+                        textTransform: "none",
+                        bgcolor: "brand.main",
+                        "&:hover": { bgcolor: "brand.dark" },
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Apply
+                    </Button>
+                  </Box>
+                )}
+                {appliedCoupon && isPartialCoupon && (
+                  <Alert severity="info" sx={{ mt: 1.5, fontSize: "0.75rem", py: 0.5 }}>
+                    This coupon applied to {appliedCouponDiscountedItems.length} of {appliedCouponItems.length} eligible courses. Courses that opted out kept their original price.
+                  </Alert>
+                )}
+              </Box>
             </Paper>
           </Box>
         </Box>

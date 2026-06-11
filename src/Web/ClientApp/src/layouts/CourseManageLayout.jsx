@@ -21,7 +21,7 @@ function CourseManageLayout() {
   const submitMutation = useSubmitCourseForReview();
 
   const { data: reviewStatusData } = useGetCourseReviewStatus(courseId);
-  const isCoursePublic = reviewStatusData?.courseStatus === 1; // 1 = CourseStatus.Public
+  const isCoursePublished = reviewStatusData?.courseStatus === 1 || reviewStatusData?.courseStatus === 2; // 1 = Public, 2 = Private
   const feedbackCount = reviewStatusData?.latestSubmission?.feedbacks?.filter(f => !f.isResolved).length ?? 0;
 
   const handleSubmitReview = () => {
@@ -170,7 +170,7 @@ function CourseManageLayout() {
           />
 
           {/* ── Submit for review button pinned at sidebar bottom ── */}
-          {!isCoursePublic && (
+          {!isCoursePublished && (
             <Box sx={{ mt: "auto", px: 2, pb: 3, pt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
               <Button
                 id="submit-for-review-btn"

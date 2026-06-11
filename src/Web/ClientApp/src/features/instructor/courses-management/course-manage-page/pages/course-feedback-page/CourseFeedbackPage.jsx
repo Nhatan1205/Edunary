@@ -5,6 +5,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import CourseFeedbackContent, { FeedbackCard } from "./CourseFeedbackContent";
 import NoData from "../../../../../../components/NoData";
+import AlertBox from "../../../../../../components/AlertBox";
 import emptyCourseFeedbackImg from "../../../../../../assets/images/empty-course-feedback.png";
 import useGetCourseReviewStatus from "../../../../../../hooks/course-review-hooks/useGetCourseReviewStatus";
 import useResolveReviewFeedback from "../../../../../../hooks/course-review-hooks/useResolveReviewFeedback";
@@ -162,22 +163,19 @@ export default function CourseFeedbackPage() {
       ) : (
         <>
           {/* Submission status & info */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3, flexWrap: "wrap" }}>
-            {statusCfg && (
-              <Chip
-                label={statusCfg.label}
-                color={statusCfg.color}
-                size="small"
-                sx={{ fontWeight: 700, borderRadius: "8px", fontSize: "0.8rem" }}
-              />
-            )}
-            <Typography variant="caption" sx={{ color: "text.tertiary" }}>
-              Submission #{submission.submissionNumber} ·{" "}
-              {submission.reviewedAt
-                ? `Reviewed on ${new Date(submission.reviewedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
-                : "Awaiting review"}
-            </Typography>
-          </Box>
+          {statusCfg && (
+            <AlertBox
+              severity={submission.status === 2 ? "success" : submission.status === 1 ? "error" : "warning"}
+              title={`${statusCfg.label} (Submission #${submission.submissionNumber})`}
+              sx={{ mb: 3 }}
+            >
+              <Typography variant="body2" sx={{ color: "text.primary" }}>
+                {submission.reviewedAt
+                  ? `Reviewed on ${new Date(submission.reviewedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
+                  : "Awaiting review"}
+              </Typography>
+            </AlertBox>
+          )}
 
           {hasFeedbackContent ? (
             <CourseFeedbackContent

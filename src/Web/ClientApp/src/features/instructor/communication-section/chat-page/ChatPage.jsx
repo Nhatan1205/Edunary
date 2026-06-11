@@ -559,7 +559,7 @@ function ChatPageContent() {
               <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "background.alt" }}>
                 <NoData
                   image={chatEmptyImg}
-                  title="Good morning!"
+                  title={new Date().getHours() < 12 ? "Good morning!" : new Date().getHours() < 18 ? "Good afternoon!" : "Good evening!"}
                   description="Write something awesome... Select a conversation from the list to start messaging."
                   imageWidth={160}
                   minHeight="300px"

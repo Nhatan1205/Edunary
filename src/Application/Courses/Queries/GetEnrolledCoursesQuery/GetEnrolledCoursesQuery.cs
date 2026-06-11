@@ -75,7 +75,7 @@ public class GetEnrolledCoursesQueryHandler : IRequestHandler<GetEnrolledCourses
             {
                 foreach (var item in section.Items)
                 {
-                    if (item.Type == "lecture")
+                    if (item.Type == "lecture" || item.Type == "quiz")
                     {
                         totalLectures++;
 

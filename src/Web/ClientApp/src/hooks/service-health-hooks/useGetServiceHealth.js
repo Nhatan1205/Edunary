@@ -10,8 +10,9 @@ const useGetServiceHealth = () =>
             const client = new ServiceHealthClient();
             return await client.getServiceHealth();
         },
-        refetchInterval: 30 * 1000, // auto-refresh every 30s
-        staleTime: 10 * 1000,
+        // Match the server-side cache window (GetServiceHealthQuery.CacheDuration = 60s);
+        refetchInterval: 60 * 1000,
+        staleTime: 60 * 1000,
     });
 
 export default useGetServiceHealth;

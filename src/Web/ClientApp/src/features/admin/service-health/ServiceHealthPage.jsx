@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
     Alert,
     Box,
@@ -147,13 +146,11 @@ const OVERALL_BANNER = {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 function ServiceHealthPage() {
-    const [lastRefreshed, setLastRefreshed] = useState(null);
     const { data, isLoading, isFetching, refetch } = useGetServiceHealth();
 
-    // Update "last checked" timestamp whenever fresh data arrives
-    useEffect(() => {
-        if (data) setLastRefreshed(new Date());
-    }, [data]);
+    // Real probe time from the payload — stays accurate even when the response is served
+    // from the server-side cache (a cached hit must NOT read as "just now").
+    const lastChecked = data?.checkedAtUtc ? new Date(data.checkedAtUtc) : null;
 
     const banner = OVERALL_BANNER[data?.overallStatus] ?? OVERALL_BANNER.Healthy;
 
@@ -177,9 +174,9 @@ function ServiceHealthPage() {
                 </Typography>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                    {lastRefreshed && (
+                    {lastChecked && (
                         <Typography variant="caption" color="text.secondary">
-                            Last checked: {lastRefreshed.toLocaleTimeString()}
+                            Last checked: {lastChecked.toLocaleTimeString()}
                         </Typography>
                     )}
                     <Tooltip title="Refresh now">

@@ -2,7 +2,12 @@ using Edunary.Application.Common.Interfaces;
 
 namespace Edunary.Application.ServiceHealth.Queries.GetServiceHealthQuery;
 
-public record GetServiceHealthQuery : IRequest<ServiceHealthDto>;
+public record GetServiceHealthQuery : IRequest<ServiceHealthDto>, ICacheableQuery
+{
+    // No parameters → a single fixed key shared by every admin and web instance (Redis).
+    public string CacheKey => "service-health";
+    public TimeSpan CacheDuration => TimeSpan.FromSeconds(60);
+}
 
 public class GetServiceHealthQueryHandler : IRequestHandler<GetServiceHealthQuery, ServiceHealthDto>
 {

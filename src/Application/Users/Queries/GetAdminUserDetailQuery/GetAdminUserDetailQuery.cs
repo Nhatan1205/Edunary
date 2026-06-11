@@ -2,6 +2,7 @@ using System.Text.Json;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Edunary.Application.Common.Interfaces;
+using Edunary.Domain.Enums;
 
 namespace Edunary.Application.Users.Queries.GetAdminUserDetailQuery;
 
@@ -104,10 +105,21 @@ public class GetAdminUserDetailQueryHandler : IRequestHandler<GetAdminUserDetail
             }
         }
 
-        //5. get user online status based on connection manager
+        //5. total spent — sum of completed orders placed by this user
+        var totalSpent = await _context.Orders
+            .Where(o => o.UserId == request.UserId && o.Status == OrderStatus.Completed)
+            .SumAsync(o => (float?)o.TotalAmount, cancellationToken) ?? 0f;
+
+        //6. total earned — wallet lifetime balance (current balance + all withdrawn)
+        var wallet = await _context.InstructorWallets
+            .Where(w => w.InstructorId == request.UserId)
+            .FirstOrDefaultAsync(cancellationToken);
+        var totalEarned = wallet != null ? (float)(wallet.Balance + wallet.TotalWithdrawn) : 0f;
+
+        //7. get user online status based on connection manager
         var isOnline = await _connectionManager.IsConnectedAsync(user.Id);
 
-        //6. return dto
+        //8. return dto
         return new AdminUserDetailDto
         {
             Id = user.Id,
@@ -120,7 +132,9 @@ public class GetAdminUserDetailQueryHandler : IRequestHandler<GetAdminUserDetail
             Links = user.Links,
             Roles = user.Roles,
             Status = user.Status.ToString(),
-            LastLoginTime = user.LastLoginTime,
+            LastLoginTime = user.LastLoginTime.HasValue
+                ? DateTime.SpecifyKind(user.LastLoginTime.Value, DateTimeKind.Utc)
+                : (DateTime?)null,
             CreatedAt = user.CreatedAt,
             IsOnline = isOnline,
 
@@ -130,8 +144,8 @@ public class GetAdminUserDetailQueryHandler : IRequestHandler<GetAdminUserDetail
                 CreatedCourseCount = allCreatedCourses.Count,
                 TotalLearners = totalLearners,
                 AvgRating = (float)Math.Round(avgRating, 1),
-                TotalSpent = 119, //TODO
-                TotalEarned = 1029, //TODO
+                TotalSpent = totalSpent,
+                TotalEarned = totalEarned,
             },
 
             EnrolledCourses = enrolledCourses,

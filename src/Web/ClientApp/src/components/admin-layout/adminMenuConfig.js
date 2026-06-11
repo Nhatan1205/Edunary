@@ -136,26 +136,26 @@ const adminMenuConfig = {
             },
           ],
         },
-        {
-          id: "order",
-          title: "Order",
-          type: "collapse",
-          icon: ShoppingCartOutlinedIcon,
-          children: [
-            {
-              id: "order-list",
-              title: "List",
-              type: "item",
-              url: "/admin/order/list",
-            },
-            {
-              id: "order-details",
-              title: "Details",
-              type: "item",
-              url: "/admin/order/details",
-            },
-          ],
-        },
+        // {
+        //   id: "order",
+        //   title: "Order",
+        //   type: "collapse",
+        //   icon: ShoppingCartOutlinedIcon,
+        //   children: [
+        //     {
+        //       id: "order-list",
+        //       title: "List",
+        //       type: "item",
+        //       url: "/admin/order/list",
+        //     },
+        //     {
+        //       id: "order-details",
+        //       title: "Details",
+        //       type: "item",
+        //       url: "/admin/order/details",
+        //     },
+        //   ],
+        // },
         {
           id: "invoice",
           title: "Invoice",

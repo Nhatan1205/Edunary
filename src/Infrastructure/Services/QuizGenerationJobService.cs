@@ -239,7 +239,7 @@ public class QuizGenerationJobService : IQuizGenerationJobService
             var item = section.Items?.FirstOrDefault(i => i.ItemId == relatedItemId);
             if (item == null) continue;
 
-            string sectionObjectives = section.LearningObjectives ?? "";
+            string sectionObjectives = StripHtml(section.LearningObjectives ?? "");
             string lectureTitle = item.Title ?? "";
 
             // Article content

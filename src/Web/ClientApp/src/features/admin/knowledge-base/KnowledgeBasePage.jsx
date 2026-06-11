@@ -21,6 +21,7 @@ import DataGridNoData from "../../../components/datagrid/DataGridNoData";
 import useGetKnowledgeDocuments from "../../../hooks/knowledge-base-hooks/useGetKnowledgeDocuments";
 import useUploadKnowledgeDocument from "../../../hooks/knowledge-base-hooks/useUploadKnowledgeDocument";
 import useDeleteKnowledgeDocument from "../../../hooks/knowledge-base-hooks/useDeleteKnowledgeDocument";
+import DataGridToolbar from "../../../components/datagrid/DataGridToolbar";
 
 import UploadDialog from "./components/UploadDialog";
 import DocumentRow from "./components/DocumentRow";
@@ -28,12 +29,12 @@ import DocumentRow from "./components/DocumentRow";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const HEAD_LABEL = [
-  { id: "fileName",        label: "File",       minWidth: 240 },
-  { id: "contentType",     label: "Type",       width: 80  },
-  { id: "status",          label: "Status",     width: 110 },
-  { id: "chunkCount",      label: "Chunks",     width: 80  },
-  { id: "qdrantCollection",label: "Collection", width: 140 },
-  { id: "created",         label: "Uploaded",   width: 150 },
+  { id: "fileName", label: "File", minWidth: 240 },
+  { id: "contentType", label: "Type", width: 80 },
+  { id: "status", label: "Status", width: 110 },
+  { id: "chunkCount", label: "Chunks", width: 80 },
+  { id: "qdrantCollection", label: "Collection", width: 140 },
+  { id: "created", label: "Uploaded", width: 150 },
 ];
 
 const cardSx = {
@@ -67,7 +68,7 @@ function KnowledgeBasePage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   // Server-side pagination: page is 0-based in MUI, 1-based in API
-  const { data, isLoading } = useGetKnowledgeDocuments(page + 1, rowsPerPage);
+  const { data, isLoading, isFetching, refetch } = useGetKnowledgeDocuments(page + 1, rowsPerPage);
   const { mutate: uploadDocument, isPending: isUploading } = useUploadKnowledgeDocument();
   const { mutate: deleteDocument } = useDeleteKnowledgeDocument();
 
@@ -118,6 +119,13 @@ function KnowledgeBasePage() {
       <Card sx={cardSx}>
         {hasPending && <LinearProgress sx={{ height: 2 }} />}
 
+        <DataGridToolbar
+          showSearch={false}
+          onRefresh={refetch}
+          isRefreshing={isFetching}
+          customRightAction={<></>}
+        />
+
         <TableContainer sx={{ overflowX: "auto" }}>
           <Table sx={{ minWidth: 780 }}>
             <DataGridHead
@@ -125,8 +133,8 @@ function KnowledgeBasePage() {
               orderBy=""
               rowCount={items.length}
               numSelected={0}
-              onSort={() => {}}
-              onSelectAllRows={() => {}}
+              onSort={() => { }}
+              onSelectAllRows={() => { }}
               headLabel={HEAD_LABEL}
               showCheckbox={false}
               showIndex={true}

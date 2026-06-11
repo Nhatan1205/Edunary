@@ -140,7 +140,6 @@ function SearchBar({ isMobileExpanded = false, onClose }) {
         disableAutoFocus
         disableEnforceFocus
         disableRestoreFocus
-        disableScrollLock
         sx={{
           "& .MuiPopover-paper": {
             pointerEvents: "auto",

@@ -19,7 +19,7 @@ public record GetCategoriesWithPaginationQuery : IRequest<PaginatedList<Category
     public string SearchText { get; init; }
 
     public string CacheKey => $"categories:{SearchText ?? ""}:{PageNumber}:{PageSize}";
-     public TimeSpan CacheDuration => TimeSpan.FromHours(24);
+     public TimeSpan CacheDuration => TimeSpan.FromMinutes(15);
 }
 
 public class GetCategoriesWithPaginationQueryHandler : IRequestHandler<GetCategoriesWithPaginationQuery, PaginatedList<CategoryDto>>

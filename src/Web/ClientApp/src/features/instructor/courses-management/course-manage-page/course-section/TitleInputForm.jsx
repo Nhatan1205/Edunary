@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Box, Button, TextField, Typography, Paper } from "@mui/material";
+import TextEditor from "../../../../../components/TextEditor";
 
 function TitleInputForm({ 
   label,
@@ -99,42 +100,13 @@ function TitleInputForm({
               What will students be able to do at the end of this section?
             </Typography>
 
-            <TextField
-              fullWidth
-              placeholder="Enter a Learning Objective"
-              value={learningObjectives}
-              onChange={(e) => setLearningObjectives(e.target.value)}
-              slotProps={{
-                htmlInput: { maxLength: 200 },
-                input: {
-                  endAdornment: (
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "text.secondary", whiteSpace: "nowrap" }}
-                    >
-                      {learningObjectives.length}/200
-                    </Typography>
-                  ),
-                },
-              }}
-              sx={{
-                mb: 2,
-                "& .MuiOutlinedInput-root": {
-                  padding: "12px 16px",
-                  fontSize: "14px",
-                  "&:hover fieldset": {
-                    borderColor: "brand.main",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "brand.main",
-                    borderWidth: "2px",
-                  },
-                },
-                "& .MuiInputBase-input": {
-                  padding: 0,
-                },
-              }}
-            />
+            <Box sx={{ mb: 2 }}>
+              <TextEditor
+                value={learningObjectives}
+                onChange={setLearningObjectives}
+                buttons={["bold", "italic", "|", "ul"]}
+              />
+            </Box>
           </Box>
         )}
 

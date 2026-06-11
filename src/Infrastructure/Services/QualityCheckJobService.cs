@@ -119,7 +119,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 sb.AppendLine($"# Section: {section.Title}");
                 if (!string.IsNullOrWhiteSpace(section.LearningObjectives))
                 {
-                    sb.AppendLine($"* Objectives: {section.LearningObjectives}");
+                    sb.AppendLine($"* Objectives: {StripHtml(section.LearningObjectives)}");
                 }
                 sb.AppendLine();
 
@@ -231,7 +231,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 .Select(s => new
                 {
                     section_title = s.Title ?? "",
-                    learning_objectives = s.LearningObjectives ?? "",
+                    learning_objectives = StripHtml(s.LearningObjectives ?? ""),
                     items = s.Items?.Select(i => (object)new
                     {
                         title = i.Title ?? "",
@@ -474,7 +474,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                     sb.AppendLine($"# Section: {section.Title}");
                     if (!string.IsNullOrWhiteSpace(section.LearningObjectives))
                     {
-                        sb.AppendLine($"* Objectives: {section.LearningObjectives}");
+                        sb.AppendLine($"* Objectives: {StripHtml(section.LearningObjectives)}");
                     }
                     sb.AppendLine();
 
@@ -601,7 +601,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 .Select(s => new
                 {
                     section_title = s.Title ?? "",
-                    learning_objectives = s.LearningObjectives ?? "",
+                    learning_objectives = StripHtml(s.LearningObjectives ?? ""),
                     items = s.Items?.Select(i => (object)new
                     {
                         title = i.Title ?? "",

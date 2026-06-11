@@ -322,7 +322,7 @@ export default function CourseApprovalDetailPage() {
             {tab === 1 && <TabPricing course={course} />}
             {tab === 2 && <TabIntendedLearners course={course} />}
             {tab === 3 && <TabCourseMessages course={course} />}
-            {tab === 4 && <TabCurriculum sections={curriculumSections} />}
+            {tab === 4 && <TabCurriculum sections={curriculumSections} courseId={course?.id} />}
           </Card>
         </Box>
       </Box>

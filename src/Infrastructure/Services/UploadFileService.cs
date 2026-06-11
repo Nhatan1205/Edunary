@@ -253,7 +253,8 @@ public class UploadFileService : IUploadFileService
         return (uploadId, urls);
     }
 
-    public async Task<(bool IsReachable, string Error)> CheckSpacesConnectionAsync(CancellationToken ct = default)
+#nullable enable
+    public async Task<(bool IsReachable, string? Error)> CheckSpacesConnectionAsync(CancellationToken ct = default)
     {
         try
         {
@@ -271,7 +272,7 @@ public class UploadFileService : IUploadFileService
         }
     }
 
-    public async Task<(bool IsReachable, string Error)> CheckCloudinaryConnectionAsync(CancellationToken ct = default)
+    public async Task<(bool IsReachable, string? Error)> CheckCloudinaryConnectionAsync(CancellationToken ct = default)
     {
         try
         {
@@ -288,6 +289,7 @@ public class UploadFileService : IUploadFileService
             return (false, ex.Message);
         }
     }
+#nullable restore
 
     public async Task<bool> CompleteMultipartUploadAsync(string fileName, string uploadId)
     {

@@ -104,7 +104,8 @@ public class EmailService : IEmailService
         }
     }
 
-    public async Task<(bool IsReachable, string Error)> CheckConnectionAsync(CancellationToken ct = default)
+#nullable enable
+    public async Task<(bool IsReachable, string? Error)> CheckConnectionAsync(CancellationToken ct = default)
     {
         try
         {
@@ -126,6 +127,7 @@ public class EmailService : IEmailService
             return (false, ex.Message);
         }
     }
+#nullable restore
 
     private static string GetOrFallback(Dictionary<string, string> dbValues, string key, string fallback)
     {

@@ -16,8 +16,6 @@ public class RedisHealthCheck : IHealthCheck
     {
         try
         {
-            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            cts.CancelAfter(TimeSpan.FromSeconds(5));
             var db = _redis.GetDatabase();
             await db.PingAsync();
             return HealthCheckResult.Healthy("Redis is reachable");

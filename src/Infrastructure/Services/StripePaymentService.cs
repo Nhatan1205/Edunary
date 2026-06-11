@@ -103,7 +103,8 @@ public class StripePaymentService : IPaymentService
         }
     }
 
-    public async Task<(bool IsReachable, string Error)> CheckConnectionAsync(CancellationToken ct = default)
+#nullable enable
+    public async Task<(bool IsReachable, string? Error)> CheckConnectionAsync(CancellationToken ct = default)
     {
         try
         {
@@ -117,5 +118,6 @@ public class StripePaymentService : IPaymentService
             return (false, ex.Message);
         }
     }
+#nullable restore
 }
 

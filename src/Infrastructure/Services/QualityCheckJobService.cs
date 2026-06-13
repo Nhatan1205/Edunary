@@ -111,11 +111,12 @@ public class QualityCheckJobService : IQualityCheckJobService
             var mediaCaptionsMap = await FetchMediaCaptionsMapAsync(parsedContent);
 
             // 4. Construct plain text for each section and group them into batches
-            var sectionTexts = new List<(string SectionTitle, string Text)>();
+            var sectionTexts = new List<(string SectionTitle, string Text, List<string> ItemIds)>();
 
             foreach (var section in parsedContent)
             {
                 var sb = new StringBuilder();
+                var sectionItemIds = new List<string>();
                 sb.AppendLine($"# Section: {section.Title}");
                 if (!string.IsNullOrWhiteSpace(section.LearningObjectives))
                 {
@@ -128,6 +129,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                     foreach (var item in section.Items)
                     {
                         var itemType = item.GetResolvedType();
+                        sectionItemIds.Add(item.ItemId);
 
                         if (itemType == "article")
                         {
@@ -185,11 +187,12 @@ public class QualityCheckJobService : IQualityCheckJobService
                     }
                 }
                 
-                sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString()));
+                sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString(), sectionItemIds));
             }
 
             var contentBatches = new List<object>();
             var currentBatchSections = new List<string>();
+            var currentBatchItemIds = new List<string>();
             var currentBatchText = new StringBuilder();
             int currentBatchWordCount = 0;
             int batchIndex = 1;
@@ -204,15 +207,18 @@ public class QualityCheckJobService : IQualityCheckJobService
                     {
                         batch_index = batchIndex++,
                         sections = currentBatchSections.ToList(),
+                        item_ids = currentBatchItemIds.ToList(),
                         content_text = currentBatchText.ToString()
                     });
 
                     currentBatchSections.Clear();
+                    currentBatchItemIds.Clear();
                     currentBatchText.Clear();
                     currentBatchWordCount = 0;
                 }
 
                 currentBatchSections.Add(sec.SectionTitle);
+                currentBatchItemIds.AddRange(sec.ItemIds);
                 currentBatchText.AppendLine(sec.Text);
                 currentBatchWordCount += secWordCount;
             }
@@ -223,6 +229,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 {
                     batch_index = batchIndex++,
                     sections = currentBatchSections,
+                    item_ids = currentBatchItemIds.ToList(),
                     content_text = currentBatchText.ToString()
                 });
             }
@@ -259,10 +266,23 @@ public class QualityCheckJobService : IQualityCheckJobService
                     api_base = aiConfig.LLMBaseUrl,
                     temperature = 0.2,
                     max_tokens = aiConfig.LLMMaxTokens
+                },
+                embedding_config = new
+                {
+                    provider = aiConfig.EmbeddingProvider,
+                    model_name = aiConfig.EmbeddingModelName,
+                    api_key = aiConfig.EmbeddingApiKey,
+                    base_url = aiConfig.EmbeddingBaseUrl
+                },
+                qdrant_config = new
+                {
+                    url = aiConfig.QdrantUrl,
+                    api_key = aiConfig.QdrantApiKey,
+                    collection = "edunary_curriculum"
                 }
             };
 
-            //File.WriteAllText("payload_full.json", JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
+            // File.WriteAllText("payload_full.json", JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
 
             var url = $"{aiConfig.AICenterBaseUrl}api/quality-check/analyze";
             var (isSuccess, body) = await _aiCenterClient.PostAsync(
@@ -462,7 +482,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 .ToListAsync();
 
             // 3. Construct batch texts ONLY for changed sections & items
-            var sectionTexts = new List<(string SectionTitle, string Text)>();
+            var sectionTexts = new List<(string SectionTitle, string Text, List<string> ItemIds)>();
 
             foreach (var section in parsedContent)
             {
@@ -471,6 +491,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 if (hasSectionChanges)
                 {
                     var sb = new StringBuilder();
+                    var sectionItemIds = new List<string>();
                     sb.AppendLine($"# Section: {section.Title}");
                     if (!string.IsNullOrWhiteSpace(section.LearningObjectives))
                     {
@@ -491,6 +512,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                             }
 
                             hasAddedOrModifiedItems = true;
+                            sectionItemIds.Add(item.ItemId);
                             var itemType = item.GetResolvedType();
 
                             if (itemType == "article")
@@ -552,13 +574,14 @@ public class QualityCheckJobService : IQualityCheckJobService
                     // Only send this section text to AI if there was a structural section change or actual items within it changed
                     if (hasAddedOrModifiedItems || secCompStatusIsAdded(diff, section.SectionId))
                     {
-                        sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString()));
+                        sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString(), sectionItemIds));
                     }
                 }
             }
 
             var contentBatches = new List<object>();
             var currentBatchSections = new List<string>();
+            var currentBatchItemIds = new List<string>();
             var currentBatchText = new StringBuilder();
             int currentBatchWordCount = 0;
             int batchIndex = 1;
@@ -573,15 +596,18 @@ public class QualityCheckJobService : IQualityCheckJobService
                     {
                         batch_index = batchIndex++,
                         sections = currentBatchSections.ToList(),
+                        item_ids = currentBatchItemIds.ToList(),
                         content_text = currentBatchText.ToString()
                     });
 
                     currentBatchSections.Clear();
+                    currentBatchItemIds.Clear();
                     currentBatchText.Clear();
                     currentBatchWordCount = 0;
                 }
 
                 currentBatchSections.Add(sec.SectionTitle);
+                currentBatchItemIds.AddRange(sec.ItemIds);
                 currentBatchText.AppendLine(sec.Text);
                 currentBatchWordCount += secWordCount;
             }
@@ -592,6 +618,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 {
                     batch_index = batchIndex++,
                     sections = currentBatchSections,
+                    item_ids = currentBatchItemIds.ToList(),
                     content_text = currentBatchText.ToString()
                 });
             }
@@ -631,6 +658,19 @@ public class QualityCheckJobService : IQualityCheckJobService
                     api_base = aiConfig.LLMBaseUrl,
                     temperature = 0.2,
                     max_tokens = aiConfig.LLMMaxTokens
+                },
+                embedding_config = new
+                {
+                    provider = aiConfig.EmbeddingProvider,
+                    model_name = aiConfig.EmbeddingModelName,
+                    api_key = aiConfig.EmbeddingApiKey,
+                    base_url = aiConfig.EmbeddingBaseUrl
+                },
+                qdrant_config = new
+                {
+                    url = aiConfig.QdrantUrl,
+                    api_key = aiConfig.QdrantApiKey,
+                    collection = "edunary_curriculum"
                 }
             };
 

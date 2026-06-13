@@ -18,6 +18,7 @@ public class CourseApprovedEventHandler : INotificationHandler<CourseApprovedEve
     private readonly IIdentityService _identityService;
     private readonly AppSettings _appSettings;
     private readonly ICourseEmbeddingJobService _embeddingJobService;
+    private readonly ICourseCurriculumEmbeddingJobService _curriculumEmbeddingJobService;
 
     public CourseApprovedEventHandler(
         ILogger<CourseApprovedEventHandler> logger,
@@ -25,7 +26,8 @@ public class CourseApprovedEventHandler : INotificationHandler<CourseApprovedEve
         IEmailService emailService,
         IIdentityService identityService,
         IOptions<AppSettings> appSettings,
-        ICourseEmbeddingJobService embeddingJobService)
+        ICourseEmbeddingJobService embeddingJobService,
+        ICourseCurriculumEmbeddingJobService curriculumEmbeddingJobService)
     {
         _logger = logger;
         _notifyService = notifyService;
@@ -33,6 +35,7 @@ public class CourseApprovedEventHandler : INotificationHandler<CourseApprovedEve
         _identityService = identityService;
         _appSettings = appSettings.Value;
         _embeddingJobService = embeddingJobService;
+        _curriculumEmbeddingJobService = curriculumEmbeddingJobService;
     }
 
     public async Task Handle(CourseApprovedEvent notification, CancellationToken cancellationToken)
@@ -69,5 +72,6 @@ public class CourseApprovedEventHandler : INotificationHandler<CourseApprovedEve
 
         //embedding course
         _embeddingJobService.EnqueueCourseEmbedding(courseId);
+        _curriculumEmbeddingJobService.EnqueueCurriculumEmbedding(courseId);
     }
 }

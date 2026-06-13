@@ -5485,6 +5485,84 @@
         }
       }
     },
+    "/api/CurriculumEmbeddings/batch-embed": {
+      "post": {
+        "tags": [
+          "CurriculumEmbeddings"
+        ],
+        "operationId": "BatchEmbedCurriculum",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CurriculumEmbeddings/{id}/embed": {
+      "post": {
+        "tags": [
+          "CurriculumEmbeddings"
+        ],
+        "operationId": "EmbedSingleCurriculum",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CurriculumEmbeddings/{id}": {
+      "delete": {
+        "tags": [
+          "CurriculumEmbeddings"
+        ],
+        "operationId": "DeleteSingleCurriculum",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/DirectMessages/conversations": {
       "post": {
         "tags": [

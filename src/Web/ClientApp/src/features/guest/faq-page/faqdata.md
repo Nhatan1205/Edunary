@@ -141,22 +141,21 @@ Open a course in Courses Management, select **AI Course Review**, and choose **R
 Instructor checks are limited to one run per course every seven days. Completed reports remain in report history, where instructors can open the latest or an earlier report and review its summary and issues.
 
 ### Which landing-page policies does the AI evaluate?
-- **LP-01 - Honest & Accurate Marketing** *(Critical)*: Titles, subtitles, and descriptions must be truthful and must not use clickbait, exaggerated promises, or fake outcomes.
-- **LP-03 - Title & Subtitle Quality** *(Warning)*: The title must identify the main topic, while the subtitle should add outcomes, skills, or audience details without repetition or generic sales language.
-- **LP-04 - Informational Course Description** *(Warning)*: The description must be clear, professional, and informational, without promotional spam, coupon links, affiliate links, or aggressive sales pitches.
-- **LP-05 - Material Disclosures** *(Warning)*: The description must disclose important learner requirements, including paid tools, subscriptions, external accounts, or AI-generated content.
-- **LP-06 - Specific Intended Learners** *(Warning)*: Target learners and prerequisites must be specific and actionable rather than vague statements that the course is for everyone.
-- **LP-07 - Landing Page to Curriculum Alignment** *(Critical)*: Major promises, tools, and skills named on the landing page must be covered by the curriculum.
-- **LP-10 - Category & Topic Accuracy** *(Warning)*: The selected category and topics must accurately represent the course subject and content.
+- **LP-01 - Honest & Accurate Marketing** *(Critical)*: Course title, subtitle, and description must be honest, accurate, and non-misleading. No clickbait, exaggerated promises, or fake outcomes.
+- **LP-02 - Title & Subtitle Quality** *(Warning)*: The title must clearly identify the primary topic. The subtitle must expand on it, such as target outcomes, key skills, or audience. Generic sales slogans should be avoided.
+- **LP-03 - Informational Course** *(Warning)*: The course description must be informational and professional. Promotional spam, coupons, affiliate links, or aggressive sales pitches are strictly prohibited.
+- **LP-04 - Material Disclosures** *(Warning)*: The course must disclose key student requirements, such as paid software, subscriptions, or AI-generated content.
+- **LP-05 - Target Audience & Requirements** *(Warning)*: Target audience and requirements cannot be empty. They must be specific and actionable for students to evaluate suitability. Vague statements such as "for everyone" are prohibited.
+- **LP-06 - Landing Page to Curriculum Alignment** *(Critical)*: High-level promises, tools, or major skills mentioned in the landing page must be covered in the actual curriculum.
+- **LP-07 - Course Image** *(Warning)*: The course must have a high-quality cover image to display professionally on the marketplace.
+- **LP-08 - Category & Topic Accuracy** *(Warning)*: The assigned category and topics must accurately represent the actual subject and content of the course.
 
 ### Which learning-objective and assessment policies does the AI evaluate?
-- **LO-01 - Measurable Learning Objectives** *(Critical)*: Course objectives must begin with measurable action verbs such as Create, Design, Analyze, Explain, Calculate, Implement, or Configure. Vague verbs such as Understand, Learn, Know, or Discover are not accepted.
-- **LO-02 - Section-Level Objective Consistency** *(Critical)*: Section objectives must use measurable action verbs and directly support course-level objectives.
-- **LO-03 - Learner-Centered & Distinct Objectives** *(Warning)*: Objectives must describe what learners can perform and must be specific, unique, and non-duplicative.
-- **LO-04 - Objective-Level Alignment** *(Warning)*: Promised outcomes must match the course level; for example, a beginner course should not promise mastery without foundational steps.
-- **LO-05 - Constructive Alignment** *(Critical)*: Objectives must map to relevant sections, lectures, activities, and assessments.
-- **LO-07 - Quality Assessments** *(Warning)*: Quiz questions and assignments must be clear and assess stated objectives. Quizzes need correct answers and plausible distractors.
-- **LO-10 - Multi-Modal Engagement** *(Suggestion)*: Interactive skills should use an appropriate mix of content and practice instead of relying only on passive video transcripts.
+- **LO-01 - Measurable Learning Objectives** *(Critical)*: Every objective must start with a measurable action verb, such as Create, Analyze, Explain, or Design. Vague or passive verbs such as "Understand", "Learn", or "Know" are strictly prohibited.
+- **LO-02 - Section-Level Objective Consistency** *(Critical)*: Section objectives must also start with measurable action verbs and directly support the course-level objectives.
+- **LO-03 - Learner-Centered & Distinct** *(Warning)*: Objectives must focus on what the learner can perform. Each objective must be unique, specific, and not duplicate other objectives in different words.
+- **LO-04 - Objective-Level Alignment** *(Warning)*: Objectives must match the expected course level. For example, a beginner course should not promise master-level execution outcomes without introductory steps.
+- **LO-05 - Constructive Alignment** *(Critical)*: There must be a clear path of alignment: objectives must directly map to sections, lectures, activities, and assessments in the curriculum.
 
 ### Which curriculum and compliance policies does the AI evaluate?
 - **CU-01 - Topic Relevance & Focus** *(Warning)*: Curriculum content, explanations, and examples must stay relevant to the course subject without filler or conversational noise.
@@ -167,3 +166,9 @@ Instructor checks are limited to one run per course every seven days. Completed 
 - **CU-07 - Safe Content & Policy Compliance** *(Critical)*: Content must not contain profanity, vulgarity, hate, discrimination, violent imagery, illegal instructions, or dangerous advice.
 - **CU-08 - Sensitive Data & Privacy** *(Critical)*: Content must not expose personal information or secrets such as emails, phone numbers, API keys, passwords, credentials, or private addresses.
 - **CU-10 - Current Practices & Technical Relevance** *(Warning)*: Course content should use current standards and tools rather than severely outdated software, obsolete methods, or deprecated libraries.
+- **CU-11 - Current Practices & Technical Relevance** *(Warning)*: Content must reflect contemporary standards. Severely outdated software versions, obsolete methods, or deprecated libraries will be flagged.
+- **CU-12 - Practice Opportunities** *(Warning)*: Each major section should feature at least one practical activity, such as a Quiz or Assignment, to reinforce learning.
+- **CU-13 - Quiz Accuracy** *(Critical)*: Every quiz question must have at least one correct choice marked. Otherwise, students cannot pass.
+- **CU-14 - Assessment Instructions** *(Warning)*: Every assignment/quiz must have clear, detailed student instructions explaining exactly what is expected. It cannot be empty.
+- **CU-15 - Curricular Coherence** *(Critical)*: Course content must be logically connected. Concepts taught in earlier sections must not be contradicted or changed in later sections. Unnecessary repetition of previously covered content should be avoided unless it serves a clear learning purpose.
+- **CU-16 - Constructive Alignment** *(Critical)*: Quizzes and assignments must perfectly match the instructional materials. Students cannot be tested on concepts that were not taught in the lectures.

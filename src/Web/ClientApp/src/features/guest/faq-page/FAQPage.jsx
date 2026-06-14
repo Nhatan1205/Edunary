@@ -1,18 +1,26 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import { TextField, Button, Typography } from '@mui/material';
-import { Accordion, AccordionSummary, AccordionDetails, Box } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import faqimage from "../../../assets/images/faq-page.jpg";
-import { FAQ_DATA } from './faqdata';
-import SchoolIcon from '@mui/icons-material/School';
-import CastForEducationIcon from '@mui/icons-material/CastForEducation';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import PaymentIcon from '@mui/icons-material/Payment';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Button,
+  TextField,
+  Typography
+} from '@mui/material';
 import BuildIcon from '@mui/icons-material/Build';
-import NoResult from '../../../components/NoResult';
+import CastForEducationIcon from '@mui/icons-material/CastForEducation';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
+import PaymentIcon from '@mui/icons-material/Payment';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import SchoolIcon from '@mui/icons-material/School';
+import faqimage from '../../../assets/images/faq-page.jpg';
 import emptyFaqImg from '../../../assets/images/empty-faq.png';
+import NoResult from '../../../components/NoResult';
 import theme from '../../../theme/theme';
+import { FAQ_DATA } from './faqdata';
 
 const categories = [
   {
@@ -20,8 +28,16 @@ const categories = [
     label: 'Getting Started',
     icon: <RocketLaunchIcon fontSize="small" />
   },
-  { id: 'students', label: 'Students', icon: <SchoolIcon fontSize="small" /> },
-  { id: 'teachers', label: 'Teachers', icon: <CastForEducationIcon fontSize="small" /> },
+  {
+    id: 'students',
+    label: 'Students',
+    icon: <SchoolIcon fontSize="small" />
+  },
+  {
+    id: 'teachers',
+    label: 'Teachers',
+    icon: <CastForEducationIcon fontSize="small" />
+  },
   {
     id: 'payments',
     label: 'Purchase & Payments',
@@ -31,6 +47,11 @@ const categories = [
     id: 'troubleshooting',
     label: 'Troubleshooting',
     icon: <BuildIcon fontSize="small" />
+  },
+  {
+    id: 'ai-quality',
+    label: 'AI Quality Check',
+    icon: <FactCheckOutlinedIcon fontSize="small" />
   }
 ];
 
@@ -50,41 +71,46 @@ function FAQPage() {
 
   // Filter logic
   const filteredFAQs = useMemo(() => {
+    const normalizedQuery = submittedQuery.trim().toLowerCase();
+
     return FAQ_DATA.filter((item) => {
       const matchesCategory = item.category === activeTab;
-
       const matchesSearch =
-        item.question.toLowerCase().includes(submittedQuery.toLowerCase()) ||
-        item.answer.toLowerCase().includes(submittedQuery.toLowerCase());
+        item.question.toLowerCase().includes(normalizedQuery) ||
+        item.answer.toLowerCase().includes(normalizedQuery);
 
       return matchesCategory && matchesSearch;
     });
   }, [submittedQuery, activeTab]);
 
+  const submitSearch = () => {
+    setSubmittedQuery(searchQuery);
+    setExpanded([]);
+  };
 
   return (
-    <div style={{ minHeight: '160vh', backgroundColor: '#f5f5f5' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <div
         style={{
           position: 'relative',
           height: '500px',
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),url(${faqimage || 'https://via.placeholder.com/1500'})`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),url(${faqimage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          flexDirection: 'column',
+          flexDirection: 'column'
         }}
       >
         <Container style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
           <Typography
             variant="h2"
-            style={{
+            sx={{
               fontWeight: 700,
               color: '#fff',
-              marginBottom: '30px',
-              fontSize: '2.5rem'
+              mb: '30px',
+              fontSize: { xs: '2rem', md: '2.5rem' }
             }}
           >
             Edunary Help Center
@@ -92,48 +118,57 @@ function FAQPage() {
 
           <Row className="justify-content-center">
             <Col xs={12} md={8} lg={6}>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <Box
+                component="form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  submitSearch();
+                }}
+                sx={{
+                  display: 'flex',
+                  gap: '10px',
+                  flexDirection: { xs: 'column', sm: 'row' }
+                }}
+              >
                 <TextField
                   fullWidth
                   variant="outlined"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Search"
                   size="medium"
                   sx={{
-                    backgroundColor: "#fff",
-                    borderRadius: "4px",
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        border: "none",
-                      },
-                      "&:hover fieldset": {
-                        border: "none",
-                      },
-                      "&.Mui-focused fieldset": {
-                        border: "none",
-                      },
+                    backgroundColor: '#fff',
+                    borderRadius: '4px',
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': { border: 'none' },
+                      '&:hover fieldset': { border: 'none' },
+                      '&.Mui-focused fieldset': { border: 'none' }
                     }
                   }}
                 />
                 <Button
+                  type="submit"
                   variant="contained"
-                  style={{
-                    backgroundColor: 'brand.main',
+                  sx={{
+                    bgcolor: 'brand.main',
                     color: '#fff',
                     textTransform: 'none',
                     fontSize: '16px',
                     fontWeight: 600,
-                    padding: '10px 30px',
+                    px: '30px',
                     borderRadius: '4px',
                     boxShadow: 'none',
-                    minWidth: '120px'
+                    minWidth: '120px',
+                    '&:hover': {
+                      bgcolor: 'brand.dark',
+                      boxShadow: 'none'
+                    }
                   }}
-                  onClick={() => setSubmittedQuery(searchQuery)}
                 >
                   Search
                 </Button>
-              </div>
+              </Box>
             </Col>
           </Row>
         </Container>
@@ -148,86 +183,116 @@ function FAQPage() {
                 setActiveTab(category.id);
                 setExpanded([]);
               }}
-              startIcon={activeTab !== category.id ? category.icon : null}
-              variant={activeTab === category.id ? "contained" : "text"}
+              startIcon={category.icon}
+              variant={activeTab === category.id ? 'contained' : 'text'}
               sx={{
                 borderRadius: '30px',
-                padding: '8px 24px',
+                px: { xs: 2, md: 3 },
+                py: 1,
                 textTransform: 'none',
                 fontSize: '1rem',
                 fontWeight: 600,
                 backgroundColor: activeTab === category.id ? 'brand.main' : '#fff',
                 color: activeTab === category.id ? '#fff' : '#666',
-                border: activeTab === category.id ? 'none' : '1px solid #e0e0e0',
+                border: activeTab === category.id ? '1px solid transparent' : '1px solid #e0e0e0',
                 '&:hover': {
                   backgroundColor: activeTab === category.id ? 'brand.dark' : '#f5f5f5',
-                  color: activeTab === category.id ? '#fff' : 'brand.main',
+                  color: activeTab === category.id ? '#fff' : 'brand.main'
                 }
               }}
             >
-              {/* Hiển thị icon bên cạnh text khi active */}
-              {activeTab === category.id && <span style={{ marginRight: 8, display: 'flex' }}>{category.icon}</span>}
               {category.label}
             </Button>
           ))}
         </Box>
       </Container>
 
-      {/* --- FAQ LIST SECTION (Logic thêm vào) --- */}
       <Container className="pb-5">
         <Row className="justify-content-center">
           <Col xs={12} md={10} lg={8}>
-
-            {/* Tiêu đề nhỏ cho phần danh sách */}
             <Box mb={3} textAlign="center">
               <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-                {submittedQuery
-                  ? <>Search results for <span style={{ color: theme.palette.secondaryBrand.main, fontWeight: 700 }}>"{submittedQuery}"</span></>
-                  : <>Common questions about <span style={{ color: theme.palette.secondaryBrand.main, fontWeight: 700 }}>{categories.find(c => c.id === activeTab)?.label}</span></>
-                }
+                {submittedQuery ? (
+                  <>
+                    Search results for{' '}
+                    <span style={{ color: theme.palette.secondaryBrand.main, fontWeight: 700 }}>
+                      "{submittedQuery}"
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Common questions about{' '}
+                    <span style={{ color: theme.palette.secondaryBrand.main, fontWeight: 700 }}>
+                      {categories.find((category) => category.id === activeTab)?.label}
+                    </span>
+                  </>
+                )}
               </Typography>
             </Box>
 
             {filteredFAQs.length > 0 ? (
-              <Box sx={{ bgcolor: '#fff', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                {filteredFAQs.map((faq) => (
-                  <Accordion
-                    key={faq.id}
-                    expanded={expanded.includes(faq.id)}
-                    onChange={handleAccordionChange(faq.id)}
-                    disableGutters
-                    elevation={0}
-                    sx={{
-                      '&:before': { display: 'none' },
-                      borderBottom: '1px solid #eee',
-                      '&:last-child': { borderBottom: 'none' },
-                      '&:hover': { backgroundColor: '#fafafa' }
-                    }}
-                  >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon sx={{ color: expanded === faq.id ? 'brand.main' : '#999' }} />}
-                      aria-controls={`panel${faq.id}-content`}
-                      id={`panel${faq.id}-header`}
-                      sx={{ padding: '10px 24px' }}
+              <Box
+                sx={{
+                  bgcolor: '#fff',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                }}
+              >
+                {filteredFAQs.map((faq) => {
+                  const isExpanded = expanded.includes(faq.id);
+
+                  return (
+                    <Accordion
+                      key={faq.id}
+                      expanded={isExpanded}
+                      onChange={handleAccordionChange(faq.id)}
+                      disableGutters
+                      elevation={0}
+                      sx={{
+                        '&:before': { display: 'none' },
+                        borderBottom: '1px solid #eee',
+                        '&:last-child': { borderBottom: 'none' },
+                        '&:hover': { backgroundColor: '#fafafa' }
+                      }}
                     >
-                      <Typography
-                        sx={{
-                          fontWeight: expanded === faq.id ? 600 : 500,
-                          color: expanded === faq.id ? 'brand.main' : '#333',
-                          fontSize: '1.05rem'
-                        }}
+                      <AccordionSummary
+                        expandIcon={
+                          <ExpandMoreIcon sx={{ color: isExpanded ? 'brand.main' : '#999' }} />
+                        }
+                        aria-controls={`panel${faq.id}-content`}
+                        id={`panel${faq.id}-header`}
+                        sx={{ px: 3, py: 1.25 }}
                       >
-                        {faq.question}
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails sx={{ padding: '0 24px 24px 24px' }}>
-                      <Typography
-                        sx={{ color: '#666', lineHeight: 1.6 }}
-                        dangerouslySetInnerHTML={{ __html: faq.answer }}
-                      />
-                    </AccordionDetails>
-                  </Accordion>
-                ))}
+                        <Typography
+                          sx={{
+                            fontWeight: isExpanded ? 600 : 500,
+                            color: isExpanded ? 'brand.main' : '#333',
+                            fontSize: '1.05rem'
+                          }}
+                        >
+                          {faq.question}
+                        </Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ px: 3, pt: 0, pb: 3 }}>
+                        <Typography
+                          component="div"
+                          sx={{
+                            color: '#666',
+                            lineHeight: 1.6,
+                            '& p': { mt: 0, mb: 1.5 },
+                            '& p:last-child': { mb: 0 },
+                            '& ul, & ol': { my: 1.5, pl: 3 },
+                            '& li': { mb: 1 },
+                            '& li:last-child': { mb: 0 },
+                            '& strong': { color: '#333' }
+                          }}
+                          dangerouslySetInnerHTML={{ __html: faq.answer }}
+                        />
+                      </AccordionDetails>
+                    </Accordion>
+                  );
+                })}
               </Box>
             ) : (
               <NoResult

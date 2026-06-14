@@ -3,187 +3,172 @@
 ## Getting Started
 
 ### What is Edunary?
-Edunary's mission is to create new possibilities for people and organizations everywhere. Our global marketplace features an extensive, multi-language library, which includes thousands of courses taught by real-world experts.  
+Edunary is an online learning marketplace where instructors create courses and learners build skills through structured lessons and practice activities.
 
-You can take courses across a wide range of categories, some of which include: business & entrepreneurship, programming, academics, the arts, health & fitness, language, music, and more!
+The platform also provides career paths, course progress tracking, certificates, instructor tools, and AI-assisted course quality feedback.
 
-### What do Edunary courses include?
-The foundation of each Edunary course is its lectures, which can include videos, slides, and text. Each Edunary course is created, owned, and managed by the instructor(s). In addition, instructors can add resources and various types of practice activities, as a way to enhance the learning experience of students.  
-
-You can learn more about Edunary’s platforms and features or review tips on how to find courses you may be interested in taking.
+### What can an Edunary course include?
+A course can include video lectures, written articles, quizzes, assignments, captions, and downloadable learning resources. Available content varies by course and is shown on the course page before enrollment.
 
 ### Where can I access Edunary?
-You can access your Edunary courses from various devices and platforms, on both PC and Mac desktops/laptops, as well as Android and iOS mobile devices.  
-
-[View our system requirements](#)
+Edunary is a web application. You can use it in a modern browser on a desktop, laptop, tablet, or mobile device. Edunary does not currently provide a separate iOS or Android application.
 
 ### How do I create or log in to my account?
-Learn how to log in to Edunary through your computer browser or the iOS or Android app below:
-- Browser instructions
-- Mobile app instructions
+Select **Register** to create an account with your name, email address, phone number, and password. Standard registrations require email verification. You can also sign in with Google.
+
+Returning users can select **Login**. If you forget your password, use the password reset option on the login page.
 
 ### How do I find a course?
-You can easily search for courses by using the search bar or browsing categories. Learn how to search for courses on Edunary.
+Use the search bar to search by keyword, browse available categories, or explore Edunary career paths. Search results can be opened to review the course curriculum, instructor, price, learning objectives, and included features.
 
 ### Can I preview a course before purchasing?
-Yes! You can preview a course and review key information by watching the introductory video and free lectures available on the course landing page.
-
----
+Yes, when an instructor marks a video lecture as a free preview. Open the course page and select an available preview lecture to watch it before enrolling.
 
 ## Students
 
-### How do I start my course?
-After enrolling in the course, you can access it by logging in to your account and clicking on the course link you will receive in your confirmation email (provided you’re logged into your Edunary account) or on the **My learning** page.
+### How do I start or continue a course?
+After enrollment, open **My Learning** and select the course card. Edunary opens the course player and saves your completed items and video position so you can continue later.
 
-### Do I have to start or complete my course by a certain time?
-There are no deadlines to begin or complete a course. Learn about our **Lifetime Access policy**.
+### Do I have to complete a course by a deadline?
+Edunary courses currently have no platform-enforced completion deadline. A course purchase is a one-time purchase with lifetime access while the course and your account remain available.
 
-### What course features are available?
-Course features vary by platform. Check the course details to view which course features are available on each platform.
+### What learning features are available?
+Depending on the course, you may have video and article lessons, captions, quizzes, assignments, downloadable resources, announcements, course Q&A, ratings, and progress tracking. Check the course page and curriculum for the features included in a specific course.
 
-### Do I receive anything after I complete a course?
-Every approved, **paid** course features a **certificate of completion** to document your accomplishment.  
+### Can I download course videos?
+Yes. Enrolled learners can use the download control in the web course player when the video file is available. The file is downloaded to your device; Edunary does not currently provide an in-app offline viewing mode.
 
-While Edunary is not an accredited institution, we offer skills-based courses taught by real-world experts in their field.
+### How do I earn and access a certificate?
+You can request a certificate after completing all required lectures and quizzes in an enrolled course. Your certificates appear under **My Learning > Certifications**, where you can view or download the PDF.
 
-### How do I start a course (Quick View)?
-Simply click on the course card and hit the "Start Class" button. Your progress is saved automatically.
-
-### Can I download videos for offline viewing?
-Yes, if you use our mobile app, you can download classes to watch while offline.
-
-### What is the refund policy?
-We offer a 7-day money-back guarantee if you are not satisfied with the content.
-
----
+Each certificate has a public verification number that can be checked from the certificate verification page.
 
 ## Teachers
 
-### How do I become a teacher?
-Apply through the "Teach" page. Once approved, you can start uploading your curriculum immediately.
+### How do I start teaching on Edunary?
+Sign in, open your profile menu, and select **Teaching On Edunary**. From Courses Management, you can create your first course and begin adding its landing-page details and curriculum. There is no separate fee to open the instructor workspace.
 
-### When do I get paid?
-Payments are processed via PayPal on the 16th of every month for the previous month’s earnings.
+### How do I create and publish a course?
+Create a course from the instructor Courses Management area, then complete its landing page, pricing, intended learners, messages, curriculum, captions, and settings. You can preview the course while editing.
 
-### How do I become a Edunary instructor?
-As a first step, please set up your instructor account on Edunary.com.
+When it is ready, submit it for admin review. An admin can approve the course or request changes before it becomes public.
 
-### How do I create a course on Edunary?
-The Teaching Center includes extensive resources on how you can create a Edunary course. Additionally, the official "How to Create an Online Course" outlines best practices to plan, produce, and publish a well-designed course.
+### What quality requirements should my course meet?
+Course claims, learning objectives, intended learners, category, topics, curriculum, lectures, quizzes, and assignments should be accurate, complete, safe, and aligned with one another. The admin review remains the publishing decision.
 
-### How do I update my instructor account or profile?
-You can update your instructor account settings and profile information directly through your account dashboard.
+Edunary also provides AI policy checks and deterministic pre-flight checks. Pre-flight checks can flag issues such as a missing cover image or intended-learner details, a curriculum with fewer than two sections or five lecture items, short articles, missing video captions, weak quiz setup, or assignments without instructions.
 
-### Can I teach a course on any topic?
-You are free to choose the topic you wish to teach. However, please refer to our restricted topics list for details on the topics that we do not accept.
+### How do I update my instructor profile and payout details?
+Use the account settings pages to update your profile, photo, security settings, and tax profile. Bank account details for instructor withdrawals are managed from the Revenue area.
 
-### Can you tell me more about the existing demand for my course topic on Edunary?
-You can use our Marketplace Insights tool to view student demand, search volume, and revenue for particular topics. This data helps you decide what course to teach.
+### How are instructor earnings, revenue shares, and withdrawals calculated?
+The current revenue shares are:
 
-### Do I have to pay any fees to become an instructor?
-There is no fee to be an instructor on Edunary. Instructors are paid according to a revenue share model.
+- **Purchase without a coupon:** the instructor share is 37%, and the platform share is 63%.
+- **Purchase with a platform-funded coupon:** the instructor share is 37%, and the platform share is 63%.
+- **Purchase with an instructor-funded coupon:** the instructor share is 97%, and the platform share is 3%.
 
-### What approval do I need to get started as an instructor?
-No approval is needed to get started. However, before publishing your first course, you must complete the instructor identity verification process. To create paid courses, you must register to become a Premium instructor.
+These percentages are applied to the course price after any coupon discount and before VAT. A free enrollment therefore produces no instructor earnings. The 37% or 97% instructor share is the total instructor pool for the sale. If the course has accepted collaborators with revenue shares, their portions are paid from that pool and the course owner receives the remainder.
 
-### Are there any requirements that my course must meet?
-Yes. Courses must have at least 30 minutes of video content, at least 5 lectures or learning modules, and follow our course materials guidelines.
+Instructors can review their wallet balance under **Performance > Revenue**. Withholding tax is not deducted from each course sale; it is calculated when an instructor requests a withdrawal. To withdraw, first add a bank name, account number, and account holder. Edunary previews the withholding tax and net payout before the request is submitted for admin processing. A completed tax profile can provide the country-specific withholding rate; otherwise, the platform default applies. Withdrawals are not tied to a fixed monthly schedule.
 
-### How do I become a Premium instructor?
-To sell courses for a fee, you need to apply for Premium Instructor status in your account settings.
+### Can I create coupons or join platform promotions?
+Yes. Instructors can create coupons for their courses from the Coupons area. A course can also allow Edunary-funded platform coupon campaigns from its Pricing settings without disabling the instructor's own coupons.
 
-### How will I get paid?
-Instructors can use PayPal, Payoneer, Tipalti, or direct deposit (U.S. only) to receive their payments.
-
-### When and how often will I get paid?
-Payments follow a specific monthly schedule typically processing earnings from the previous month.
-
-### What is the general structure of a Edunary course? What is the primary teaching method?
-A standard Edunary course is video-based. Additional teaching tools like assignments, quizzes, and coding exercises can be added to create a rich learning experience.
-
-### How do I get my course materials on your site?
-You will need to upload your video files directly to Edunary using our standard lecture uploader or bulk file uploader.
-
-### Does Edunary retain exclusive rights to my course if I sell it on your platform?
-No. You retain all rights to your content. However, if your course is included in the Edunary Business content collection, exclusivity is required.
-
-### Will Edunary promote my course?
-Instructors can opt into the Edunary Deals Program for promotion. Additionally, Edunary provides resources to help you effectively market your own courses.
-
-### What languages can courses be taught in?
-Most world languages are selectable as the home language for a Edunary course, and you are welcome to create a course in any available one you wish.
-
-### What is the Edunary Deals Program, and how do I opt in or out?
-The Edunary Deals Program allows your course to be discounted and promoted to millions of students. You can manage your participation in your instructor settings.
-
-### Can I use a pen name, pseudonym, or business name for my instructor account?
-Yes, but you must review our guidelines for using alternate names during the instructor identity verification process.
-
-### How do I submit a tax form to Edunary?
-Tax forms are submitted digitally through the payout settings page on your instructor dashboard.
-
----
-
-## Payments
+## Purchase & Payments
 
 ### How do I pay for a course?
-Edunary supports several different payment methods, depending on your account country and location. Check our help center to learn more about our payment methods.
+Add the course to your cart or select **Buy Now**, then complete the secure Stripe checkout. Edunary creates charges in USD, and the payment options displayed inside Stripe depend on the checkout configuration and your payment details.
 
-### Can I change or exchange my course?
-While our system is not set up to exchange one course for another, you can **submit a refund request** and purchase another course, provided the refund request meets our refund guidelines.
+### How do coupon codes work?
+Enter a valid coupon before checkout. Coupons may be funded by an instructor or by Edunary and can provide a percentage discount, fixed discount, custom price, or free enrollment. A coupon can have course, date, and redemption limits.
 
-### I am receiving a payment error
-If you are encountering issues while purchasing, please refer to our article on troubleshooting payment failures and issues.
+### Why did a course price change?
+Instructors set their course prices and can change a price at most once every seven days. A displayed total can also change when a coupon is applied, expires, reaches its redemption limit, or no longer applies to the selected course.
 
-### Why did the price change for my course?
-Edunary uses dynamic pricing and promotions that may target different regions or markets. Additionally, instructors can run their own promotions.
+### Is a course purchase a one-time payment?
+Yes. Edunary currently sells individual courses as one-time purchases rather than subscriptions. After a successful purchase, the course is added to **My Learning**.
 
-**Mobile App Pricing:** Prices on the Apple App Store and Google Play may differ slightly from the web version due to the platform's price tier structure. Also, coupons cannot be entered on the mobile app. If you have a coupon, please purchase on **www.Edunary.com** first; you will still get access on the mobile app afterwards.
+### Will tax be added to my purchase?
+Applicable VAT is calculated from the billing country selected at checkout and is shown in the order summary before payment. Edunary uses the active rate configured for that country or the platform default VAT rate when no active country rate is available.
 
-### Is my course a one-time payment?
-Yes. Once you purchase an individual marketplace course, you have **lifetime access** to the material and will not be charged again, provided you retain access to your Edunary account and Edunary continues to license the course.
+### What should I do if checkout fails?
+Review the message shown at checkout, confirm your billing country and payment details, and retry after checking your connection. You cannot purchase your own course or repurchase a course already enrolled in.
 
-### How can I get a Edunary coupon or a discount code?
-You can find discount codes through Edunary promotional emails or directly from instructors. Please refer to our help section to learn more about how Edunary coupon codes work.
-
-### Does Edunary offer subscriptions?
-Yes. In addition to individual courses, eligible learners can enroll in the **Personal Plan** subscription. This grants unlimited access to the subscription’s content as long as the subscription fee is paid.
-
-### How are you calculating exchange rates and currency fees?
-We use a country-specific price tier matrix to determine localized prices. **Edunary does not charge currency conversion fees.** However, your bank or payment processor may apply their own conversion rates or fees.
-
-### Do I have to pay taxes when I purchase a course?
-It depends on your location. Learners in regions that collect transaction taxes (like VAT, GST, or sales tax) may be required to pay tax. These are calculated based on your account and billing information.
-
----
+If Stripe declines the payment, contact your card issuer or try another payment option offered by the Stripe payment form.
 
 ## Troubleshooting
 
-### Why is Edunary not working?
-If you're experiencing some issues with our website, please try the troubleshooting steps below. We recommend searching online for instructions on how to complete these steps for your specific device and browser.
+### What should I try if Edunary is not working?
+1. Refresh the page and confirm your internet connection.
+2. Use an up-to-date browser and sign in again.
+3. Try a private or incognito window.
+4. Clear Edunary cookies and cached site data, then restart the browser.
+5. Temporarily disable browser extensions that may block scripts, media, or authentication.
+6. Try another browser or network to identify whether the issue is device-specific.
 
-1. View the Edunary status page and Help Center for any site-related issues.
-2. Check that your device’s browser and operating system meet the Edunary System Requirements.
-3. Ensure your browser is updated to the latest version.
-4. Access your account in a different browser. If the problem doesn’t occur, the issue is likely isolated to the first browser. If you contact us, please let us know which browsers you tried.
-5. If you have other devices or connections available, such as another computer or wireless network, try logging in to your Edunary account from that device or network. If you don't have the same problem on the other device or network, the issue may be related to the first device or network.
-6. Log in to your account from a private or incognito window. An incognito window will turn off extensions and add-ons that may interfere with Edunary. If private browsing fixes the problem:
-   - Try to clear your cache and cookies. Be sure to restart your browser before trying again.
-   - Disable browser extensions that might be interfering with your site.
+### Why is a purchased course missing?
+Open **My Learning > All courses** and confirm you are signed in with the same account used at checkout. Also confirm that the payment completed successfully.
 
-### My Edunary course is missing
-If you cannot find a course you purchased, check the "My Learning" section or your archived courses.  
+If the course still does not appear, contact Edunary support with your account email and payment or order details.
 
-If you are using the mobile app, learn how to find your missing course in the articles below:
-- Missing iOS purchase
-- Missing Android purchase
+### How can I fix audio or video playback issues?
+1. Refresh the lesson and verify that your connection is stable.
+2. Try a different quality level in the video player.
+3. Disable extensions that block media requests.
+4. Try another current browser or an incognito window.
+5. Confirm the tab and device are not muted.
 
-### I’m having issues with my audio or video
-If you are experiencing playback issues, learn how to troubleshoot audio and video issues in the course player.  
+If streaming remains unreliable, enrolled learners can use the video download control when the source file is available.
 
-If you are using the mobile app, please refer to our guide on troubleshooting issues in the mobile course player.
+### I cannot sign in or verify my account
+Check that you are using the correct email address and authentication method. Email registrations must be verified before normal login. You can resend the verification email from the registration flow or use **Forgot password** to reset a password.
 
-### Where else can I go for help?
-For questions not related to the course curriculum, our **Help Center** has extensive information regarding Edunary’s various features, and articles with troubleshooting steps.  
+If you registered with Google, use the Google sign-in option for that account.
 
-Our support team is also happy to help. You can begin the process of connecting with our team by clicking "Contact Us".
+## AI Quality Check
+
+### What does AI Quality Check review?
+AI Quality Check helps instructors identify course-design and content issues before or during admin review. It examines course metadata, category and topics, intended learners, learning objectives, curriculum structure, lecture content, quizzes, and assignments.
+
+The report contains an overall summary and supported issues with a severity, location, description, evidence, and suggested improvement. It is advisory: it does not automatically approve, reject, publish, or edit a course.
+
+Before the AI analysis, Edunary also runs deterministic pre-flight checks for measurable conditions such as missing fields, curriculum size, article length, captions, and assessment setup. Those code-based checks are separate from the AI policies listed below.
+
+### How do instructors run and review an AI quality check?
+Open a course in Courses Management, select **AI Course Review**, and choose **Run AI Quality Check**. Progress is displayed while the report is generated.
+
+Instructor checks are limited to one run per course every seven days. Completed reports remain in report history, where instructors can open the latest or an earlier report and review its summary and issues.
+
+### Which landing-page policies does the AI evaluate?
+- **LP-01 - Honest & Accurate Marketing** *(Critical)*: Course title, subtitle, and description must be honest, accurate, and non-misleading. No clickbait, exaggerated promises, or fake outcomes.
+- **LP-02 - Title & Subtitle Quality** *(Warning)*: The title must clearly identify the primary topic. The subtitle must expand on it, such as target outcomes, key skills, or audience. Generic sales slogans should be avoided.
+- **LP-03 - Informational Course** *(Warning)*: The course description must be informational and professional. Promotional spam, coupons, affiliate links, or aggressive sales pitches are strictly prohibited.
+- **LP-04 - Material Disclosures** *(Warning)*: The course must disclose key student requirements, such as paid software, subscriptions, or AI-generated content.
+- **LP-05 - Target Audience & Requirements** *(Warning)*: Target audience and requirements cannot be empty. They must be specific and actionable for students to evaluate suitability. Vague statements such as "for everyone" are prohibited.
+- **LP-06 - Landing Page to Curriculum Alignment** *(Critical)*: High-level promises, tools, or major skills mentioned in the landing page must be covered in the actual curriculum.
+- **LP-07 - Course Image** *(Warning)*: The course must have a high-quality cover image to display professionally on the marketplace.
+- **LP-08 - Category & Topic Accuracy** *(Warning)*: The assigned category and topics must accurately represent the actual subject and content of the course.
+
+### Which learning-objective and assessment policies does the AI evaluate?
+- **LO-01 - Measurable Learning Objectives** *(Critical)*: Every objective must start with a measurable action verb, such as Create, Analyze, Explain, or Design. Vague or passive verbs such as "Understand", "Learn", or "Know" are strictly prohibited.
+- **LO-02 - Section-Level Objective Consistency** *(Critical)*: Section objectives must also start with measurable action verbs and directly support the course-level objectives.
+- **LO-03 - Learner-Centered & Distinct** *(Warning)*: Objectives must focus on what the learner can perform. Each objective must be unique, specific, and not duplicate other objectives in different words.
+- **LO-04 - Objective-Level Alignment** *(Warning)*: Objectives must match the expected course level. For example, a beginner course should not promise master-level execution outcomes without introductory steps.
+- **LO-05 - Constructive Alignment** *(Critical)*: There must be a clear path of alignment: objectives must directly map to sections, lectures, activities, and assessments in the curriculum.
+
+### Which curriculum and compliance policies does the AI evaluate?
+- **CU-01 - Topic Relevance & Focus** *(Warning)*: Curriculum content, explanations, and examples must stay relevant to the course subject without filler or conversational noise.
+- **CU-02 - Logical Learning Flow** *(Warning)*: Concepts and skills must follow a clear, progressive sequence.
+- **CU-03 - Focused Scope** *(Suggestion)*: Each section should have one primary goal, and each lecture should focus on a specific concept or skill.
+- **CU-04 - Practice Opportunities** *(Warning)*: Each major section should include a quiz or assignment that reinforces learning.
+- **CU-05 - External Tools & Links Quality** *(Critical)*: External tools and sites must support the objectives, and paid tools or required accounts must be disclosed. Affiliate marketing and unauthorized promotions are prohibited.
+- **CU-07 - Safe Content & Policy Compliance** *(Critical)*: Content must not contain profanity, vulgarity, hate, discrimination, violent imagery, illegal instructions, or dangerous advice.
+- **CU-08 - Sensitive Data & Privacy** *(Critical)*: Content must not expose personal information or secrets such as emails, phone numbers, API keys, passwords, credentials, or private addresses.
+- **CU-10 - Current Practices & Technical Relevance** *(Warning)*: Course content should use current standards and tools rather than severely outdated software, obsolete methods, or deprecated libraries.
+- **CU-11 - Current Practices & Technical Relevance** *(Warning)*: Content must reflect contemporary standards. Severely outdated software versions, obsolete methods, or deprecated libraries will be flagged.
+- **CU-12 - Practice Opportunities** *(Warning)*: Each major section should feature at least one practical activity, such as a Quiz or Assignment, to reinforce learning.
+- **CU-13 - Quiz Accuracy** *(Critical)*: Every quiz question must have at least one correct choice marked. Otherwise, students cannot pass.
+- **CU-14 - Assessment Instructions** *(Warning)*: Every assignment/quiz must have clear, detailed student instructions explaining exactly what is expected. It cannot be empty.
+- **CU-15 - Curricular Coherence** *(Critical)*: Course content must be logically connected. Concepts taught in earlier sections must not be contradicted or changed in later sections. Unnecessary repetition of previously covered content should be avoided unless it serves a clear learning purpose.
+- **CU-16 - Constructive Alignment** *(Critical)*: Quizzes and assignments must perfectly match the instructional materials. Students cannot be tested on concepts that were not taught in the lectures.

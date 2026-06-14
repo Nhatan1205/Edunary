@@ -69,15 +69,6 @@ public class CourseCurriculumEmbeddingJobService : ICourseCurriculumEmbeddingJob
             return;
         }
 
-        if (course.Status != CourseStatus.Public)
-        {
-            _logger.LogInformation(
-                "Course {Id} is not Public (Status={Status}) — enqueueing curriculum deletion instead.",
-                courseId, course.Status);
-            EnqueueCurriculumEmbeddingDeletion(courseId);
-            return;
-        }
-
         try
         {
             var aiConfig = await _sender.Send(new GetAIConfigQuery());

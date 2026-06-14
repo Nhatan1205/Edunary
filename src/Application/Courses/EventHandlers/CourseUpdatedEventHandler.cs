@@ -40,7 +40,8 @@ public class CourseUpdatedEventHandler : INotificationHandler<CourseUpdatedEvent
         if (entity.Item.Status == CourseStatus.Public)
         {
             _embeddingJobService.EnqueueCourseEmbedding(entity.Item.Id);
-            _curriculumEmbeddingJobService.EnqueueCurriculumEmbedding(entity.Item.Id);
         }
+
+        _curriculumEmbeddingJobService.EnqueueCurriculumEmbedding(entity.Item.Id);
     }
 }

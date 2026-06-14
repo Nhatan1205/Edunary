@@ -348,8 +348,8 @@ export default function CurriculumComparison({
                                   if (change.propertyName === "Content") {
                                     return (
                                       <Box key={pIdx}>
-                                        <Typography variant="caption" sx={{ fontWeight: 700, color: "brand.dark", display: "block", mb: 1 }}>
-                                          Lecture Content (HTML):
+                                        <Typography variant="h5" sx={{ fontWeight: 700, color: "grey.800", display: "block", mb: 1 }}>
+                                          Lecture Content
                                         </Typography>
                                         <Box
                                           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(change.newValue) }}

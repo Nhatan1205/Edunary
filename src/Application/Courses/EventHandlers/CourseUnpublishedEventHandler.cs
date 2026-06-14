@@ -76,6 +76,5 @@ public class CourseUnpublishedEventHandler : INotificationHandler<CourseUnpublis
 
         //delete embedding
         _embeddingJobService.EnqueueCourseEmbeddingDeletion(course.Id);
-        _curriculumEmbeddingJobService.EnqueueCurriculumEmbeddingDeletion(course.Id);
     }
 }

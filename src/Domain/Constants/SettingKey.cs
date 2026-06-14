@@ -40,6 +40,13 @@ public static class SettingKey
     public const string LLM_Temperature = "LLM_Temperature";
     public const string LLM_MaxTokens = "LLM_MaxTokens";
 
+    // LLM Validator Config
+    public const string LLM_Validator_ModelName = "LLM_Validator_ModelName";
+    public const string LLM_Validator_ApiKey = "LLM_Validator_ApiKey";
+    public const string LLM_Validator_BaseUrl = "LLM_Validator_BaseUrl";
+    public const string LLM_Validator_Temperature = "LLM_Validator_Temperature";
+    public const string LLM_Validator_MaxTokens = "LLM_Validator_MaxTokens";
+
     // Embedding Config
     public const string Embedding_Provider = "Embedding_Provider";
     public const string Embedding_ModelName = "Embedding_ModelName";

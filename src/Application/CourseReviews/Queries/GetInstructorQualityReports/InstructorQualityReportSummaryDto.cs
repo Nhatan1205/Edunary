@@ -11,6 +11,7 @@ public class InstructorQualityReportSummaryDto
     public int TotalIssues { get; set; }
     public DateTimeOffset Created { get; set; }
     public string CreatedBy { get; set; }
+    public float OverallScore { get; set; }
     public bool IsLatest { get; set; }
     public DateTimeOffset? NextRunAvailableAt { get; set; }
 

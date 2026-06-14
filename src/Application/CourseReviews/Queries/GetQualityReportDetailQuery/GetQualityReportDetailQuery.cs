@@ -38,15 +38,6 @@ public class GetQualityReportDetailQueryHandler : IRequestHandler<GetQualityRepo
 
         report.IsLatest = isLatest;
 
-        // Recalculate OverallScore dynamically (ignoring dismissed issues)
-        var activeIssues = report.Issues.Where(i => i.AdminAction != QualityIssueStatus.Dismissed).ToList();
-        var critical = activeIssues.Count(i => i.Severity == QualityIssueSeverity.Critical);
-        var warning = activeIssues.Count(i => i.Severity == QualityIssueSeverity.Warning);
-        var suggestion = activeIssues.Count(i => i.Severity == QualityIssueSeverity.Suggestion);
-
-        var dynamicScore = 100f - (critical * 15f + warning * 5f + suggestion * 2f);
-        report.OverallScore = dynamicScore < 0 ? 0 : dynamicScore;
-
         return report;
     }
 }

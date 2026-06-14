@@ -18566,6 +18566,7 @@ export class InstructorQualityReportSummaryDto implements IInstructorQualityRepo
     totalIssues?: number;
     created?: Date;
     createdBy?: string | undefined;
+    overallScore?: number;
     isLatest?: boolean;
     nextRunAvailableAt?: Date | undefined;
 
@@ -18586,6 +18587,7 @@ export class InstructorQualityReportSummaryDto implements IInstructorQualityRepo
             this.totalIssues = _data["totalIssues"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
+            this.overallScore = _data["overallScore"];
             this.isLatest = _data["isLatest"];
             this.nextRunAvailableAt = _data["nextRunAvailableAt"] ? new Date(_data["nextRunAvailableAt"].toString()) : <any>undefined;
         }
@@ -18606,6 +18608,7 @@ export class InstructorQualityReportSummaryDto implements IInstructorQualityRepo
         data["totalIssues"] = this.totalIssues;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
+        data["overallScore"] = this.overallScore;
         data["isLatest"] = this.isLatest;
         data["nextRunAvailableAt"] = this.nextRunAvailableAt ? this.nextRunAvailableAt.toISOString() : <any>undefined;
         return data;
@@ -18619,6 +18622,7 @@ export interface IInstructorQualityReportSummaryDto {
     totalIssues?: number;
     created?: Date;
     createdBy?: string | undefined;
+    overallScore?: number;
     isLatest?: boolean;
     nextRunAvailableAt?: Date | undefined;
 }
@@ -18632,9 +18636,14 @@ export enum QualityCheckStatus {
 export class InstructorQualityReportDetailDto implements IInstructorQualityReportDetailDto {
     id?: number;
     courseId?: number;
+    overallScore?: number;
+    categoryScores?: { [key: string]: number; } | undefined;
     status?: QualityCheckStatus;
     analysisSummary?: string | undefined;
     totalIssues?: number;
+    criticalCount?: number;
+    warningCount?: number;
+    suggestionCount?: number;
     isLatest?: boolean;
     created?: Date;
     createdBy?: string | undefined;
@@ -18653,9 +18662,20 @@ export class InstructorQualityReportDetailDto implements IInstructorQualityRepor
         if (_data) {
             this.id = _data["id"];
             this.courseId = _data["courseId"];
+            this.overallScore = _data["overallScore"];
+            if (_data["categoryScores"]) {
+                this.categoryScores = {} as any;
+                for (let key in _data["categoryScores"]) {
+                    if (_data["categoryScores"].hasOwnProperty(key))
+                        (<any>this.categoryScores)![key] = _data["categoryScores"][key];
+                }
+            }
             this.status = _data["status"];
             this.analysisSummary = _data["analysisSummary"];
             this.totalIssues = _data["totalIssues"];
+            this.criticalCount = _data["criticalCount"];
+            this.warningCount = _data["warningCount"];
+            this.suggestionCount = _data["suggestionCount"];
             this.isLatest = _data["isLatest"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
@@ -18678,9 +18698,20 @@ export class InstructorQualityReportDetailDto implements IInstructorQualityRepor
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["courseId"] = this.courseId;
+        data["overallScore"] = this.overallScore;
+        if (this.categoryScores) {
+            data["categoryScores"] = {};
+            for (let key in this.categoryScores) {
+                if (this.categoryScores.hasOwnProperty(key))
+                    (<any>data["categoryScores"])[key] = (<any>this.categoryScores)[key];
+            }
+        }
         data["status"] = this.status;
         data["analysisSummary"] = this.analysisSummary;
         data["totalIssues"] = this.totalIssues;
+        data["criticalCount"] = this.criticalCount;
+        data["warningCount"] = this.warningCount;
+        data["suggestionCount"] = this.suggestionCount;
         data["isLatest"] = this.isLatest;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
@@ -18696,9 +18727,14 @@ export class InstructorQualityReportDetailDto implements IInstructorQualityRepor
 export interface IInstructorQualityReportDetailDto {
     id?: number;
     courseId?: number;
+    overallScore?: number;
+    categoryScores?: { [key: string]: number; } | undefined;
     status?: QualityCheckStatus;
     analysisSummary?: string | undefined;
     totalIssues?: number;
+    criticalCount?: number;
+    warningCount?: number;
+    suggestionCount?: number;
     isLatest?: boolean;
     created?: Date;
     createdBy?: string | undefined;

@@ -14371,6 +14371,10 @@
             "type": "string",
             "nullable": true
           },
+          "overallScore": {
+            "type": "number",
+            "format": "float"
+          },
           "isLatest": {
             "type": "boolean"
           },
@@ -14407,6 +14411,18 @@
             "type": "integer",
             "format": "int32"
           },
+          "overallScore": {
+            "type": "number",
+            "format": "float"
+          },
+          "categoryScores": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": {
+              "type": "number",
+              "format": "float"
+            }
+          },
           "status": {
             "$ref": "#/components/schemas/QualityCheckStatus"
           },
@@ -14415,6 +14431,18 @@
             "nullable": true
           },
           "totalIssues": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "criticalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warningCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suggestionCount": {
             "type": "integer",
             "format": "int32"
           },

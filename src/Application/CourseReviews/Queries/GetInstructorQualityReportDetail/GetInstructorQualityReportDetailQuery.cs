@@ -37,6 +37,7 @@ public class GetInstructorQualityReportDetailQueryHandler : IRequestHandler<GetI
 
         // 1. Fetch report
         var reportDto = await _context.QualityCheckReports
+            .Include(r => r.Issues)
             .Where(r => r.Id == request.ReportId && r.RequestedByRole == "Instructor")
             .ProjectTo<InstructorQualityReportDetailDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);

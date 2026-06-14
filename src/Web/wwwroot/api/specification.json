@@ -5485,6 +5485,84 @@
         }
       }
     },
+    "/api/CurriculumEmbeddings/batch-embed": {
+      "post": {
+        "tags": [
+          "CurriculumEmbeddings"
+        ],
+        "operationId": "BatchEmbedCurriculum",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CurriculumEmbeddings/{id}/embed": {
+      "post": {
+        "tags": [
+          "CurriculumEmbeddings"
+        ],
+        "operationId": "EmbedSingleCurriculum",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/CurriculumEmbeddings/{id}": {
+      "delete": {
+        "tags": [
+          "CurriculumEmbeddings"
+        ],
+        "operationId": "DeleteSingleCurriculum",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/DirectMessages/conversations": {
       "post": {
         "tags": [
@@ -14293,6 +14371,10 @@
             "type": "string",
             "nullable": true
           },
+          "overallScore": {
+            "type": "number",
+            "format": "float"
+          },
           "isLatest": {
             "type": "boolean"
           },
@@ -14329,6 +14411,18 @@
             "type": "integer",
             "format": "int32"
           },
+          "overallScore": {
+            "type": "number",
+            "format": "float"
+          },
+          "categoryScores": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": {
+              "type": "number",
+              "format": "float"
+            }
+          },
           "status": {
             "$ref": "#/components/schemas/QualityCheckStatus"
           },
@@ -14337,6 +14431,18 @@
             "nullable": true
           },
           "totalIssues": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "criticalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warningCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suggestionCount": {
             "type": "integer",
             "format": "int32"
           },

@@ -23,6 +23,9 @@ public class GetAIConfigQueryHandler : IRequestHandler<GetAIConfigQuery, AIConfi
             // LLM
             SettingKey.LLM_ModelName, SettingKey.LLM_ApiKey,
             SettingKey.LLM_BaseUrl, SettingKey.LLM_Temperature, SettingKey.LLM_MaxTokens,
+            // LLM Validator
+            SettingKey.LLM_Validator_ModelName, SettingKey.LLM_Validator_ApiKey,
+            SettingKey.LLM_Validator_BaseUrl, SettingKey.LLM_Validator_Temperature, SettingKey.LLM_Validator_MaxTokens,
             // Embedding
             SettingKey.Embedding_Provider, SettingKey.Embedding_ModelName,
             SettingKey.Embedding_ApiKey, SettingKey.Embedding_BaseUrl,
@@ -45,6 +48,11 @@ public class GetAIConfigQueryHandler : IRequestHandler<GetAIConfigQuery, AIConfi
             LLMBaseUrl = settings.GetValueOrDefault(SettingKey.LLM_BaseUrl, ""),
             LLMTemperature = double.TryParse(settings.GetValueOrDefault(SettingKey.LLM_Temperature), out var temp) ? temp : 0.7,
             LLMMaxTokens = int.TryParse(settings.GetValueOrDefault(SettingKey.LLM_MaxTokens), out var tokens) ? tokens : 2048,
+            LLMValidatorModelName = settings.GetValueOrDefault(SettingKey.LLM_Validator_ModelName, ""),
+            LLMValidatorApiKey = settings.GetValueOrDefault(SettingKey.LLM_Validator_ApiKey, ""),
+            LLMValidatorBaseUrl = settings.GetValueOrDefault(SettingKey.LLM_Validator_BaseUrl, ""),
+            LLMValidatorTemperature = double.TryParse(settings.GetValueOrDefault(SettingKey.LLM_Validator_Temperature), out var vTemp) ? vTemp : 0.3,
+            LLMValidatorMaxTokens = int.TryParse(settings.GetValueOrDefault(SettingKey.LLM_Validator_MaxTokens), out var vTokens) ? vTokens : 4096,
             EmbeddingProvider = settings.GetValueOrDefault(SettingKey.Embedding_Provider, ""),
             EmbeddingModelName = settings.GetValueOrDefault(SettingKey.Embedding_ModelName, ""),
             EmbeddingApiKey = settings.GetValueOrDefault(SettingKey.Embedding_ApiKey, ""),

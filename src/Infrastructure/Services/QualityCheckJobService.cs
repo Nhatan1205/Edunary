@@ -111,11 +111,12 @@ public class QualityCheckJobService : IQualityCheckJobService
             var mediaCaptionsMap = await FetchMediaCaptionsMapAsync(parsedContent);
 
             // 4. Construct plain text for each section and group them into batches
-            var sectionTexts = new List<(string SectionTitle, string Text)>();
+            var sectionTexts = new List<(string SectionTitle, string Text, List<string> ItemIds)>();
 
             foreach (var section in parsedContent)
             {
                 var sb = new StringBuilder();
+                var sectionItemIds = new List<string>();
                 sb.AppendLine($"# Section: {section.Title}");
                 if (!string.IsNullOrWhiteSpace(section.LearningObjectives))
                 {
@@ -128,6 +129,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                     foreach (var item in section.Items)
                     {
                         var itemType = item.GetResolvedType();
+                        sectionItemIds.Add(item.ItemId);
 
                         if (itemType == "article")
                         {
@@ -185,11 +187,12 @@ public class QualityCheckJobService : IQualityCheckJobService
                     }
                 }
                 
-                sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString()));
+                sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString(), sectionItemIds));
             }
 
             var contentBatches = new List<object>();
             var currentBatchSections = new List<string>();
+            var currentBatchItemIds = new List<string>();
             var currentBatchText = new StringBuilder();
             int currentBatchWordCount = 0;
             int batchIndex = 1;
@@ -204,15 +207,18 @@ public class QualityCheckJobService : IQualityCheckJobService
                     {
                         batch_index = batchIndex++,
                         sections = currentBatchSections.ToList(),
+                        item_ids = currentBatchItemIds.ToList(),
                         content_text = currentBatchText.ToString()
                     });
 
                     currentBatchSections.Clear();
+                    currentBatchItemIds.Clear();
                     currentBatchText.Clear();
                     currentBatchWordCount = 0;
                 }
 
                 currentBatchSections.Add(sec.SectionTitle);
+                currentBatchItemIds.AddRange(sec.ItemIds);
                 currentBatchText.AppendLine(sec.Text);
                 currentBatchWordCount += secWordCount;
             }
@@ -223,6 +229,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 {
                     batch_index = batchIndex++,
                     sections = currentBatchSections,
+                    item_ids = currentBatchItemIds.ToList(),
                     content_text = currentBatchText.ToString()
                 });
             }
@@ -259,10 +266,31 @@ public class QualityCheckJobService : IQualityCheckJobService
                     api_base = aiConfig.LLMBaseUrl,
                     temperature = 0.2,
                     max_tokens = aiConfig.LLMMaxTokens
+                },
+                validate_llm_config = new
+                {
+                    model_name = !string.IsNullOrWhiteSpace(aiConfig.LLMValidatorModelName) ? aiConfig.LLMValidatorModelName : aiConfig.LLMModelName,
+                    api_key = !string.IsNullOrWhiteSpace(aiConfig.LLMValidatorApiKey) ? aiConfig.LLMValidatorApiKey : aiConfig.LLMApiKey,
+                    api_base = !string.IsNullOrWhiteSpace(aiConfig.LLMValidatorBaseUrl) ? aiConfig.LLMValidatorBaseUrl : aiConfig.LLMBaseUrl,
+                    temperature = aiConfig.LLMValidatorTemperature,
+                    max_tokens = aiConfig.LLMValidatorMaxTokens
+                },
+                embedding_config = new
+                {
+                    provider = aiConfig.EmbeddingProvider,
+                    model_name = aiConfig.EmbeddingModelName,
+                    api_key = aiConfig.EmbeddingApiKey,
+                    base_url = aiConfig.EmbeddingBaseUrl
+                },
+                qdrant_config = new
+                {
+                    url = aiConfig.QdrantUrl,
+                    api_key = aiConfig.QdrantApiKey,
+                    collection = "edunary_curriculum"
                 }
             };
 
-            //File.WriteAllText("payload_full.json", JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
+             // File.WriteAllText("payload_full.json", JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
 
             var url = $"{aiConfig.AICenterBaseUrl}api/quality-check/analyze";
             var (isSuccess, body) = await _aiCenterClient.PostAsync(
@@ -462,7 +490,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 .ToListAsync();
 
             // 3. Construct batch texts ONLY for changed sections & items
-            var sectionTexts = new List<(string SectionTitle, string Text)>();
+            var sectionTexts = new List<(string SectionTitle, string Text, List<string> ItemIds)>();
 
             foreach (var section in parsedContent)
             {
@@ -471,6 +499,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 if (hasSectionChanges)
                 {
                     var sb = new StringBuilder();
+                    var sectionItemIds = new List<string>();
                     sb.AppendLine($"# Section: {section.Title}");
                     if (!string.IsNullOrWhiteSpace(section.LearningObjectives))
                     {
@@ -491,6 +520,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                             }
 
                             hasAddedOrModifiedItems = true;
+                            sectionItemIds.Add(item.ItemId);
                             var itemType = item.GetResolvedType();
 
                             if (itemType == "article")
@@ -552,13 +582,14 @@ public class QualityCheckJobService : IQualityCheckJobService
                     // Only send this section text to AI if there was a structural section change or actual items within it changed
                     if (hasAddedOrModifiedItems || secCompStatusIsAdded(diff, section.SectionId))
                     {
-                        sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString()));
+                        sectionTexts.Add((section.Title ?? "Untitled Section", sb.ToString(), sectionItemIds));
                     }
                 }
             }
 
             var contentBatches = new List<object>();
             var currentBatchSections = new List<string>();
+            var currentBatchItemIds = new List<string>();
             var currentBatchText = new StringBuilder();
             int currentBatchWordCount = 0;
             int batchIndex = 1;
@@ -573,15 +604,18 @@ public class QualityCheckJobService : IQualityCheckJobService
                     {
                         batch_index = batchIndex++,
                         sections = currentBatchSections.ToList(),
+                        item_ids = currentBatchItemIds.ToList(),
                         content_text = currentBatchText.ToString()
                     });
 
                     currentBatchSections.Clear();
+                    currentBatchItemIds.Clear();
                     currentBatchText.Clear();
                     currentBatchWordCount = 0;
                 }
 
                 currentBatchSections.Add(sec.SectionTitle);
+                currentBatchItemIds.AddRange(sec.ItemIds);
                 currentBatchText.AppendLine(sec.Text);
                 currentBatchWordCount += secWordCount;
             }
@@ -592,6 +626,7 @@ public class QualityCheckJobService : IQualityCheckJobService
                 {
                     batch_index = batchIndex++,
                     sections = currentBatchSections,
+                    item_ids = currentBatchItemIds.ToList(),
                     content_text = currentBatchText.ToString()
                 });
             }
@@ -631,6 +666,27 @@ public class QualityCheckJobService : IQualityCheckJobService
                     api_base = aiConfig.LLMBaseUrl,
                     temperature = 0.2,
                     max_tokens = aiConfig.LLMMaxTokens
+                },
+                validate_llm_config = new
+                {
+                    model_name = !string.IsNullOrWhiteSpace(aiConfig.LLMValidatorModelName) ? aiConfig.LLMValidatorModelName : aiConfig.LLMModelName,
+                    api_key = !string.IsNullOrWhiteSpace(aiConfig.LLMValidatorApiKey) ? aiConfig.LLMValidatorApiKey : aiConfig.LLMApiKey,
+                    api_base = !string.IsNullOrWhiteSpace(aiConfig.LLMValidatorBaseUrl) ? aiConfig.LLMValidatorBaseUrl : aiConfig.LLMBaseUrl,
+                    temperature = aiConfig.LLMValidatorTemperature,
+                    max_tokens = aiConfig.LLMValidatorMaxTokens
+                },
+                embedding_config = new
+                {
+                    provider = aiConfig.EmbeddingProvider,
+                    model_name = aiConfig.EmbeddingModelName,
+                    api_key = aiConfig.EmbeddingApiKey,
+                    base_url = aiConfig.EmbeddingBaseUrl
+                },
+                qdrant_config = new
+                {
+                    url = aiConfig.QdrantUrl,
+                    api_key = aiConfig.QdrantApiKey,
+                    collection = "edunary_curriculum"
                 }
             };
 
@@ -781,14 +837,13 @@ public class QualityCheckJobService : IQualityCheckJobService
 
         // Parse curriculum structure
         var parsedContent = ParseCurriculum(course.Content);
-        
-        // CU-01 - Curriculum Structure thin check
+
+        // CU-01 — Minimum 5 lectures required
         if (changedSet.Contains("content") || changedSet.Contains("curriculum"))
         {
-            var sectionsCount = parsedContent?.Count ?? 0;
             var totalLectures = parsedContent?.Sum(s => s.Items?.Count(i => i.GetResolvedType() == "article" || i.GetResolvedType() == "video") ?? 0) ?? 0;
 
-            if (sectionsCount < 2 || totalLectures < 5)
+            if (totalLectures < 5)
             {
                 issues.Add(new QualityCheckIssue
                 {
@@ -797,74 +852,55 @@ public class QualityCheckJobService : IQualityCheckJobService
                     AdminAction = QualityIssueStatus.Pending,
                     RuleId = "CU-01",
                     Location = "Curriculum Structure",
-                    Description = $"Course curriculum is too thin: {sectionsCount} section(s) and {totalLectures} lecture(s). Minimum required is 2 sections and 5 lectures.",
-                    Evidence = $"Sections: {sectionsCount}, Lectures: {totalLectures}",
-                    Suggestion = "Expand the curriculum with additional sections and instructional lectures.",
+                    Description = $"Your course currently has {totalLectures} lecture(s). We recommend at least 5 lectures to provide a meaningful learning experience for your students.",
+                    Evidence = $"Total lectures: {totalLectures}",
+                    Suggestion = "Consider adding more lectures to cover your course topic thoroughly and give students enough content to achieve the learning objectives.",
                 });
             }
         }
 
-        // Lecture content size and captions
+        // CU-03 — Videos missing captions (consolidated, only changed items)
         if (parsedContent != null)
         {
+            var videosWithoutCaptions = new List<string>();
+
             foreach (var section in parsedContent)
             {
-                if (section.Items != null)
+                if (section.Items == null) continue;
+                foreach (var item in section.Items)
                 {
-                    foreach (var item in section.Items)
+                    if (!changedItemIds.Contains(item.ItemId)) continue;
+                    if (item.GetResolvedType() != "video" || item.VideoId <= 0) continue;
+
+                    var mediaFile = await _context.MediaFiles
+                        .Include(m => m.VideoCaptions)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(m => m.Id == item.VideoId);
+
+                    var hasCaption = mediaFile?.VideoCaptions != null &&
+                                     mediaFile.VideoCaptions.Any(c => c.Status == CaptionStatus.COMPLETED);
+
+                    if (!hasCaption)
                     {
-                        if (!changedItemIds.Contains(item.ItemId))
-                        {
-                            continue;
-                        }
-
-                        var itemType = item.GetResolvedType();
-                        if (itemType == "article")
-                        {
-                            var plainText = StripHtml(item.Content ?? "");
-                            var words = string.IsNullOrWhiteSpace(plainText) ? 0 : Regex.Split(plainText.Trim(), @"\s+").Length;
-                            if (words < 200)
-                            {
-                                issues.Add(new QualityCheckIssue
-                                {
-                                    Category = ReviewFeedbackCategory.CourseContent,
-                                    Severity = QualityIssueSeverity.Warning,
-                                    AdminAction = QualityIssueStatus.Pending,
-                                    RuleId = "CU-02",
-                                    Location = $"Section: '{section.Title}' > Lecture: '{item.Title}'",
-                                    Description = $"Article lecture is too short ({words} words). Minimum recommended length is 200 words.",
-                                    Evidence = $"Lecture: '{item.Title}'",
-                                    Suggestion = "Provide more comprehensive study material and context for this lecture.",
-                                });
-                            }
-                        }
-                        else if (itemType == "video" && item.VideoId > 0)
-                        {
-                            var mediaFile = await _context.MediaFiles
-                                .Include(m => m.VideoCaptions)
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync(m => m.Id == item.VideoId);
-
-                            var hasCaption = mediaFile?.VideoCaptions != null &&
-                                             mediaFile.VideoCaptions.Any(c => c.Status == CaptionStatus.COMPLETED);
-
-                            if (!hasCaption)
-                            {
-                                issues.Add(new QualityCheckIssue
-                                {
-                                    Category = ReviewFeedbackCategory.VideoQuality,
-                                    Severity = QualityIssueSeverity.Warning,
-                                    AdminAction = QualityIssueStatus.Pending,
-                                    RuleId = "CU-03",
-                                    Location = $"Section: '{section.Title}' > Lecture: '{item.Title}'",
-                                    Description = "Video lecture is missing a completed subtitle or caption file, reducing accessibility.",
-                                    Evidence = $"Video ID: {item.VideoId}",
-                                    Suggestion = "Generate captions using the AI subtitling feature or manually upload a caption file.",
-                                });
-                            }
-                        }
+                        videosWithoutCaptions.Add(item.Title ?? $"Video ID {item.VideoId}");
                     }
                 }
+            }
+
+            if (videosWithoutCaptions.Any())
+            {
+                var bulletItems = string.Join("", videosWithoutCaptions.Select(n => $"<li>{System.Web.HttpUtility.HtmlEncode(n)}</li>"));
+                issues.Add(new QualityCheckIssue
+                {
+                    Category = ReviewFeedbackCategory.VideoQuality,
+                    Severity = QualityIssueSeverity.Warning,
+                    AdminAction = QualityIssueStatus.Pending,
+                    RuleId = "CU-03",
+                    Location = "Video Lectures",
+                    Description = $"<p>{videosWithoutCaptions.Count} video lecture(s) are missing subtitles or captions, which reduces accessibility for students:</p><ul>{bulletItems}</ul>",
+                    Evidence = "",
+                    Suggestion = "Generate captions using the AI subtitling feature or manually upload a caption file for each video listed above.",
+                });
             }
         }
 
@@ -1006,10 +1042,10 @@ public class QualityCheckJobService : IQualityCheckJobService
 
         // Parse curriculum structure
         var parsedContent = ParseCurriculum(course.Content);
-        var sectionsCount = parsedContent?.Count ?? 0;
         var totalLectures = parsedContent?.Sum(s => s.Items?.Count(i => i.GetResolvedType() == "article" || i.GetResolvedType() == "video") ?? 0) ?? 0;
 
-        if (sectionsCount < 2 || totalLectures < 5)
+        // CU-01 — Minimum 5 lectures required
+        if (totalLectures < 5)
         {
             issues.Add(new QualityCheckIssue
             {
@@ -1018,68 +1054,53 @@ public class QualityCheckJobService : IQualityCheckJobService
                 AdminAction = QualityIssueStatus.Pending,
                 RuleId = "CU-01",
                 Location = "Curriculum Structure",
-                Description = $"Course curriculum is too thin: {sectionsCount} section(s) and {totalLectures} lecture(s). Minimum required is 2 sections and 5 lectures.",
-                Evidence = $"Sections: {sectionsCount}, Lectures: {totalLectures}",
-                Suggestion = "Expand the curriculum with additional sections and instructional lectures.",
+                Description = $"Your course currently has {totalLectures} lecture(s). We recommend at least 5 lectures to provide a meaningful learning experience for your students.",
+                Evidence = $"Total lectures: {totalLectures}",
+                Suggestion = "Consider adding more lectures to cover your course topic thoroughly and give students enough content to achieve the learning objectives.",
             });
         }
 
-        // Lecture content size and captions
+        // CU-03 — Videos missing captions (consolidated)
         if (parsedContent != null)
         {
+            var videosWithoutCaptions = new List<string>();
+
             foreach (var section in parsedContent)
             {
-                if (section.Items != null)
+                if (section.Items == null) continue;
+                foreach (var item in section.Items)
                 {
-                    foreach (var item in section.Items)
+                    if (item.GetResolvedType() != "video" || item.VideoId <= 0) continue;
+
+                    var mediaFile = await _context.MediaFiles
+                        .Include(m => m.VideoCaptions)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(m => m.Id == item.VideoId);
+
+                    var hasCaption = mediaFile?.VideoCaptions != null &&
+                                     mediaFile.VideoCaptions.Any(c => c.Status == CaptionStatus.COMPLETED);
+
+                    if (!hasCaption)
                     {
-                        var itemType = item.GetResolvedType();
-                        if (itemType == "article")
-                        {
-                            var plainText = StripHtml(item.Content ?? "");
-                            var words = string.IsNullOrWhiteSpace(plainText) ? 0 : Regex.Split(plainText.Trim(), @"\s+").Length;
-                            if (words < 200)
-                            {
-                                issues.Add(new QualityCheckIssue
-                                {
-                                    Category = ReviewFeedbackCategory.CourseContent,
-                                    Severity = QualityIssueSeverity.Warning,
-                                    AdminAction = QualityIssueStatus.Pending,
-                                    RuleId = "CU-02",
-                                    Location = $"Section: '{section.Title}' > Lecture: '{item.Title}'",
-                                    Description = $"Article lecture is too short ({words} words). Minimum recommended length is 200 words.",
-                                    Evidence = $"Lecture: '{item.Title}'",
-                                    Suggestion = "Provide more comprehensive study material and context for this lecture.",
-                                });
-                            }
-                        }
-                        else if (itemType == "video" && item.VideoId > 0)
-                        {
-                            var mediaFile = await _context.MediaFiles
-                                .Include(m => m.VideoCaptions)
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync(m => m.Id == item.VideoId);
-
-                            var hasCaption = mediaFile?.VideoCaptions != null &&
-                                             mediaFile.VideoCaptions.Any(c => c.Status == CaptionStatus.COMPLETED);
-
-                            if (!hasCaption)
-                            {
-                                issues.Add(new QualityCheckIssue
-                                {
-                                    Category = ReviewFeedbackCategory.VideoQuality,
-                                    Severity = QualityIssueSeverity.Warning,
-                                    AdminAction = QualityIssueStatus.Pending,
-                                    RuleId = "CU-03",
-                                    Location = $"Section: '{section.Title}' > Lecture: '{item.Title}'",
-                                    Description = "Video lecture is missing a completed subtitle or caption file, reducing accessibility.",
-                                    Evidence = $"Video ID: {item.VideoId}",
-                                    Suggestion = "Generate captions using the AI subtitling feature or manually upload a caption file.",
-                                });
-                            }
-                        }
+                        videosWithoutCaptions.Add(item.Title ?? $"Video ID {item.VideoId}");
                     }
                 }
+            }
+
+            if (videosWithoutCaptions.Any())
+            {
+                var bulletItems = string.Join("", videosWithoutCaptions.Select(n => $"<li>{System.Web.HttpUtility.HtmlEncode(n)}</li>"));
+                issues.Add(new QualityCheckIssue
+                {
+                    Category = ReviewFeedbackCategory.VideoQuality,
+                    Severity = QualityIssueSeverity.Warning,
+                    AdminAction = QualityIssueStatus.Pending,
+                    RuleId = "CU-03",
+                    Location = "Video Lectures",
+                    Description = $"<p>{videosWithoutCaptions.Count} video lecture(s) are missing subtitles or captions, which reduces accessibility for students:</p><ul>{bulletItems}</ul>",
+                    Evidence = "",
+                    Suggestion = "Generate captions using the AI subtitling feature or manually upload a caption file for each video listed above.",
+                });
             }
         }
 
@@ -1436,12 +1457,57 @@ public class QualityCheckJobService : IQualityCheckJobService
 
     private float CalculateOverallScore(List<QualityCheckIssue> issues)
     {
-        var criticalCount = issues.Count(i => i.Severity == QualityIssueSeverity.Critical);
-        var warningCount = issues.Count(i => i.Severity == QualityIssueSeverity.Warning);
-        var suggestionCount = issues.Count(i => i.Severity == QualityIssueSeverity.Suggestion);
+        if (!issues.Any()) return 100f;
 
-        var overallScore = 100f - (criticalCount * 15f + warningCount * 5f + suggestionCount * 2f);
-        return Math.Max(0f, overallScore);
+        var categories = new[]
+        {
+            "LearningObjectives",
+            "LandingPage",
+            "CourseContent",
+            "Policy"
+        };
+
+        float sumScores = 0f;
+
+        foreach (var cat in categories)
+        {
+            List<QualityCheckIssue> catIssues;
+
+            if (cat == "LearningObjectives")
+            {
+                catIssues = issues.Where(i => i.Category == ReviewFeedbackCategory.IntendedLearners).ToList();
+            }
+            else if (cat == "LandingPage")
+            {
+                catIssues = issues.Where(i => i.Category == ReviewFeedbackCategory.CourseLandingPage ||
+                                              i.Category == ReviewFeedbackCategory.CourseTitleSubtitle ||
+                                              i.Category == ReviewFeedbackCategory.CourseDescription ||
+                                              i.Category == ReviewFeedbackCategory.CourseImage).ToList();
+            }
+            else if (cat == "CourseContent")
+            {
+                catIssues = issues.Where(i => i.Category == ReviewFeedbackCategory.CourseContent ||
+                                              i.Category == ReviewFeedbackCategory.VideoQuality ||
+                                              i.Category == ReviewFeedbackCategory.AudioQuality).ToList();
+            }
+            else // Policy
+            {
+                catIssues = issues.Where(i => i.Category == ReviewFeedbackCategory.Policy).ToList();
+            }
+
+            var critical = catIssues.Count(i => i.Severity == QualityIssueSeverity.Critical && i.AdminAction != QualityIssueStatus.Dismissed);
+            var warning = catIssues.Count(i => i.Severity == QualityIssueSeverity.Warning && i.AdminAction != QualityIssueStatus.Dismissed);
+            var suggestion = catIssues.Count(i => i.Severity == QualityIssueSeverity.Suggestion && i.AdminAction != QualityIssueStatus.Dismissed);
+
+            var catScore = 100f - (critical * 15f + warning * 5f + suggestion * 2f);
+            if (catScore < 0)
+            {
+                catScore = 0;
+            }
+            sumScores += catScore;
+        }
+
+        return (float)Math.Max(0, Math.Round(sumScores / categories.Length, 1));
     }
 
     //Internal JSON Mapping Classes

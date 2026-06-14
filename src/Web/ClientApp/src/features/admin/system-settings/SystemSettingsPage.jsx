@@ -98,6 +98,16 @@ const TABS = [
         ]
       },
       {
+        header: "LLM Validator Configuration",
+        keys: [
+          "LLM_Validator_ModelName",
+          "LLM_Validator_ApiKey",
+          "LLM_Validator_BaseUrl",
+          "LLM_Validator_Temperature",
+          "LLM_Validator_MaxTokens"
+        ]
+      },
+      {
         header: "Embedding Configuration",
         keys: [
           "Embedding_Provider",

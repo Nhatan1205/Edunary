@@ -13,6 +13,12 @@ public class AIConfigDto
     public double LLMTemperature { get; set; } = 0.7;
     public int LLMMaxTokens { get; set; } = 2048;
 
+    public string LLMValidatorModelName { get; set; } = "";
+    public string LLMValidatorApiKey { get; set; } = "";
+    public string LLMValidatorBaseUrl { get; set; } = "";
+    public double LLMValidatorTemperature { get; set; } = 0.3;
+    public int LLMValidatorMaxTokens { get; set; } = 4096;
+
     // Embedding
     public string EmbeddingProvider { get; set; } = "";
     public string EmbeddingModelName { get; set; } = "";

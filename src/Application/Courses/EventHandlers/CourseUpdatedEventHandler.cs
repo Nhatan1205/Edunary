@@ -12,15 +12,18 @@ public class CourseUpdatedEventHandler : INotificationHandler<CourseUpdatedEvent
     private readonly ILogger<CourseUpdatedEventHandler> _logger;
     private readonly ISender _sender;
     private readonly ICourseEmbeddingJobService _embeddingJobService;
+    private readonly ICourseCurriculumEmbeddingJobService _curriculumEmbeddingJobService;
 
     public CourseUpdatedEventHandler(
         ILogger<CourseUpdatedEventHandler> logger,
         ISender sender,
-        ICourseEmbeddingJobService embeddingJobService)
+        ICourseEmbeddingJobService embeddingJobService,
+        ICourseCurriculumEmbeddingJobService curriculumEmbeddingJobService)
     {
         _logger = logger;
         _sender = sender;
         _embeddingJobService = embeddingJobService;
+        _curriculumEmbeddingJobService = curriculumEmbeddingJobService;
     }
 
     public async Task Handle(CourseUpdatedEvent entity, CancellationToken cancellationToken)
@@ -38,5 +41,7 @@ public class CourseUpdatedEventHandler : INotificationHandler<CourseUpdatedEvent
         {
             _embeddingJobService.EnqueueCourseEmbedding(entity.Item.Id);
         }
+
+        _curriculumEmbeddingJobService.EnqueueCurriculumEmbedding(entity.Item.Id);
     }
 }

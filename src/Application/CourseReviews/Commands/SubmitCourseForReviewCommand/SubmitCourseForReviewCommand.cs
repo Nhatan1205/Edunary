@@ -3,6 +3,7 @@ using Edunary.Application.Common.Models;
 using Edunary.Domain.Entities;
 using Edunary.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Edunary.Domain.Events.Courses;
 
 using Edunary.Application.Common.Behaviours;
 
@@ -89,6 +90,8 @@ public class SubmitCourseForReviewCommandHandler : IRequestHandler<SubmitCourseF
 
         // 7. Update course status
         course.Status = CourseStatus.PendingReview;
+
+        course.AddDomainEvent(new CourseSubmittedEvent(course));
 
         await _context.SaveChangesAsync(cancellationToken);
 

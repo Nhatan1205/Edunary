@@ -18,6 +18,7 @@ public class CourseUnpublishedEventHandler : INotificationHandler<CourseUnpublis
     private readonly IIdentityService _identityService;
     private readonly AppSettings _appSettings;
     private readonly ICourseEmbeddingJobService _embeddingJobService;
+    private readonly ICourseCurriculumEmbeddingJobService _curriculumEmbeddingJobService;
 
     public CourseUnpublishedEventHandler(
         ILogger<CourseUnpublishedEventHandler> logger,
@@ -25,7 +26,8 @@ public class CourseUnpublishedEventHandler : INotificationHandler<CourseUnpublis
         IEmailService emailService,
         IIdentityService identityService,
         IOptions<AppSettings> appSettings,
-        ICourseEmbeddingJobService embeddingJobService)
+        ICourseEmbeddingJobService embeddingJobService,
+        ICourseCurriculumEmbeddingJobService curriculumEmbeddingJobService)
     {
         _logger = logger;
         _notifyService = notifyService;
@@ -33,7 +35,7 @@ public class CourseUnpublishedEventHandler : INotificationHandler<CourseUnpublis
         _identityService = identityService;
         _appSettings = appSettings.Value;
         _embeddingJobService = embeddingJobService;
-
+        _curriculumEmbeddingJobService = curriculumEmbeddingJobService;
     }
 
     public async Task Handle(CourseUnpublishedEvent notification, CancellationToken cancellationToken)

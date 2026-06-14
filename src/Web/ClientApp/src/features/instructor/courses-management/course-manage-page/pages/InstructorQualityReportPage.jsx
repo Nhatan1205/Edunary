@@ -11,12 +11,18 @@ import {
   LinearProgress,
   Chip,
   Divider,
-  Collapse
+  Collapse,
+  Grid
 } from "@mui/material";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ScheduleIcon from "@mui/icons-material/Schedule";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import PlayCircleOutlinedIcon from "@mui/icons-material/PlayCircleOutlined";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import DOMPurify from "dompurify";
 
 import useGetInstructorQualityReports from "../../../../../hooks/course-review-hooks/useGetInstructorQualityReports";
 import useGetInstructorQualityReportDetail from "../../../../../hooks/course-review-hooks/useGetInstructorQualityReportDetail";
@@ -33,6 +39,43 @@ const SEVERITY_CONFIG = {
   1: { label: "Warning", color: "warning", borderLeft: "4px solid #ff9800" }, // Warning
   2: { label: "Suggestion", color: "info", borderLeft: "4px solid #2196f3" } // Suggestion
 };
+
+// ── Score Color Helpers ──
+const getScoreColor = (val) => {
+  if (val >= 80) return "success.main";
+  if (val >= 50) return "warning.main";
+  return "error.main";
+};
+
+const getLinearColor = (val) => {
+  if (val >= 80) return "success";
+  if (val >= 50) return "warning";
+  return "error";
+};
+
+// ── Category Config ──
+const CATEGORIES = [
+  {
+    key: "LearningObjectives",
+    label: "Learning Objectives",
+    desc: "Course & section objective alignment"
+  },
+  {
+    key: "LandingPage",
+    label: "Landing Page Info",
+    desc: "Metadata, title, requirements & description"
+  },
+  {
+    key: "CourseContent",
+    label: "Curriculum & Lectures",
+    desc: "Lecture content, video captions & quizzes"
+  },
+  {
+    key: "Policy",
+    label: "Policy Compliance",
+    desc: "Pricing, copyright & promotional rules"
+  }
+];
 
 // ── Issue Card component ──
 function IssueCard({ issue }) {
@@ -97,9 +140,19 @@ function IssueCard({ issue }) {
             <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
               Issue Description
             </Typography>
-            <Typography variant="body2" sx={{ color: "text.primary", mt: 0.5, lineHeight: 1.6 }}>
-              {issue.description}
-            </Typography>
+            <Typography
+              variant="body2"
+              component="div"
+              sx={{
+                color: "text.primary",
+                mt: 0.5,
+                lineHeight: 1.6,
+                "& ul": { mt: 0.5, pl: 2.5 },
+                "& li": { mb: 0.25 },
+                "& p": { m: 0 },
+              }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(issue.description) }}
+            />
           </Box>
 
           {issue.suggestion && (
@@ -120,6 +173,8 @@ function IssueCard({ issue }) {
 
 // ── Report History Item ──
 function HistoryReportItem({ item, active, onClick }) {
+  const score = item.overallScore ?? 0;
+
   return (
     <Box
       onClick={onClick}
@@ -153,9 +208,173 @@ function HistoryReportItem({ item, active, onClick }) {
           })}
         </Typography>
       </Box>
-      <Typography variant="caption" sx={{ fontWeight: 600, color: "text.secondary" }}>
-        {item.totalIssues} {item.totalIssues === 1 ? "issue" : "issues"}
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+        <Typography variant="body2" sx={{ fontWeight: 800, color: getScoreColor(score) }}>
+          Score: {Math.round(score)}%
+        </Typography>
+        <Typography variant="caption" sx={{ fontWeight: 600, color: "text.secondary" }}>
+          {item.totalIssues} {item.totalIssues === 1 ? "issue" : "issues"}
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
+
+// ── Instructor Score Overview Card ──
+function InstructorScoreOverview({ report }) {
+  if (!report) return null;
+
+  const score = report.overallScore ?? 0;
+  const categoryScores = report.categoryScores ?? {};
+
+  return (
+    <Box sx={{ mb: 5 }}>
+      <Grid container spacing={{ xs: 3, sm: 4 }} alignItems="stretch">
+        {/* Left Column: Overall Quality Gauge */}
+        <Grid size={{ xs: 12, sm: 4 }} sx={{ display: "flex", flexDirection: "column" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "space-between",
+              height: "100%",
+              textAlign: "center",
+              pt: 0,
+              pb: 0.5
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 700,
+                color: "text.secondary",
+                display: "block",
+                textTransform: "uppercase",
+                letterSpacing: 0.5,
+                mb: 2
+              }}
+            >
+              Overall Quality Score
+            </Typography>
+
+            <Box sx={{ position: "relative", display: "inline-flex", my: { xs: 2, sm: 0 } }}>
+              <CircularProgress
+                variant="determinate"
+                value={100}
+                size={130}
+                thickness={5}
+                sx={{ color: "background.muted" }}
+              />
+              <CircularProgress
+                variant="determinate"
+                value={score}
+                size={130}
+                thickness={5}
+                sx={{
+                  color: getScoreColor(score),
+                  position: "absolute",
+                  left: 0,
+                  strokeLinecap: "round"
+                }}
+              />
+              <Box
+                sx={{
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  right: 0,
+                  position: "absolute",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                <Typography variant="h3" sx={{ fontWeight: 800, color: "text.primary" }}>
+                  {Math.round(score)}%
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Counts breakdown */}
+            <Box sx={{ display: "flex", gap: 1.5, justifyContent: "center", alignItems: "center" }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: "error.main" }}>
+                {report.criticalCount ?? 0} Critical
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>•</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: "warning.main" }}>
+                {report.warningCount ?? 0} Warnings
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>•</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: "info.main" }}>
+                {report.suggestionCount ?? 0} Suggestions
+              </Typography>
+            </Box>
+          </Box>
+        </Grid>
+
+        {/* Right Column: Category Quality Breakdown (2x2 grid of cards, compact, no icons) */}
+        <Grid size={{ xs: 12, sm: 8 }}>
+          <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", mb: 2, display: "block", textTransform: "uppercase", letterSpacing: 0.5 }}>
+            Category Quality Breakdown
+          </Typography>
+
+          <Grid container spacing={2}>
+            {CATEGORIES.map((cat) => {
+              const val = categoryScores[cat.key] ?? 100;
+              const hasIssues = val < 100;
+
+              return (
+                <Grid size={{ xs: 12, sm: 6 }} key={cat.key}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: "background.paper",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: "8px",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between"
+                    }}
+                  >
+                    <Box sx={{ mb: 1.5 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "text.primary", fontSize: "0.88rem" }}>
+                        {cat.label}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "text.secondary", display: "block", fontSize: "0.72rem", mt: 0.25, lineHeight: 1.2 }}>
+                        {cat.desc}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ mt: "auto" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+                        <Typography variant="caption" sx={{ color: hasIssues ? "warning.main" : "success.main", fontWeight: 700, fontSize: "0.72rem" }}>
+                          {hasIssues ? "Review needed" : "Perfect score"}
+                        </Typography>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: `${getLinearColor(val)}.main`, fontSize: "0.82rem" }}>
+                          {Math.round(val)}%
+                        </Typography>
+                      </Box>
+                      <LinearProgress
+                        variant="determinate"
+                        value={val}
+                        color={getLinearColor(val)}
+                        sx={{
+                          height: 4,
+                          borderRadius: "2px",
+                          bgcolor: "background.muted"
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Grid>
+      </Grid>
     </Box>
   );
 }
@@ -402,6 +621,9 @@ export default function InstructorQualityReportPage() {
         </Box>
       ) : reportDetail ? (
         <Box sx={{ mb: 5 }}>
+          {/* Score Overview */}
+          <InstructorScoreOverview report={reportDetail} />
+
           {/* Analysis Summary */}
           {reportDetail.analysisSummary && (
             <AlertBox

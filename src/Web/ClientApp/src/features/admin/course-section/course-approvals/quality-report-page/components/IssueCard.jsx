@@ -4,6 +4,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import InfoIcon from "@mui/icons-material/Info";
 import WarningIcon from "@mui/icons-material/Warning";
 import ErrorIcon from "@mui/icons-material/Error";
+import DOMPurify from "dompurify";
 
 export const CATEGORY_LABELS = {
   0: "Course Content",
@@ -108,17 +109,20 @@ export default function IssueCard({
       {/* Description (Primary Focus - Centered & Bolded) */}
       <Typography
         variant="subtitle1"
+        component="div"
         sx={{
           color: "text.primary",
           fontWeight: 700,
           lineHeight: 1.7,
           fontSize: "1.025rem",
           textDecoration: isDismissed ? "line-through" : "none",
-          mb: 2
+          mb: 2,
+          "& ul": { mt: 0.5, pl: 2.5 },
+          "& li": { mb: 0.25 },
+          "& p": { m: 0 },
         }}
-      >
-        {issue.description}
-      </Typography>
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(issue.description) }}
+      />
 
       {/* Evidence Quote (Subdued & Secondary) */}
       {issue.evidence && (

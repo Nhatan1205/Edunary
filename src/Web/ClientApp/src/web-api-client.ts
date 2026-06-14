@@ -5767,6 +5767,116 @@ export class CoursesClient {
     }
 }
 
+export class CurriculumEmbeddingsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    batchEmbedCurriculum(): Promise<void> {
+        let url_ = this.baseUrl + "/api/CurriculumEmbeddings/batch-embed";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processBatchEmbedCurriculum(_response);
+        });
+    }
+
+    protected processBatchEmbedCurriculum(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    embedSingleCurriculum(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CurriculumEmbeddings/{id}/embed";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processEmbedSingleCurriculum(_response);
+        });
+    }
+
+    protected processEmbedSingleCurriculum(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteSingleCurriculum(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/CurriculumEmbeddings/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteSingleCurriculum(_response);
+        });
+    }
+
+    protected processDeleteSingleCurriculum(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class DirectMessagesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -18456,6 +18566,7 @@ export class InstructorQualityReportSummaryDto implements IInstructorQualityRepo
     totalIssues?: number;
     created?: Date;
     createdBy?: string | undefined;
+    overallScore?: number;
     isLatest?: boolean;
     nextRunAvailableAt?: Date | undefined;
 
@@ -18476,6 +18587,7 @@ export class InstructorQualityReportSummaryDto implements IInstructorQualityRepo
             this.totalIssues = _data["totalIssues"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
+            this.overallScore = _data["overallScore"];
             this.isLatest = _data["isLatest"];
             this.nextRunAvailableAt = _data["nextRunAvailableAt"] ? new Date(_data["nextRunAvailableAt"].toString()) : <any>undefined;
         }
@@ -18496,6 +18608,7 @@ export class InstructorQualityReportSummaryDto implements IInstructorQualityRepo
         data["totalIssues"] = this.totalIssues;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
+        data["overallScore"] = this.overallScore;
         data["isLatest"] = this.isLatest;
         data["nextRunAvailableAt"] = this.nextRunAvailableAt ? this.nextRunAvailableAt.toISOString() : <any>undefined;
         return data;
@@ -18509,6 +18622,7 @@ export interface IInstructorQualityReportSummaryDto {
     totalIssues?: number;
     created?: Date;
     createdBy?: string | undefined;
+    overallScore?: number;
     isLatest?: boolean;
     nextRunAvailableAt?: Date | undefined;
 }
@@ -18522,9 +18636,14 @@ export enum QualityCheckStatus {
 export class InstructorQualityReportDetailDto implements IInstructorQualityReportDetailDto {
     id?: number;
     courseId?: number;
+    overallScore?: number;
+    categoryScores?: { [key: string]: number; } | undefined;
     status?: QualityCheckStatus;
     analysisSummary?: string | undefined;
     totalIssues?: number;
+    criticalCount?: number;
+    warningCount?: number;
+    suggestionCount?: number;
     isLatest?: boolean;
     created?: Date;
     createdBy?: string | undefined;
@@ -18543,9 +18662,20 @@ export class InstructorQualityReportDetailDto implements IInstructorQualityRepor
         if (_data) {
             this.id = _data["id"];
             this.courseId = _data["courseId"];
+            this.overallScore = _data["overallScore"];
+            if (_data["categoryScores"]) {
+                this.categoryScores = {} as any;
+                for (let key in _data["categoryScores"]) {
+                    if (_data["categoryScores"].hasOwnProperty(key))
+                        (<any>this.categoryScores)![key] = _data["categoryScores"][key];
+                }
+            }
             this.status = _data["status"];
             this.analysisSummary = _data["analysisSummary"];
             this.totalIssues = _data["totalIssues"];
+            this.criticalCount = _data["criticalCount"];
+            this.warningCount = _data["warningCount"];
+            this.suggestionCount = _data["suggestionCount"];
             this.isLatest = _data["isLatest"];
             this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
@@ -18568,9 +18698,20 @@ export class InstructorQualityReportDetailDto implements IInstructorQualityRepor
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["courseId"] = this.courseId;
+        data["overallScore"] = this.overallScore;
+        if (this.categoryScores) {
+            data["categoryScores"] = {};
+            for (let key in this.categoryScores) {
+                if (this.categoryScores.hasOwnProperty(key))
+                    (<any>data["categoryScores"])[key] = (<any>this.categoryScores)[key];
+            }
+        }
         data["status"] = this.status;
         data["analysisSummary"] = this.analysisSummary;
         data["totalIssues"] = this.totalIssues;
+        data["criticalCount"] = this.criticalCount;
+        data["warningCount"] = this.warningCount;
+        data["suggestionCount"] = this.suggestionCount;
         data["isLatest"] = this.isLatest;
         data["created"] = this.created ? this.created.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
@@ -18586,9 +18727,14 @@ export class InstructorQualityReportDetailDto implements IInstructorQualityRepor
 export interface IInstructorQualityReportDetailDto {
     id?: number;
     courseId?: number;
+    overallScore?: number;
+    categoryScores?: { [key: string]: number; } | undefined;
     status?: QualityCheckStatus;
     analysisSummary?: string | undefined;
     totalIssues?: number;
+    criticalCount?: number;
+    warningCount?: number;
+    suggestionCount?: number;
     isLatest?: boolean;
     created?: Date;
     createdBy?: string | undefined;

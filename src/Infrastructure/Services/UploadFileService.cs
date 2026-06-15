@@ -259,16 +259,16 @@ public class UploadFileService : IUploadFileService
         try
         {
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            cts.CancelAfter(TimeSpan.FromSeconds(10));
             var (s3Client, settings) = await GetS3ClientAsync();
-            await s3Client.ListObjectsV2Async(
-                new ListObjectsV2Request { BucketName = settings.SpaceName, MaxKeys = 1 },
-                cts.Token);
+            if (string.IsNullOrWhiteSpace(settings.Endpoint) || string.IsNullOrWhiteSpace(settings.SpaceName))
+                return (false, "DigitalOcean Spaces endpoint or space name is not configured");
+            await s3Client.ListBucketsAsync(cts.Token);
             return (true, null);
         }
         catch (Exception ex)
         {
-            return (false, ex.Message);
+            return (false, $"[{ex.GetType().Name}] {ex.Message}");
         }
     }
 

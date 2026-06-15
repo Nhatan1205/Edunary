@@ -193,12 +193,12 @@ function CourseLearnSidebar({ onClose }) {
           px: 1,
         }}
       >
-        <Box sx={{ flex: 1, display: "flex", gap: 0.5 }}>
+        <Box sx={{ flex: 1, display: "flex", gap: 0.5, minWidth: 0 }}>
           <Button
             onClick={() => setActiveTab("content")}
             sx={{
               py: 2,
-              px: 2.5,
+              px: 1.5,
               minWidth: 0,
               borderRadius: 0,
               textTransform: "none",
@@ -207,6 +207,8 @@ function CourseLearnSidebar({ onClose }) {
               color: activeTab === "content" ? "text.primary" : "text.secondary",
               borderBottom: "2px solid",
               borderBottomColor: activeTab === "content" ? "brand.main" : "transparent",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
               "&:hover": { bgcolor: "transparent" },
             }}
           >
@@ -217,7 +219,7 @@ function CourseLearnSidebar({ onClose }) {
             startIcon={<AutoAwesomeIcon sx={{ color: activeTab === "ai" ? "brand.main" : "text.secondary", fontSize: 16 }} />}
             sx={{
               py: 2,
-              px: 2.5,
+              px: 1.5,
               minWidth: 0,
               borderRadius: 0,
               textTransform: "none",
@@ -226,6 +228,8 @@ function CourseLearnSidebar({ onClose }) {
               color: activeTab === "ai" ? "text.primary" : "text.secondary",
               borderBottom: "2px solid",
               borderBottomColor: activeTab === "ai" ? "brand.main" : "transparent",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
               "&:hover": { bgcolor: "transparent" },
             }}
           >

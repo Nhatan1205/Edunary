@@ -61,3 +61,12 @@ code {
   overflow-wrap: break-word !important;
   word-break: break-word !important;
 }
+
+.streaming-cursor {
+  animation: blink 0.7s infinite;
+  color: #00A76F;
+}
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}

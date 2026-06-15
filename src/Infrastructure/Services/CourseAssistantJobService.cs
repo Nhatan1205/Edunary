@@ -140,16 +140,8 @@ public class CourseAssistantJobService : ICourseAssistantJobService
                 ? sourcesProp.EnumerateArray().Select(s => s.GetString() ?? "").ToList()
                 : new List<string>();
 
-            // 6. Push response via SignalR
-            await _hub.SendAsync($"CourseAssistant.Reply:{userId}", new
-            {
-                success = true,
-                courseId,
-                contentId,
-                reply,
-                messageType,
-                sources
-            });
+            // 6. Stream response via SignalR (word-by-word)
+            await StreamReplyAsync(userId, courseId, contentId, reply, sources, messageType);
         }
         catch (Exception ex)
         {
@@ -158,9 +150,51 @@ public class CourseAssistantJobService : ICourseAssistantJobService
         }
     }
 
-    private Task SendFailureAsync(string userId, int courseId, string contentId, string errorMessage)
+    private async Task StreamReplyAsync(
+        string userId,
+        int courseId,
+        string contentId,
+        string reply,
+        List<string> sources,
+        string messageType)
     {
-        return _hub.SendAsync($"CourseAssistant.Reply:{userId}", new
+        var eventPrefix = "CourseAssistant";
+
+        // stream_start
+        await _hub.SendAsync($"{eventPrefix}.StreamStart:{userId}", new
+        {
+            courseId,
+            contentId
+        });
+
+        // stream_chunk — word by word
+        var words = reply.Split(' ');
+        for (int i = 0; i < words.Length; i++)
+        {
+            var chunk = words[i] + (i < words.Length - 1 ? " " : "");
+            await _hub.SendAsync($"{eventPrefix}.StreamChunk:{userId}", new
+            {
+                courseId,
+                content = chunk
+            });
+            await Task.Delay(20); // 20ms per word
+        }
+
+        // stream_end — full payload for persistence/sources
+        await _hub.SendAsync($"{eventPrefix}.StreamEnd:{userId}", new
+        {
+            success = true,
+            courseId,
+            contentId,
+            reply,
+            messageType,
+            sources
+        });
+    }
+
+    private async Task SendFailureAsync(string userId, int courseId, string contentId, string errorMessage)
+    {
+        await _hub.SendAsync($"CourseAssistant.StreamEnd:{userId}", new
         {
             success = false,
             courseId,

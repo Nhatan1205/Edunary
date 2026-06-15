@@ -40,45 +40,73 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
     }
   }, [historyData]);
 
-  // Listen for SignalR replies
+  // Listen for SignalR replies (streaming)
   useEffect(() => {
     if (!userId) return;
 
-    const cleanup = on(`CourseAssistant.Reply:${userId}`, (data) => {
-      if (data && Number(data.courseId) === Number(courseId)) {
-        setLocalMessages(prev => {
-          const newMsgs = [...prev];
-          let lastIdx = -1;
-          for (let i = newMsgs.length - 1; i >= 0; i--) {
-            if (newMsgs[i].role === "assistant" && newMsgs[i].isLoading) {
-              lastIdx = i;
-              break;
-            }
-          }
-          if (lastIdx !== -1) {
-            newMsgs[lastIdx] = {
-              ...newMsgs[lastIdx],
-              id: data.id || `ai-${Date.now()}`,
-              content: data.reply || data.message || "An error occurred.",
-              sources: data.sources || null,
+    const cleanupStart = on(`CourseAssistant.StreamStart:${userId}`, (data) => {
+      if (Number(data.courseId) !== Number(courseId)) return;
+      setLocalMessages(prev => {
+        const newMsgs = [...prev];
+        for (let i = newMsgs.length - 1; i >= 0; i--) {
+          if (newMsgs[i].role === "assistant" && newMsgs[i].isLoading) {
+            newMsgs[i] = {
+              ...newMsgs[i],
               isLoading: false,
-              isError: !data.success
+              isStreaming: true,
+              content: ""
             };
-          } else {
-            newMsgs.push({
-              id: data.id || `ai-${Date.now()}`,
-              role: "assistant",
-              content: data.reply || data.message || "An error occurred.",
-              sources: data.sources || null,
-              createdAt: new Date().toISOString()
-            });
+            break;
           }
-          return newMsgs;
-        });
-      }
+        }
+        return newMsgs;
+      });
     });
 
-    return cleanup;
+    const cleanupChunk = on(`CourseAssistant.StreamChunk:${userId}`, (data) => {
+      if (Number(data.courseId) !== Number(courseId)) return;
+      setLocalMessages(prev => {
+        const newMsgs = [...prev];
+        for (let i = newMsgs.length - 1; i >= 0; i--) {
+          if (newMsgs[i].role === "assistant" && newMsgs[i].isStreaming) {
+            newMsgs[i] = {
+              ...newMsgs[i],
+              content: newMsgs[i].content + data.content
+            };
+            break;
+          }
+        }
+        return newMsgs;
+      });
+    });
+
+    const cleanupEnd = on(`CourseAssistant.StreamEnd:${userId}`, (data) => {
+      if (Number(data.courseId) !== Number(courseId)) return;
+      setLocalMessages(prev => {
+        const newMsgs = [...prev];
+        for (let i = newMsgs.length - 1; i >= 0; i--) {
+          if (newMsgs[i].role === "assistant" && (newMsgs[i].isStreaming || newMsgs[i].isLoading)) {
+            newMsgs[i] = {
+              ...newMsgs[i],
+              id: data.id || `ai-${Date.now()}`,
+              content: data.reply || data.message || newMsgs[i].content,
+              sources: data.sources || null,
+              isLoading: false,
+              isStreaming: false,
+              isError: !data.success
+            };
+            break;
+          }
+        }
+        return newMsgs;
+      });
+    });
+
+    return () => {
+      cleanupStart();
+      cleanupChunk();
+      cleanupEnd();
+    };
   }, [userId, on, courseId]);
 
   // Safe container-only scrolling (fixes parent/sibling scroll bug)
@@ -156,38 +184,7 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
     }
   };
 
-  // Group messages helper
-  const groupMessagesByDate = (msgList) => {
-    const groups = {};
-    msgList.forEach((msg) => {
-      let dateStr = "Today";
-      if (msg.createdAt) {
-        try {
-          const date = new Date(msg.createdAt);
-          dateStr = date.toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "short",
-            day: "numeric",
-          });
-        } catch {
-          dateStr = "Recent";
-        }
-      }
-      if (!groups[dateStr]) {
-        groups[dateStr] = [];
-      }
-      groups[dateStr].push(msg);
-    });
-    return groups;
-  };
-
-  const renderMessageContent = (content) => {
-    if (!content) return { __html: "" };
-    let html = content
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.*?)\*/g, "<em>$1</em>");
-    return { __html: DOMPurify.sanitize(html) };
-  };
+  /* Pure helpers moved to module scope at bottom of file */
 
   const groupedMessages = groupMessagesByDate(localMessages);
 
@@ -277,7 +274,7 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
                       >
                         <Typography 
                           variant="body2" 
-                          dangerouslySetInnerHTML={renderMessageContent(msg.content)}
+                          dangerouslySetInnerHTML={formatMessageContent(msg.content)}
                           sx={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", color: "inherit", lineHeight: 1.5 }} 
                         />
                       </Box>
@@ -307,7 +304,15 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
                             boxShadow: "0 1px 4px rgba(15, 43, 42, 0.08)"
                           }}
                         >
-                          {msg.isLoading ? (
+                          {msg.isStreaming ? (
+                            <Typography 
+                              variant="body2" 
+                              sx={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", lineHeight: 1.5 }}
+                            >
+                              <span dangerouslySetInnerHTML={formatMessageContent(msg.content)} />
+                              <span className="streaming-cursor">▌</span>
+                            </Typography>
+                          ) : msg.isLoading ? (
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                               <CircularProgress size={12} color="primary" />
                               <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", fontSize: "0.85rem" }}>
@@ -317,7 +322,7 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
                           ) : (
                             <Typography 
                               variant="body2" 
-                              dangerouslySetInnerHTML={renderMessageContent(msg.content)}
+                              dangerouslySetInnerHTML={formatMessageContent(msg.content)}
                               sx={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", lineHeight: 1.5 }} 
                             />
                           )}
@@ -391,5 +396,37 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
     </Box>
   );
 }
+
+const groupMessagesByDate = (msgList) => {
+  const groups = {};
+  msgList.forEach((msg) => {
+    let dateStr = "Today";
+    if (msg.createdAt) {
+      try {
+        const date = new Date(msg.createdAt);
+        dateStr = date.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        });
+      } catch {
+        dateStr = "Recent";
+      }
+    }
+    if (!groups[dateStr]) {
+      groups[dateStr] = [];
+    }
+    groups[dateStr].push(msg);
+  });
+  return groups;
+};
+
+const formatMessageContent = (content) => {
+  if (!content) return { __html: "" };
+  let html = content
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>");
+  return { __html: DOMPurify.sanitize(html) };
+};
 
 export default CourseAssistantTab;

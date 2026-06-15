@@ -272,10 +272,10 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
                           boxShadow: "0 2px 8px rgba(0, 167, 111, 0.2)"
                         }}
                       >
-                        <Typography 
-                          variant="body2" 
+                        <Typography
+                          variant="body2"
                           dangerouslySetInnerHTML={formatMessageContent(msg.content)}
-                          sx={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", color: "inherit", lineHeight: 1.5 }} 
+                          sx={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", color: "inherit", lineHeight: 1.5 }}
                         />
                       </Box>
                     </Box>
@@ -295,6 +295,7 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
                         <Box
                           sx={{
                             maxWidth: "85%",
+                            width: "fit-content",
                             bgcolor: "#F4F7F6", // bot background from chat.css
                             color: "#0F2B2A",
                             border: "1px solid #EFF7F6",
@@ -305,25 +306,24 @@ function CourseAssistantTab({ courseId, contentId, courseContents }) {
                           }}
                         >
                           {msg.isStreaming ? (
-                            <Typography 
-                              variant="body2" 
+                            <Typography
+                              variant="body2"
                               sx={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", lineHeight: 1.5 }}
                             >
                               <span dangerouslySetInnerHTML={formatMessageContent(msg.content)} />
                               <span className="streaming-cursor">▌</span>
                             </Typography>
                           ) : msg.isLoading ? (
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <CircularProgress size={12} color="primary" />
-                              <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", fontSize: "0.85rem" }}>
-                                AI is writing...
-                              </Typography>
+                            <Box className="typing-indicator" sx={{ py: 0.5 }}>
+                              <Box className="typing-dot" />
+                              <Box className="typing-dot" />
+                              <Box className="typing-dot" />
                             </Box>
                           ) : (
-                            <Typography 
-                              variant="body2" 
+                            <Typography
+                              variant="body2"
                               dangerouslySetInnerHTML={formatMessageContent(msg.content)}
-                              sx={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", lineHeight: 1.5 }} 
+                              sx={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", lineHeight: 1.5 }}
                             />
                           )}
                         </Box>

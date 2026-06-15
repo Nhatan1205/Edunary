@@ -3004,6 +3004,138 @@ export class CourseAnswersClient {
     }
 }
 
+export class CourseAssistantsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    sendCourseAssistantMessage(command: SendCourseAssistantMessageCommand | undefined): Promise<ReturnResultOfCourseAssistantReplyDto> {
+        let url_ = this.baseUrl + "/api/CourseAssistants";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSendCourseAssistantMessage(_response);
+        });
+    }
+
+    protected processSendCourseAssistantMessage(response: Response): Promise<ReturnResultOfCourseAssistantReplyDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCourseAssistantReplyDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCourseAssistantReplyDto>(null as any);
+    }
+
+    getHistory(courseId: number, cursor: string | null | undefined, pageSize: number): Promise<ReturnResultOfCourseAssistantHistoryDto> {
+        let url_ = this.baseUrl + "/api/CourseAssistants/{courseId}?";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        if (cursor !== undefined && cursor !== null)
+            url_ += "Cursor=" + encodeURIComponent("" + cursor) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetHistory(_response);
+        });
+    }
+
+    protected processGetHistory(response: Response): Promise<ReturnResultOfCourseAssistantHistoryDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReturnResultOfCourseAssistantHistoryDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReturnResultOfCourseAssistantHistoryDto>(null as any);
+    }
+
+    clearHistory(courseId: number): Promise<Result> {
+        let url_ = this.baseUrl + "/api/CourseAssistants/{courseId}";
+        if (courseId === undefined || courseId === null)
+            throw new Error("The parameter 'courseId' must be defined.");
+        url_ = url_.replace("{courseId}", encodeURIComponent("" + courseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processClearHistory(_response);
+        });
+    }
+
+    protected processClearHistory(response: Response): Promise<Result> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Result.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Result>(null as any);
+    }
+}
+
 export class CourseCollaboratorsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -16331,6 +16463,310 @@ export class UpdateCourseAnswerCommand implements IUpdateCourseAnswerCommand {
 export interface IUpdateCourseAnswerCommand {
     answerId?: number;
     body?: string | undefined;
+}
+
+export class ReturnResultOfCourseAssistantReplyDto implements IReturnResultOfCourseAssistantReplyDto {
+    result?: CourseAssistantReplyDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCourseAssistantReplyDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CourseAssistantReplyDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCourseAssistantReplyDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCourseAssistantReplyDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCourseAssistantReplyDto {
+    result?: CourseAssistantReplyDto | undefined;
+    message?: string | undefined;
+}
+
+export class CourseAssistantReplyDto implements ICourseAssistantReplyDto {
+    reply?: string | undefined;
+    messageType?: string | undefined;
+    sources?: string[] | undefined;
+
+    constructor(data?: ICourseAssistantReplyDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.reply = _data["reply"];
+            this.messageType = _data["messageType"];
+            if (Array.isArray(_data["sources"])) {
+                this.sources = [] as any;
+                for (let item of _data["sources"])
+                    this.sources!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CourseAssistantReplyDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseAssistantReplyDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["reply"] = this.reply;
+        data["messageType"] = this.messageType;
+        if (Array.isArray(this.sources)) {
+            data["sources"] = [];
+            for (let item of this.sources)
+                data["sources"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICourseAssistantReplyDto {
+    reply?: string | undefined;
+    messageType?: string | undefined;
+    sources?: string[] | undefined;
+}
+
+export class SendCourseAssistantMessageCommand implements ISendCourseAssistantMessageCommand {
+    courseId?: number;
+    contentId?: string | undefined;
+    contentType?: string | undefined;
+    mediaType?: string | undefined;
+    contentTitle?: string | undefined;
+    message?: string | undefined;
+
+    constructor(data?: ISendCourseAssistantMessageCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courseId = _data["courseId"];
+            this.contentId = _data["contentId"];
+            this.contentType = _data["contentType"];
+            this.mediaType = _data["mediaType"];
+            this.contentTitle = _data["contentTitle"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): SendCourseAssistantMessageCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SendCourseAssistantMessageCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courseId"] = this.courseId;
+        data["contentId"] = this.contentId;
+        data["contentType"] = this.contentType;
+        data["mediaType"] = this.mediaType;
+        data["contentTitle"] = this.contentTitle;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface ISendCourseAssistantMessageCommand {
+    courseId?: number;
+    contentId?: string | undefined;
+    contentType?: string | undefined;
+    mediaType?: string | undefined;
+    contentTitle?: string | undefined;
+    message?: string | undefined;
+}
+
+export class ReturnResultOfCourseAssistantHistoryDto implements IReturnResultOfCourseAssistantHistoryDto {
+    result?: CourseAssistantHistoryDto | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IReturnResultOfCourseAssistantHistoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.result = _data["result"] ? CourseAssistantHistoryDto.fromJS(_data["result"]) : <any>undefined;
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ReturnResultOfCourseAssistantHistoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReturnResultOfCourseAssistantHistoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["result"] = this.result ? this.result.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IReturnResultOfCourseAssistantHistoryDto {
+    result?: CourseAssistantHistoryDto | undefined;
+    message?: string | undefined;
+}
+
+export class CourseAssistantHistoryDto implements ICourseAssistantHistoryDto {
+    items?: CourseAssistantMessageDto[] | undefined;
+    hasMore?: boolean;
+
+    constructor(data?: ICourseAssistantHistoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CourseAssistantMessageDto.fromJS(item));
+            }
+            this.hasMore = _data["hasMore"];
+        }
+    }
+
+    static fromJS(data: any): CourseAssistantHistoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseAssistantHistoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["hasMore"] = this.hasMore;
+        return data;
+    }
+}
+
+export interface ICourseAssistantHistoryDto {
+    items?: CourseAssistantMessageDto[] | undefined;
+    hasMore?: boolean;
+}
+
+export class CourseAssistantMessageDto implements ICourseAssistantMessageDto {
+    id?: string | undefined;
+    role?: string | undefined;
+    content?: string | undefined;
+    contentId?: string | undefined;
+    contentType?: string | undefined;
+    sources?: string[] | undefined;
+    createdAt?: string | undefined;
+
+    constructor(data?: ICourseAssistantMessageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.role = _data["role"];
+            this.content = _data["content"];
+            this.contentId = _data["contentId"];
+            this.contentType = _data["contentType"];
+            if (Array.isArray(_data["sources"])) {
+                this.sources = [] as any;
+                for (let item of _data["sources"])
+                    this.sources!.push(item);
+            }
+            this.createdAt = _data["createdAt"];
+        }
+    }
+
+    static fromJS(data: any): CourseAssistantMessageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseAssistantMessageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["role"] = this.role;
+        data["content"] = this.content;
+        data["contentId"] = this.contentId;
+        data["contentType"] = this.contentType;
+        if (Array.isArray(this.sources)) {
+            data["sources"] = [];
+            for (let item of this.sources)
+                data["sources"].push(item);
+        }
+        data["createdAt"] = this.createdAt;
+        return data;
+    }
+}
+
+export interface ICourseAssistantMessageDto {
+    id?: string | undefined;
+    role?: string | undefined;
+    content?: string | undefined;
+    contentId?: string | undefined;
+    contentType?: string | undefined;
+    sources?: string[] | undefined;
+    createdAt?: string | undefined;
 }
 
 export class CollaboratorDto implements ICollaboratorDto {

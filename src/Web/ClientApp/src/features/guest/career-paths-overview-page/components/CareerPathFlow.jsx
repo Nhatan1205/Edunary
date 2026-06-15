@@ -4,6 +4,7 @@ import {
     Handle,
     Position,
     Controls,
+    MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Box, Typography } from '@mui/material';
@@ -40,6 +41,19 @@ function CourseFlowNode({ data }) {
 }
 
 const nodeTypes = { courseNode: CourseFlowNode };
+
+const defaultEdgeOptions = {
+    style: {
+        stroke: theme.palette.brand.main,
+        strokeWidth: 3,
+    },
+    markerEnd: {
+        type: MarkerType.ArrowClosed,
+        color: theme.palette.brand.main,
+        width: 15,
+        height: 15,
+    },
+};
 
 const NODE_H = 380; // approximate height of a single CourseNode card
 
@@ -82,6 +96,7 @@ export default function CareerPathFlow({ nodes, edges }) {
                     nodes={nodes}
                     edges={edges}
                     nodeTypes={nodeTypes}
+                    defaultEdgeOptions={defaultEdgeOptions}
                     preventScrolling={false}
                     zoomOnScroll={false}
                     zoomOnPinch={false}

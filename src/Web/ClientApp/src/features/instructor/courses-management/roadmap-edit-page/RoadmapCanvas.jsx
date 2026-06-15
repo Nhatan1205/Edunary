@@ -11,6 +11,7 @@ import {
     Handle,
     Position,
     useReactFlow,
+    MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Box, IconButton, Tooltip } from "@mui/material";
@@ -86,7 +87,13 @@ function CourseFlowNode({ data }) {
 const nodeTypes = { courseNode: CourseFlowNode };
 
 const defaultEdgeOptions = {
-    style: { stroke: theme.palette.brand.main, strokeWidth: 2 },
+    style: { stroke: theme.palette.brand.main, strokeWidth: 3 },
+    markerEnd: {
+        type: MarkerType.ArrowClosed,
+        color: theme.palette.brand.main,
+        width: 15,
+        height: 15,
+    },
 };
 
 export default function RoadmapCanvas() {

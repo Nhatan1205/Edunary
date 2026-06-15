@@ -7,6 +7,8 @@ import {
   Menu,
   MenuItem,
   Collapse,
+  Avatar,
+  CircularProgress
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -17,10 +19,12 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useParams, useNavigate } from "react-router-dom";
 import useGetLearningSidebar from "../../../../hooks/course-progress-hooks/useGetLearningSidebar";
 import useUpdateCompleteCP from "../../../../hooks/course-progress-hooks/useUpdateCompleteCP";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
+import CourseAssistantTab from "./CourseAssistantTab";
 import { useState, useEffect } from "react";
 
 function CourseLearnSidebar({ onClose }) {
@@ -32,6 +36,9 @@ function CourseLearnSidebar({ onClose }) {
   const [expandedSections, setExpandedSections] = useState({});
   const [resourceMenuAnchor, setResourceMenuAnchor] = useState(null);
   const [currentResources, setCurrentResources] = useState([]);
+
+  // Tabs state
+  const [activeTab, setActiveTab] = useState("content"); // "content" | "ai"
 
   useEffect(() => {
     if (courseProgressData && courseProgressData.progress) {
@@ -57,7 +64,6 @@ function CourseLearnSidebar({ onClose }) {
       }
     }
   }, [courseProgressData, contentId]);
-
 
   const handleCheckboxChange = async (event, sectionId, itemId, currentStatus) => {
     event.stopPropagation();
@@ -137,10 +143,8 @@ function CourseLearnSidebar({ onClose }) {
 
         let seconds = 0;
         if (parts.length === 3) {
-          // HH:MM:SS
           seconds = (parts[0] * 3600) + (parts[1] * 60) + parts[2];
         } else if (parts.length === 2) {
-          // MM:SS
           seconds = (parts[0] * 60) + parts[1];
         } else if (parts.length === 1) {
           seconds = parts[0];
@@ -178,160 +182,209 @@ function CourseLearnSidebar({ onClose }) {
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
 
+      {/* Tabs Header */}
       <Box
         sx={{
-          p: 2,
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
           bgcolor: "background.paper",
           borderBottom: 1,
-          borderColor: "divider"
+          borderColor: "divider",
+          px: 1,
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.1rem", color: "text.primary" }}>
-          Course content
-        </Typography>
+        <Box sx={{ flex: 1, display: "flex", gap: 0.5, minWidth: 0 }}>
+          <Button
+            onClick={() => setActiveTab("content")}
+            sx={{
+              py: 2,
+              px: 1.5,
+              minWidth: 0,
+              borderRadius: 0,
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              color: activeTab === "content" ? "text.primary" : "text.secondary",
+              borderBottom: "2px solid",
+              borderBottomColor: activeTab === "content" ? "brand.main" : "transparent",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              "&:hover": { bgcolor: "transparent" },
+            }}
+          >
+            Course content
+          </Button>
+          <Button
+            onClick={() => setActiveTab("ai")}
+            startIcon={<AutoAwesomeIcon sx={{ color: activeTab === "ai" ? "brand.main" : "text.secondary", fontSize: 16 }} />}
+            sx={{
+              py: 2,
+              px: 1.5,
+              minWidth: 0,
+              borderRadius: 0,
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              color: activeTab === "ai" ? "text.primary" : "text.secondary",
+              borderBottom: "2px solid",
+              borderBottomColor: activeTab === "ai" ? "brand.main" : "transparent",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              "&:hover": { bgcolor: "transparent" },
+            }}
+          >
+            AI Assistant
+          </Button>
+        </Box>
 
-        <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
+        <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary", mr: 1 }}>
           <CloseIcon />
         </IconButton>
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto" }}>
-        {courseContents.map((section, sectionIndex) => {
-          const { completedItems, totalItems, durationStr } = calculateSectionStats(section);
-          const isExpanded = expandedSections[section.sectionId];
-          const sectionStartIndex = courseContents.slice(0, sectionIndex).reduce((sum, s) => sum + (s.items?.length || 0), 0);
+      {/* Tab Panels */}
+      {activeTab === "content" ? (
+        <Box sx={{ flex: 1, overflowY: "auto" }}>
+          {courseContents.map((section, sectionIndex) => {
+            const { completedItems, totalItems, durationStr } = calculateSectionStats(section);
+            const isExpanded = expandedSections[section.sectionId];
+            const sectionStartIndex = courseContents.slice(0, sectionIndex).reduce((sum, s) => sum + (s.items?.length || 0), 0);
 
-          return (
-            <Box key={section.sectionId} sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <Box
-                onClick={() => handleSectionToggle(section.sectionId)}
-                sx={{
-                  p: 2,
-                  cursor: "pointer",
-                  bgcolor: "background.paper",
-                  "&:hover": { bgcolor: "background.alt" },
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start"
-                }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body1" sx={{ fontWeight: 600, color: "text.primary", mb: 0.5 }}>
-                    Section {sectionIndex + 1}: {section.title}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: "text.tertiary" }}>
-                    {completedItems} / {totalItems} | {durationStr}
-                  </Typography>
+            return (
+              <Box key={section.sectionId} sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <Box
+                  onClick={() => handleSectionToggle(section.sectionId)}
+                  sx={{
+                    p: 2,
+                    cursor: "pointer",
+                    bgcolor: "background.paper",
+                    "&:hover": { bgcolor: "background.alt" },
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start"
+                  }}
+                >
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: "text.primary", mb: 0.5 }}>
+                      Section {sectionIndex + 1}: {section.title}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "text.tertiary" }}>
+                      {completedItems} / {totalItems} | {durationStr}
+                    </Typography>
+                  </Box>
+                  <IconButton size="small" sx={{
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s'
+                  }}>
+                    <ExpandMoreIcon />
+                  </IconButton>
                 </Box>
-                <IconButton size="small" sx={{
-                  transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.3s'
-                }}>
-                  <ExpandMoreIcon />
-                </IconButton>
-              </Box>
 
-              <Collapse in={isExpanded}>
-                <Box sx={{ bgcolor: "background.surface" }}>
-                  {section.items.map((item, itemIndex) => (
-                    <Box
-                      key={item.itemId}
-                      onClick={() => handleItemClick(item)}
-                      sx={{ cursor: "pointer" }}
-                    >
+                <Collapse in={isExpanded}>
+                  <Box sx={{ bgcolor: "background.surface" }}>
+                    {section.items.map((item, itemIndex) => (
                       <Box
-                        sx={{
-                          p: 2,
-                          pl: 3,
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: 1.5,
-                          bgcolor: item.itemId === contentId
-                            ? "#effcf9ff"
-                            : item.isCompleted
-                              ? "background.muted"
-                              : "background.paper",
-                          "&:hover": {
-                            bgcolor: item.itemId === contentId
-                              ? "brand.lighter"
-                              : "background.alt"
-                          },
-                          borderBottom: itemIndex < section.items.length - 1 ? 1 : 0,
-                          borderColor: "divider",
-                          borderLeft: item.itemId === contentId ? "4px solid" : "4px solid transparent",
-                          borderLeftColor: item.itemId === contentId ? "brand.main" : "transparent",
-                          transition: "all 0.2s"
-                        }}
+                        key={item.itemId}
+                        onClick={() => handleItemClick(item)}
+                        sx={{ cursor: "pointer" }}
                       >
-                        <Checkbox
-                          checked={item.isCompleted || false}
-                          onClick={(e) => handleCheckboxChange(e, section.sectionId, item.itemId, item.isCompleted)}
+                        <Box
                           sx={{
-                            color: "text.disabled",
-                            p: 0,
-                            '&.Mui-checked': {
-                              color: "brand.main"
-                            }
+                            p: 2,
+                            pl: 3,
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 1.5,
+                            bgcolor: item.itemId === contentId
+                              ? "#effcf9ff"
+                              : item.isCompleted
+                                ? "background.muted"
+                                : "background.paper",
+                            "&:hover": {
+                              bgcolor: item.itemId === contentId
+                                ? "brand.lighter"
+                                : "background.alt"
+                            },
+                            borderBottom: itemIndex < section.items.length - 1 ? 1 : 0,
+                            borderColor: "divider",
+                            borderLeft: item.itemId === contentId ? "4px solid" : "4px solid transparent",
+                            borderLeftColor: item.itemId === contentId ? "brand.main" : "transparent",
+                            transition: "all 0.2s"
                           }}
-                        />
+                        >
+                          <Checkbox
+                            checked={item.isCompleted || false}
+                            onClick={(e) => handleCheckboxChange(e, section.sectionId, item.itemId, item.isCompleted)}
+                            sx={{
+                              color: "text.disabled",
+                              p: 0,
+                              '&.Mui-checked': {
+                                color: "brand.main"
+                              }
+                            }}
+                          />
 
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                            {getItemIcon(item)}
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                fontWeight: 500,
-                                color: "text.primary",
-                              }}
-                            >
-                              {sectionStartIndex + itemIndex + 1}. {item.title}
-                            </Typography>
-                          </Box>
-
-                          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-                            <Box>
-                              {(item.videoDuration && item.contentType === 'video') && (
-                                <Typography variant="caption" sx={{ color: "text.tertiary" }}>
-                                  {item.videoDuration}
-                                </Typography>
-                              )}
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                              {getItemIcon(item)}
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontWeight: 500,
+                                  color: "text.primary",
+                                }}
+                              >
+                                {sectionStartIndex + itemIndex + 1}. {item.title}
+                              </Typography>
                             </Box>
 
-                            <Box>
-                              {item.resources && item.resources.length > 0 && (
-                                <Button
-                                  size="small"
-                                  onClick={(e) => handleResourceClick(e, item.resources)}
-                                  startIcon={<FolderOpenOutlinedIcon sx={{ fontSize: 16 }} />}
-                                  endIcon={<ExpandMoreIcon sx={{ fontSize: 16 }} />}
-                                  sx={{
-                                    textTransform: "none",
-                                    color: "brand.main",
-                                    fontSize: "0.75rem",
-                                    minWidth: "auto",
-                                    p: 0.5,
-                                    "&:hover": { bgcolor: "brand.light", color: "white" }
-                                  }}
-                                >
-                                  Resources
-                                </Button>
-                              )}
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+                              <Box>
+                                {(item.videoDuration && item.contentType === 'video') && (
+                                  <Typography variant="caption" sx={{ color: "text.tertiary" }}>
+                                    {item.videoDuration}
+                                  </Typography>
+                                )}
+                              </Box>
+
+                              <Box>
+                                {item.resources && item.resources.length > 0 && (
+                                  <Button
+                                    size="small"
+                                    onClick={(e) => handleResourceClick(e, item.resources)}
+                                    startIcon={<FolderOpenOutlinedIcon sx={{ fontSize: 16 }} />}
+                                    endIcon={<ExpandMoreIcon sx={{ fontSize: 16 }} />}
+                                    sx={{
+                                      textTransform: "none",
+                                      color: "brand.main",
+                                      fontSize: "0.75rem",
+                                      minWidth: "auto",
+                                      p: 0.5,
+                                      "&:hover": { bgcolor: "brand.light", color: "white" }
+                                    }}
+                                  >
+                                    Resources
+                                  </Button>
+                                )}
+                              </Box>
                             </Box>
                           </Box>
                         </Box>
                       </Box>
-                    </Box>
-                  ))}
-                </Box>
-              </Collapse>
-            </Box>
-          );
-        })}
-      </Box>
+                    ))}
+                  </Box>
+                </Collapse>
+              </Box>
+            );
+          })}
+        </Box>
+      ) : (
+        <CourseAssistantTab
+          courseId={courseId}
+          contentId={contentId}
+          courseContents={courseContents}
+        />
+      )}
 
       <Menu
         anchorEl={resourceMenuAnchor}

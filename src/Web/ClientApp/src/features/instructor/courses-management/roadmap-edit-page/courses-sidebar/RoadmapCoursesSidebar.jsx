@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
     Box,
     Typography,
@@ -8,7 +8,8 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
-import useGetCoursesAuthor from "../../../../../hooks/course-hooks/useGetCoursesAuthor";
+import useGetPublicCoursesByUserId from "../../../../../hooks/course-hooks/useGetPublicCoursesByUserId";
+import useGetBasicUserInfo from "../../../../../hooks/auth-hooks/useGetBasicUserInfor";
 import LoadingSpinner from "../../../../../components/LoadingSpinner";
 import CustomPagination from "../../../../../components/pagination/CustomPagination";
 import SidebarCourseCard from "./SidebarCourseCard";
@@ -25,7 +26,31 @@ export default function RoadmapCoursesSidebar() {
     const [appliedSearch, setAppliedSearch] = useState("");
     const [pageNumber, setPageNumber] = useState(1);
 
-    const { data: coursesData, isLoading } = useGetCoursesAuthor(appliedSearch, 0, pageNumber, 8);
+    const { data: user, isLoading: isLoadingUser } = useGetBasicUserInfo();
+    const { data: coursesData, isLoading: isLoadingCourses } = useGetPublicCoursesByUserId(user?.userId, 1, 999);
+
+    const isLoading = isLoadingUser || isLoadingCourses;
+
+    // Client-side filtering by search query
+    const filteredCourses = useMemo(() => {
+        const items = coursesData?.items || [];
+        if (!appliedSearch) return items;
+        const search = appliedSearch.toLowerCase();
+        return items.filter((course) =>
+            course.title?.toLowerCase().includes(search) ||
+            course.subtitle?.toLowerCase().includes(search)
+        );
+    }, [coursesData?.items, appliedSearch]);
+
+    // Client-side pagination
+    const itemsPerPage = 8;
+    const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
+    const paginatedCourses = useMemo(() => {
+        return filteredCourses.slice(
+            (pageNumber - 1) * itemsPerPage,
+            pageNumber * itemsPerPage
+        );
+    }, [filteredCourses, pageNumber]);
 
     function handleSearch() {
         setAppliedSearch(searchText.trim());
@@ -129,7 +154,7 @@ export default function RoadmapCoursesSidebar() {
                     >
                         <LoadingSpinner size={40} />
                     </Box>
-                ) : coursesData?.items?.length > 0 ? (
+                ) : paginatedCourses.length > 0 ? (
                     <Box
                         sx={{
                             display: "grid",
@@ -137,7 +162,7 @@ export default function RoadmapCoursesSidebar() {
                             gap: 1.5,
                         }}
                     >
-                        {coursesData.items.map((course) => (
+                        {paginatedCourses.map((course) => (
                             <SidebarCourseCard
                                 key={course.id}
                                 course={course}
@@ -157,7 +182,7 @@ export default function RoadmapCoursesSidebar() {
             </Box>
 
             {/* Pagination */}
-            {coursesData && coursesData.totalPages > 1 && (
+            {totalPages > 1 && (
                 <Box
                     sx={{
                         borderTop: "1px solid",
@@ -171,7 +196,7 @@ export default function RoadmapCoursesSidebar() {
                     }}
                 >
                     <CustomPagination
-                        count={coursesData.totalPages}
+                        count={totalPages}
                         page={pageNumber}
                         onChange={handlePageChange}
                         siblingCount={1}

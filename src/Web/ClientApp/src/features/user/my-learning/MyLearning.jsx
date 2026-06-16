@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import { Box, Typography, Tabs, Tab } from '@mui/material'
 import { Container } from "reactstrap";
 import AllCourses from './Tabs/AllCourses';
-import MyLists from './Tabs/MyLists';
-import Wishlist from './Tabs/Wishlist';
+// import MyLists from './Tabs/MyLists';
+// import Wishlist from './Tabs/Wishlist';
 import Certifications from './Tabs/Certifications';
-import Archived from './Tabs/Archived';
-import LearningTools from './Tabs/LearningTools';
+// import Archived from './Tabs/Archived';
+// import LearningTools from './Tabs/LearningTools';
 import MyCareerPathsTab from './Tabs/MyCareerPathsTab';
 
 function MyLearning() {
@@ -55,23 +55,23 @@ function MyLearning() {
             }}
           >
             <Tab label="All courses" />
-            <Tab label="My Lists" />
-            <Tab label="Wishlist" />
+            {/* <Tab label="My Lists" /> */}
+            {/* <Tab label="Wishlist" /> */}
             <Tab label="Certifications" />
-            <Tab label="Archived" />
+            {/* <Tab label="Archived" /> */}
             <Tab label="Career Paths" />
-            <Tab label="Learning tools" />
+            {/* <Tab label="Learning tools" /> */}
           </Tabs>
         </Container>
       </Box>
       <Container className="my-4">
         {activeTab === 0 && <AllCourses />}
-        {activeTab === 1 && <MyLists />}
-        {activeTab === 2 && <Wishlist />}
-        {activeTab === 3 && <Certifications />}
-        {activeTab === 4 && <Archived />}
-        {activeTab === 5 && <MyCareerPathsTab />}
-        {activeTab === 6 && <LearningTools />}
+        {/* {activeTab === 1 && <MyLists />} */}
+        {/* {activeTab === 2 && <Wishlist />} */}
+        {activeTab === 1 && <Certifications />}
+        {/* {activeTab === 4 && <Archived />} */}
+        {activeTab === 2 && <MyCareerPathsTab />}
+        {/* {activeTab === 6 && <LearningTools />} */}
       </Container>
     </Box>
   )

@@ -55,39 +55,15 @@ const ACCOUNT_GLOSSARY = [
   },
   {
     code: "IRS_WITHHOLDING_LIABILITY",
-    label: "IRS Withholding Liability",
+    label: "Withholding Tax Liability",
     color: "error",
-    description: "US federal income tax withheld on behalf of US-based instructors. Recognized at payout approval time.",
-  },
-  {
-    code: "REFUND_HOLDBACK",
-    label: "Refund Holdback",
-    color: "default",
-    description: "Amount held in reserve to cover potential refunds during the refund window. Released once the window expires.",
+    description: "Income tax withheld on behalf of instructors based on their country's applicable withholding rate. Recognized at payout approval time.",
   },
   {
     code: "PAYOUT_PENDING",
     label: "Payout Pending",
     color: "default",
     description: "Funds awaiting transfer to the instructor. Credited when a withdrawal is initiated; debited when the payout is completed or cancelled.",
-  },
-  {
-    code: "PAYOUT_FEES",
-    label: "Payout Fees",
-    color: "default",
-    description: "Processing fees for instructor withdrawals (transfer fees, payment gateway charges).",
-  },
-  {
-    code: "INSTRUCTOR_FUNDED_DISCOUNT",
-    label: "Instructor Funded Discount",
-    color: "secondary",
-    description: "Discount funded by the instructor (instructor-issued coupon). Deducted directly from the instructor's earnings.",
-  },
-  {
-    code: "PLATFORM_FUNDED_DISCOUNT",
-    label: "Platform Funded Discount",
-    color: "secondary",
-    description: "Discount funded by the platform (site-wide promotions). Deducted from platform revenue.",
   },
 ];
 

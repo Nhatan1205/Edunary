@@ -12066,7 +12066,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/SubmitAnswerDto"
+              "$ref": "#/components/schemas/AssignmentSubmitAnswerDto"
             }
           },
           "action": {
@@ -12075,7 +12075,7 @@
           }
         }
       },
-      "SubmitAnswerDto": {
+      "AssignmentSubmitAnswerDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -19138,12 +19138,12 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/SubmitAnswerDto2"
+              "$ref": "#/components/schemas/SubmitAnswerDto"
             }
           }
         }
       },
-      "SubmitAnswerDto2": {
+      "SubmitAnswerDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

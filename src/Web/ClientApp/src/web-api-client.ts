@@ -13997,7 +13997,7 @@ export interface IDeleteAssignmentCommand {
 
 export class UpsertAssignmentSubmissionCommand implements IUpsertAssignmentSubmissionCommand {
     assignmentId?: number;
-    answers?: SubmitAnswerDto[] | undefined;
+    answers?: AssignmentSubmitAnswerDto[] | undefined;
     action?: string | undefined;
 
     constructor(data?: IUpsertAssignmentSubmissionCommand) {
@@ -14015,7 +14015,7 @@ export class UpsertAssignmentSubmissionCommand implements IUpsertAssignmentSubmi
             if (Array.isArray(_data["answers"])) {
                 this.answers = [] as any;
                 for (let item of _data["answers"])
-                    this.answers!.push(SubmitAnswerDto.fromJS(item));
+                    this.answers!.push(AssignmentSubmitAnswerDto.fromJS(item));
             }
             this.action = _data["action"];
         }
@@ -14043,15 +14043,15 @@ export class UpsertAssignmentSubmissionCommand implements IUpsertAssignmentSubmi
 
 export interface IUpsertAssignmentSubmissionCommand {
     assignmentId?: number;
-    answers?: SubmitAnswerDto[] | undefined;
+    answers?: AssignmentSubmitAnswerDto[] | undefined;
     action?: string | undefined;
 }
 
-export class SubmitAnswerDto implements ISubmitAnswerDto {
+export class AssignmentSubmitAnswerDto implements IAssignmentSubmitAnswerDto {
     questionId?: number;
     answerText?: string | undefined;
 
-    constructor(data?: ISubmitAnswerDto) {
+    constructor(data?: IAssignmentSubmitAnswerDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -14067,9 +14067,9 @@ export class SubmitAnswerDto implements ISubmitAnswerDto {
         }
     }
 
-    static fromJS(data: any): SubmitAnswerDto {
+    static fromJS(data: any): AssignmentSubmitAnswerDto {
         data = typeof data === 'object' ? data : {};
-        let result = new SubmitAnswerDto();
+        let result = new AssignmentSubmitAnswerDto();
         result.init(data);
         return result;
     }
@@ -14082,7 +14082,7 @@ export class SubmitAnswerDto implements ISubmitAnswerDto {
     }
 }
 
-export interface ISubmitAnswerDto {
+export interface IAssignmentSubmitAnswerDto {
     questionId?: number;
     answerText?: string | undefined;
 }
@@ -27542,7 +27542,7 @@ export interface ISubmitResultDto {
 
 export class SubmitQuizAttemptCommand implements ISubmitQuizAttemptCommand {
     attemptId?: number;
-    answers?: SubmitAnswerDto2[] | undefined;
+    answers?: SubmitAnswerDto[] | undefined;
 
     constructor(data?: ISubmitQuizAttemptCommand) {
         if (data) {
@@ -27559,7 +27559,7 @@ export class SubmitQuizAttemptCommand implements ISubmitQuizAttemptCommand {
             if (Array.isArray(_data["answers"])) {
                 this.answers = [] as any;
                 for (let item of _data["answers"])
-                    this.answers!.push(SubmitAnswerDto2.fromJS(item));
+                    this.answers!.push(SubmitAnswerDto.fromJS(item));
             }
         }
     }
@@ -27585,14 +27585,14 @@ export class SubmitQuizAttemptCommand implements ISubmitQuizAttemptCommand {
 
 export interface ISubmitQuizAttemptCommand {
     attemptId?: number;
-    answers?: SubmitAnswerDto2[] | undefined;
+    answers?: SubmitAnswerDto[] | undefined;
 }
 
-export class SubmitAnswerDto2 implements ISubmitAnswerDto2 {
+export class SubmitAnswerDto implements ISubmitAnswerDto {
     questionId?: number;
     selectedChoiceIds?: number[] | undefined;
 
-    constructor(data?: ISubmitAnswerDto2) {
+    constructor(data?: ISubmitAnswerDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -27612,9 +27612,9 @@ export class SubmitAnswerDto2 implements ISubmitAnswerDto2 {
         }
     }
 
-    static fromJS(data: any): SubmitAnswerDto2 {
+    static fromJS(data: any): SubmitAnswerDto {
         data = typeof data === 'object' ? data : {};
-        let result = new SubmitAnswerDto2();
+        let result = new SubmitAnswerDto();
         result.init(data);
         return result;
     }
@@ -27631,7 +27631,7 @@ export class SubmitAnswerDto2 implements ISubmitAnswerDto2 {
     }
 }
 
-export interface ISubmitAnswerDto2 {
+export interface ISubmitAnswerDto {
     questionId?: number;
     selectedChoiceIds?: number[] | undefined;
 }

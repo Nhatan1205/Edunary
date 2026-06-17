@@ -14,11 +14,11 @@ namespace Edunary.Application.AssignmentSubmissions.Commands.UpsertAssignmentSub
 public record UpsertAssignmentSubmissionCommand : IRequest<ReturnResult<int>>
 {
     public int AssignmentId { get; init; }
-    public List<SubmitAnswerDto> Answers { get; init; } = new();
+    public List<AssignmentSubmitAnswerDto> Answers { get; init; } = new();
     public string Action { get; init; } = "draft";
 }
 
-public class SubmitAnswerDto
+public class AssignmentSubmitAnswerDto
 {
     public int QuestionId { get; set; }
     public string AnswerText { get; set; } = string.Empty;

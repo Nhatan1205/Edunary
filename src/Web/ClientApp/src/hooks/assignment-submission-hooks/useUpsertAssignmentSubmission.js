@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import queryClient from "../../configs/reactQuery.js";
-import { AssignmentSubmissionsClient, UpsertAssignmentSubmissionCommand, SubmitAnswerDto } from "../../web-api-client.ts";
+import { AssignmentSubmissionsClient, UpsertAssignmentSubmissionCommand, AssignmentSubmitAnswerDto } from "../../web-api-client.ts";
 
 const useUpsertAssignmentSubmission = () => {
   return useMutation({
     mutationFn: async ({ assignmentId, answers, action }) => {
       const client = new AssignmentSubmissionsClient();
-      const answerDtos = answers.map(a => new SubmitAnswerDto({ questionId: a.questionId, answerText: a.answerText }));
+      const answerDtos = answers.map(a => new AssignmentSubmitAnswerDto({ questionId: a.questionId, answerText: a.answerText }));
       const command = new UpsertAssignmentSubmissionCommand({
         assignmentId,
         answers: answerDtos,
